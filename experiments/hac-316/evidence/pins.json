@@ -1,0 +1,34 @@
+{
+  "experiment": "HAC-316",
+  "purpose": "every external fact HAC-316 depends on, pinned by digest before any arm runs",
+  "greenMainSha": "efea48013de626d5714c8c2c146c0e1b683cc615",
+  "greenMainVerifiedAt": "2026-08-13T00:00:00Z",
+  "greenMainVerifiedBy": "head of the protected `main` branch in this checkout (git rev-parse main), merged there by PR #14; `main` is protected and its CI gates (provenance, test, coverage, S-1 concept gate, S2 enforcement gate) are the merge condition. Verified to be an ancestor of this branch by REQ-002.",
+  "namingDiscipline": "`evidence_file_sha256` is the sha256 of the evidence FILE on disk. `producer_artifact_sha256` is the value of the `artifact.sha256` field INSIDE the envelope. They are different numbers about different things and are never collapsed into a single phrase such as \"the artifact digest\"; SPEC Appendix B records that the audit conflated them once already.",
+  "artifacts": {
+    "experiments/hac-330/evidence/baseline.evidence.json": "f716297558dfa325e8eef222623af0a461d0879f739cd7d0f7853d7a1ebd6f22",
+    "experiments/hac-330/evidence/perturbed.evidence.json": "b6dca507294c46997828f5f36d1018cfb3a72c5dd65b7b6e217ba2aedb3cf02b",
+    "couplingArtifactSha256": "2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+    "couplingProducerSha": "defac1e5dce6fb692a48e775fb44854b371cbca4"
+  },
+  "evidenceArtifacts": {
+    "baseline": {
+      "path": "experiments/hac-330/evidence/baseline.evidence.json",
+      "evidence_file_sha256": "f716297558dfa325e8eef222623af0a461d0879f739cd7d0f7853d7a1ebd6f22",
+      "producer_artifact_sha256": "2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+      "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "producer": "@workspacejson/mining-core@0.0.0",
+      "producer_observed_sha": "defac1e5dce6fb692a48e775fb44854b371cbca4"
+    },
+    "perturbed": {
+      "path": "experiments/hac-330/evidence/perturbed.evidence.json",
+      "evidence_file_sha256": "b6dca507294c46997828f5f36d1018cfb3a72c5dd65b7b6e217ba2aedb3cf02b",
+      "producer_artifact_sha256": "ec9bd6736e951f1a03b89bd02da918f67c3fde6ff4f6dfca25b4dc48120d08d5",
+      "basisRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+      "producer": "@workspacejson/mining-core@0.0.0",
+      "producer_observed_sha": "defac1e5dce6fb692a48e775fb44854b371cbca4"
+    }
+  },
+  "auditSha": "f44a6b83580c92776231d3507942a7ef6b1b54f4",
+  "specFrozenAt": "c2a7c5dcad3eabeea7ad83307c83751ae49830ec"
+}
