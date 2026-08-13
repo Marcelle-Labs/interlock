@@ -105,6 +105,28 @@ synthetic and are labelled as such everywhere they appear; the **co-change
 evidence derived from them is not** — it is produced solely by the pinned upstream
 miner reading those commit graphs.
 
+## Submission-local machinery for the S2 enforcement gate (HAC-326)
+
+**`hac-326-fallback-enforcement`** — the bounded Interlock MCP/API proxy, the
+deterministic pending-intent arbitration, the Ed25519 authorization receipt, the
+protected target that validates that receipt independently, and the evaluation
+harness that attacks the target directly and chaos-tests every failure mode.
+Authored during the contest; it lives only in this repository.
+
+> **Not part of released WorkspaceJSON v0.4** (`@workspacejson/spec` 0.4.4). It
+> carries no specification authority and must not be described as a
+> WorkspaceJSON feature.
+
+It **consumes** the co-change evidence artifact produced during HAC-330 —
+verbatim, at the revision that artifact is pinned to. It contains no mining logic,
+re-derives no co-change, and writes no `workspace.json`. The authorization receipt
+is an S2 contract fixture, not a production schema; HAC-317 owns that.
+
+The recorded cloud arm ran on Cloud Run in a disposable Google Cloud project
+created for the experiment and deleted at teardown. **No key material is
+committed**: signing key pairs are minted per deployment into a gitignored working
+directory, and only environment variable *names* appear in source.
+
 ## The submission-local revision-anchor extension
 
 The `revision-anchor-extension` is authored during the contest and lives only in

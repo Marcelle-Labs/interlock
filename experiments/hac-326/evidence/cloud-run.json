@@ -1,0 +1,136 @@
+{
+  "note": "The deployed arm. Proves the same enforcement contract on a managed runtime with a platform-verified caller identity and a real network between proxy and target.",
+  "result": "PASS",
+  "topology": {
+    "region": "us-central1",
+    "proxyService": "interlock",
+    "authentication": "IAM required on both services (--no-allow-unauthenticated)",
+    "proxyServiceAccount": "46045882887-compute@developer.gserviceaccount.com",
+    "image": "<region>-docker.pkg.dev/interlock-s2-gate/interlock-s2/interlock-s2:latest",
+    "sourceRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "note": "Service URLs are omitted: the project is disposable and the URLs are not a contract."
+  },
+  "callerIdentityObserved": {
+    "distinctIdentitiesObserved": [
+      {
+        "identitySource": "oidc-id-token/platform-verified:email",
+        "identityShape": "<local-part>@marcellelabs.io"
+      }
+    ],
+    "sampleCount": 25
+  },
+  "rawLogSample": [
+    {
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-d5c81af469a3425c86f4a5d60e406e88",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-3a01b76273444d5da45a1727e525347b",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-8149940d03604424ac8a4047f256dc8d",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-638ba581a7fe42a093d6b050b8e4146e",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-59b9ce9632134de7ba6c30ed725b17eb",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    }
+  ],
+  "allowedRequest": {
+    "decision": "ALLOW",
+    "reasonCode": "NO_QUALIFYING_COUPLING"
+  },
+  "unauthenticatedRequestStatus": 403,
+  "directCallToTarget": {
+    "status": 403,
+    "reasonCode": "RECEIPT_ABSENT"
+  },
+  "unsafePair": {
+    "alpha": "ALLOW",
+    "beta": "DENY",
+    "finalTotal": 121
+  },
+  "latency": {
+    "note": "Measured from a developer workstation to Cloud Run in us-central1. Includes client-to-proxy internet latency, which dominates and is not attributable to Interlock. The proxy-to-target hop is intra-region.",
+    "authorizedPath": {
+      "count": 40,
+      "medianMs": 104.811,
+      "p95Ms": 191.747,
+      "p99Ms": 194.809,
+      "maxMs": 194.809,
+      "minMs": 92.744
+    },
+    "twoConcurrentRequests": {
+      "count": 20,
+      "medianMs": 119.11,
+      "p95Ms": 200.936,
+      "p99Ms": 230.75,
+      "maxMs": 230.75,
+      "minMs": 97.032
+    }
+  },
+  "checks": [
+    {
+      "id": "CR-AUTH",
+      "criterion": "the platform refuses an unauthenticated caller before the container is invoked",
+      "passed": true,
+      "detail": "HTTP 403"
+    },
+    {
+      "id": "CR-ALLOW",
+      "criterion": "an authorized intent executes on the deployed target",
+      "passed": true,
+      "detail": "decision ALLOW, alpha=50"
+    },
+    {
+      "id": "CR-MCP",
+      "criterion": "the MCP surface works over the managed runtime",
+      "passed": true,
+      "detail": "decision ALLOW"
+    },
+    {
+      "id": "CR-BYPASS",
+      "criterion": "the deployed target refuses an authenticated call that carries no receipt",
+      "passed": true,
+      "detail": "HTTP 403 RECEIPT_ABSENT; state unchanged true"
+    },
+    {
+      "id": "CR-UNSAFE",
+      "criterion": "the coupled pair is not composed on the deployed topology",
+      "passed": true,
+      "detail": "alpha ALLOW, beta DENY, total 121"
+    },
+    {
+      "id": "CR-LAT",
+      "criterion": "latency on the managed runtime is measured as a distribution",
+      "passed": true,
+      "detail": "n=40, median 104.811ms, p95 191.747ms"
+    },
+    {
+      "id": "CR-IDENTITY",
+      "criterion": "the proxy observed a platform-verified caller identity on the managed runtime",
+      "passed": true,
+      "detail": "{\"distinctIdentitiesObserved\":[{\"identitySource\":\"oidc-id-token/platform-verified:email\",\"identityShape\":\"<local-part>@marcellelabs.io\"}],\"sampleCount\":25}"
+    }
+  ]
+}

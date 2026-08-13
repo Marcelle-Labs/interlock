@@ -1,0 +1,440 @@
+{
+  "note": "Raw Cloud Run logs from the deployed arm. Email local-parts redacted; the identity SOURCE is the contract, the person is not. Service URLs and project ids appear only in the topology record.",
+  "capturedEntries": 120,
+  "entries": [
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-cce60c58a2584464b380068b64ea139a",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-d568574a8c994ed4bf69ca2ae2965243",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-323fbd9b016340ea8c2ecd16f5e243f9",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-30a3b25b374b407f92d2db7ce1f0676b",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-68914106f0cd438f917fe048a71f30e8",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-82b460e1e4dc473c9a7d59b51f50a3cc",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-0aa5959e83414d079da13b8c0f8ab4ea",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-58ea796181334910961cbb8a50a72b1f",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-453a5e96d50641acbcb057fd08ac8ff8",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-0e140ed056804da3a0dd80a0fec48ba3",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-3600ec1e14db4e408fc429b55c55605d",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-019fdc127ff546e7836fa560c6279b4f",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-e304adc0519548e19dbb19614cb46b9f",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "event": "proxy.request",
+      "transport": "http",
+      "correlationId": "ilk-7bdc08ccc738499291d2e679862aaee0",
+      "identitySource": "oidc-id-token/platform-verified:email",
+      "identity": "<local-part>@marcellelabs.io"
+    },
+    {
+      "service": "interlock-s2-proxy",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/intents"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "WARNING",
+      "httpStatus": 403,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "POST",
+      "requestPath": "/v1/mutate"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    },
+    {
+      "service": "interlock-s2-target",
+      "severity": "INFO",
+      "httpStatus": 200,
+      "requestMethod": "GET",
+      "requestPath": "/v1/state"
+    }
+  ]
+}

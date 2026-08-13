@@ -1,0 +1,77 @@
+{
+  "note": "Two individually valid intents submitted concurrently. Real commit history shows alpha and beta co-changing at support 8, so the composition is refused. Exactly one proceeds — serialization, not mutual refusal.",
+  "alpha": {
+    "decision": "DENY",
+    "reasonCode": "COUPLING_OBSERVED",
+    "correlationId": "ilk-b53c24f04dfe4f81ba2038dafc309729",
+    "message": "1 qualifying co-change coupling(s) between this intent and 1 intent(s) already in flight at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; this intent does not hold precedence, so the composition is withheld and it must be resubmitted once the leading intent settles",
+    "evidenceRefs": [
+      "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+    ],
+    "couplings": [
+      {
+        "correlationIds": [
+          "ilk-b53c24f04dfe4f81ba2038dafc309729",
+          "ilk-aa6a7d131b4447a6b0d60edb6fa7fc40"
+        ],
+        "files": [
+          "services/alpha/reservation.json",
+          "services/beta/reservation.json"
+        ],
+        "support": 8,
+        "occurrences": 10
+      }
+    ]
+  },
+  "beta": {
+    "decision": "ALLOW",
+    "reasonCode": "NO_QUALIFYING_COUPLING",
+    "correlationId": "ilk-aa6a7d131b4447a6b0d60edb6fa7fc40",
+    "message": "history at eb67a6f56b3bf7e71846e7324d21af44565c0b70 was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between this intent and the 0 intent(s) in flight at support >= 3",
+    "evidenceRefs": [
+      "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+    ],
+    "execution": {
+      "status": "EXECUTED",
+      "correlationId": "ilk-aa6a7d131b4447a6b0d60edb6fa7fc40",
+      "receiptId": "rcpt-d1426abc-d45c-413c-9e57-15e2243f039e",
+      "revisionBefore": "sha256:f92a00bf0fa8759754a3818789c45659e86af547d6a2ca69a12edf62548aafa3",
+      "revisionAfter": "sha256:c3cd0dfa3ab3fab86c5057cff00a7d93f176a2abdd61977484ff967dd237d3da",
+      "state": {
+        "totalReservable": 130,
+        "services": {
+          "alpha": 40,
+          "beta": 60,
+          "gamma": 20
+        }
+      },
+      "invariant": {
+        "holds": true,
+        "total": 120,
+        "totalReservable": 130,
+        "detail": "total 120 <= 130"
+      }
+    },
+    "receiptId": "rcpt-d1426abc-d45c-413c-9e57-15e2243f039e"
+  },
+  "finalState": {
+    "revision": "sha256:c3cd0dfa3ab3fab86c5057cff00a7d93f176a2abdd61977484ff967dd237d3da",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 40,
+        "beta": 60,
+        "gamma": 20
+      }
+    }
+  },
+  "counterfactual": {
+    "claim": "had both landed, the pool invariant would have been breached",
+    "totalIfBothApplied": 140,
+    "totalReservable": 130,
+    "wouldBreach": true,
+    "actualTotal": 120
+  }
+}

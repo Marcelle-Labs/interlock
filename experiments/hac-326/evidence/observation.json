@@ -1,0 +1,34 @@
+{
+  "note": "Four different claims, kept apart. A 200 establishes MUTATION_EXECUTED at most; only a re-read of the state produces OBSERVED, and no participant can assert it about itself.",
+  "acknowledgementTrace": [
+    {
+      "correlationId": "ilk-e831dbcef27f415a972a589145a08715",
+      "state": "RECEIPT_ISSUED",
+      "at": "2026-08-13T10:41:01.622Z",
+      "detail": "receipt rcpt-68198e0d-c4ab-44de-b3e6-9fa473ff8f21",
+      "recordedBy": "proxy"
+    },
+    {
+      "correlationId": "ilk-e831dbcef27f415a972a589145a08715",
+      "state": "MUTATION_EXECUTED",
+      "at": "2026-08-13T10:41:01.622Z",
+      "detail": "target reports it applied the change",
+      "recordedBy": "target"
+    },
+    {
+      "correlationId": "ilk-e831dbcef27f415a972a589145a08715",
+      "state": "CALLER_ACKNOWLEDGED",
+      "at": "2026-08-13T10:41:01.622Z",
+      "detail": "HTTP 200 reached the caller",
+      "recordedBy": "caller"
+    }
+  ],
+  "independentObservation": {
+    "correlationId": "ilk-e831dbcef27f415a972a589145a08715",
+    "state": "OBSERVED",
+    "at": "2026-08-13T10:41:01.623Z",
+    "recordedBy": "verifier",
+    "detail": "independent read matches the expected state (sha256:4601db7f17f0a2ea2125a61e7631a2d1458ca6bd7f5014fa399c52961fab5c5b)"
+  },
+  "selfAssertionOfObservedRefused": true
+}
