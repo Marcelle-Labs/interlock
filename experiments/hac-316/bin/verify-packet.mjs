@@ -51,12 +51,12 @@ import { Decision, Reason, arbitrate } from '../../../dist/broker/pairing/arbitr
 import { asCanonical, INITIAL_STATE } from '../../../dist/target/state.js';
 import { genesisRevision } from '../../../dist/broker/revision/revision.js';
 
+import { ATTEMPT_DETAIL_FIELDS, deploymentDigestOf, runComposition } from './run-arm.mjs';
 import { measureBuildProvenance, verifyDistProvenance } from '../src/dist-provenance.mjs';
 import { isDirectInvocation } from '../src/entrypoint.mjs';
 import { insideVitest, readEnumEnv } from '../src/env.mjs';
 import { formatVerdict } from '../src/global-verifier.mjs';
 import { regenerationChanges } from '../src/regeneration.mjs';
-import { runComposition } from './run-arm.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const experimentDir = join(here, '..');
@@ -210,6 +210,12 @@ function check(id, phase, body) {
 const must = (condition, message) => {
   if (!condition) throw new Error(message);
 };
+
+/** Which top-level keys two deployment descriptions disagree about. */
+const differingKeys = (left, right) =>
+  [...new Set([...Object.keys(left ?? {}), ...Object.keys(right ?? {})])].filter(
+    (key) => JSON.stringify(left?.[key]) !== JSON.stringify(right?.[key]),
+  );
 
 /** The spec's `test -z "$(grep ...)"` idiom, as a predicate. */
 const noMatch = (text, pattern, label) => {
@@ -951,7 +957,52 @@ function phase4() {
     const seen = new Set([observed.targetAlpha, observed.targetBeta, observed.baselineIssuer]);
     must(seen.size === 1, `divergent INTERLOCK_ENFORCE_CALLER_IDENTITY: ${JSON.stringify(observed)}`);
     must(typeof observed.targetAlpha === 'string', 'value not recorded as an observed string');
-    return `uniform=${observed.targetAlpha}`;
+
+    // The three fields above used to be `String(ENFORCE_CALLER_IDENTITY)`
+    // printed three times, so this comparison could not fail whatever the
+    // components did. They are probes now, and the packet has to say so: each
+    // component records how it was measured, and the one component that has no
+    // such setting says that rather than reporting a value it does not own.
+    const components = observed.components;
+    must(components !== undefined, 'no per-component record; the value cannot be attributed');
+    for (const name of ['targetAlpha', 'targetBeta', 'baselineIssuer']) {
+      must(components[name] !== undefined, `no record for ${name}`);
+      must(
+        typeof components[name].measuredBy === 'string' && components[name].measuredBy.length > 0,
+        `${name} does not say how it was measured`,
+      );
+      must(
+        components[name].observed === observed[name],
+        `${name}: reported ${observed[name]}, measured ${components[name].observed}`,
+      );
+    }
+    must(
+      components.targetAlpha.possessesSetting === true &&
+        components.targetBeta.possessesSetting === true,
+      'the targets are recorded as not possessing the setting they are configured with',
+    );
+    must(
+      components.baselineIssuer.possessesSetting === false,
+      'the baseline issuer is recorded as possessing an enforceCallerIdentity option it has not got',
+    );
+
+    // Independently produced per arm, not one value copied onto three arms.
+    const perArm = observed.perArm ?? {};
+    must(
+      Object.keys(perArm).length === 3,
+      `expected a measurement from each arm, got ${Object.keys(perArm).join(', ')}`,
+    );
+    for (const [armName, arm] of Object.entries(artifacts.results.arms)) {
+      must(
+        arm.callerIdentityBinding !== undefined,
+        `${armName} did not measure the binding on its own targets`,
+      );
+      must(
+        JSON.stringify(arm.callerIdentityBinding) === JSON.stringify(perArm[armName]),
+        `${armName}: the arm's own measurement is not the one reported`,
+      );
+    }
+    return `uniform=${observed.targetAlpha}, measured on 3 arms`;
   });
 }
 
@@ -1091,8 +1142,37 @@ function phase7() {
       must(attempt.retained === true, `attempt ${attempt.index} not retained`);
     });
     must(results.concurrency.discardedAttempts === 0, 'attempts were discarded');
-    if (!cloudRan) return notRun(`local run only; retained=${attempts.length}`);
-    return `retained=${attempts.length}`;
+
+    // "Retained" has to mean the attempt, not a line about it. Superseded
+    // attempts used to keep six summary fields and lose their decisions,
+    // executions, commits, overlap and verification — and on Agent Runtime the
+    // superseded attempts are exactly the ones a reader needs, because they are
+    // the ones where the collision did not happen. Every arm, not only the
+    // treatment: the budget is the treatment's, the retention discipline is
+    // everybody's.
+    const byArm = results.concurrency.attemptsByArm;
+    must(byArm !== undefined, 'attempts are only retained for one arm');
+    for (const armName of ['baseline', 'treatment', 'perturbation']) {
+      const armAttempts = byArm[armName] ?? [];
+      must(armAttempts.length > 0, `${armName}: no attempts retained`);
+      must(
+        JSON.stringify(armAttempts) === JSON.stringify(results.arms[armName].attempts),
+        `${armName}: the arm and the concurrency block disagree about what was retained`,
+      );
+      for (const attempt of armAttempts) {
+        must(attempt.retained === true, `${armName} attempt ${attempt.index} not retained`);
+        const missing = ATTEMPT_DETAIL_FIELDS.filter(
+          (field) => attempt.detail?.[field] === undefined,
+        );
+        must(
+          missing.length === 0,
+          `${armName} attempt ${attempt.index} kept only a summary; missing ${missing.join(', ')}`,
+        );
+      }
+    }
+    const retained = Object.values(byArm).reduce((sum, list) => sum + list.length, 0);
+    if (!cloudRan) return notRun(`local run only; retained=${retained} in full across 3 arms`);
+    return `retained=${retained} in full across 3 arms`;
   });
 
   check('REQ-051', 7, () => {
@@ -1173,13 +1253,63 @@ function phase7() {
   check('REQ-056', 7, () => {
     const perturbation = results.arms.perturbation;
     const treatment = results.arms.treatment;
+    const baseline = results.arms.baseline;
+
+    // Each arm's digest is recomputed from that arm's own recorded description
+    // before anything is compared. Without this the equality below is satisfied
+    // by two copies of one value — which is exactly what it was: one
+    // `deploymentDigest()` call, computed from `ARMS.treatment.*` whichever arm
+    // was being described, assigned to both arms, with `baseline` left
+    // undefined. A check that compares a value to itself cannot fail.
+    for (const [name, arm] of Object.entries(results.arms)) {
+      must(
+        arm.deploymentComponents !== undefined,
+        `${name}: no deployment description, so its digest cannot be recomputed`,
+      );
+      must(
+        typeof arm.implementationDigest === 'string',
+        `${name}: no implementation digest was measured`,
+      );
+      must(
+        arm.deploymentDigest === deploymentDigestOf(arm.deploymentComponents),
+        `${name}: the recorded deployment digest is not the digest of the recorded deployment`,
+      );
+    }
+
     must(
       perturbation.deploymentDigest === treatment.deploymentDigest,
-      'deployment differed between treatment and perturbation',
+      'deployment differed between treatment and perturbation: ' +
+        differingKeys(treatment.deploymentComponents, perturbation.deploymentComponents).join(', '),
     );
     must(
       perturbation.implementationDigest === treatment.implementationDigest,
       'implementation differed',
+    );
+
+    // Baseline↔treatment, the comparison that was missing entirely. The
+    // implementation must be the same code; the deployment must differ, and
+    // *only* in the topology the arms declare — a baseline that differed in its
+    // targets, fixture or caller-identity binding would not be a comparable
+    // control.
+    must(
+      baseline.implementationDigest === treatment.implementationDigest,
+      'the baseline ran a different implementation from the treatment',
+    );
+    must(
+      baseline.deploymentDigest !== treatment.deploymentDigest,
+      'the baseline deployment is identical to the treatment; the arm that is supposed to have ' +
+        'nothing in the path has the same topology as the one that does',
+    );
+    const expectedDifference = ['storeTopology', 'inPath', 'proxyCount', 'storeCount'];
+    const actualDifference = differingKeys(
+      baseline.deploymentComponents,
+      treatment.deploymentComponents,
+    );
+    must(
+      JSON.stringify(actualDifference.slice().sort()) ===
+        JSON.stringify(expectedDifference.slice().sort()),
+      `baseline and treatment differ in ${actualDifference.join(', ')}; only ` +
+        `${expectedDifference.join(', ')} may differ`,
     );
     for (const decision of perturbation.decisions) {
       must(
@@ -1427,11 +1557,42 @@ if (mode === '--rederive-only') {
 if (mode === '--counterfactual') {
   const results = artifacts.results;
   const problems = [];
-  const reasons = {
-    treatment: results.arms.treatment.decisions.find((d) => d.decision === 'WITHHOLD_SERIALIZE')
-      ?.reasonCode,
-    perturbation: results.arms.perturbation.decisions[0]?.reasonCode,
-  };
+
+  // Re-derived, not read back.
+  //
+  // This mode used to print `reason=` straight out of `results.json`, which
+  // made it a formatter for a file rather than a check of one: under
+  // HAC316_FAULT_INJECT=tamper-recorded-decision it printed the same five
+  // headline lines and exited 0, while `--rederive-only` on the same packet
+  // went red. The headline gate was the one that could not fail.
+  //
+  // It now goes through the same `rederiveArm` — the real `arbitrate`, over the
+  // inputs the proxies were handed, through the pinned build — and the reason
+  // column is the *re-derived* reason. A recorded decision that disagrees with
+  // what the function produces is a problem, not a line of output.
+  const reasons = {};
+  try {
+    const distDigest = assertDistProvenance();
+    for (const name of ['treatment', 'perturbation']) {
+      const compared = rederiveArm(name);
+      const mismatched = compared.filter((entry) => !entry.matches);
+      for (const entry of mismatched) {
+        problems.push(
+          `${name}: ${entry.correlationId} recorded ` +
+            `${entry.recorded.decision}/${entry.recorded.reasonCode}, re-derived ` +
+            `${entry.rederived.decision}/${entry.rederived.reasonCode}`,
+        );
+      }
+      const withheld = compared.find(
+        (entry) => entry.rederived.decision === Decision.WITHHOLD_SERIALIZE,
+      );
+      reasons[name] = (withheld ?? compared[0])?.rederived.reasonCode;
+    }
+    process.stdout.write(`re-derived through pinned dist ${distDigest.slice(0, 12)}…\n`);
+  } catch (error) {
+    problems.push(`re-derivation failed: ${error.message}`);
+  }
+
   for (const name of ['baseline', 'treatment', 'perturbation']) {
     const arm = results.arms[name];
     const verification = faultedVerification(arm.globalVerification);
@@ -1452,11 +1613,25 @@ if (mode === '--counterfactual') {
     );
     if (seen.size !== 1) problems.push(`normalized intent ${key} differs across arms`);
   }
+  // Recomputed from each arm's own recorded description before being compared,
+  // so the equality below is between two independent measurements rather than
+  // two copies of one value.
+  for (const name of armList) {
+    const arm = results.arms[name];
+    if (arm.deploymentComponents === undefined) {
+      problems.push(`${name}: no deployment description to recompute the digest from`);
+    } else if (arm.deploymentDigest !== deploymentDigestOf(arm.deploymentComponents)) {
+      problems.push(`${name}: recorded deployment digest is not the digest of what was recorded`);
+    }
+  }
   if (results.arms.treatment.deploymentDigest !== results.arms.perturbation.deploymentDigest) {
     problems.push('deployment digests differ between treatment and perturbation');
   }
-  if (results.arms.treatment.implementationDigest !== results.arms.perturbation.implementationDigest) {
-    problems.push('implementation digests differ between treatment and perturbation');
+  if (new Set(armList.map((name) => results.arms[name].implementationDigest)).size !== 1) {
+    problems.push('implementation digests differ across the arms');
+  }
+  if (results.arms.baseline.deploymentDigest === results.arms.treatment.deploymentDigest) {
+    problems.push('the baseline deployment is indistinguishable from the treatment deployment');
   }
   for (const name of armList) {
     for (const decision of results.arms[name].decisions ?? []) {

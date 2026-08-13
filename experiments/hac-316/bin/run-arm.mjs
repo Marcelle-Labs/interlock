@@ -48,18 +48,25 @@
  *
  * Requires `pnpm run build`. Creates no cloud resource of any kind.
  */
-import { createHash, generateKeyPairSync } from 'node:crypto';
+import { createHash, generateKeyPairSync, randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { intentDigest } from '../../../dist/authorization/intent.js';
+import {
+  RECEIPT_DECISION_ALLOW,
+  RECEIPT_VERSION,
+  ReceiptRejection,
+  signReceipt,
+  signingKeyFromPem,
+} from '../../../dist/authorization/receipt.js';
 import { Decision, Reason } from '../../../dist/broker/pairing/arbitrate.js';
-import { CORRELATION_HEADER, newCorrelationId } from '../../../dist/correlation.js';
+import { CORRELATION_HEADER, RECEIPT_HEADER, newCorrelationId } from '../../../dist/correlation.js';
 import { targetsForIntent } from '../../../dist/proxy/http.js';
 import { HttpTargetPort } from '../../../dist/proxy/target-port.js';
-import { createTargetServer } from '../../../dist/target/http.js';
+import { createTargetServer, encodeReceiptHeader } from '../../../dist/target/http.js';
 import { OPERATION_SET_RESERVATION } from '../../../dist/target/state.js';
 
 import { CompositionUnawareIssuer } from '../src/baseline-issuer.mjs';
@@ -208,6 +215,100 @@ function createIngress({ handle, observations }) {
   });
 }
 
+/**
+ * Two identities that are deliberately not each other.
+ *
+ * The caller-identity probe mints a receipt bound to the first and presents it
+ * under the second. A target that binds caller identity must refuse; one that
+ * does not will execute. Both are invalid domains so neither can be mistaken
+ * for a real principal if one ever reaches a log.
+ */
+const PROBE_ISSUED_TO = 'probe-issued-to@interlock.invalid';
+const PROBE_PRESENTED_BY = 'probe-presented-by@interlock.invalid';
+
+/**
+ * Ask a running target, over the wire, whether it binds the caller identity.
+ *
+ * ## Why this is a probe and not a field read
+ *
+ * `results.json` used to record `String(ENFORCE_CALLER_IDENTITY)` three times
+ * and describe it as "read back off each component as constructed". It was one
+ * constant printed three times. REQ-039 exists to catch the two targets and the
+ * baseline issuer diverging, and comparing a constant to itself cannot catch
+ * anything — the check was structurally incapable of failing.
+ *
+ * `createTargetServer` closes over its options and exposes no accessor, so there
+ * is no setting to read back. What *can* be measured is the behaviour the
+ * setting produces, and that is the thing REQ-039 actually cares about. So this
+ * mints a receipt that is valid in every respect except the caller it names, and
+ * presents it under a different transport identity. `verifyReceipt` checks the
+ * caller binding last, so every other reason for refusal is already excluded and
+ * the answer is unambiguous:
+ *
+ *   RECEIPT_WRONG_CALLER  the target bound the identity  -> true
+ *   EXECUTED              the target ignored it          -> false
+ *
+ * Anything else is neither, and is thrown rather than rounded to one of them: a
+ * probe that guessed would be manufacturing the measurement it was written to
+ * replace.
+ *
+ * The probe runs *after* the arm's own measurements are complete and its commits
+ * have been snapshotted, so it cannot disturb what the arm recorded, and it runs
+ * against the arm's own target rather than a fresh one built to look like it.
+ */
+async function probeCallerIdentityBinding({ url, service, targetId, signingKeyPem, keyId, evidence }) {
+  const stateResponse = await fetch(`${url}/v1/state`);
+  if (!stateResponse.ok) {
+    throw new Error(`caller-identity probe could not read ${service}: HTTP ${stateResponse.status}`);
+  }
+  const { revision } = await stateResponse.json();
+
+  const id = Object.keys(INTENTS).find(
+    (key) => INTENTS[key].intent.arguments.service === service,
+  );
+  const intent = INTENTS[id].intent;
+  const correlationId = newCorrelationId();
+  const issuedAt = new Date();
+  const receipt = signReceipt(
+    {
+      receiptVersion: RECEIPT_VERSION,
+      receiptId: `rcpt-${randomUUID()}`,
+      correlationId,
+      caller: { identity: PROBE_ISSUED_TO, identitySource: CALLER_IDENTITY_SOURCE },
+      operation: intent.operation,
+      intentDigest: intentDigest(intent),
+      target: { targetId, expectedRevision: revision },
+      ...evidence,
+      decision: RECEIPT_DECISION_ALLOW,
+      issuedAt: issuedAt.toISOString(),
+      expiresAt: new Date(issuedAt.getTime() + 30_000).toISOString(),
+      nonce: `nonce-${randomUUID()}`,
+    },
+    signingKeyFromPem(keyId, signingKeyPem),
+  );
+
+  const response = await fetch(`${url}/v1/mutate`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      [CORRELATION_HEADER]: correlationId,
+      [RECEIPT_HEADER]: encodeReceiptHeader(receipt),
+      // Observed by the target through `observeIdentity`, and different from
+      // the identity the receipt was issued to. This is the whole probe.
+      'x-goog-authenticated-user-email': PROBE_PRESENTED_BY,
+    },
+    body: JSON.stringify({ operation: intent.operation, arguments: intent.arguments }),
+  });
+  const body = await response.json();
+
+  if (body.reasonCode === ReceiptRejection.WRONG_CALLER) return true;
+  if (body.status === 'EXECUTED') return false;
+  throw new Error(
+    `caller-identity probe on ${service} was refused for an unrelated reason ` +
+      `(${body.reasonCode}: ${body.detail}); the binding was not measured`,
+  );
+}
+
 /** Build both partitioned targets and put each behind its own HTTP adapter. */
 async function startTargets() {
   const { privateKey, publicKey } = generateKeyPairSync('ed25519');
@@ -247,6 +348,29 @@ async function startTargets() {
     commits,
     urls,
     initialStateDigest,
+    /**
+     * The caller-identity binding each of *these* targets actually applies.
+     *
+     * Measured on the very servers this arm ran against, not on stand-ins built
+     * to resemble them, and not restated from the constant they were configured
+     * with.
+     */
+    async measureCallerIdentityBinding(evidence) {
+      const measured = {};
+      for (const service of PARTITIONED_SERVICES) {
+        measured[service] = String(
+          await probeCallerIdentityBinding({
+            url: urls[service],
+            service,
+            targetId: TARGET_IDS[service],
+            signingKeyPem: privateKey.export({ type: 'pkcs8', format: 'pem' }),
+            keyId,
+            evidence,
+          }),
+        );
+      }
+      return measured;
+    },
     async stop() {
       for (const server of Object.values(servers)) await close(server);
     },
@@ -368,6 +492,22 @@ async function attemptBaseline(timeline) {
       detail: globalVerification.detail,
     });
 
+    // Snapshotted before the probe below touches anything.
+    const commits = topology.commits.map(({ atMs, ...rest }) => rest);
+    const callerIdentityBinding = await topology.measureCallerIdentityBinding(
+      receiptProvenanceFrom(evidence, ARMS.treatment.sourceRevision),
+    );
+    const components = deploymentComponents({
+      declared,
+      initialStateDigest: topology.initialStateDigest,
+      callerIdentityBinding,
+      // The baseline arm has neither. Recording the zeroes rather than omitting
+      // the fields is what makes its deployment digest differ from the
+      // treatment's *for a stated reason* instead of by absence.
+      proxyCount: 0,
+      storeCount: 0,
+    });
+
     return {
       arm: 'baseline',
       storeTopology: declared.storeTopology,
@@ -380,9 +520,16 @@ async function attemptBaseline(timeline) {
       intents,
       decisions: [],
       executed,
-      commits: topology.commits.map(({ atMs, ...rest }) => rest),
+      commits,
       globalVerification,
       overlap: observations,
+      callerIdentityBinding,
+      callerIdentityBindingMeasuredBy:
+        'a valid receipt bound to one identity, presented to this arm\'s own targets under a ' +
+        'different transport identity, after the arm\'s measurements were complete',
+      deploymentComponents: components,
+      deploymentDigest: deploymentDigestOf(components),
+      implementationDigest: implementationDigest(),
       outcome: executed.length === 2 ? 'BOTH_EXECUTED' : 'INCOMPLETE',
     };
   } finally {
@@ -549,6 +696,22 @@ async function attemptInterlock(armName, timeline) {
       .slice()
       .sort((left, right) => left.atMs - right.atMs)[0];
 
+    // Snapshotted before the probe below touches anything.
+    const commits = topology.commits.map(({ atMs, ...rest }) => rest);
+    const callerIdentityBinding = await topology.measureCallerIdentityBinding(
+      receiptProvenanceFrom(evidence, sourceRevision),
+    );
+    const components = deploymentComponents({
+      declared,
+      initialStateDigest: topology.initialStateDigest,
+      callerIdentityBinding,
+      // Counted off the surface this arm built, not asserted: the treatment is
+      // exactly "two proxies, one store", and a deployment digest that took
+      // those numbers from a declaration could not notice if they were wrong.
+      proxyCount: Object.keys(surface.proxies).length,
+      storeCount: new Set([surface.store]).size,
+    });
+
     return {
       arm: armName,
       storeTopology: declared.storeTopology,
@@ -571,11 +734,18 @@ async function attemptInterlock(armName, timeline) {
       decisions,
       executed,
       withheldBeforeTargetMutation,
-      commits: topology.commits.map(({ atMs, ...rest }) => rest),
+      commits,
       firstProtectedCommitAt: firstCommit?.at ?? null,
       firstProtectedCommitAtMs: firstCommit?.atMs ?? null,
       globalVerification,
       overlap: observations,
+      callerIdentityBinding,
+      callerIdentityBindingMeasuredBy:
+        'a valid receipt bound to one identity, presented to this arm\'s own targets under a ' +
+        'different transport identity, after the arm\'s measurements were complete',
+      deploymentComponents: components,
+      deploymentDigest: deploymentDigestOf(components),
+      implementationDigest: implementationDigest(),
       outcome:
         armName === 'treatment'
           ? decisions.some((decision) => decision.decision === Decision.WITHHOLD_SERIALIZE)
@@ -591,11 +761,68 @@ async function attemptInterlock(armName, timeline) {
 }
 
 /**
+ * The per-attempt detail X-05 and REQ-050 are about.
+ *
+ * Named rather than left implicit so `retainAttempt` cannot quietly stop
+ * carrying one of them, and so `test/attempts.test.mjs` can assert the set.
+ */
+export const ATTEMPT_DETAIL_FIELDS = Object.freeze([
+  'intents',
+  'decisions',
+  'executed',
+  'commits',
+  'overlap',
+  'globalVerification',
+]);
+
+/**
+ * One attempt, retained whole.
+ *
+ * ## What was wrong
+ *
+ * Only the *final* attempt's decisions, executions, commits, overlap and
+ * verification survived: superseded attempts were reduced to a six-field
+ * summary. Locally that was invisible, because every arm succeeded on its first
+ * attempt and the final attempt was the only attempt. On Agent Runtime, where
+ * the collision is the thing that might take more than one try, the attempts
+ * that *did not* collide are precisely the ones a reader needs — and they would
+ * have been the ones flattened to a line saying `NO_OVERLAP_OBSERVED`.
+ *
+ * "Every attempt is retained and reported" (X-05) is not satisfied by retaining
+ * a count of them. So the whole attempt goes in, verbatim, for every arm.
+ *
+ * The summary fields stay alongside `detail` because REQ-049/REQ-050 read them
+ * and because a reader scanning the list wants the shape before the substance.
+ */
+export function retainAttempt(index, armName, result) {
+  const missing = ATTEMPT_DETAIL_FIELDS.filter((field) => result[field] === undefined);
+  if (missing.length > 0) {
+    throw new Error(
+      `attempt ${index} of ${armName} is missing ${missing.join(', ')}; a partially retained ` +
+        'attempt is an undisclosed filter on the sample',
+    );
+  }
+  return {
+    index,
+    arm: armName,
+    outcome: result.outcome,
+    retained: true,
+    executedCount: result.executed.length,
+    total: result.globalVerification.total,
+    overlapped: overlapOf(result.overlap).overlapped,
+    // Verbatim, superseded or not.
+    detail: result,
+  };
+}
+
+/**
  * Run one arm, retrying only while the concurrency window was missed.
  *
- * Every attempt is kept, including the ones that did not overlap. A run that
- * discarded its unsuccessful attempts would be reporting a filtered sample, and
- * the filter would be invisible.
+ * Every attempt is kept in full, including the ones that did not overlap. A run
+ * that discarded its unsuccessful attempts would be reporting a filtered
+ * sample, and the filter would be invisible; a run that kept only a summary of
+ * them would be reporting that the filter existed without saying what it
+ * removed.
  */
 async function runArm(armName, timeline) {
   const maxAttempts = PREFLIGHT_V1.predeclared.concurrencyAttempts.maximum;
@@ -606,15 +833,7 @@ async function runArm(armName, timeline) {
       armName === 'baseline'
         ? await attemptBaseline(timeline)
         : await attemptInterlock(armName, timeline);
-    attempts.push({
-      index,
-      arm: armName,
-      outcome: last.outcome,
-      retained: true,
-      executed: last.executed.length,
-      total: last.globalVerification.total,
-      overlapped: overlapOf(last.overlap).overlapped,
-    });
+    attempts.push(retainAttempt(index, armName, last));
     const satisfactory =
       armName === 'treatment'
         ? last.outcome === 'COMPOSITION_WITHHELD'
@@ -646,8 +865,16 @@ function overlapOf(observations) {
   };
 }
 
-/** Digest of the experiment's own implementation, for the attribution check. */
-function implementationDigest() {
+/**
+ * Digest of the experiment's own implementation, measured now.
+ *
+ * Called once **per arm, while that arm is running**, rather than once at the
+ * end and copied onto all of them. The old spelling computed one value and
+ * assigned it to both arms, so REQ-056's "implementation differed" check
+ * compared a value to itself: it could not fail, whatever happened. Taking the
+ * measurement inside each arm makes it a statement about what that arm ran.
+ */
+export function implementationDigest() {
   const files = [];
   for (const name of readdirSync(join(experimentDir, 'src')).sort()) {
     files.push(readFileSync(join(experimentDir, 'src', name)));
@@ -657,24 +884,46 @@ function implementationDigest() {
 }
 
 /**
- * Digest of the deployed topology, excluding the inputs an arm is allowed to
- * vary. Treatment and perturbation must land on the same value: if they do not,
- * a difference in outcome cannot be attributed to the artifact.
+ * What was deployed for one arm, in full, so a difference can be explained.
+ *
+ * Every field is taken from the topology that arm actually built — its own
+ * `initialStateDigest` measured by re-reading its own targets, its own declared
+ * store topology and path, the number of proxies and stores it really
+ * constructed, and the caller-identity binding probed on its own servers.
+ *
+ * The old `deploymentDigest()` read `ARMS.treatment.*` for *both* arms and was
+ * called once, so the treatment/perturbation comparison in REQ-056 was a value
+ * against itself, and `baseline.deploymentDigest` was never written at all.
+ *
+ * The evidence artifact and its `sourceRevision` are deliberately **not** here:
+ * they are the one thing an arm is allowed to vary, and folding them in would
+ * make every arm's deployment differ by construction.
  */
-function deploymentDigest() {
-  return sha256Hex(
-    JSON.stringify({
-      targetIds: TARGET_IDS,
-      partitions: Object.fromEntries(
-        PARTITIONED_SERVICES.map((service) => [service, partitionState(service)]),
-      ),
-      operation: OPERATION_SET_RESERVATION,
-      storeTopology: ARMS.treatment.storeTopology,
-      inPath: ARMS.treatment.inPath,
-      enforceCallerIdentity: ENFORCE_CALLER_IDENTITY,
-    }),
-  );
+export function deploymentComponents({
+  declared,
+  initialStateDigest,
+  callerIdentityBinding,
+  proxyCount,
+  storeCount,
+}) {
+  return {
+    targetIds: TARGET_IDS,
+    partitionedServices: [...PARTITIONED_SERVICES],
+    partitions: Object.fromEntries(
+      PARTITIONED_SERVICES.map((service) => [service, partitionState(service)]),
+    ),
+    operation: OPERATION_SET_RESERVATION,
+    initialStateDigest,
+    storeTopology: declared.storeTopology,
+    inPath: declared.inPath,
+    proxyCount,
+    storeCount,
+    callerIdentityBinding,
+  };
 }
+
+/** The digest of a deployment description. Recomputable from what is recorded. */
+export const deploymentDigestOf = (components) => sha256Hex(JSON.stringify(components));
 
 // ---------------------------------------------------------------------------
 // Compositions, for the verifier's self-check
@@ -726,6 +975,127 @@ export async function runComposition(services) {
 // Entry point
 // ---------------------------------------------------------------------------
 
+/**
+ * What the harm oracle observed, and what it did not.
+ *
+ * The verdict `140 > 130 BREACH` is not four measurements. Two of its terms are
+ * independently re-read from running targets after the arm has finished; the
+ * other two are inputs to the canonical fixture, and no part of this experiment
+ * ever observes them at runtime. Reporting all four in one sum without saying
+ * which is which invites a reader to believe the whole line was measured.
+ *
+ * The size of `gamma` matters more than it first appears: it is **20**, and the
+ * breach margin is **10** (140 against a cap of 130). The residual is therefore
+ * twice the margin — the entire hazard is a consequence of a number that is
+ * asserted by the fixture rather than read from anything. That is legitimate,
+ * because `gamma` is an immutable canonical-fixture input that no intent writes
+ * and no target holds (X-14), and because the fixture digest is pinned before
+ * any arm runs (REQ-010). It is not, however, an observation, and this block
+ * exists so nobody can read it as one.
+ */
+const OBSERVATION_SCOPE = Object.freeze({
+  independentlyReread: {
+    services: ['alpha', 'beta'],
+    how: 'GET /v1/state on each partition after the arm completed, by a component that did not write it',
+    note: 'These are the only runtime observations in the composed total.',
+  },
+  notObserved: {
+    gamma: {
+      value: 20,
+      why:
+        'gamma is a residual service: no intent writes it, it is never given a target of its own ' +
+        '(X-14), and the global verifier folds it back in from INITIAL_STATE. There is nothing ' +
+        'running that could be re-read.',
+      source: 'dist/target/state.js INITIAL_STATE.services.gamma, pinned by REQ-010',
+    },
+    cap: {
+      value: 130,
+      why: 'the pool size is a fixture input, read from INITIAL_STATE.totalReservable and never measured',
+      source: 'dist/target/state.js INITIAL_STATE.totalReservable, pinned by REQ-010',
+    },
+  },
+  breachMargin: {
+    composedTotalWhenBothExecute: 140,
+    cap: 130,
+    margin: 10,
+    gammaIsMultipleOfMargin: 2,
+    note:
+      'The asserted gamma (20) is twice the breach margin (10). The breach is therefore driven by ' +
+      'an asserted fixture input rather than by an observed quantity, which is exactly why the ' +
+      'fixture digest is declared and pinned before any arm runs rather than chosen afterwards.',
+  },
+});
+
+/**
+ * Fold the per-arm caller-identity measurements into REQ-039's shape.
+ *
+ * The three flat fields are what REQ-039 compares. Each is a **measurement**,
+ * not a restatement of the constant: `targetAlpha` and `targetBeta` are probed
+ * on the arms' own running targets, and `baselineIssuer` is the binding in force
+ * on the path that arm's issuer forwards into — because the issuer itself has no
+ * such setting to read. `components` says which is which, so the shape no longer
+ * implies the issuer possesses an option it does not have.
+ */
+export function callerIdentityAcrossArms(arms) {
+  const perArm = Object.fromEntries(
+    Object.entries(arms).map(([name, arm]) => [name, arm.callerIdentityBinding]),
+  );
+  const alpha = new Set(Object.values(perArm).map((binding) => binding.alpha));
+  const beta = new Set(Object.values(perArm).map((binding) => binding.beta));
+  if (alpha.size !== 1 || beta.size !== 1) {
+    throw new Error(
+      `the caller-identity binding differs between arms: ${JSON.stringify(perArm)}; the arms are ` +
+        'not comparable for a reason that has nothing to do with composition (REQ-039)',
+    );
+  }
+
+  const measuredBy =
+    'a receipt valid in every respect except the caller it names, presented under a different ' +
+    'transport identity; RECEIPT_WRONG_CALLER means the binding is enforced, EXECUTED means it ' +
+    'is not. verifyReceipt checks the caller last, so no other refusal can be mistaken for it.';
+
+  return {
+    variable: 'INTERLOCK_ENFORCE_CALLER_IDENTITY',
+    configured: String(ENFORCE_CALLER_IDENTITY),
+    targetAlpha: [...alpha][0],
+    targetBeta: [...beta][0],
+    baselineIssuer: perArm.baseline.alpha,
+    perArm,
+    components: {
+      targetAlpha: {
+        possessesSetting: true,
+        setting: 'createTargetServer({ enforceCallerIdentity })',
+        observed: [...alpha][0],
+        measuredBy,
+        measuredOn: "each arm's own alpha target",
+      },
+      targetBeta: {
+        possessesSetting: true,
+        setting: 'createTargetServer({ enforceCallerIdentity })',
+        observed: [...beta][0],
+        measuredBy,
+        measuredOn: "each arm's own beta target",
+      },
+      baselineIssuer: {
+        possessesSetting: false,
+        why:
+          'CompositionUnawareIssuer takes no enforceCallerIdentity option. It mints the caller ' +
+          'identity into the receipt and forwards through HttpTargetPort, which carries no ' +
+          'transport identity, so the binding that governs its path is the target\'s.',
+        observed: perArm.baseline.alpha,
+        measuredOn: "the baseline arm's own targets, which are what its issuer forwards into",
+        measuredBy,
+      },
+    },
+    note:
+      'One value is resolved once and handed to every component that has the setting, and the ' +
+      'effect is then measured on each running component rather than restated. The previous ' +
+      'shape printed String(ENFORCE_CALLER_IDENTITY) three times and described it as a read-back, ' +
+      'which made REQ-039 a comparison of a constant with itself. The arms are not comparable if ' +
+      'these diverge, and runAll refuses to write a packet in which they do.',
+  };
+}
+
 export async function runAll() {
   const timeline = new Timeline();
   const arms = {};
@@ -739,16 +1109,14 @@ export async function runAll() {
   // The bounded budget is on the *collision*: getting both intents into the
   // Interlock window at once. That is the treatment arm's attempts, and it is
   // the number Preflight V1 capped at three. Every other arm's attempts are
-  // retained on the arm itself; nothing is discarded anywhere (X-05).
+  // retained in full on the arm itself and under `attemptsByArm`; nothing is
+  // summarised away and nothing is discarded anywhere (X-05).
   const perArmAttempts = attemptsByArm.treatment;
 
-  const implementation = implementationDigest();
-  const deployment = deploymentDigest();
-  for (const armName of ['treatment', 'perturbation']) {
-    arms[armName].deploymentDigest = deployment;
-    arms[armName].implementationDigest = implementation;
-  }
-  arms.baseline.implementationDigest = implementation;
+  // Each arm measured its own; nothing is copied across arms here. If two arms
+  // disagree, that disagreement is the finding REQ-056 is looking for, and it
+  // now has two independently produced values to find it in.
+  const callerIdentity = callerIdentityAcrossArms(arms);
 
   const results = {
     experiment: 'HAC-316',
@@ -763,23 +1131,19 @@ export async function runAll() {
     cloudResourcesCreated: 0,
     producedAt: new Date().toISOString(),
     fixtureDigest: FIXTURE.canonicalFixtureDigest,
-    enforceCallerIdentity: {
-      targetAlpha: String(ENFORCE_CALLER_IDENTITY),
-      targetBeta: String(ENFORCE_CALLER_IDENTITY),
-      baselineIssuer: String(ENFORCE_CALLER_IDENTITY),
-      variable: 'INTERLOCK_ENFORCE_CALLER_IDENTITY',
-      note:
-        'One value resolved once and handed to every component, then read back off each ' +
-        'component as constructed. The arms are not comparable if these diverge.',
-    },
+    observationScope: OBSERVATION_SCOPE,
+    enforceCallerIdentity: callerIdentity,
     concurrency: {
       maxAttempts: PREFLIGHT_V1.predeclared.concurrencyAttempts.maximum,
       attempts: perArmAttempts,
+      attemptsByArm,
       discardedAttempts: 0,
       runtimeOverlap: overlapOf(arms.treatment.overlap),
       note:
         'Overlap is stamped by the neutral ingress on receipt and on response. The harness never ' +
-        'contributes a timestamp to this measurement.',
+        'contributes a timestamp to this measurement. Every attempt of every arm is retained in ' +
+        'full under attemptsByArm, including any that were superseded; `attempts` is the ' +
+        'treatment arm, which is where the bounded budget applies.',
     },
     forbiddenTechniques: {
       artificialDelay: false,

@@ -120,4 +120,19 @@ describe('a broken verifier cannot produce a green experiment', () => {
     expect(broken.status).not.toBe(0);
     expect(broken.stdout).toContain('attribution   FAILED');
   }, 60_000);
+
+  it('re-derives the counterfactual headline rather than printing it back', () => {
+    // The headline gate used to read `reason=` straight out of results.json, so
+    // it printed the same five lines and exited 0 under the tamper fault while
+    // `--rederive-only` on the same packet went red. The gate anybody actually
+    // reads was the one that could not fail.
+    const clean = run('--counterfactual');
+    expect(clean.stdout).toContain('re-derived through pinned dist');
+    expect(clean.stdout).toContain('reason=COUPLING_OBSERVED');
+
+    const tampered = run('--counterfactual', 'tamper-recorded-decision');
+    expect(tampered.status).not.toBe(0);
+    expect(tampered.stdout).toContain('attribution   FAILED');
+    expect(tampered.stderr).toMatch(/recorded ALLOW_PARALLEL.*re-derived WITHHOLD_SERIALIZE/s);
+  }, 60_000);
 });

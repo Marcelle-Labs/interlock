@@ -6,14 +6,81 @@
     "note": "This packet was produced by the local dry run (SPEC Phase 6). No Google Cloud project, Agent Runtime resource or other billable resource was created, and no Agent Runtime API was called. The Phase 7 arms are not represented here."
   },
   "cloudResourcesCreated": 0,
-  "producedAt": "2026-08-13T21:07:07.491Z",
+  "producedAt": "2026-08-13T22:39:32.960Z",
   "fixtureDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+  "observationScope": {
+    "independentlyReread": {
+      "services": [
+        "alpha",
+        "beta"
+      ],
+      "how": "GET /v1/state on each partition after the arm completed, by a component that did not write it",
+      "note": "These are the only runtime observations in the composed total."
+    },
+    "notObserved": {
+      "gamma": {
+        "value": 20,
+        "why": "gamma is a residual service: no intent writes it, it is never given a target of its own (X-14), and the global verifier folds it back in from INITIAL_STATE. There is nothing running that could be re-read.",
+        "source": "dist/target/state.js INITIAL_STATE.services.gamma, pinned by REQ-010"
+      },
+      "cap": {
+        "value": 130,
+        "why": "the pool size is a fixture input, read from INITIAL_STATE.totalReservable and never measured",
+        "source": "dist/target/state.js INITIAL_STATE.totalReservable, pinned by REQ-010"
+      }
+    },
+    "breachMargin": {
+      "composedTotalWhenBothExecute": 140,
+      "cap": 130,
+      "margin": 10,
+      "gammaIsMultipleOfMargin": 2,
+      "note": "The asserted gamma (20) is twice the breach margin (10). The breach is therefore driven by an asserted fixture input rather than by an observed quantity, which is exactly why the fixture digest is declared and pinned before any arm runs rather than chosen afterwards."
+    }
+  },
   "enforceCallerIdentity": {
+    "variable": "INTERLOCK_ENFORCE_CALLER_IDENTITY",
+    "configured": "false",
     "targetAlpha": "false",
     "targetBeta": "false",
     "baselineIssuer": "false",
-    "variable": "INTERLOCK_ENFORCE_CALLER_IDENTITY",
-    "note": "One value resolved once and handed to every component, then read back off each component as constructed. The arms are not comparable if these diverge."
+    "perArm": {
+      "baseline": {
+        "alpha": "false",
+        "beta": "false"
+      },
+      "treatment": {
+        "alpha": "false",
+        "beta": "false"
+      },
+      "perturbation": {
+        "alpha": "false",
+        "beta": "false"
+      }
+    },
+    "components": {
+      "targetAlpha": {
+        "possessesSetting": true,
+        "setting": "createTargetServer({ enforceCallerIdentity })",
+        "observed": "false",
+        "measuredBy": "a receipt valid in every respect except the caller it names, presented under a different transport identity; RECEIPT_WRONG_CALLER means the binding is enforced, EXECUTED means it is not. verifyReceipt checks the caller last, so no other refusal can be mistaken for it.",
+        "measuredOn": "each arm's own alpha target"
+      },
+      "targetBeta": {
+        "possessesSetting": true,
+        "setting": "createTargetServer({ enforceCallerIdentity })",
+        "observed": "false",
+        "measuredBy": "a receipt valid in every respect except the caller it names, presented under a different transport identity; RECEIPT_WRONG_CALLER means the binding is enforced, EXECUTED means it is not. verifyReceipt checks the caller last, so no other refusal can be mistaken for it.",
+        "measuredOn": "each arm's own beta target"
+      },
+      "baselineIssuer": {
+        "possessesSetting": false,
+        "why": "CompositionUnawareIssuer takes no enforceCallerIdentity option. It mints the caller identity into the receipt and forwards through HttpTargetPort, which carries no transport identity, so the binding that governs its path is the target's.",
+        "observed": "false",
+        "measuredOn": "the baseline arm's own targets, which are what its issuer forwards into",
+        "measuredBy": "a receipt valid in every respect except the caller it names, presented under a different transport identity; RECEIPT_WRONG_CALLER means the binding is enforced, EXECUTED means it is not. verifyReceipt checks the caller last, so no other refusal can be mistaken for it."
+      }
+    },
+    "note": "One value is resolved once and handed to every component that has the setting, and the effect is then measured on each running component rather than restated. The previous shape printed String(ENFORCE_CALLER_IDENTITY) three times and described it as a read-back, which made REQ-039 a comparison of a constant with itself. The arms are not comparable if these diverge, and runAll refuses to write a packet in which they do."
   },
   "concurrency": {
     "maxAttempts": 3,
@@ -23,23 +90,833 @@
         "arm": "treatment",
         "outcome": "COMPOSITION_WITHHELD",
         "retained": true,
-        "executed": 1,
+        "executedCount": 1,
         "total": 120,
-        "overlapped": true
+        "overlapped": true,
+        "detail": {
+          "arm": "treatment",
+          "storeTopology": "shared-object",
+          "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+          "evidencePath": "experiments/hac-330/evidence/baseline.evidence.json",
+          "sourceRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+          "targetsUnchanged": true,
+          "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+          "intents": {
+            "A": {
+              "digest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+              "service": "alpha"
+            },
+            "B": {
+              "digest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+              "service": "beta"
+            }
+          },
+          "arbitrationInputs": [
+            {
+              "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+              "candidate": {
+                "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "agent": "capacity-planner",
+                "operation": "set_reservation",
+                "targets": [
+                  "services/alpha/reservation.json"
+                ],
+                "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "recordedAt": "2026-08-13T22:39:32.942Z",
+                "expiresAt": "2026-08-13T22:40:32.942Z"
+              },
+              "storeAnswered": true,
+              "others": [
+                {
+                  "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                  "agent": "traffic-shaper",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/beta/reservation.json"
+                  ],
+                  "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                  "recordedAt": "2026-08-13T22:39:32.942Z",
+                  "expiresAt": "2026-08-13T22:40:32.942Z"
+                }
+              ]
+            },
+            {
+              "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+              "candidate": {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "agent": "traffic-shaper",
+                "operation": "set_reservation",
+                "targets": [
+                  "services/beta/reservation.json"
+                ],
+                "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "recordedAt": "2026-08-13T22:39:32.942Z",
+                "expiresAt": "2026-08-13T22:40:32.942Z"
+              },
+              "storeAnswered": true,
+              "others": []
+            }
+          ],
+          "decisions": [
+            {
+              "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+              "service": "alpha",
+              "decision": "WITHHOLD_SERIALIZE",
+              "reasonCode": "COUPLING_OBSERVED",
+              "decidedAt": "2026-08-13T22:39:32.943Z",
+              "decidedAtMs": 1786660772943.078,
+              "couplings": [
+                {
+                  "correlationIds": [
+                    "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                    "ilk-2774baed3fe24c5992db07c7d22c4dcd"
+                  ],
+                  "files": [
+                    "services/alpha/reservation.json",
+                    "services/beta/reservation.json"
+                  ],
+                  "support": 8,
+                  "occurrences": 10
+                }
+              ],
+              "callerDecision": "DENY"
+            },
+            {
+              "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+              "service": "beta",
+              "decision": "ALLOW_PARALLEL",
+              "reasonCode": "NO_QUALIFYING_COUPLING",
+              "decidedAt": "2026-08-13T22:39:32.943Z",
+              "decidedAtMs": 1786660772943.6387,
+              "couplings": [],
+              "callerDecision": "ALLOW"
+            }
+          ],
+          "executed": [
+            {
+              "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+              "service": "beta",
+              "status": "EXECUTED",
+              "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+              "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+            }
+          ],
+          "withheldBeforeTargetMutation": true,
+          "commits": [
+            {
+              "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+              "at": "2026-08-13T22:39:32.944Z",
+              "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+            }
+          ],
+          "firstProtectedCommitAt": "2026-08-13T22:39:32.944Z",
+          "firstProtectedCommitAtMs": 1786660772944.8904,
+          "globalVerification": {
+            "source": "independent-reread",
+            "total": 120,
+            "cap": 130,
+            "holds": true,
+            "residual": 20,
+            "composedState": {
+              "totalReservable": 130,
+              "services": {
+                "alpha": 40,
+                "beta": 60,
+                "gamma": 20
+              }
+            },
+            "reads": {
+              "alpha": {
+                "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+                "services": {
+                  "alpha": 40
+                }
+              },
+              "beta": {
+                "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
+                "services": {
+                  "beta": 60
+                }
+              }
+            },
+            "detail": "total 120 <= 130"
+          },
+          "overlap": [
+            {
+              "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+              "agent": "capacity-planner",
+              "service": "alpha",
+              "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+              "startMs": 1786660772942.152,
+              "endMs": 1786660772943.3672
+            },
+            {
+              "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+              "agent": "traffic-shaper",
+              "service": "beta",
+              "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+              "startMs": 1786660772942.602,
+              "endMs": 1786660772945.061
+            }
+          ],
+          "callerIdentityBinding": {
+            "alpha": "false",
+            "beta": "false"
+          },
+          "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+          "deploymentComponents": {
+            "targetIds": {
+              "alpha": "interlock-s1-target-alpha",
+              "beta": "interlock-s1-target-beta"
+            },
+            "partitionedServices": [
+              "alpha",
+              "beta"
+            ],
+            "partitions": {
+              "alpha": {
+                "totalReservable": 130,
+                "services": {
+                  "alpha": 40
+                }
+              },
+              "beta": {
+                "totalReservable": 130,
+                "services": {
+                  "beta": 40
+                }
+              }
+            },
+            "operation": "set_reservation",
+            "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+            "storeTopology": "shared-object",
+            "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+            "proxyCount": 2,
+            "storeCount": 1,
+            "callerIdentityBinding": {
+              "alpha": "false",
+              "beta": "false"
+            }
+          },
+          "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
+          "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
+          "outcome": "COMPOSITION_WITHHELD"
+        }
       }
     ],
+    "attemptsByArm": {
+      "baseline": [
+        {
+          "index": 1,
+          "arm": "baseline",
+          "outcome": "BOTH_EXECUTED",
+          "retained": true,
+          "executedCount": 2,
+          "total": 140,
+          "overlapped": true,
+          "detail": {
+            "arm": "baseline",
+            "storeTopology": "none",
+            "inPath": "composition-unaware issuer -> unchanged ProtectedTarget",
+            "targetsUnchanged": true,
+            "targetInstrumentation": "a timestamp-only delegate forwards every call to the unchanged ProtectedTarget; no rule is added and none is removed",
+            "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+            "intents": {
+              "A": {
+                "digest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "service": "alpha"
+              },
+              "B": {
+                "digest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "service": "beta"
+              }
+            },
+            "decisions": [],
+            "executed": [
+              {
+                "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
+                "service": "alpha",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
+                "service": "beta",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "commits": [
+              {
+                "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
+                "at": "2026-08-13T22:39:32.925Z",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
+                "at": "2026-08-13T22:39:32.927Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "globalVerification": {
+              "source": "independent-reread",
+              "total": 140,
+              "cap": 130,
+              "holds": false,
+              "residual": 20,
+              "composedState": {
+                "totalReservable": 130,
+                "services": {
+                  "alpha": 60,
+                  "beta": 60,
+                  "gamma": 20
+                }
+              },
+              "reads": {
+                "alpha": {
+                  "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+                  "services": {
+                    "alpha": 60
+                  }
+                },
+                "beta": {
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
+                  "services": {
+                    "beta": 60
+                  }
+                }
+              },
+              "detail": "total 140 exceeds the pool of 130"
+            },
+            "overlap": [
+              {
+                "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
+                "agent": "capacity-planner",
+                "service": "alpha",
+                "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "startMs": 1786660772920.683,
+                "endMs": 1786660772926.528
+              },
+              {
+                "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
+                "agent": "traffic-shaper",
+                "service": "beta",
+                "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "startMs": 1786660772921.6252,
+                "endMs": 1786660772927.8257
+              }
+            ],
+            "callerIdentityBinding": {
+              "alpha": "false",
+              "beta": "false"
+            },
+            "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+            "deploymentComponents": {
+              "targetIds": {
+                "alpha": "interlock-s1-target-alpha",
+                "beta": "interlock-s1-target-beta"
+              },
+              "partitionedServices": [
+                "alpha",
+                "beta"
+              ],
+              "partitions": {
+                "alpha": {
+                  "totalReservable": 130,
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "totalReservable": 130,
+                  "services": {
+                    "beta": 40
+                  }
+                }
+              },
+              "operation": "set_reservation",
+              "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+              "storeTopology": "none",
+              "inPath": "composition-unaware issuer -> unchanged ProtectedTarget",
+              "proxyCount": 0,
+              "storeCount": 0,
+              "callerIdentityBinding": {
+                "alpha": "false",
+                "beta": "false"
+              }
+            },
+            "deploymentDigest": "bde8044e7634c6c343d824d6669e46c7ba14af8e415c21002d989b3d0fa36c86",
+            "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
+            "outcome": "BOTH_EXECUTED"
+          }
+        }
+      ],
+      "treatment": [
+        {
+          "index": 1,
+          "arm": "treatment",
+          "outcome": "COMPOSITION_WITHHELD",
+          "retained": true,
+          "executedCount": 1,
+          "total": 120,
+          "overlapped": true,
+          "detail": {
+            "arm": "treatment",
+            "storeTopology": "shared-object",
+            "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+            "evidencePath": "experiments/hac-330/evidence/baseline.evidence.json",
+            "sourceRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+            "targetsUnchanged": true,
+            "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+            "intents": {
+              "A": {
+                "digest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "service": "alpha"
+              },
+              "B": {
+                "digest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "service": "beta"
+              }
+            },
+            "arbitrationInputs": [
+              {
+                "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "candidate": {
+                  "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                  "agent": "capacity-planner",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/alpha/reservation.json"
+                  ],
+                  "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                  "recordedAt": "2026-08-13T22:39:32.942Z",
+                  "expiresAt": "2026-08-13T22:40:32.942Z"
+                },
+                "storeAnswered": true,
+                "others": [
+                  {
+                    "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                    "agent": "traffic-shaper",
+                    "operation": "set_reservation",
+                    "targets": [
+                      "services/beta/reservation.json"
+                    ],
+                    "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                    "recordedAt": "2026-08-13T22:39:32.942Z",
+                    "expiresAt": "2026-08-13T22:40:32.942Z"
+                  }
+                ]
+              },
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "candidate": {
+                  "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                  "agent": "traffic-shaper",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/beta/reservation.json"
+                  ],
+                  "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                  "recordedAt": "2026-08-13T22:39:32.942Z",
+                  "expiresAt": "2026-08-13T22:40:32.942Z"
+                },
+                "storeAnswered": true,
+                "others": []
+              }
+            ],
+            "decisions": [
+              {
+                "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "service": "alpha",
+                "decision": "WITHHOLD_SERIALIZE",
+                "reasonCode": "COUPLING_OBSERVED",
+                "decidedAt": "2026-08-13T22:39:32.943Z",
+                "decidedAtMs": 1786660772943.078,
+                "couplings": [
+                  {
+                    "correlationIds": [
+                      "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                      "ilk-2774baed3fe24c5992db07c7d22c4dcd"
+                    ],
+                    "files": [
+                      "services/alpha/reservation.json",
+                      "services/beta/reservation.json"
+                    ],
+                    "support": 8,
+                    "occurrences": 10
+                  }
+                ],
+                "callerDecision": "DENY"
+              },
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "service": "beta",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-13T22:39:32.943Z",
+                "decidedAtMs": 1786660772943.6387,
+                "couplings": [],
+                "callerDecision": "ALLOW"
+              }
+            ],
+            "executed": [
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "service": "beta",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "withheldBeforeTargetMutation": true,
+            "commits": [
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "at": "2026-08-13T22:39:32.944Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "firstProtectedCommitAt": "2026-08-13T22:39:32.944Z",
+            "firstProtectedCommitAtMs": 1786660772944.8904,
+            "globalVerification": {
+              "source": "independent-reread",
+              "total": 120,
+              "cap": 130,
+              "holds": true,
+              "residual": 20,
+              "composedState": {
+                "totalReservable": 130,
+                "services": {
+                  "alpha": 40,
+                  "beta": 60,
+                  "gamma": 20
+                }
+              },
+              "reads": {
+                "alpha": {
+                  "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
+                  "services": {
+                    "beta": 60
+                  }
+                }
+              },
+              "detail": "total 120 <= 130"
+            },
+            "overlap": [
+              {
+                "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "agent": "capacity-planner",
+                "service": "alpha",
+                "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "startMs": 1786660772942.152,
+                "endMs": 1786660772943.3672
+              },
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "agent": "traffic-shaper",
+                "service": "beta",
+                "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "startMs": 1786660772942.602,
+                "endMs": 1786660772945.061
+              }
+            ],
+            "callerIdentityBinding": {
+              "alpha": "false",
+              "beta": "false"
+            },
+            "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+            "deploymentComponents": {
+              "targetIds": {
+                "alpha": "interlock-s1-target-alpha",
+                "beta": "interlock-s1-target-beta"
+              },
+              "partitionedServices": [
+                "alpha",
+                "beta"
+              ],
+              "partitions": {
+                "alpha": {
+                  "totalReservable": 130,
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "totalReservable": 130,
+                  "services": {
+                    "beta": 40
+                  }
+                }
+              },
+              "operation": "set_reservation",
+              "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+              "storeTopology": "shared-object",
+              "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+              "proxyCount": 2,
+              "storeCount": 1,
+              "callerIdentityBinding": {
+                "alpha": "false",
+                "beta": "false"
+              }
+            },
+            "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
+            "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
+            "outcome": "COMPOSITION_WITHHELD"
+          }
+        }
+      ],
+      "perturbation": [
+        {
+          "index": 1,
+          "arm": "perturbation",
+          "outcome": "BOTH_EXECUTED",
+          "retained": true,
+          "executedCount": 2,
+          "total": 140,
+          "overlapped": true,
+          "detail": {
+            "arm": "perturbation",
+            "storeTopology": "shared-object",
+            "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+            "evidencePath": "experiments/hac-330/evidence/perturbed.evidence.json",
+            "sourceRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+            "targetsUnchanged": true,
+            "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+            "intents": {
+              "A": {
+                "digest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "service": "alpha"
+              },
+              "B": {
+                "digest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "service": "beta"
+              }
+            },
+            "arbitrationInputs": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "candidate": {
+                  "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                  "agent": "capacity-planner",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/alpha/reservation.json"
+                  ],
+                  "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                  "recordedAt": "2026-08-13T22:39:32.953Z",
+                  "expiresAt": "2026-08-13T22:40:32.953Z"
+                },
+                "storeAnswered": true,
+                "others": [
+                  {
+                    "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                    "agent": "traffic-shaper",
+                    "operation": "set_reservation",
+                    "targets": [
+                      "services/beta/reservation.json"
+                    ],
+                    "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                    "recordedAt": "2026-08-13T22:39:32.953Z",
+                    "expiresAt": "2026-08-13T22:40:32.953Z"
+                  }
+                ]
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "candidate": {
+                  "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                  "agent": "traffic-shaper",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/beta/reservation.json"
+                  ],
+                  "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                  "recordedAt": "2026-08-13T22:39:32.953Z",
+                  "expiresAt": "2026-08-13T22:40:32.953Z"
+                },
+                "storeAnswered": true,
+                "others": [
+                  {
+                    "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                    "agent": "capacity-planner",
+                    "operation": "set_reservation",
+                    "targets": [
+                      "services/alpha/reservation.json"
+                    ],
+                    "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                    "recordedAt": "2026-08-13T22:39:32.953Z",
+                    "expiresAt": "2026-08-13T22:40:32.953Z"
+                  }
+                ]
+              }
+            ],
+            "decisions": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "service": "alpha",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-13T22:39:32.953Z",
+                "decidedAtMs": 1786660772953.6953,
+                "couplings": [],
+                "callerDecision": "ALLOW"
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "service": "beta",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-13T22:39:32.954Z",
+                "decidedAtMs": 1786660772954.1733,
+                "couplings": [],
+                "callerDecision": "ALLOW"
+              }
+            ],
+            "executed": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "service": "alpha",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "service": "beta",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "withheldBeforeTargetMutation": false,
+            "commits": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "at": "2026-08-13T22:39:32.954Z",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "at": "2026-08-13T22:39:32.955Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "firstProtectedCommitAt": "2026-08-13T22:39:32.954Z",
+            "firstProtectedCommitAtMs": 1786660772954.9436,
+            "globalVerification": {
+              "source": "independent-reread",
+              "total": 140,
+              "cap": 130,
+              "holds": false,
+              "residual": 20,
+              "composedState": {
+                "totalReservable": 130,
+                "services": {
+                  "alpha": 60,
+                  "beta": 60,
+                  "gamma": 20
+                }
+              },
+              "reads": {
+                "alpha": {
+                  "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+                  "services": {
+                    "alpha": 60
+                  }
+                },
+                "beta": {
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
+                  "services": {
+                    "beta": 60
+                  }
+                }
+              },
+              "detail": "total 140 exceeds the pool of 130"
+            },
+            "overlap": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "agent": "capacity-planner",
+                "service": "alpha",
+                "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "startMs": 1786660772953.1123,
+                "endMs": 1786660772955.1125
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "agent": "traffic-shaper",
+                "service": "beta",
+                "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "startMs": 1786660772953.2983,
+                "endMs": 1786660772955.9915
+              }
+            ],
+            "callerIdentityBinding": {
+              "alpha": "false",
+              "beta": "false"
+            },
+            "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+            "deploymentComponents": {
+              "targetIds": {
+                "alpha": "interlock-s1-target-alpha",
+                "beta": "interlock-s1-target-beta"
+              },
+              "partitionedServices": [
+                "alpha",
+                "beta"
+              ],
+              "partitions": {
+                "alpha": {
+                  "totalReservable": 130,
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "totalReservable": 130,
+                  "services": {
+                    "beta": 40
+                  }
+                }
+              },
+              "operation": "set_reservation",
+              "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+              "storeTopology": "shared-object",
+              "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+              "proxyCount": 2,
+              "storeCount": 1,
+              "callerIdentityBinding": {
+                "alpha": "false",
+                "beta": "false"
+              }
+            },
+            "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
+            "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
+            "outcome": "BOTH_EXECUTED"
+          }
+        }
+      ]
+    },
     "discardedAttempts": 0,
     "runtimeOverlap": {
       "measuredAt": "server",
       "usesClientLaunchTime": false,
       "formula": "max(tool_start_A, tool_start_B) < min(tool_end_A, tool_end_B)",
-      "startA": 1786655227476.8074,
-      "endA": 1786655227478.5117,
-      "startB": 1786655227476.1707,
-      "endB": 1786655227479.6494,
+      "startA": 1786660772942.152,
+      "endA": 1786660772943.3672,
+      "startB": 1786660772942.602,
+      "endB": 1786660772945.061,
       "overlapped": true
     },
-    "note": "Overlap is stamped by the neutral ingress on receipt and on response. The harness never contributes a timestamp to this measurement."
+    "note": "Overlap is stamped by the neutral ingress on receipt and on response. The harness never contributes a timestamp to this measurement. Every attempt of every arm is retained in full under attemptsByArm, including any that were superseded; `attempts` is the treatment arm, which is where the bounded budget applies."
   },
   "forbiddenTechniques": {
     "artificialDelay": false,
@@ -68,142 +945,142 @@
     },
     "events": [
       {
-        "correlationId": "ilk-a91600d09518436f907d7fde6dcb31b6",
+        "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:07:07.463Z",
+        "at": "2026-08-13T22:39:32.928Z",
         "producedBy": "ingress",
         "detail": "A arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-a91600d09518436f907d7fde6dcb31b6",
+        "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
         "state": "AUTHORIZED",
-        "at": "2026-08-13T21:07:07.463Z",
+        "at": "2026-08-13T22:39:32.928Z",
         "producedBy": "baseline-issuer",
-        "detail": "receipt rcpt-2a5457ee-aeea-4bb1-82bb-00d4ef9b79cc minted without consulting anything else in flight"
+        "detail": "receipt rcpt-60446986-8f62-4d36-9318-5f014e8669a5 minted without consulting anything else in flight"
       },
       {
-        "correlationId": "ilk-a91600d09518436f907d7fde6dcb31b6",
+        "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
         "state": "EXECUTED",
-        "at": "2026-08-13T21:07:07.463Z",
+        "at": "2026-08-13T22:39:32.928Z",
         "producedBy": "protected-target",
         "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
       },
       {
-        "correlationId": "ilk-593715d4264245d09412fe0e362b14ba",
+        "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:07:07.463Z",
+        "at": "2026-08-13T22:39:32.928Z",
         "producedBy": "ingress",
         "detail": "B arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-593715d4264245d09412fe0e362b14ba",
+        "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
         "state": "AUTHORIZED",
-        "at": "2026-08-13T21:07:07.463Z",
+        "at": "2026-08-13T22:39:32.928Z",
         "producedBy": "baseline-issuer",
-        "detail": "receipt rcpt-81cc7132-f12e-4705-a364-d54ca705062f minted without consulting anything else in flight"
+        "detail": "receipt rcpt-6958c0a9-0d1f-4d80-8efb-68fff2057696 minted without consulting anything else in flight"
       },
       {
-        "correlationId": "ilk-593715d4264245d09412fe0e362b14ba",
+        "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
         "state": "EXECUTED",
-        "at": "2026-08-13T21:07:07.463Z",
+        "at": "2026-08-13T22:39:32.928Z",
         "producedBy": "protected-target",
         "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
       },
       {
-        "correlationId": "ilk-a91600d09518436f907d7fde6dcb31b6",
+        "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
         "state": "OBSERVED",
-        "at": "2026-08-13T21:07:07.470Z",
+        "at": "2026-08-13T22:39:32.932Z",
         "producedBy": "independent-reread",
         "detail": "total 140 exceeds the pool of 130"
       },
       {
-        "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
+        "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:07:07.480Z",
+        "at": "2026-08-13T22:39:32.945Z",
         "producedBy": "ingress",
         "detail": "A arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
-        "state": "AUTHORIZED",
-        "at": "2026-08-13T21:07:07.480Z",
-        "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-1cf530f2-bd5e-4a8b-a771-4921e328953b issued after arbitration"
-      },
-      {
-        "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
-        "state": "EXECUTED",
-        "at": "2026-08-13T21:07:07.480Z",
-        "producedBy": "protected-target",
-        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
-      },
-      {
-        "correlationId": "ilk-885f5a21393f47b89a43dc103bfacd85",
-        "state": "REQUESTED",
-        "at": "2026-08-13T21:07:07.480Z",
-        "producedBy": "ingress",
-        "detail": "B arrived at the neutral ingress"
-      },
-      {
-        "correlationId": "ilk-885f5a21393f47b89a43dc103bfacd85",
+        "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
         "state": "WITHHELD",
-        "at": "2026-08-13T21:07:07.480Z",
+        "at": "2026-08-13T22:39:32.945Z",
         "producedBy": "interlock-proxy",
         "detail": "1 qualifying co-change coupling(s) between this intent and 1 intent(s) already in flight at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; this intent does not hold precedence, so the composition is withheld and it must be resubmitted once the leading intent settles"
       },
       {
-        "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
-        "state": "OBSERVED",
-        "at": "2026-08-13T21:07:07.482Z",
-        "producedBy": "independent-reread",
-        "detail": "total 120 <= 130"
-      },
-      {
-        "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+        "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:07:07.489Z",
-        "producedBy": "ingress",
-        "detail": "A arrived at the neutral ingress"
-      },
-      {
-        "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
-        "state": "AUTHORIZED",
-        "at": "2026-08-13T21:07:07.489Z",
-        "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-54179526-f3d3-4370-afac-a5d3d7d80466 issued after arbitration"
-      },
-      {
-        "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
-        "state": "EXECUTED",
-        "at": "2026-08-13T21:07:07.489Z",
-        "producedBy": "protected-target",
-        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
-      },
-      {
-        "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
-        "state": "REQUESTED",
-        "at": "2026-08-13T21:07:07.489Z",
+        "at": "2026-08-13T22:39:32.945Z",
         "producedBy": "ingress",
         "detail": "B arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+        "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
         "state": "AUTHORIZED",
-        "at": "2026-08-13T21:07:07.489Z",
+        "at": "2026-08-13T22:39:32.945Z",
         "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-976ef7e9-4163-49f7-b946-65070b077b0d issued after arbitration"
+        "detail": "receipt rcpt-61a8a83a-e53e-4b7c-8f80-08038f37f054 issued after arbitration"
       },
       {
-        "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+        "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
         "state": "EXECUTED",
-        "at": "2026-08-13T21:07:07.489Z",
+        "at": "2026-08-13T22:39:32.945Z",
         "producedBy": "protected-target",
         "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
       },
       {
-        "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+        "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
         "state": "OBSERVED",
-        "at": "2026-08-13T21:07:07.490Z",
+        "at": "2026-08-13T22:39:32.946Z",
+        "producedBy": "independent-reread",
+        "detail": "total 120 <= 130"
+      },
+      {
+        "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+        "state": "REQUESTED",
+        "at": "2026-08-13T22:39:32.956Z",
+        "producedBy": "ingress",
+        "detail": "A arrived at the neutral ingress"
+      },
+      {
+        "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+        "state": "AUTHORIZED",
+        "at": "2026-08-13T22:39:32.956Z",
+        "producedBy": "interlock-proxy",
+        "detail": "receipt rcpt-7724773a-195d-448f-91dc-cb8368108b36 issued after arbitration"
+      },
+      {
+        "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+        "state": "EXECUTED",
+        "at": "2026-08-13T22:39:32.956Z",
+        "producedBy": "protected-target",
+        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+      },
+      {
+        "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+        "state": "REQUESTED",
+        "at": "2026-08-13T22:39:32.956Z",
+        "producedBy": "ingress",
+        "detail": "B arrived at the neutral ingress"
+      },
+      {
+        "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+        "state": "AUTHORIZED",
+        "at": "2026-08-13T22:39:32.956Z",
+        "producedBy": "interlock-proxy",
+        "detail": "receipt rcpt-e3ef0ff1-4ea3-44c8-a9fe-726f61f17c38 issued after arbitration"
+      },
+      {
+        "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+        "state": "EXECUTED",
+        "at": "2026-08-13T22:39:32.956Z",
+        "producedBy": "protected-target",
+        "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+      },
+      {
+        "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+        "state": "OBSERVED",
+        "at": "2026-08-13T22:39:32.956Z",
         "producedBy": "independent-reread",
         "detail": "total 140 exceeds the pool of 130"
       }
@@ -230,14 +1107,14 @@
       "decisions": [],
       "executed": [
         {
-          "correlationId": "ilk-a91600d09518436f907d7fde6dcb31b6",
+          "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
           "service": "alpha",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-593715d4264245d09412fe0e362b14ba",
+          "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
           "service": "beta",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -246,13 +1123,13 @@
       ],
       "commits": [
         {
-          "correlationId": "ilk-a91600d09518436f907d7fde6dcb31b6",
-          "at": "2026-08-13T21:07:07.459Z",
+          "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
+          "at": "2026-08-13T22:39:32.925Z",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-593715d4264245d09412fe0e362b14ba",
-          "at": "2026-08-13T21:07:07.460Z",
+          "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
+          "at": "2026-08-13T22:39:32.927Z",
           "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
@@ -288,22 +1165,63 @@
       },
       "overlap": [
         {
-          "correlationId": "ilk-a91600d09518436f907d7fde6dcb31b6",
+          "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
           "agent": "capacity-planner",
           "service": "alpha",
           "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "startMs": 1786655227453.6897,
-          "endMs": 1786655227460.3389
+          "startMs": 1786660772920.683,
+          "endMs": 1786660772926.528
         },
         {
-          "correlationId": "ilk-593715d4264245d09412fe0e362b14ba",
+          "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
           "agent": "traffic-shaper",
           "service": "beta",
           "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "startMs": 1786655227454.6287,
-          "endMs": 1786655227461.7114
+          "startMs": 1786660772921.6252,
+          "endMs": 1786660772927.8257
         }
       ],
+      "callerIdentityBinding": {
+        "alpha": "false",
+        "beta": "false"
+      },
+      "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+      "deploymentComponents": {
+        "targetIds": {
+          "alpha": "interlock-s1-target-alpha",
+          "beta": "interlock-s1-target-beta"
+        },
+        "partitionedServices": [
+          "alpha",
+          "beta"
+        ],
+        "partitions": {
+          "alpha": {
+            "totalReservable": 130,
+            "services": {
+              "alpha": 40
+            }
+          },
+          "beta": {
+            "totalReservable": 130,
+            "services": {
+              "beta": 40
+            }
+          }
+        },
+        "operation": "set_reservation",
+        "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+        "storeTopology": "none",
+        "inPath": "composition-unaware issuer -> unchanged ProtectedTarget",
+        "proxyCount": 0,
+        "storeCount": 0,
+        "callerIdentityBinding": {
+          "alpha": "false",
+          "beta": "false"
+        }
+      },
+      "deploymentDigest": "bde8044e7634c6c343d824d6669e46c7ba14af8e415c21002d989b3d0fa36c86",
+      "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
       "outcome": "BOTH_EXECUTED",
       "attempts": [
         {
@@ -311,12 +1229,148 @@
           "arm": "baseline",
           "outcome": "BOTH_EXECUTED",
           "retained": true,
-          "executed": 2,
+          "executedCount": 2,
           "total": 140,
-          "overlapped": true
+          "overlapped": true,
+          "detail": {
+            "arm": "baseline",
+            "storeTopology": "none",
+            "inPath": "composition-unaware issuer -> unchanged ProtectedTarget",
+            "targetsUnchanged": true,
+            "targetInstrumentation": "a timestamp-only delegate forwards every call to the unchanged ProtectedTarget; no rule is added and none is removed",
+            "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+            "intents": {
+              "A": {
+                "digest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "service": "alpha"
+              },
+              "B": {
+                "digest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "service": "beta"
+              }
+            },
+            "decisions": [],
+            "executed": [
+              {
+                "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
+                "service": "alpha",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
+                "service": "beta",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "commits": [
+              {
+                "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
+                "at": "2026-08-13T22:39:32.925Z",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
+                "at": "2026-08-13T22:39:32.927Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "globalVerification": {
+              "source": "independent-reread",
+              "total": 140,
+              "cap": 130,
+              "holds": false,
+              "residual": 20,
+              "composedState": {
+                "totalReservable": 130,
+                "services": {
+                  "alpha": 60,
+                  "beta": 60,
+                  "gamma": 20
+                }
+              },
+              "reads": {
+                "alpha": {
+                  "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+                  "services": {
+                    "alpha": 60
+                  }
+                },
+                "beta": {
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
+                  "services": {
+                    "beta": 60
+                  }
+                }
+              },
+              "detail": "total 140 exceeds the pool of 130"
+            },
+            "overlap": [
+              {
+                "correlationId": "ilk-9c9c4efeba4d4ee2aabdcb766bde5b97",
+                "agent": "capacity-planner",
+                "service": "alpha",
+                "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "startMs": 1786660772920.683,
+                "endMs": 1786660772926.528
+              },
+              {
+                "correlationId": "ilk-899f19c3f5bd4998b8f3f04c4cba599d",
+                "agent": "traffic-shaper",
+                "service": "beta",
+                "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "startMs": 1786660772921.6252,
+                "endMs": 1786660772927.8257
+              }
+            ],
+            "callerIdentityBinding": {
+              "alpha": "false",
+              "beta": "false"
+            },
+            "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+            "deploymentComponents": {
+              "targetIds": {
+                "alpha": "interlock-s1-target-alpha",
+                "beta": "interlock-s1-target-beta"
+              },
+              "partitionedServices": [
+                "alpha",
+                "beta"
+              ],
+              "partitions": {
+                "alpha": {
+                  "totalReservable": 130,
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "totalReservable": 130,
+                  "services": {
+                    "beta": 40
+                  }
+                }
+              },
+              "operation": "set_reservation",
+              "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+              "storeTopology": "none",
+              "inPath": "composition-unaware issuer -> unchanged ProtectedTarget",
+              "proxyCount": 0,
+              "storeCount": 0,
+              "callerIdentityBinding": {
+                "alpha": "false",
+                "beta": "false"
+              }
+            },
+            "deploymentDigest": "bde8044e7634c6c343d824d6669e46c7ba14af8e415c21002d989b3d0fa36c86",
+            "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
+            "outcome": "BOTH_EXECUTED"
+          }
         }
-      ],
-      "implementationDigest": "cbf674a826a436ad2ddca68e3d04909ee38fa1284ea8c3f9aaa74585d668997d"
+      ]
     },
     "treatment": {
       "arm": "treatment",
@@ -338,98 +1392,63 @@
       },
       "arbitrationInputs": [
         {
-          "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
+          "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
           "candidate": {
-            "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
+            "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
             "agent": "capacity-planner",
             "operation": "set_reservation",
             "targets": [
               "services/alpha/reservation.json"
             ],
             "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-            "recordedAt": "2026-08-13T21:07:07.476Z",
-            "expiresAt": "2026-08-13T21:08:07.476Z"
+            "recordedAt": "2026-08-13T22:39:32.942Z",
+            "expiresAt": "2026-08-13T22:40:32.942Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-885f5a21393f47b89a43dc103bfacd85",
+              "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
               "agent": "traffic-shaper",
               "operation": "set_reservation",
               "targets": [
                 "services/beta/reservation.json"
               ],
               "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-              "recordedAt": "2026-08-13T21:07:07.476Z",
-              "expiresAt": "2026-08-13T21:08:07.476Z"
+              "recordedAt": "2026-08-13T22:39:32.942Z",
+              "expiresAt": "2026-08-13T22:40:32.942Z"
             }
           ]
         },
         {
-          "correlationId": "ilk-885f5a21393f47b89a43dc103bfacd85",
+          "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
           "candidate": {
-            "correlationId": "ilk-885f5a21393f47b89a43dc103bfacd85",
+            "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
             "agent": "traffic-shaper",
             "operation": "set_reservation",
             "targets": [
               "services/beta/reservation.json"
             ],
             "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-            "recordedAt": "2026-08-13T21:07:07.476Z",
-            "expiresAt": "2026-08-13T21:08:07.476Z"
+            "recordedAt": "2026-08-13T22:39:32.942Z",
+            "expiresAt": "2026-08-13T22:40:32.942Z"
           },
           "storeAnswered": true,
-          "others": [
-            {
-              "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
-              "agent": "capacity-planner",
-              "operation": "set_reservation",
-              "targets": [
-                "services/alpha/reservation.json"
-              ],
-              "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-              "recordedAt": "2026-08-13T21:07:07.476Z",
-              "expiresAt": "2026-08-13T21:08:07.476Z"
-            }
-          ]
+          "others": []
         }
       ],
       "decisions": [
         {
-          "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
+          "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
           "service": "alpha",
-          "decision": "ALLOW_SERIALIZED",
-          "reasonCode": "SERIALIZED_PRECEDENCE",
-          "decidedAt": "2026-08-13T21:07:07.477Z",
-          "decidedAtMs": 1786655227477.468,
-          "couplings": [
-            {
-              "correlationIds": [
-                "ilk-8712d94ac1b548b69ae4b936ca286f3e",
-                "ilk-885f5a21393f47b89a43dc103bfacd85"
-              ],
-              "files": [
-                "services/alpha/reservation.json",
-                "services/beta/reservation.json"
-              ],
-              "support": 8,
-              "occurrences": 10
-            }
-          ],
-          "callerDecision": "ALLOW"
-        },
-        {
-          "correlationId": "ilk-885f5a21393f47b89a43dc103bfacd85",
-          "service": "beta",
           "decision": "WITHHOLD_SERIALIZE",
           "reasonCode": "COUPLING_OBSERVED",
-          "decidedAt": "2026-08-13T21:07:07.478Z",
-          "decidedAtMs": 1786655227478.3945,
+          "decidedAt": "2026-08-13T22:39:32.943Z",
+          "decidedAtMs": 1786660772943.078,
           "couplings": [
             {
               "correlationIds": [
-                "ilk-885f5a21393f47b89a43dc103bfacd85",
-                "ilk-8712d94ac1b548b69ae4b936ca286f3e"
+                "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "ilk-2774baed3fe24c5992db07c7d22c4dcd"
               ],
               "files": [
                 "services/alpha/reservation.json",
@@ -440,27 +1459,37 @@
             }
           ],
           "callerDecision": "DENY"
+        },
+        {
+          "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+          "service": "beta",
+          "decision": "ALLOW_PARALLEL",
+          "reasonCode": "NO_QUALIFYING_COUPLING",
+          "decidedAt": "2026-08-13T22:39:32.943Z",
+          "decidedAtMs": 1786660772943.6387,
+          "couplings": [],
+          "callerDecision": "ALLOW"
         }
       ],
       "executed": [
         {
-          "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
-          "service": "alpha",
+          "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+          "service": "beta",
           "status": "EXECUTED",
-          "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
-          "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+          "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+          "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
       "withheldBeforeTargetMutation": true,
       "commits": [
         {
-          "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
-          "at": "2026-08-13T21:07:07.479Z",
-          "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+          "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+          "at": "2026-08-13T22:39:32.944Z",
+          "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
-      "firstProtectedCommitAt": "2026-08-13T21:07:07.479Z",
-      "firstProtectedCommitAtMs": 1786655227479.215,
+      "firstProtectedCommitAt": "2026-08-13T22:39:32.944Z",
+      "firstProtectedCommitAtMs": 1786660772944.8904,
       "globalVerification": {
         "source": "independent-reread",
         "total": 120,
@@ -470,22 +1499,22 @@
         "composedState": {
           "totalReservable": 130,
           "services": {
-            "alpha": 60,
-            "beta": 40,
+            "alpha": 40,
+            "beta": 60,
             "gamma": 20
           }
         },
         "reads": {
           "alpha": {
-            "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+            "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
             "services": {
-              "alpha": 60
+              "alpha": 40
             }
           },
           "beta": {
-            "revision": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+            "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
             "services": {
-              "beta": 40
+              "beta": 60
             }
           }
         },
@@ -493,22 +1522,63 @@
       },
       "overlap": [
         {
-          "correlationId": "ilk-885f5a21393f47b89a43dc103bfacd85",
-          "agent": "traffic-shaper",
-          "service": "beta",
-          "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "startMs": 1786655227476.8074,
-          "endMs": 1786655227478.5117
-        },
-        {
-          "correlationId": "ilk-8712d94ac1b548b69ae4b936ca286f3e",
+          "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
           "agent": "capacity-planner",
           "service": "alpha",
           "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "startMs": 1786655227476.1707,
-          "endMs": 1786655227479.6494
+          "startMs": 1786660772942.152,
+          "endMs": 1786660772943.3672
+        },
+        {
+          "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+          "agent": "traffic-shaper",
+          "service": "beta",
+          "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+          "startMs": 1786660772942.602,
+          "endMs": 1786660772945.061
         }
       ],
+      "callerIdentityBinding": {
+        "alpha": "false",
+        "beta": "false"
+      },
+      "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+      "deploymentComponents": {
+        "targetIds": {
+          "alpha": "interlock-s1-target-alpha",
+          "beta": "interlock-s1-target-beta"
+        },
+        "partitionedServices": [
+          "alpha",
+          "beta"
+        ],
+        "partitions": {
+          "alpha": {
+            "totalReservable": 130,
+            "services": {
+              "alpha": 40
+            }
+          },
+          "beta": {
+            "totalReservable": 130,
+            "services": {
+              "beta": 40
+            }
+          }
+        },
+        "operation": "set_reservation",
+        "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+        "storeTopology": "shared-object",
+        "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+        "proxyCount": 2,
+        "storeCount": 1,
+        "callerIdentityBinding": {
+          "alpha": "false",
+          "beta": "false"
+        }
+      },
+      "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
+      "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
       "outcome": "COMPOSITION_WITHHELD",
       "attempts": [
         {
@@ -516,13 +1586,220 @@
           "arm": "treatment",
           "outcome": "COMPOSITION_WITHHELD",
           "retained": true,
-          "executed": 1,
+          "executedCount": 1,
           "total": 120,
-          "overlapped": true
+          "overlapped": true,
+          "detail": {
+            "arm": "treatment",
+            "storeTopology": "shared-object",
+            "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+            "evidencePath": "experiments/hac-330/evidence/baseline.evidence.json",
+            "sourceRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+            "targetsUnchanged": true,
+            "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+            "intents": {
+              "A": {
+                "digest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "service": "alpha"
+              },
+              "B": {
+                "digest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "service": "beta"
+              }
+            },
+            "arbitrationInputs": [
+              {
+                "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "candidate": {
+                  "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                  "agent": "capacity-planner",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/alpha/reservation.json"
+                  ],
+                  "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                  "recordedAt": "2026-08-13T22:39:32.942Z",
+                  "expiresAt": "2026-08-13T22:40:32.942Z"
+                },
+                "storeAnswered": true,
+                "others": [
+                  {
+                    "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                    "agent": "traffic-shaper",
+                    "operation": "set_reservation",
+                    "targets": [
+                      "services/beta/reservation.json"
+                    ],
+                    "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                    "recordedAt": "2026-08-13T22:39:32.942Z",
+                    "expiresAt": "2026-08-13T22:40:32.942Z"
+                  }
+                ]
+              },
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "candidate": {
+                  "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                  "agent": "traffic-shaper",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/beta/reservation.json"
+                  ],
+                  "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                  "recordedAt": "2026-08-13T22:39:32.942Z",
+                  "expiresAt": "2026-08-13T22:40:32.942Z"
+                },
+                "storeAnswered": true,
+                "others": []
+              }
+            ],
+            "decisions": [
+              {
+                "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "service": "alpha",
+                "decision": "WITHHOLD_SERIALIZE",
+                "reasonCode": "COUPLING_OBSERVED",
+                "decidedAt": "2026-08-13T22:39:32.943Z",
+                "decidedAtMs": 1786660772943.078,
+                "couplings": [
+                  {
+                    "correlationIds": [
+                      "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                      "ilk-2774baed3fe24c5992db07c7d22c4dcd"
+                    ],
+                    "files": [
+                      "services/alpha/reservation.json",
+                      "services/beta/reservation.json"
+                    ],
+                    "support": 8,
+                    "occurrences": 10
+                  }
+                ],
+                "callerDecision": "DENY"
+              },
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "service": "beta",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-13T22:39:32.943Z",
+                "decidedAtMs": 1786660772943.6387,
+                "couplings": [],
+                "callerDecision": "ALLOW"
+              }
+            ],
+            "executed": [
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "service": "beta",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "withheldBeforeTargetMutation": true,
+            "commits": [
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "at": "2026-08-13T22:39:32.944Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "firstProtectedCommitAt": "2026-08-13T22:39:32.944Z",
+            "firstProtectedCommitAtMs": 1786660772944.8904,
+            "globalVerification": {
+              "source": "independent-reread",
+              "total": 120,
+              "cap": 130,
+              "holds": true,
+              "residual": 20,
+              "composedState": {
+                "totalReservable": 130,
+                "services": {
+                  "alpha": 40,
+                  "beta": 60,
+                  "gamma": 20
+                }
+              },
+              "reads": {
+                "alpha": {
+                  "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
+                  "services": {
+                    "beta": 60
+                  }
+                }
+              },
+              "detail": "total 120 <= 130"
+            },
+            "overlap": [
+              {
+                "correlationId": "ilk-2b8677e535fb49fe8ce87d9fe035c1cd",
+                "agent": "capacity-planner",
+                "service": "alpha",
+                "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "startMs": 1786660772942.152,
+                "endMs": 1786660772943.3672
+              },
+              {
+                "correlationId": "ilk-2774baed3fe24c5992db07c7d22c4dcd",
+                "agent": "traffic-shaper",
+                "service": "beta",
+                "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "startMs": 1786660772942.602,
+                "endMs": 1786660772945.061
+              }
+            ],
+            "callerIdentityBinding": {
+              "alpha": "false",
+              "beta": "false"
+            },
+            "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+            "deploymentComponents": {
+              "targetIds": {
+                "alpha": "interlock-s1-target-alpha",
+                "beta": "interlock-s1-target-beta"
+              },
+              "partitionedServices": [
+                "alpha",
+                "beta"
+              ],
+              "partitions": {
+                "alpha": {
+                  "totalReservable": 130,
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "totalReservable": 130,
+                  "services": {
+                    "beta": 40
+                  }
+                }
+              },
+              "operation": "set_reservation",
+              "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+              "storeTopology": "shared-object",
+              "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+              "proxyCount": 2,
+              "storeCount": 1,
+              "callerIdentityBinding": {
+                "alpha": "false",
+                "beta": "false"
+              }
+            },
+            "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
+            "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
+            "outcome": "COMPOSITION_WITHHELD"
+          }
         }
-      ],
-      "deploymentDigest": "12ddef64599eaf835a36878116691973f6ff47b321a0ce60f170c609f69a1875",
-      "implementationDigest": "cbf674a826a436ad2ddca68e3d04909ee38fa1284ea8c3f9aaa74585d668997d"
+      ]
     },
     "perturbation": {
       "arm": "perturbation",
@@ -544,94 +1821,94 @@
       },
       "arbitrationInputs": [
         {
-          "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+          "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
           "candidate": {
-            "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+            "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
             "agent": "capacity-planner",
             "operation": "set_reservation",
             "targets": [
               "services/alpha/reservation.json"
             ],
             "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-            "recordedAt": "2026-08-13T21:07:07.486Z",
-            "expiresAt": "2026-08-13T21:08:07.486Z"
+            "recordedAt": "2026-08-13T22:39:32.953Z",
+            "expiresAt": "2026-08-13T22:40:32.953Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+              "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
               "agent": "traffic-shaper",
               "operation": "set_reservation",
               "targets": [
                 "services/beta/reservation.json"
               ],
               "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-              "recordedAt": "2026-08-13T21:07:07.486Z",
-              "expiresAt": "2026-08-13T21:08:07.486Z"
+              "recordedAt": "2026-08-13T22:39:32.953Z",
+              "expiresAt": "2026-08-13T22:40:32.953Z"
             }
           ]
         },
         {
-          "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+          "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
           "candidate": {
-            "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+            "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
             "agent": "traffic-shaper",
             "operation": "set_reservation",
             "targets": [
               "services/beta/reservation.json"
             ],
             "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-            "recordedAt": "2026-08-13T21:07:07.486Z",
-            "expiresAt": "2026-08-13T21:08:07.486Z"
+            "recordedAt": "2026-08-13T22:39:32.953Z",
+            "expiresAt": "2026-08-13T22:40:32.953Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+              "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
               "agent": "capacity-planner",
               "operation": "set_reservation",
               "targets": [
                 "services/alpha/reservation.json"
               ],
               "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-              "recordedAt": "2026-08-13T21:07:07.486Z",
-              "expiresAt": "2026-08-13T21:08:07.486Z"
+              "recordedAt": "2026-08-13T22:39:32.953Z",
+              "expiresAt": "2026-08-13T22:40:32.953Z"
             }
           ]
         }
       ],
       "decisions": [
         {
-          "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+          "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
           "service": "alpha",
           "decision": "ALLOW_PARALLEL",
           "reasonCode": "NO_QUALIFYING_COUPLING",
-          "decidedAt": "2026-08-13T21:07:07.487Z",
-          "decidedAtMs": 1786655227487.0269,
+          "decidedAt": "2026-08-13T22:39:32.953Z",
+          "decidedAtMs": 1786660772953.6953,
           "couplings": [],
           "callerDecision": "ALLOW"
         },
         {
-          "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+          "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
           "service": "beta",
           "decision": "ALLOW_PARALLEL",
           "reasonCode": "NO_QUALIFYING_COUPLING",
-          "decidedAt": "2026-08-13T21:07:07.487Z",
-          "decidedAtMs": 1786655227487.902,
+          "decidedAt": "2026-08-13T22:39:32.954Z",
+          "decidedAtMs": 1786660772954.1733,
           "couplings": [],
           "callerDecision": "ALLOW"
         }
       ],
       "executed": [
         {
-          "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+          "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
           "service": "alpha",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+          "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
           "service": "beta",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -641,18 +1918,18 @@
       "withheldBeforeTargetMutation": false,
       "commits": [
         {
-          "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
-          "at": "2026-08-13T21:07:07.488Z",
+          "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+          "at": "2026-08-13T22:39:32.954Z",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
-          "at": "2026-08-13T21:07:07.489Z",
+          "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+          "at": "2026-08-13T22:39:32.955Z",
           "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
-      "firstProtectedCommitAt": "2026-08-13T21:07:07.488Z",
-      "firstProtectedCommitAtMs": 1786655227488.4841,
+      "firstProtectedCommitAt": "2026-08-13T22:39:32.954Z",
+      "firstProtectedCommitAtMs": 1786660772954.9436,
       "globalVerification": {
         "source": "independent-reread",
         "total": 140,
@@ -685,22 +1962,63 @@
       },
       "overlap": [
         {
-          "correlationId": "ilk-6b327b1feee04618a98ec064a5a7d4e6",
+          "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
           "agent": "capacity-planner",
           "service": "alpha",
           "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "startMs": 1786655227486.3394,
-          "endMs": 1786655227488.783
+          "startMs": 1786660772953.1123,
+          "endMs": 1786660772955.1125
         },
         {
-          "correlationId": "ilk-a1029320c8864f6b8c2c85334a7321a0",
+          "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
           "agent": "traffic-shaper",
           "service": "beta",
           "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "startMs": 1786655227486.662,
-          "endMs": 1786655227489.3752
+          "startMs": 1786660772953.2983,
+          "endMs": 1786660772955.9915
         }
       ],
+      "callerIdentityBinding": {
+        "alpha": "false",
+        "beta": "false"
+      },
+      "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+      "deploymentComponents": {
+        "targetIds": {
+          "alpha": "interlock-s1-target-alpha",
+          "beta": "interlock-s1-target-beta"
+        },
+        "partitionedServices": [
+          "alpha",
+          "beta"
+        ],
+        "partitions": {
+          "alpha": {
+            "totalReservable": 130,
+            "services": {
+              "alpha": 40
+            }
+          },
+          "beta": {
+            "totalReservable": 130,
+            "services": {
+              "beta": 40
+            }
+          }
+        },
+        "operation": "set_reservation",
+        "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+        "storeTopology": "shared-object",
+        "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+        "proxyCount": 2,
+        "storeCount": 1,
+        "callerIdentityBinding": {
+          "alpha": "false",
+          "beta": "false"
+        }
+      },
+      "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
+      "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
       "outcome": "BOTH_EXECUTED",
       "attempts": [
         {
@@ -708,13 +2026,231 @@
           "arm": "perturbation",
           "outcome": "BOTH_EXECUTED",
           "retained": true,
-          "executed": 2,
+          "executedCount": 2,
           "total": 140,
-          "overlapped": true
+          "overlapped": true,
+          "detail": {
+            "arm": "perturbation",
+            "storeTopology": "shared-object",
+            "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+            "evidencePath": "experiments/hac-330/evidence/perturbed.evidence.json",
+            "sourceRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+            "targetsUnchanged": true,
+            "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+            "intents": {
+              "A": {
+                "digest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "service": "alpha"
+              },
+              "B": {
+                "digest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "service": "beta"
+              }
+            },
+            "arbitrationInputs": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "candidate": {
+                  "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                  "agent": "capacity-planner",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/alpha/reservation.json"
+                  ],
+                  "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                  "recordedAt": "2026-08-13T22:39:32.953Z",
+                  "expiresAt": "2026-08-13T22:40:32.953Z"
+                },
+                "storeAnswered": true,
+                "others": [
+                  {
+                    "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                    "agent": "traffic-shaper",
+                    "operation": "set_reservation",
+                    "targets": [
+                      "services/beta/reservation.json"
+                    ],
+                    "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                    "recordedAt": "2026-08-13T22:39:32.953Z",
+                    "expiresAt": "2026-08-13T22:40:32.953Z"
+                  }
+                ]
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "candidate": {
+                  "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                  "agent": "traffic-shaper",
+                  "operation": "set_reservation",
+                  "targets": [
+                    "services/beta/reservation.json"
+                  ],
+                  "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                  "recordedAt": "2026-08-13T22:39:32.953Z",
+                  "expiresAt": "2026-08-13T22:40:32.953Z"
+                },
+                "storeAnswered": true,
+                "others": [
+                  {
+                    "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                    "agent": "capacity-planner",
+                    "operation": "set_reservation",
+                    "targets": [
+                      "services/alpha/reservation.json"
+                    ],
+                    "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                    "recordedAt": "2026-08-13T22:39:32.953Z",
+                    "expiresAt": "2026-08-13T22:40:32.953Z"
+                  }
+                ]
+              }
+            ],
+            "decisions": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "service": "alpha",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-13T22:39:32.953Z",
+                "decidedAtMs": 1786660772953.6953,
+                "couplings": [],
+                "callerDecision": "ALLOW"
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "service": "beta",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-13T22:39:32.954Z",
+                "decidedAtMs": 1786660772954.1733,
+                "couplings": [],
+                "callerDecision": "ALLOW"
+              }
+            ],
+            "executed": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "service": "alpha",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "service": "beta",
+                "status": "EXECUTED",
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "withheldBeforeTargetMutation": false,
+            "commits": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "at": "2026-08-13T22:39:32.954Z",
+                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "at": "2026-08-13T22:39:32.955Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+              }
+            ],
+            "firstProtectedCommitAt": "2026-08-13T22:39:32.954Z",
+            "firstProtectedCommitAtMs": 1786660772954.9436,
+            "globalVerification": {
+              "source": "independent-reread",
+              "total": 140,
+              "cap": 130,
+              "holds": false,
+              "residual": 20,
+              "composedState": {
+                "totalReservable": 130,
+                "services": {
+                  "alpha": 60,
+                  "beta": 60,
+                  "gamma": 20
+                }
+              },
+              "reads": {
+                "alpha": {
+                  "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+                  "services": {
+                    "alpha": 60
+                  }
+                },
+                "beta": {
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
+                  "services": {
+                    "beta": 60
+                  }
+                }
+              },
+              "detail": "total 140 exceeds the pool of 130"
+            },
+            "overlap": [
+              {
+                "correlationId": "ilk-51c7eb07915b4ad7964b19bd72f1a3f0",
+                "agent": "capacity-planner",
+                "service": "alpha",
+                "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+                "startMs": 1786660772953.1123,
+                "endMs": 1786660772955.1125
+              },
+              {
+                "correlationId": "ilk-5330bcda35df4821a4e7d66b7ee99a15",
+                "agent": "traffic-shaper",
+                "service": "beta",
+                "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+                "startMs": 1786660772953.2983,
+                "endMs": 1786660772955.9915
+              }
+            ],
+            "callerIdentityBinding": {
+              "alpha": "false",
+              "beta": "false"
+            },
+            "callerIdentityBindingMeasuredBy": "a valid receipt bound to one identity, presented to this arm's own targets under a different transport identity, after the arm's measurements were complete",
+            "deploymentComponents": {
+              "targetIds": {
+                "alpha": "interlock-s1-target-alpha",
+                "beta": "interlock-s1-target-beta"
+              },
+              "partitionedServices": [
+                "alpha",
+                "beta"
+              ],
+              "partitions": {
+                "alpha": {
+                  "totalReservable": 130,
+                  "services": {
+                    "alpha": 40
+                  }
+                },
+                "beta": {
+                  "totalReservable": 130,
+                  "services": {
+                    "beta": 40
+                  }
+                }
+              },
+              "operation": "set_reservation",
+              "initialStateDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+              "storeTopology": "shared-object",
+              "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+              "proxyCount": 2,
+              "storeCount": 1,
+              "callerIdentityBinding": {
+                "alpha": "false",
+                "beta": "false"
+              }
+            },
+            "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
+            "implementationDigest": "71a52b586a74fbe4b2af0372563bb76e6dbaafba880f60efa27f2dc6300a765d",
+            "outcome": "BOTH_EXECUTED"
+          }
         }
-      ],
-      "deploymentDigest": "12ddef64599eaf835a36878116691973f6ff47b321a0ce60f170c609f69a1875",
-      "implementationDigest": "cbf674a826a436ad2ddca68e3d04909ee38fa1284ea8c3f9aaa74585d668997d"
+      ]
     }
   },
   "teardown": {
