@@ -47,6 +47,29 @@ jobs:
           done
           exit "$missing"
 
+      - name: Source files are text
+        run: |
+          set -euo pipefail
+          # `git grep` silently skips files it considers binary, so one stray
+          # control byte in a source file would quietly exempt that file from
+          # the spelling check below and from every future repository-wide scan.
+          # A check that did not run is not a pass.
+          #
+          # Not hypothetical: during HAC-330 a NUL byte in a template literal
+          # made a .mjs file read as binary, and `git grep` stopped seeing it.
+          # `sort -u`: git lists a path once per stage while a merge is
+          # unresolved, which would otherwise report a perfectly good file as
+          # binary purely because it appears more than once.
+          all=$(git ls-files -- '*.mjs' '*.js' '*.json' '*.md' | sort -u)
+          text=$(git grep -lI -e '' -- '*.mjs' '*.js' '*.json' '*.md' | sort -u)
+          binary=$(comm -23 <(echo "$all") <(echo "$text") || true)
+          if [ -n "$binary" ]; then
+            echo "Source files git treats as binary; repository-wide scans skip them:"
+            echo "$binary"
+            exit 1
+          fi
+          echo "All source files are text"
+
       - name: Canonical product spelling
         run: |
           set -euo pipefail
@@ -210,4 +233,67 @@ jobs:
             echo
             echo "**Do not weaken.** Do not set \`fail_ci_if_error: false\`, do not add"
             echo "\`continue-on-error\`, and do not drop this job to recover green."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Integrity of the committed HAC-330 evidence packet.
+  #
+  # A distinct failure class from `test`, and deliberately a separate job: `test`
+  # owns "does the code run", this owns "does the recorded evidence still say
+  # what the packet claims". The decision-function tests themselves run under
+  # `test`, with the rest of the suite, because this repository has one test
+  # runner and adding a second would fork that ownership.
+  #
+  # What a green tick here does and does not mean:
+  #
+  # It DOES prove the packet is internally consistent — every recorded digest is
+  # the digest of the committed artifact, and every recorded decision re-derives
+  # by running the real decision function over the recorded evidence. An edited
+  # artifact, an edited digest or an edited claim fails here.
+  #
+  # It does NOT prove the artifacts came from the pinned miner. `workspacejson/cli`
+  # is not checked out on this runner and must not be cloned by CI — that would
+  # make a merge gate depend on another repository's availability. Re-mining is
+  # the local gate, `pnpm run hac330`, which refuses to run against a drifted or
+  # dirty checkout.
+  #
+  # Not a required context. Promoting it is a branch-protection change owned by
+  # META-337.
+  concept-gate:
+    name: S-1 concept gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+
+      # No dependency install: verify-packet.mjs uses only Node builtins.
+      - name: Verify the HAC-330 evidence packet
+        run: npm run check:packet
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## S-1 evidence packet does not verify"
+            echo
+            echo "**Invariant.** Every digest, revision and decision recorded in"
+            echo "\`experiments/hac-330/evidence/results.json\` matches the committed"
+            echo "artifacts, and the recorded decisions re-derive from the recorded"
+            echo "evidence through the real decision function."
+            echo
+            echo "**Why it matters.** The HAC-330 packet is the evidence that S-1 passed."
+            echo "If an artifact, a digest or a claim can be edited without anything"
+            echo "failing, the packet proves nothing."
+            echo
+            echo "**Authority.** Repository CI, reported as \`S-1 concept gate\`."
+            echo
+            echo "**Evidence required.** Re-run the experiment against the pinned"
+            echo "\`workspacejson/cli\` checkout with \`pnpm run hac330\`, which"
+            echo "regenerates the packet, then \`pnpm run check:packet\`."
+            echo
+            echo "**Do not weaken.** Do not hand-edit an artifact or a recorded digest to"
+            echo "make this pass. Regenerate the packet from a real mining run, or record"
+            echo "on HAC-330 why the experiment no longer holds."
           } >> "$GITHUB_STEP_SUMMARY"

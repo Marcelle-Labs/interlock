@@ -1,0 +1,90 @@
+[
+  {
+    "case": "evidence absent",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "EVIDENCE_ABSENT",
+    "detail": "no co-change evidence was supplied; absence of evidence is not evidence of independence",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "evidence undefined",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "EVIDENCE_ABSENT",
+    "detail": "no co-change evidence was supplied; absence of evidence is not evidence of independence",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "envelope without selection",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "EVIDENCE_MALFORMED",
+    "detail": "the evidence envelope carries no selection object",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "selection truncated",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "EVIDENCE_MALFORMED",
+    "detail": "the selection is missing completeness, receipt, or pairs; a partial artifact cannot be read as a clean one",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "unknown selection version",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "EVIDENCE_VERSION_UNSUPPORTED",
+    "detail": "selection version 2 is not 1; an unknown shape may mean different fields, not merely more of them",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "unpinned basis",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "NO_BASIS_PIN",
+    "detail": "the selection carries no basisRevision; an unpinned observation cannot be recounted and asserts nothing",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "stale basis (history moved)",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "STALE_BASIS",
+    "detail": "evidence is pinned to eb67a6f56b3bf7e71846e7324d21af44565c0b70 but the intents target 8a0b6601ca233c47d4af041102bfa1fbbd65453f; a stale observation is unknown, not clean",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "shallow clone (real mine)",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "HISTORY_NOT_MINED",
+    "detail": "completeness is NOT_MINED (SHALLOW_CLONE): repository is a shallow clone; commit-graph history is truncated and co-change evidence cannot be established from it",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "repository with no commits",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "HISTORY_NOT_MINED",
+    "detail": "completeness is NOT_MINED (NO_COMMITS): HEAD does not resolve to a commit in experiments/hac-330/.work/fixtures/empty",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "not a git repository",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "HISTORY_NOT_MINED",
+    "detail": "completeness is NOT_MINED (NO_REPOSITORY): ../hac330-no-repository is not a git repository, or git is unavailable",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  },
+  {
+    "case": "non-repository inside a repository",
+    "decision": "INSUFFICIENT_EVIDENCE",
+    "reason": "EVIDENCE_REPOSITORY_MISMATCH",
+    "detail": "the evidence is not attributed to the repository it names: requested experiments/hac-330/.work/fixtures/baseline/probe-not-a-repository, mined experiments/hac-330/.work/fixtures/baseline",
+    "mutationsApplied": 0,
+    "invariantHolds": true
+  }
+]

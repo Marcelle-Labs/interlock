@@ -1,0 +1,75 @@
+{
+  "experiment": "HAC-330",
+  "fixture": "baseline-shallow",
+  "producer": {
+    "repository": "workspacejson/cli",
+    "remote": "https://github.com/workspacejson/cli.git",
+    "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "observedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "checkoutClean": true,
+    "package": "@workspacejson/mining-core",
+    "version": "0.0.0",
+    "published": false,
+    "entrypoint": "packages/mining-core/dist/index.js",
+    "bundleSha256": "7aa5ae231d6713449d6c1790f0b19a509e82ec0c84d67a8a6a52ff492ec27bb8",
+    "pipeline": "mine -> score -> select",
+    "l1ProjectionUsed": false,
+    "l1ProjectionNote": "project() is exported by the package but is deliberately not called: L1 emission onto generated.coChange is step 3 of the A-009 staged transition and the package does not authorize it."
+  },
+  "source": {
+    "repository": "experiments/hac-330/.work/fixtures/baseline-shallow",
+    "revision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "tree": "fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+    "commitCount": 1,
+    "toplevel": "experiments/hac-330/.work/fixtures/baseline-shallow",
+    "isRequestedRepository": true
+  },
+  "historyBasis": {
+    "basisRevision": null,
+    "weightingVersion": null,
+    "availableTransitions": null,
+    "extractedTransitions": null,
+    "windowTruncated": null
+  },
+  "completeness": {
+    "state": "NOT_MINED",
+    "reason": "SHALLOW_CLONE",
+    "detail": "repository is a shallow clone; commit-graph history is truncated and co-change evidence cannot be established from it"
+  },
+  "receipt": {
+    "minSupport": 3,
+    "pairsBeforeCap": 0,
+    "pairsEmitted": 0,
+    "cap": 50,
+    "rankingRule": "support DESC, then occurrences ASC, then files[0] ASC by UTF-8 bytes, then files[1] ASC by UTF-8 bytes",
+    "capBound": false
+  },
+  "artifact": {
+    "serialization": "serializeSelection",
+    "bytes": 532,
+    "sha256": "582909e6656799b7fe9d7e60ce464e4d0904429a1789ee61d4ff63fec2b5beb3"
+  },
+  "selection": {
+    "l0SelectionVersion": 1,
+    "completeness": {
+      "state": "NOT_MINED",
+      "reason": "SHALLOW_CLONE",
+      "detail": "repository is a shallow clone; commit-graph history is truncated and co-change evidence cannot be established from it"
+    },
+    "exclusions": {
+      "maxFileCount": 50,
+      "scoredEventCount": 0,
+      "excludedEventCount": 0,
+      "excludedCommits": []
+    },
+    "receipt": {
+      "minSupport": 3,
+      "pairsBeforeCap": 0,
+      "pairsEmitted": 0,
+      "cap": 50,
+      "rankingRule": "support DESC, then occurrences ASC, then files[0] ASC by UTF-8 bytes, then files[1] ASC by UTF-8 bytes",
+      "capBound": false
+    },
+    "pairs": []
+  }
+}

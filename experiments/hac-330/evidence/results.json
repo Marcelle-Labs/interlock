@@ -1,0 +1,315 @@
+{
+  "experiment": "HAC-330",
+  "title": "S-1 local concept gate: real co-change evidence drives the Interlock counterfactual",
+  "result": "PASS",
+  "checks": [
+    {
+      "id": "PIN-CLI",
+      "criterion": "upstream checkout is at the revision the manifest records, and is unmodified",
+      "passed": true,
+      "detail": "workspacejson/cli @ defac1e5dce6fb692a48e775fb44854b371cbca4 (matches manifest, clean)"
+    },
+    {
+      "id": "PIN-STD",
+      "criterion": "upstream checkout is at the revision the manifest records, and is unmodified",
+      "passed": true,
+      "detail": "workspacejson/standard @ a3caece60bde12c41105a9987f50afa9e33dcb7b (matches manifest, clean)"
+    },
+    {
+      "id": "CTL-TREE",
+      "criterion": "the perturbation changes history only — both fixtures end at the same tree",
+      "passed": true,
+      "detail": "shared final tree fc015c39d48019fd8bb1b3e25ae97f70ebf5262e"
+    },
+    {
+      "id": "CTL-SHAPE",
+      "criterion": "both histories have the same commit count, so the perturbation is not a change in volume",
+      "passed": true,
+      "detail": "17 commits in each"
+    },
+    {
+      "id": "ACC-1",
+      "criterion": "action A is valid in isolation",
+      "passed": true,
+      "detail": "A alone → total 120 <= 130, verify.mjs exit 0"
+    },
+    {
+      "id": "ACC-2",
+      "criterion": "action B is valid in isolation",
+      "passed": true,
+      "detail": "B alone → total 120 <= 130, verify.mjs exit 0"
+    },
+    {
+      "id": "ACC-3",
+      "criterion": "real commit-graph-derived evidence identifies the relevant coupling",
+      "passed": true,
+      "detail": "alpha↔beta present in baseline evidence at support 8, occurrences 10"
+    },
+    {
+      "id": "ACC-4",
+      "criterion": "evidence is revision and provenance bound",
+      "passed": true,
+      "detail": "basis eb67a6f56b3bf7e71846e7324d21af44565c0b70 == fixture HEAD; producer @workspacejson/mining-core@0.0.0 from defac1e5dce6fb692a48e775fb44854b371cbca4"
+    },
+    {
+      "id": "ACC-5",
+      "criterion": "evidence is deterministic — two runs at the same basis produce identical bytes",
+      "passed": true,
+      "detail": "sha256 2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+    },
+    {
+      "id": "ACC-18",
+      "criterion": "the evidence path is the one Interlock actually uses, not an assumed generated.coChange",
+      "passed": true,
+      "detail": "the published producer emits no coChange; Interlock consumes mine -> score -> select directly, and no workspace.json is written"
+    },
+    {
+      "id": "ACC-6",
+      "criterion": "perturbing the source history changes the evidence artifact",
+      "passed": true,
+      "detail": "baseline 2c021d0c593aac25… ≠ perturbed ec9bd6736e951f1a…"
+    },
+    {
+      "id": "ACC-7",
+      "criterion": "the coupling under test disappears in the perturbed history",
+      "passed": true,
+      "detail": "alpha↔beta: baseline support 8 → perturbed absent (never co-changed)"
+    },
+    {
+      "id": "CTL-PAIR",
+      "criterion": "the control pair is unchanged, so the perturbation is surgical",
+      "passed": true,
+      "detail": "docs↔tests identical in both: support 6, occurrences 6"
+    },
+    {
+      "id": "CTL-STATE",
+      "criterion": "both histories reach the same completeness state, so the decision cannot turn on completeness",
+      "passed": true,
+      "detail": "both QUALIFYING_RELATIONSHIP_OBSERVED — the perturbed history is mined and non-empty, not degraded"
+    },
+    {
+      "id": "ACC-8",
+      "criterion": "green A + green B produces a red joint state under a deterministic target invariant",
+      "passed": true,
+      "detail": "A ok, B ok, A+B → total 140 > 130, verify.mjs exit 1"
+    },
+    {
+      "id": "ACC-9",
+      "criterion": "with real mined evidence, Interlock withholds the unsafe composition and the invariant holds",
+      "passed": true,
+      "detail": "WITHHOLD_SERIALIZE: admitted [A], rejected [B], total 120 <= 130"
+    },
+    {
+      "id": "ACC-10",
+      "criterion": "the Interlock decision changes because the evidence changed, with the target state held constant",
+      "passed": true,
+      "detail": "WITHHOLD_SERIALIZE → ALLOW_PARALLEL; invariant holds true → false"
+    },
+    {
+      "id": "ACC-11",
+      "criterion": "the evidence is load-bearing, not decorative — the decision cites the mined pair",
+      "passed": true,
+      "detail": "cited services/alpha/reservation.json <-> services/beta/reservation.json at support 8, basis eb67a6f56b3b…"
+    },
+    {
+      "id": "ACC-12",
+      "criterion": "missing, refused, malformed and stale evidence is INSUFFICIENT — never an empty green",
+      "passed": true,
+      "detail": "11/11 degraded cases returned INSUFFICIENT_EVIDENCE; 0 returned ALLOW_PARALLEL"
+    },
+    {
+      "id": "ACC-13",
+      "criterion": "insufficient evidence fails closed — no mutation is applied",
+      "passed": true,
+      "detail": "no degraded case applied a mutation; the target invariant held in every one"
+    },
+    {
+      "id": "ACC-14",
+      "criterion": "a real shallow clone reports insufficient history rather than zero couplings",
+      "passed": true,
+      "detail": "shallow clone → NOT_MINED/SHALLOW_CLONE"
+    },
+    {
+      "id": "ACC-16",
+      "criterion": "a directory outside every repository reports no history rather than a clean analysis",
+      "passed": true,
+      "detail": "no repository → NOT_MINED/NO_REPOSITORY → HISTORY_NOT_MINED"
+    },
+    {
+      "id": "ACC-17",
+      "criterion": "evidence mined from an ancestor repository is rejected on attribution, even though it is internally perfect",
+      "passed": true,
+      "detail": "a request for experiments/hac-330/.work/fixtures/baseline/probe-not-a-repository silently mined experiments/hac-330/.work/fixtures/baseline and returned QUALIFYING_RELATIONSHIP_OBSERVED with 2 pinned pairs; refused as EVIDENCE_REPOSITORY_MISMATCH"
+    },
+    {
+      "id": "ACC-15",
+      "criterion": "no Google Cloud dependency is required",
+      "passed": true,
+      "detail": "the run uses node, git and the pinned local CLI checkout only; no network call, no gcloud, no ADK, no Agent Runtime, no Gateway"
+    }
+  ],
+  "pins": {
+    "workspacejson-cli": {
+      "id": "workspacejson-cli",
+      "repository": "workspacejson/cli",
+      "remote": "https://github.com/workspacejson/cli.git",
+      "disposition": "EXECUTE_READ_ONLY",
+      "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+      "observedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+      "clean": true,
+      "matches": true,
+      "problems": []
+    },
+    "workspacejson-standard": {
+      "id": "workspacejson-standard",
+      "repository": "workspacejson/standard",
+      "remote": "https://github.com/workspacejson/standard.git",
+      "disposition": "READ_ONLY_PINNED",
+      "pinnedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+      "observedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+      "clean": true,
+      "matches": true,
+      "problems": []
+    }
+  },
+  "producer": {
+    "repository": "workspacejson/cli",
+    "remote": "https://github.com/workspacejson/cli.git",
+    "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "observedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "checkoutClean": true,
+    "package": "@workspacejson/mining-core",
+    "version": "0.0.0",
+    "published": false,
+    "entrypoint": "packages/mining-core/dist/index.js",
+    "bundleSha256": "7aa5ae231d6713449d6c1790f0b19a509e82ec0c84d67a8a6a52ff492ec27bb8",
+    "pipeline": "mine -> score -> select",
+    "l1ProjectionUsed": false,
+    "l1ProjectionNote": "project() is exported by the package but is deliberately not called: L1 emission onto generated.coChange is step 3 of the A-009 staged transition and the package does not authorize it."
+  },
+  "fixtures": {
+    "baseline": {
+      "repo": "experiments/hac-330/.work/fixtures/baseline",
+      "head": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "tree": "fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+      "commitCount": 17
+    },
+    "perturbed": {
+      "repo": "experiments/hac-330/.work/fixtures/perturbed",
+      "head": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+      "tree": "fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+      "commitCount": 17
+    }
+  },
+  "evidenceDigests": {
+    "baseline": "2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+    "perturbed": "ec9bd6736e951f1a03b89bd02da918f67c3fde6ff4f6dfca25b4dc48120d08d5"
+  },
+  "decisions": {
+    "treatment": {
+      "decision": "WITHHOLD_SERIALIZE",
+      "reason": "COUPLING_OBSERVED"
+    },
+    "perturbedControl": {
+      "decision": "ALLOW_PARALLEL",
+      "reason": "NO_QUALIFYING_COUPLING"
+    }
+  },
+  "invariantOutcomes": {
+    "actionAAlone": true,
+    "actionBAlone": true,
+    "baselineJoint": false,
+    "treatment": true,
+    "perturbedControl": false
+  },
+  "guards": [
+    {
+      "case": "evidence absent",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "EVIDENCE_ABSENT",
+      "detail": "no co-change evidence was supplied; absence of evidence is not evidence of independence",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "evidence undefined",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "EVIDENCE_ABSENT",
+      "detail": "no co-change evidence was supplied; absence of evidence is not evidence of independence",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "envelope without selection",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "EVIDENCE_MALFORMED",
+      "detail": "the evidence envelope carries no selection object",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "selection truncated",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "EVIDENCE_MALFORMED",
+      "detail": "the selection is missing completeness, receipt, or pairs; a partial artifact cannot be read as a clean one",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "unknown selection version",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "EVIDENCE_VERSION_UNSUPPORTED",
+      "detail": "selection version 2 is not 1; an unknown shape may mean different fields, not merely more of them",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "unpinned basis",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "NO_BASIS_PIN",
+      "detail": "the selection carries no basisRevision; an unpinned observation cannot be recounted and asserts nothing",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "stale basis (history moved)",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "STALE_BASIS",
+      "detail": "evidence is pinned to eb67a6f56b3bf7e71846e7324d21af44565c0b70 but the intents target 8a0b6601ca233c47d4af041102bfa1fbbd65453f; a stale observation is unknown, not clean",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "shallow clone (real mine)",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "HISTORY_NOT_MINED",
+      "detail": "completeness is NOT_MINED (SHALLOW_CLONE): repository is a shallow clone; commit-graph history is truncated and co-change evidence cannot be established from it",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "repository with no commits",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "HISTORY_NOT_MINED",
+      "detail": "completeness is NOT_MINED (NO_COMMITS): HEAD does not resolve to a commit in experiments/hac-330/.work/fixtures/empty",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "not a git repository",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "HISTORY_NOT_MINED",
+      "detail": "completeness is NOT_MINED (NO_REPOSITORY): ../hac330-no-repository is not a git repository, or git is unavailable",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    },
+    {
+      "case": "non-repository inside a repository",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "reason": "EVIDENCE_REPOSITORY_MISMATCH",
+      "detail": "the evidence is not attributed to the repository it names: requested experiments/hac-330/.work/fixtures/baseline/probe-not-a-repository, mined experiments/hac-330/.work/fixtures/baseline",
+      "mutationsApplied": 0,
+      "invariantHolds": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "totalReservable": 130,
+  "baseline": {
+    "repo": "experiments/hac-330/.work/fixtures/baseline",
+    "head": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "tree": "fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+    "commitCount": 17
+  },
+  "perturbed": {
+    "repo": "experiments/hac-330/.work/fixtures/perturbed",
+    "head": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+    "tree": "fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+    "commitCount": 17
+  }
+}
