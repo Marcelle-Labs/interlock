@@ -109,20 +109,22 @@ coverage. That is the responsibility matrix working.
 | Field | Value |
 | --- | --- |
 | Source app | `github-actions` (15368) |
-| Posture | blocking — **promotion deferred** |
+| Posture | blocking — **required** |
 | Injected defect | Deleted `docs/migration/parity-receipt.json` (`4b77a33`) |
 | Observed failure | Annotation `Missing committed parity receipt` on the `Require a committed parity receipt` step |
 | Repair | Restored the receipt (`4600e18`) |
-| Final state | Proven; **not yet a required context** |
+| Final state | Required on `main`, pinned to app `15368` |
 
-Promotion is deferred on purpose. Before
+Promotion was deferred until the gate was worth requiring. Before
 [integrations#15](https://github.com/workspacejson/integrations/pull/15), this same
 tree concluded `success`: both substantive steps were gated on
 `steps.check-receipt.outputs.has_receipt`, so a missing receipt skipped the
 reproduction and the job went green having verified nothing. Requiring that would
 have made deleting the receipt the cheapest way to satisfy a failing parity gate.
-The check is promoted after #15 merges, not before — and #15 is currently blocked,
-see the Greptile note in [`merge-gate-matrix.md`](merge-gate-matrix.md) §5.
+
+The proof above was taken **with the fix applied**, which is what makes it
+meaningful: the same tree that had been green now fails, and names why. #15 merged
+2026-08-13 and the context was promoted after, not before.
 
 ### `standard-candidate-consumption`
 
