@@ -1,0 +1,23 @@
+# Code owners for Marcelle-Labs/interlock.
+#
+# This repository is on a GitHub plan that cannot enforce protected branches or
+# rulesets while it is private, so CODEOWNERS cannot be *required* here yet — it
+# requests review rather than blocking a merge. It is one of the compensating
+# controls recorded in docs/receipts/HAC-328-bootstrap-receipt.md, and it becomes
+# enforcing the moment protection is available.
+
+*                           @qmarcelle
+
+# Provenance and disclosure decide what the submission may claim. A change here
+# is a contest-integrity change, not a routine edit.
+/DISCLOSURE.md              @qmarcelle
+/provenance/                @qmarcelle
+/scripts/check-provenance.mjs @qmarcelle
+
+# Repository-local authority and the permissions matrix.
+/AGENTS.md                  @qmarcelle
+/CLAUDE.md                  @qmarcelle
+/docs/development/          @qmarcelle
+
+# Merge gates.
+/.github/workflows/         @qmarcelle

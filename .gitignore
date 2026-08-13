@@ -1,0 +1,20 @@
+node_modules/
+dist/
+build/
+coverage/
+
+# Never commit environment values. Record variable NAMES in the bootstrap
+# receipt instead; DISCLOSURE.md and check-provenance.mjs both depend on this.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
+gha-creds-*.json
+
+.DS_Store
+*.log
+.vscode/
+!.vscode/extensions.json
+.idea/

@@ -1,0 +1,133 @@
+{
+  "$schema": "./manifest.schema.json",
+  "manifestVersion": "1.0.0",
+  "product": "Interlock",
+  "submissionRepository": "Marcelle-Labs/interlock",
+  "owningOrganization": "Marcelle-Labs",
+  "contestPeriodStart": "2026-08-12",
+  "bootstrapIssue": "HAC-328",
+  "bootstrapRecordedAt": "2026-08-13T00:20:00Z",
+  "notes": [
+    "Every dependency below is CONSUMED (linked, installed, or executed in place). No entry is COPIED into this repository.",
+    "Pinned SHAs are the exact revisions present at first use during the contest period.",
+    "This manifest is machine-checked by scripts/check-provenance.mjs and enforced in CI."
+  ],
+  "dependencies": [
+    {
+      "id": "workspacejson-standard",
+      "repository": "workspacejson/standard",
+      "remote": "https://github.com/workspacejson/standard.git",
+      "owningOrganization": "workspacejson",
+      "origin": "PRE_EXISTING",
+      "pinnedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+      "pinnedRef": "main",
+      "pinnedVersions": {
+        "@workspacejson/spec": "0.4.4",
+        "@workspacejson/rules": "0.4.4"
+      },
+      "disposition": "READ_ONLY_PINNED",
+      "consumption": "CONSUMED",
+      "purpose": "Specification authority: normative schema, validation semantics, deterministic rules, conformance reference. Interlock validates against it and never modifies it.",
+      "devpostDisclosure": "Interlock builds on the pre-existing open-source workspace.json specification (workspacejson/standard, Apache-2.0), created before the contest by the same organization. It is consumed as a pinned dependency; no specification source was copied into the submission and no specification change was made for the contest.",
+      "harvestDisposition": "NOT_APPLICABLE",
+      "boundaryNotes": [
+        "standard/AGENTS.md forbids proprietary references, including @marcelle-labs/*. The dependency direction is strictly Interlock -> Standard, never the reverse.",
+        "standard/AGENTS.md forbids prescriptive policy and producer code in that repository.",
+        "Changing Standard requires a separately approved Standard issue; HAC-328 does not authorize one."
+      ]
+    },
+    {
+      "id": "workspacejson-cli",
+      "repository": "workspacejson/cli",
+      "remote": "https://github.com/workspacejson/cli.git",
+      "owningOrganization": "workspacejson",
+      "origin": "PRE_EXISTING",
+      "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+      "pinnedRef": "main",
+      "pinnedVersions": {
+        "@workspacejson/cli": "0.5.2",
+        "@workspacejson/mining-core": "0.0.0",
+        "agents-audit": "0.4.4"
+      },
+      "disposition": "EXECUTE_READ_ONLY",
+      "consumption": "CONSUMED",
+      "purpose": "Real commit-history co-change mining and the neutral workspace.json producer. Supplies the evidence that drives the Interlock counterfactual for HAC-330/S-1. Executed from the sibling checkout.",
+      "devpostDisclosure": "Co-change evidence is produced by the pre-existing open-source workspace.json CLI and its L0 commit-graph mining core (workspacejson/cli, Apache-2.0), created before the contest by the same organization. Interlock executes it as an external tool at a pinned revision; no mining logic was copied into the submission.",
+      "harvestDisposition": "NOT_APPLICABLE",
+      "boundaryNotes": [
+        "@workspacejson/mining-core is private:true and unpublished. It CANNOT be installed from a registry; it must be executed from this pinned sibling checkout or packed locally.",
+        "mining-core authorizes mine -> score -> select only. L1 projection onto generated.coChange is explicitly NOT authorized by that package (A-009 staged transition, step 3). Interlock must not emit co-change into a workspace.json artifact on the strength of this package.",
+        "HAC-328 forbids speculative CLI changes to rescue the demo. Any CLI change needs its own upstream issue and evidence.",
+        "Canonical reproduction driver: evidence/meta-310/meta310-mine.mjs, byte-frozen at sha256 5be5c814caed895b30a26d6fee697e1b65bc01c95789235dc49ad2a3f805e83c (digest verified during HAC-328 bootstrap)."
+      ]
+    },
+    {
+      "id": "workspacejson-integrations",
+      "repository": "workspacejson/integrations",
+      "remote": "https://github.com/workspacejson/integrations.git",
+      "owningOrganization": "workspacejson",
+      "origin": "PRE_EXISTING",
+      "pinnedSha": "70cfd57ff57c873fb22daaa8d94afa5a14601d27",
+      "pinnedRef": "main",
+      "pinnedVersions": {},
+      "disposition": "READ_INSPECT",
+      "consumption": "CONSUMED",
+      "purpose": "Reference for existing host-integration and authorization seams (MCP/Codex/VS Code). Inspected to avoid reinventing a seam; becomes writable only after S0/S2 reveal a stable reusable seam under META-330.",
+      "devpostDisclosure": "Pre-existing open-source host integrations (workspacejson/integrations) were inspected for prior art. No integrations source was copied into the submission.",
+      "harvestDisposition": "NOT_APPLICABLE",
+      "boundaryNotes": [
+        "Do not pre-build the durable ADK abstraction here before observed S0/S2 contracts (HAC-328 immediate phase permissions).",
+        "Write access requires META-330 authorization plus a proven reusable seam."
+      ]
+    },
+    {
+      "id": "marcelle-labs-ai-swarm",
+      "repository": "Marcelle-Labs/ai-swarm",
+      "remote": "https://github.com/Marcelle-Labs/ai-swarm.git",
+      "owningOrganization": "Marcelle-Labs",
+      "origin": "PRE_EXISTING",
+      "pinnedSha": "74e4ee1f9ec083b0dba029b4b2db6339cc49c5fa",
+      "pinnedRef": "main",
+      "pinnedVersions": {},
+      "disposition": "EXECUTE_READ_ONLY",
+      "consumption": "CONSUMED",
+      "purpose": "Private orchestration and quality substrate (agent pipeline, gates, dispatch) exercised under META-331/META-337. Provides execution infrastructure, never product behavior.",
+      "devpostDisclosure": "Private, pre-existing agent-orchestration tooling owned by Marcelle-Labs was used as development infrastructure. It is not part of the submitted product and no private swarm machinery was copied into the submission.",
+      "harvestDisposition": "NOT_APPLICABLE",
+      "boundaryNotes": [
+        "Keep product-specific Interlock code out of this repository (HAC-328).",
+        "Writable only for quality/execution infrastructure under META-331/META-337.",
+        "Private repository: do not surface its contents in public submission artifacts."
+      ]
+    }
+  ],
+  "submissionLocalMachinery": [
+    {
+      "id": "revision-anchor-extension",
+      "purpose": "Submission-local experimental WorkspaceJSON revision-anchor extension used by the Interlock composition engine.",
+      "status": "PLANNED",
+      "notPartOfReleasedStandard": true,
+      "disclosureLanguage": "The revision-anchor extension is an experimental, submission-local extension authored during the contest. It is NOT part of released WorkspaceJSON v0.4 (@workspacejson/spec 0.4.4) and carries no specification authority.",
+      "harvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
+      "harvestTarget": "workspacejson/standard, only via a separately approved Standard issue and ADR"
+    }
+  ],
+  "newlyCreatedForContest": [
+    {
+      "id": "interlock",
+      "repository": "Marcelle-Labs/interlock",
+      "remote": "https://github.com/Marcelle-Labs/interlock.git",
+      "owningOrganization": "Marcelle-Labs",
+      "origin": "CREATED_DURING_CONTEST",
+      "initialSha": "c83a5d0f93d0b81af552a4af0fbdaca3f74ad61a",
+      "createdAt": "2026-08-12T23:49:36Z",
+      "disposition": "WRITABLE",
+      "purpose": "Contest submission anchor. Owns the Interlock composition engine, Google ADK/Agent Runtime/Gateway adapters, submission-local revision-anchor extension, frozen fixtures and evaluation harness, protected target/tool implementation, pending-intent coordination and receipts, independent verifier, and submission documentation.",
+      "mustNotAbsorb": [
+        "copied WorkspaceJSON source",
+        "private swarm machinery",
+        "reusable Studio implementation adopted merely for convenience"
+      ]
+    }
+  ]
+}
