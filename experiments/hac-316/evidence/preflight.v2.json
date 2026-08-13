@@ -1,0 +1,404 @@
+{
+  "schema": {
+    "name": "interlock.preflight",
+    "version": 2
+  },
+  "supersedes": "experiments/hac-316/evidence/preflight.json",
+  "superseded_sha256": "5753c7a78d88646c6171f1ea7e5f05fd53aa50788a2995068ffa2ff095779619",
+  "reason": "single-target baseline falsified by local invariant/revision enforcement",
+  "discovered_by": "swarm audit",
+  "discovered_before_first_agent_runtime_trial": true,
+  "discovered_before_cloud_spend": true,
+  "carried_forward": {
+    "max_attempts": 3,
+    "artificial_delay_allowed": false,
+    "barrier_allowed": false,
+    "ttl_tuning_after_first_run": false,
+    "hidden_retry_allowed": false,
+    "same_intent_required": true,
+    "evidence_perturbation_required": true,
+    "independent_observation_required": true,
+    "basis": {
+      "max_attempts": "preflight.json predeclared.concurrencyAttempts.maximum",
+      "artificial_delay_allowed": "preflight.json predeclared.forbidden[0], [2]",
+      "barrier_allowed": "preflight.json predeclared.forbidden[1]",
+      "ttl_tuning_after_first_run": "preflight.json predeclared.forbidden[3]",
+      "hidden_retry_allowed": "preflight.json predeclared.concurrencyAttempts.retention and forbidden[4]",
+      "same_intent_required": "preflight.json predeclared.trialValidity.rule",
+      "evidence_perturbation_required": "HAC-316 Requirement 8 — the decision must change for the intended reason",
+      "independent_observation_required": "preflight.json truthModel.rule"
+    },
+    "note": "These are V1 disciplines that survive the topology correction unchanged. They are restated here rather than inherited by reference so that a reader of V2 alone cannot mistake the correction for a relaxation."
+  },
+  "changed_fields": [
+    {
+      "path": "couplingEvidence.evidence_file_sha256",
+      "v1": null,
+      "v2": "f716297558dfa325e8eef222623af0a461d0879f739cd7d0f7853d7a1ebd6f22",
+      "why": "New, and named for what it is: the sha256 of the evidence FILE on disk. V1 recorded only the envelope-internal field, under the name artifactSha256, which reads like this one."
+    },
+    {
+      "path": "couplingEvidence.note",
+      "v1": "Consumed verbatim from the pinned upstream miner via HAC-330. Not re-derived here, not hand-authored, and not replaced with a coupling that would be easier to demonstrate.",
+      "v2": "Consumed verbatim from the pinned upstream miner via HAC-330. Two different digests are recorded under two different names and are never collapsed: evidence_file_sha256 is the sha256 of the file on disk, producer_artifact_sha256 is the artifact.sha256 field inside the envelope. V1 recorded only the second, under a name that reads like the first.",
+      "why": "V1's note said the artifact was consumed verbatim and not re-derived, which still holds and is kept. What is added is the distinction between the two digests now recorded side by side, so a later reader cannot pin the wrong one while believing the pin is tight."
+    },
+    {
+      "path": "couplingEvidence.producer_artifact_sha256",
+      "v1": null,
+      "v2": "2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+      "why": "New. The same value V1 recorded as artifactSha256, now carrying a name that says it is the artifact.sha256 field inside the envelope rather than a digest of the file."
+    },
+    {
+      "path": "fixture.genesisRevisionBaselineTarget",
+      "v1": "sha256:8216c1beafa066a68c7048ac3ad6359027d051c3e695d779932e43fca384cda5",
+      "v2": null,
+      "why": "Falsified topology, and the load-bearing correction. V1 presumed an \"unsafe\" baseline target. An unchanged ProtectedTarget cannot be the unsafe arm — it enforces its own pool — so the baseline is now a composition-unaware *issuer* in front of the same two unchanged targets, and this target does not exist."
+    },
+    {
+      "path": "fixture.genesisRevisionProtectedTarget",
+      "v1": "sha256:186534665f0f18d7a860affbd6afa2e22c44d9250f76fbee51315d62747fde87",
+      "v2": null,
+      "why": "Falsified topology. This was the genesis revision of a single target holding all three services. That target refuses the second mutation locally with INVARIANT_BREACH before the composition can occur, so it cannot reach the state the experiment must observe. Nulled rather than silently repointed; the per-partition genesis revisions are in fixture.json."
+    },
+    {
+      "path": "fixture.note",
+      "v1": "The two targets take different targetIds on purpose — a receipt minted for one must not validate against the other — so their genesis revisions differ by construction. The STATE is identical, which is what parity requires; initialStateDigest is the field that must match.",
+      "v2": "The canonical fixture is unchanged and is not replaced. What changed is the deployment: the state is projected across 2 targets (alpha, beta), each an unchanged ProtectedTarget keeping the whole pool, so each mutation is locally valid and no target observes the composition. Per-partition targetIds and genesis revisions live in fixture.json.",
+      "why": "V1's note explained why the protected and baseline targets took different targetIds. There is no baseline target now. The replacement explains the projection and states explicitly that the canonical fixture is not replaced."
+    },
+    {
+      "path": "fixture.projectionRecordedIn",
+      "v1": null,
+      "v2": "experiments/hac-316/evidence/fixture.json",
+      "why": "New. Names the artifact holding the two-target projection, its targetIds and its genesis revisions, so V2 does not restate values that have a producer."
+    },
+    {
+      "path": "guarantees.localInvariantsRemainEnabled.checkedBy",
+      "v1": null,
+      "v2": "REQ-027",
+      "why": "New; the requirement that re-checks it."
+    },
+    {
+      "path": "guarantees.localInvariantsRemainEnabled.evidence",
+      "v1": null,
+      "v2": "Each partition is an unchanged ProtectedTarget, so applyMutation still refuses an unknown service and still refuses a mutation that would breach its own pool. The local checks are defense in depth, not the oracle, and nothing disables them (X-19).",
+      "why": "New; the basis for the guarantee above."
+    },
+    {
+      "path": "guarantees.localInvariantsRemainEnabled.holds",
+      "v1": null,
+      "v2": true,
+      "why": "New. The projection moves the harm oracle out of the target, and the obvious wrong way to do that is to switch the local checks off. This records that they stay on."
+    },
+    {
+      "path": "guarantees.ttlWideningImpossible.checkedBy",
+      "v1": null,
+      "v2": "REQ-052",
+      "why": "New; the requirement that re-checks it."
+    },
+    {
+      "path": "guarantees.ttlWideningImpossible.evidence",
+      "v1": null,
+      "v2": "pendingTtlMs exists on ProxyOptions in src/proxy/service.ts but has no entry in the ENV table in src/config.ts and is not passed by src/proxy/main.ts. A deployed proxy has no input that reaches it, so widening the pending TTL is structurally impossible rather than merely forbidden.",
+      "why": "New; the citations behind the guarantee above."
+    },
+    {
+      "path": "guarantees.ttlWideningImpossible.holds",
+      "v1": null,
+      "v2": true,
+      "why": "New. Records as a structural guarantee what V1 listed only as a prohibition: the pending TTL has no environment input, so it cannot be widened after a first run."
+    },
+    {
+      "path": "perturbationEvidence.artifact",
+      "v1": null,
+      "v2": "experiments/hac-330/evidence/perturbed.evidence.json",
+      "why": "New. V1 pinned only the baseline artifact, because it had no perturbation arm."
+    },
+    {
+      "path": "perturbationEvidence.basisRevision",
+      "v1": null,
+      "v2": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+      "why": "New, and the trap this manifest exists to disarm. The perturbed artifact is pinned to a different commit than the baseline one, and running the perturbation arm at the baseline revision denies both intents for STALE_BASIS — the wrong reason."
+    },
+    {
+      "path": "perturbationEvidence.evidence_file_sha256",
+      "v1": null,
+      "v2": "b6dca507294c46997828f5f36d1018cfb3a72c5dd65b7b6e217ba2aedb3cf02b",
+      "why": "New; the sha256 of the perturbed evidence FILE on disk."
+    },
+    {
+      "path": "perturbationEvidence.note",
+      "v1": null,
+      "v2": "The perturbation arm must be run at THIS basis revision, not the baseline one. The two artifacts are pinned to different commits, and an arm that swapped the evidence while keeping the baseline sourceRevision would be denied for a stale basis rather than for the absence of a qualifying pair — a denial that looks like Interlock holding and proves nothing. SPEC 5.4; enforced by REQ-047 and REQ-056.",
+      "why": "New; states the trap in full so it cannot be rediscovered late."
+    },
+    {
+      "path": "perturbationEvidence.producer_artifact_sha256",
+      "v1": null,
+      "v2": "ec9bd6736e951f1a03b89bd02da918f67c3fde6ff4f6dfca25b4dc48120d08d5",
+      "why": "New; the artifact.sha256 field inside the perturbed envelope."
+    },
+    {
+      "path": "predeclared.runtimeOverlap.measuredAt",
+      "v1": "the neutral ingress, which is on both arms identically and is the only component that sees both agents. Client launch time is NOT used to infer concurrency.",
+      "v2": "the protected targets themselves, which are the only components present in every arm. Each target records the server-side instant it began and finished handling a mutation; overlap is computed from those four instants. Client launch time is NOT used to infer concurrency.",
+      "why": "V1 measured overlap at a neutral ingress that sat in front of a single target. With the state projected across two targets, the components present in every arm are the targets themselves, so that is where the server-side instants are taken. The prohibition on inferring concurrency from client launch time is carried over unchanged."
+    },
+    {
+      "path": "routing.arms.baseline",
+      "v1": "ingress -> baseline target (mutation core only, no Interlock in the path)",
+      "v2": "composition-unaware issuer -> both protected targets. The issuer validates each action independently and mints the frozen S2 receipt shape; it never consults what else is in flight.",
+      "why": "The baseline arm is no longer \"ingress -> baseline target\". It is a composition-unaware issuer in front of the same two unchanged protected targets."
+    },
+    {
+      "path": "routing.arms.perturbation",
+      "v1": null,
+      "v2": "identical deployment and implementation to treatment; only the evidence artifact and its matching sourceRevision differ.",
+      "why": "New. V1 had no perturbation arm in its routing block; the arm exists so the decision can be shown to change with the evidence rather than with the code."
+    },
+    {
+      "path": "routing.arms.treatment",
+      "v1": "ingress -> frozen S2 proxy -> protected target (receipt validated) -> mutation core",
+      "v2": "routing surface -> frozen S2 proxy pair (one shared pending-intent store) -> protected targets, deciding from the baseline evidence artifact.",
+      "why": "Restated for the two-target deployment: two proxies sharing one pending-intent store, which is what makes cross-target arbitration reachable without a production change."
+    },
+    {
+      "path": "routing.ingressConstraints",
+      "v1": [
+        "no Interlock decision logic",
+        "no receipt issuance",
+        "no argument transformation",
+        "no coupling logic",
+        "JSON-RPC body forwarded byte-for-byte; only a run/trace header is added",
+        "unknown or unset run binding fails closed"
+      ],
+      "v2": null,
+      "why": "Renamed and rewritten as routing.routingConstraints. The constraints are the same in substance — no decision logic, no receipt issuance, no argument transformation — with the evidence and arbitration prohibitions stated explicitly (X-15)."
+    },
+    {
+      "path": "routing.mechanism",
+      "v1": "A neutral experiment ingress holds one active run_id -> arm binding, set out of band by the harness before each arm. Requests carry no arm selector, so the MCP body — and therefore the intent digest — is byte-identical across arms.",
+      "v2": "An experiment-local routing surface dispatches on intent.arguments.service alone: alpha to proxy A, beta to proxy B, and fails closed on anything else. It holds no run/arm binding, so the request body — and therefore the intent digest — is byte-identical across arms. Two InterlockProxy instances share exactly one PendingIntentStore object, which is what lets them arbitrate over each other without any production change.",
+      "why": "V1 described an ingress holding a run_id -> arm binding in front of one target. The deployment is now two targets and a dispatch on the service name, with no arm binding at all — the arms differ by which component is in the path, not by anything the ingress knows."
+    },
+    {
+      "path": "routing.routingConstraints",
+      "v1": null,
+      "v2": [
+        "no Interlock decision logic",
+        "no receipt issuance",
+        "no argument transformation",
+        "no evidence inspection and no arbitration",
+        "dispatch is a pure function of intent.arguments.service",
+        "unknown, missing or non-string service fails closed"
+      ],
+      "why": "Replaces routing.ingressConstraints; see that entry. Listed separately because the leaf path itself is new."
+    },
+    {
+      "path": "sourceRevision",
+      "v1": "01fad2972b7127c7a9be8b3262ae3188d5ff4e74",
+      "v2": "c2a7c5dcad3eabeea7ad83307c83751ae49830ec",
+      "why": "V1 was declared at the commit that fixed its own cleanliness guard. V2 is declared against the commit that froze the implementation spec, read from pins.json so that regenerating V2 is a no-op rather than a function of whatever HEAD happens to be."
+    },
+    {
+      "path": "toolchain.capturedIn",
+      "v1": null,
+      "v2": "experiments/hac-316/evidence/toolchain.json",
+      "why": "New. V1 asserted five toolchain values as literals; V2 points at the file that records the command and verbatim stdout behind each of them (REQ-008)."
+    },
+    {
+      "path": "toolchain.note",
+      "v1": "google-adk 2.6.3 requires mcp>=1.24,<2. A bare `pip install mcp` resolves to 2.0.0 and breaks the import with ModuleNotFoundError: mcp.shared.session. Install `google-adk[mcp]`. The documented import path google.adk.tools.mcp_tool.McpToolset also fails on this version; the working path is google.adk.tools.mcp_tool.mcp_toolset.",
+      "v2": "Every value above is the verbatim stdout of a recorded command; see toolchain.json for the commands. The working ADK import path is google.adk.tools.mcp_tool.mcp_toolset, reproduced in the interpreter the agents run on and resolved to google/adk/tools/mcp_tool/mcp_toolset.py. google-adk requires mcp>=1.24,<2, and a bare `pip install mcp` resolves outside that range; install `google-adk[mcp]`.",
+      "why": "V1's note asserted, as prose, that google.adk.tools.mcp_tool.McpToolset fails on this version. Reproducing the import in the real interpreter does not reproduce that failure, so the claim is not promoted (REQ-009). The replacement records the path that was measured to work and where it resolved."
+    },
+    {
+      "path": "truthModel.acceptedAvailability",
+      "v1": null,
+      "v2": "ACCEPTED is not independently observable against the frozen target, which answers a mutation with one response carrying EXECUTED or a 403. It is recorded as unavailable and never emitted; the distinction is preserved for HAC-317 (X-18).",
+      "why": "New. Records that ACCEPTED cannot be observed against the frozen target and is therefore never emitted, rather than leaving a state in the vocabulary that quietly never appears (X-18)."
+    }
+  ],
+  "experiment": "HAC-316",
+  "title": "S1 end-to-end collision proof on real Agent Runtime",
+  "declaredAt": "committed before any cloud resource was created; see git history",
+  "sourceRevision": "c2a7c5dcad3eabeea7ad83307c83751ae49830ec",
+  "sourceClean": true,
+  "toolchain": {
+    "node": "v22.19.0",
+    "python": "3.12.12",
+    "google-adk": "2.6.3",
+    "mcp": "1.29.0",
+    "vertexai": "1.164.0",
+    "capturedIn": "experiments/hac-316/evidence/toolchain.json",
+    "note": "Every value above is the verbatim stdout of a recorded command; see toolchain.json for the commands. The working ADK import path is google.adk.tools.mcp_tool.mcp_toolset, reproduced in the interpreter the agents run on and resolved to google/adk/tools/mcp_tool/mcp_toolset.py. google-adk requires mcp>=1.24,<2, and a bare `pip install mcp` resolves outside that range; install `google-adk[mcp]`."
+  },
+  "frozenContracts": {
+    "source": "docs/architecture/enforcement-topology.md (frozen by HAC-326)",
+    "receiptVersion": "interlock.receipt.s2-fixture/1",
+    "correlationHeader": "interlock-correlation-id",
+    "receiptHeader": "interlock-receipt",
+    "operation": "set_reservation",
+    "callerDecisionContract": "ALLOW | DENY",
+    "note": "HAC-316 reuses these unchanged. It does not introduce a second enforcement path, and it does not retry the AGENT_TO_ANYWHERE / CONTENT_AUTHZ topology HAC-325 falsified."
+  },
+  "fixture": {
+    "initialState": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 40,
+        "beta": 40,
+        "gamma": 20
+      }
+    },
+    "initialStateDigest": "sha256:3363146a3c54c4fc5ee96a54a6cc88bdd522bb0124910dc6a787e9b0ddd0569f",
+    "genesisRevisionProtectedTarget": null,
+    "genesisRevisionBaselineTarget": null,
+    "projectionRecordedIn": "experiments/hac-316/evidence/fixture.json",
+    "invariant": "sum(services[].reserved) <= totalReservable",
+    "note": "The canonical fixture is unchanged and is not replaced. What changed is the deployment: the state is projected across 2 targets (alpha, beta), each an unchanged ProtectedTarget keeping the whole pool, so each mutation is locally valid and no target observes the composition. Per-partition targetIds and genesis revisions live in fixture.json."
+  },
+  "expectedIntents": {
+    "A": {
+      "agent": "capacity-planner",
+      "summary": "raise alpha's reservation from 40 to 60 for the reindex window",
+      "intent": {
+        "operation": "set_reservation",
+        "arguments": {
+          "service": "alpha",
+          "reserved": 60
+        }
+      },
+      "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+      "evidencePath": "services/alpha/reservation.json",
+      "validAlone": "60 + others = 120 <= 130"
+    },
+    "B": {
+      "agent": "traffic-shaper",
+      "summary": "raise beta's reservation from 40 to 60 for the backfill window",
+      "intent": {
+        "operation": "set_reservation",
+        "arguments": {
+          "service": "beta",
+          "reserved": 60
+        }
+      },
+      "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+      "evidencePath": "services/beta/reservation.json",
+      "validAlone": "60 + others = 120 <= 130"
+    }
+  },
+  "counterfactual": {
+    "claim": "each intent is valid alone; their composition is not",
+    "totalIfBothApplied": 140,
+    "totalReservable": 130,
+    "compositionBreachesInvariant": true
+  },
+  "couplingEvidence": {
+    "artifact": "experiments/hac-330/evidence/baseline.evidence.json",
+    "artifactSha256": "2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+    "evidence_file_sha256": "f716297558dfa325e8eef222623af0a461d0879f739cd7d0f7853d7a1ebd6f22",
+    "producer_artifact_sha256": "2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+    "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "producer": "@workspacejson/mining-core@0.0.0",
+    "producerSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "observedCoupling": {
+      "files": [
+        "services/alpha/reservation.json",
+        "services/beta/reservation.json"
+      ],
+      "support": 8,
+      "occurrences": 10
+    },
+    "note": "Consumed verbatim from the pinned upstream miner via HAC-330. Two different digests are recorded under two different names and are never collapsed: evidence_file_sha256 is the sha256 of the file on disk, producer_artifact_sha256 is the artifact.sha256 field inside the envelope. V1 recorded only the second, under a name that reads like the first."
+  },
+  "perturbationEvidence": {
+    "artifact": "experiments/hac-330/evidence/perturbed.evidence.json",
+    "evidence_file_sha256": "b6dca507294c46997828f5f36d1018cfb3a72c5dd65b7b6e217ba2aedb3cf02b",
+    "producer_artifact_sha256": "ec9bd6736e951f1a03b89bd02da918f67c3fde6ff4f6dfca25b4dc48120d08d5",
+    "basisRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+    "note": "The perturbation arm must be run at THIS basis revision, not the baseline one. The two artifacts are pinned to different commits, and an arm that swapped the evidence while keeping the baseline sourceRevision would be denied for a stale basis rather than for the absence of a qualifying pair — a denial that looks like Interlock holding and proves nothing. SPEC 5.4; enforced by REQ-047 and REQ-056."
+  },
+  "predeclared": {
+    "runtimeOverlap": {
+      "formula": "max(tool_start_A, tool_start_B) < min(tool_end_A, tool_end_B)",
+      "measuredAt": "the protected targets themselves, which are the only components present in every arm. Each target records the server-side instant it began and finished handling a mutation; overlap is computed from those four instants. Client launch time is NOT used to infer concurrency."
+    },
+    "interlockOverlap": {
+      "criterion": "both pending intents are registered before the first protected-target commit, evidenced mechanically by the denied intent's rationale citing the other intent's correlation id with reasonCode COUPLING_OBSERVED",
+      "rationale": "That denial is only reachable when both intents were simultaneously present in the pending-intent store. If both are ALLOWed, they did not overlap in the Interlock window, and that is reported as a negative result rather than reinterpreted."
+    },
+    "trialValidity": {
+      "rule": "digest(A,baseline) == digest(A,treatment) == expectedIntents.A.intentDigest AND digest(B,baseline) == digest(B,treatment) == expectedIntents.B.intentDigest",
+      "onViolation": "MODEL_FAILURE / INVALID_TRIAL — never counted as composition evidence"
+    },
+    "concurrencyAttempts": {
+      "maximum": 3,
+      "retention": "every attempt is retained and reported, valid or not; no silent retries",
+      "onExhaustion": "invoke HAC-316's kill/pivot clause; do not manufacture the collision"
+    },
+    "allowed": [
+      "concurrent harness dispatch of both agent invocations",
+      "identical warm-up of both runtime resources before measurement",
+      "separate sessions per agent",
+      "ordinary Agent Runtime concurrency configuration"
+    ],
+    "forbidden": [
+      "sleeps inserted into either agent to manufacture overlap",
+      "a barrier inside the Interlock proxy",
+      "artificial delay at either target",
+      "widening the pending-intent TTL until overlap appears",
+      "cherry-picking an undisclosed successful attempt"
+    ]
+  },
+  "guarantees": {
+    "ttlWideningImpossible": {
+      "holds": true,
+      "evidence": "pendingTtlMs exists on ProxyOptions in src/proxy/service.ts but has no entry in the ENV table in src/config.ts and is not passed by src/proxy/main.ts. A deployed proxy has no input that reaches it, so widening the pending TTL is structurally impossible rather than merely forbidden.",
+      "checkedBy": "REQ-052"
+    },
+    "localInvariantsRemainEnabled": {
+      "holds": true,
+      "evidence": "Each partition is an unchanged ProtectedTarget, so applyMutation still refuses an unknown service and still refuses a mutation that would breach its own pool. The local checks are defense in depth, not the oracle, and nothing disables them (X-19).",
+      "checkedBy": "REQ-027"
+    }
+  },
+  "routing": {
+    "mechanism": "An experiment-local routing surface dispatches on intent.arguments.service alone: alpha to proxy A, beta to proxy B, and fails closed on anything else. It holds no run/arm binding, so the request body — and therefore the intent digest — is byte-identical across arms. Two InterlockProxy instances share exactly one PendingIntentStore object, which is what lets them arbitrate over each other without any production change.",
+    "arms": {
+      "baseline": "composition-unaware issuer -> both protected targets. The issuer validates each action independently and mints the frozen S2 receipt shape; it never consults what else is in flight.",
+      "treatment": "routing surface -> frozen S2 proxy pair (one shared pending-intent store) -> protected targets, deciding from the baseline evidence artifact.",
+      "perturbation": "identical deployment and implementation to treatment; only the evidence artifact and its matching sourceRevision differ."
+    },
+    "routingConstraints": [
+      "no Interlock decision logic",
+      "no receipt issuance",
+      "no argument transformation",
+      "no evidence inspection and no arbitration",
+      "dispatch is a pure function of intent.arguments.service",
+      "unknown, missing or non-string service fails closed"
+    ]
+  },
+  "truthModel": {
+    "states": [
+      "REQUESTED",
+      "WITHHELD",
+      "AUTHORIZED",
+      "ACCEPTED",
+      "EXECUTED",
+      "OBSERVED",
+      "FAILED"
+    ],
+    "rule": "An MCP or HTTP acknowledgement is never OBSERVED. Only an independent re-read produces OBSERVED.",
+    "acceptedAvailability": "ACCEPTED is not independently observable against the frozen target, which answers a mutation with one response carrying EXECUTED or a 403. It is recorded as unavailable and never emitted; the distinction is preserved for HAC-317 (X-18)."
+  },
+  "outOfScope": [
+    "the HAC-317 production broker",
+    "restart recovery (HAC-327)",
+    "fleet-scale corpus (HAC-319)",
+    "Studio/UI (HAC-320)",
+    "generalising the experiment ingress into product infrastructure",
+    "promoting any experimental field into WorkspaceJSON Standard"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "experiment": "HAC-316",
+  "purpose": "the canonical HAC-330 fixture, unchanged, plus the two-target projection the arms deploy",
+  "recordedBeforeArms": true,
+  "projection": true,
+  "replacesCanonicalFixture": false,
+  "canonicalFixture": {
+    "totalReservable": 130,
+    "services": {
+      "alpha": 40,
+      "beta": 40,
+      "gamma": 20
+    }
+  },
+  "canonicalFixtureDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
+  "canonicalFixtureCanonicalDigest": "sha256:3363146a3c54c4fc5ee96a54a6cc88bdd522bb0124910dc6a787e9b0ddd0569f",
+  "partitionedServices": [
+    "alpha",
+    "beta"
+  ],
+  "residualServices": [
+    "gamma"
+  ],
+  "gammaTargetExists": false,
+  "targetIds": {
+    "alpha": "interlock-s1-target-alpha",
+    "beta": "interlock-s1-target-beta"
+  },
+  "partitions": {
+    "alpha": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 40
+      }
+    },
+    "beta": {
+      "totalReservable": 130,
+      "services": {
+        "beta": 40
+      }
+    }
+  },
+  "genesisRevisions": {
+    "alpha": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
+    "beta": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174"
+  },
+  "invariant": "sum(services[].reserved) + residual <= totalReservable",
+  "note": "Each partition keeps the whole pool as its own totalReservable, so each local mutation is genuinely valid and neither target can observe the composition. No partition is capped below the pool (X-13), and the residual service (gamma) never becomes a target (X-14) — it is folded in by the global verifier, which is where the harm oracle lives."
+}
