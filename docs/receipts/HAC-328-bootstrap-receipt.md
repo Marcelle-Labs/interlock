@@ -60,12 +60,26 @@ v0.4 line that pin corresponds to.
 
 ### Studio
 
-Not checked out. HAC-328 admits Studio only when it materially reduces context
-switching and remains correctly permissioned; no approved Studio issue is active
-in this phase, and the local `demo-studio` / `demo-studio-v3` checkouts both
-point at `Marcelle-Labs/director`, so "Studio v3" does not resolve to one
-unambiguous remote without a decision. Recorded as an open question rather than
-guessed at. `interlock.code-workspace` lists the five real siblings only.
+| Repository | Remote | SHA at bootstrap | Ref | Disposition |
+| -- | -- | -- | -- | -- |
+| `Marcelle-Labs/director` | `https://github.com/Marcelle-Labs/director.git` | `98857b697fc74b3a4ddb55aa72828b4760e6c86f` | `main` | **read-only, visibility only** |
+
+Present at `studio/`, clean, cloned by another actor in the sprint rather than by
+this bootstrap. HAC-328 permits a day-one Studio clone for visibility and
+requires it stay read-only until an approved Studio issue activates work. No such
+issue is active, so **`studio/` is read-only** and no Interlock change may depend
+on it.
+
+It is deliberately **absent from `provenance/manifest.json`**: the manifest
+records what the submission consumes, and Studio is not consumed. If Studio code
+is ever consumed, it gets a manifest entry and a disclosure line in the same pull
+request as the code that consumes it.
+
+One open question remains. The local `demo-studio` and `demo-studio-v3` checkouts
+both point at `Marcelle-Labs/director`, so "Studio v3" still does not resolve to
+one unambiguous remote or revision by name. The clone settles which *repository*
+is meant; it does not settle which line of work is "v3". An approved Studio issue
+should name the revision before anything depends on it.
 
 ## 3. Branch protection and required checks
 

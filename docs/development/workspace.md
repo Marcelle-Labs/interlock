@@ -197,19 +197,26 @@ file, fixture, or evidence packet.**
 
 ## Studio
 
-Not checked out at bootstrap. HAC-328 admits Studio only when it materially
-reduces context switching and remains correctly permissioned, and no approved
-Studio issue is active in the current phase. Two further reasons to wait:
+`studio/` is checked out — `Marcelle-Labs/director` at
+`98857b697fc74b3a4ddb55aa72828b4760e6c86f` — **for visibility only, read-only.**
 
-- the local checkouts named `demo-studio` and `demo-studio-v3` both point at
-  `Marcelle-Labs/director`, so "Studio v3" does not resolve to one unambiguous
-  remote without a decision;
-- a checkout that is present but unauthorized invites exactly the boundary
-  crossing this document exists to prevent.
+HAC-328 permits a day-one Studio clone to avoid context switching, and requires
+it stay read-only until an approved Studio issue activates work. No such issue is
+active, so:
 
-When an approved Studio issue activates work, clone it as a sibling, add it to
-`interlock.code-workspace`, add its row to the permissions matrix, and record it
-in `provenance/manifest.json` — read-only until the issue says otherwise.
+- do not edit anything under `studio/`;
+- do not create an Interlock dependency on it;
+- it is absent from `provenance/manifest.json` on purpose — the manifest records
+  what the submission *consumes*, and Studio is not consumed.
+
+"Studio v3" still does not resolve to one unambiguous line of work: the local
+`demo-studio` and `demo-studio-v3` checkouts both point at
+`Marcelle-Labs/director`. An approved Studio issue should name the revision
+before anything depends on it.
+
+When such an issue lands, move Studio into the permissions matrix above, and
+record it in `provenance/manifest.json` with a disclosure line in the same pull
+request as the code that consumes it.
 
 ## Merge gates on `main`
 
