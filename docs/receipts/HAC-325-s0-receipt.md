@@ -195,6 +195,15 @@ Created outside the scripts: reasoning engine `6822295377757077504`, registry
 service `interlock-s0-mcp`, gateway `interlock-s0-gw-egress`, policy
 `interlock-s0-egress-policy`.
 
+### Teardown executed
+
+`gcloud projects delete interlock-s0-gate` ran at 2026-08-13 04:41 UTC and
+returned `lifecycleState: DELETE_REQUESTED`. Deleting the project removes every
+resource above, including the four created by hand, so no residue check is
+needed and spend stopped at that point. Google retains the project recoverably
+for roughly 30 days; `gcloud projects undelete interlock-s0-gate` would restore
+it if the BYOC path is later funded.
+
 ## Disposition
 
 Per HAC-325's fail/pivot clause and the ADR fail action, the preferred
