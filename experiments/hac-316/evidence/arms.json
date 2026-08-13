@@ -1,0 +1,32 @@
+{
+  "experiment": "HAC-316",
+  "purpose": "the three arms, declared before they run: what is in the path, what artifact is read, and at which revision",
+  "baseline": {
+    "storeTopology": "none",
+    "inPath": "composition-unaware issuer -> unchanged ProtectedTarget",
+    "evidencePath": null,
+    "sourceRevision": null,
+    "note": "The issuer consults nothing else in flight. It is right about each request and wrong about the pair, which is the condition being measured. The targets are the same unchanged ProtectedTarget instances the other arms use."
+  },
+  "treatment": {
+    "storeTopology": "shared-object",
+    "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+    "evidencePath": "experiments/hac-330/evidence/baseline.evidence.json",
+    "sourceRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "note": "One PendingIntentStore object handed to both proxies. Object identity, not structural equality: two equal-but-separate stores would leave both proxies blind."
+  },
+  "perturbation": {
+    "storeTopology": "shared-object",
+    "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+    "evidencePath": "experiments/hac-330/evidence/perturbed.evidence.json",
+    "sourceRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+    "note": "Deployment and implementation identical to treatment. Only the artifact changes -- and its matching sourceRevision, which is not optional: at the baseline revision this arm would be denied for STALE_BASIS, which reads like Interlock holding and proves nothing (SPEC 5.4, REQ-047)."
+  },
+  "negativeControl": {
+    "storeTopology": "separate-objects",
+    "countsAsTreatment": false,
+    "inPath": "routing surface -> two InterlockProxy instances sharing one PendingIntentStore object -> unchanged ProtectedTarget",
+    "whereItLives": "experiments/hac-316/test/routing.test.mjs",
+    "note": "Two proxies with two stores. Neither sees the other, so both allow and the composition happens. It exists to show the shared object is what does the work, and it is never the treatment deployment -- the routing surface constructs exactly one store and cannot be configured to do otherwise."
+  }
+}

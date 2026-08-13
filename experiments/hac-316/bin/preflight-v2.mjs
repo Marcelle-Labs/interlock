@@ -417,7 +417,8 @@ const WHY = {
     'New, and the trap this manifest exists to disarm. The perturbed artifact is pinned to a ' +
     'different commit than the baseline one, and running the perturbation arm at the baseline ' +
     'revision denies both intents for STALE_BASIS — the wrong reason.',
-  'perturbationEvidence.note': 'New; states the trap in full so it cannot be rediscovered late.',
+  'perturbationEvidence.note':
+    'New; states the trap in full so nobody has to find it again halfway through a cloud run.',
 };
 
 const v1Flat = flatten(v1);

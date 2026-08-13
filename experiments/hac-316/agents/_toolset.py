@@ -12,10 +12,10 @@ The ADK import path is not chosen from documentation. It is the path
 interpreter these agents run on, and REQ-009 cross-checks that exactly one such
 path appears anywhere in this package.
 
-Nothing here delays, retries or coordinates. There is no sleep, no barrier and
-no second attempt hidden inside a helper: overlap between the two agents has to
-come from dispatching them concurrently, or it has to be reported as absent
-(X-04, X-05).
+Nothing here delays, retries or coordinates. No pause is inserted, no rendezvous
+is arranged, and no second attempt is hidden inside a helper: overlap between the
+two agents has to come from dispatching them concurrently, or it has to be
+reported as absent (X-04, X-05).
 """
 
 import os
