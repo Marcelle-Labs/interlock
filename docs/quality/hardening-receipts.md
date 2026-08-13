@@ -56,6 +56,37 @@ was pinned in the same commit, even though Sonar never flagged it: it was unflag
 only because it was not new code, and an analyzer's silence about unchanged code is
 not evidence.
 
+#### `githubactions:S6505` — dispositioned **False Positive**, with evidence
+
+Sonar reports `Omitting "--ignore-scripts" allows lifecycle scripts to run during
+package installation` (MAJOR/VULNERABILITY) against `pnpm install
+--frozen-lockfile` at `.github/workflows/ci.yml:120`. On `main` it alone put
+`new_security_rating` at 3 (C).
+
+The rule encodes npm/yarn semantics, where dependency lifecycle scripts run by
+default. pnpm 10 inverted that default. The claim was **not** taken on
+documentation: it was measured.
+
+| Question | Evidence |
+| --- | --- |
+| Which pnpm actually runs in CI? | `Done in 939ms using pnpm v10.24.0` — CI run [`31694003484`](https://github.com/Marcelle-Labs/interlock/actions/runs/31694003484). `packageManager` pins `pnpm@10.24.0` and `pnpm/action-setup` honours it. |
+| Does any dependency declare a lifecycle script? | Yes — exactly one. A scan of all 284 `package.json` files in the `.pnpm` store found `esbuild@0.28.2` with `postinstall = "node install.js"`, reached transitively through `vitest` → `vite`. |
+| Does it execute? | **No.** Both CI and a clean local install print `Ignored build scripts: esbuild. Run "pnpm approve-builds" to pick which dependencies should be allowed to run scripts.` |
+| Is anything approved to run scripts? | No. Neither `pnpm.onlyBuiltDependencies` nor `neverBuiltDependencies` appears in `package.json`, `.npmrc` or `pnpm-workspace.yaml`. |
+| Would the proposed fix change anything? | No. `pnpm install --frozen-lockfile --ignore-scripts` resolves the same 117 packages; the only observable difference is that pnpm stops printing the warning. |
+| Does anything depend on that script having run? | No. esbuild ships its platform binaries as 26 optional dependencies, so `@esbuild/darwin-arm64` is installed as a package rather than fetched by `install.js`. `pnpm run build` and `pnpm run test` both pass with the script ignored — as they do in CI. |
+
+Adding `--ignore-scripts` would suppress a warning that is currently the only
+evidence the protection is active, while changing no behaviour. That is worse than
+leaving it: a silenced warning cannot tell you when the situation changes.
+
+**The disposition is contingent, and the contingency is the point.** It holds
+because no package is approved to build. If anyone adds `pnpm.onlyBuiltDependencies`
+or runs `pnpm approve-builds`, that package's scripts *will* execute and this
+finding becomes a true positive. A reviewer seeing either change should reopen it
+rather than assume this receipt still applies. No automated guard enforces that
+today; it is an open item, not a discharged one.
+
 ### `Provenance boundary`
 
 | Field | Value |
