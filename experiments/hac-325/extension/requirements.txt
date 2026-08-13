@@ -1,4 +1,19 @@
+# Hash-locked and fully resolved, including the transitive typing_extensions.
+# Pinned versions alone are not enough: without hashes the resolved artifact can
+# change under a stable version string.
+#
 # protobuf must be >= the gencode version buf emits, or the generated module
 # refuses to load at import. Pinned to match buf.gen.yaml's plugin pin exactly.
-grpcio==1.76.0
-protobuf==7.35.1
+#
+# Wheels are the cp312 / manylinux x86_64 builds, matching python:3.12-slim on
+# the linux/amd64 builder. Changing the base image or platform means refreshing
+# these hashes.
+
+grpcio==1.76.0 \
+    --hash=sha256:980a846182ce88c4f2f7e2c22c56aefd515daeb36149d1c897f83cf57999e0b6
+
+protobuf==7.35.1 \
+    --hash=sha256:74758715c53d7158fb76caf4f0cfdacc5329a4b1bb994f865d6cf302d413a1c4
+
+typing_extensions==4.16.0 \
+    --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8
