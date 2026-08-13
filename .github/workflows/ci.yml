@@ -145,3 +145,60 @@ jobs:
             echo "green. If the assertion is wrong, say so in the PR and change it"
             echo "deliberately — that is a reviewable decision, not a CI fix."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # Delivery of the coverage report to Codecov, as its own job on purpose.
+  #
+  # Uploading inside `test` would mean a Codecov outage turns the build/typecheck/
+  # test context red, which conflates two different failure classes and teaches
+  # everyone to distrust the one gate that must stay trustworthy. Split out, the
+  # ownership is unambiguous:
+  #
+  #   test            -> the code builds and its tests pass
+  #   Coverage upload -> the evidence reached the adjudicator
+  #   codecov/patch   -> the evidence is good enough (Codecov's call, see codecov.yml)
+  coverage:
+    name: Coverage upload
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      # `fail_ci_if_error` is the whole point. A silently dropped upload leaves
+      # Codecov with nothing to adjudicate, and a patch status that never arrives
+      # is indistinguishable from one that passed. Missing is not green.
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/lcov.info
+          fail_ci_if_error: true
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Coverage upload failed"
+            echo
+            echo "**Invariant.** Every run that produces coverage delivers it to the"
+            echo "adjudicator."
+            echo
+            echo "**Why it matters.** Codecov cannot fail a patch it never received. If"
+            echo "this job is allowed to fail quietly, \`codecov/patch\` simply never"
+            echo "reports, and a pull request with no test coverage at all looks exactly"
+            echo "like one that passed. Missing is not green."
+            echo
+            echo "**Authority.** Repository CI, reported by \`github-actions\` as"
+            echo "\`Coverage upload\`. It asserts delivery only — whether the coverage is"
+            echo "*adequate* is \`codecov/patch\`'s call, configured in \`codecov.yml\`."
+            echo
+            echo "**Evidence required.** A successful upload of \`coverage/lcov.info\` for"
+            echo "this head. If Codecov is genuinely down, wait and re-run: an outage is"
+            echo "a reason to retry, not a reason to merge without coverage."
+            echo
+            echo "**Do not weaken.** Do not set \`fail_ci_if_error: false\`, do not add"
+            echo "\`continue-on-error\`, and do not drop this job to recover green."
+          } >> "$GITHUB_STEP_SUMMARY"
