@@ -44,6 +44,23 @@ const { RECEIPT_VERSION } = await load('authorization/receipt.js');
 
 const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).trim();
 
+/**
+ * Whether the *source* tree is clean.
+ *
+ * This experiment's own evidence directory is excluded, and the exclusion is
+ * narrow on purpose. The guard exists to stop a manifest being declared from
+ * drifted source, which cannot be recounted. It is not supposed to trip on the
+ * artifact it is in the middle of writing — which is exactly what it did on the
+ * first run, refusing to re-run because its own previous output was untracked.
+ */
+function sourceIsClean() {
+  const dirty = git('status', '--porcelain')
+    .split('\n')
+    .filter((line) => line !== '')
+    .filter((line) => !line.slice(3).startsWith('experiments/hac-316/evidence'));
+  return { clean: dirty.length === 0, paths: dirty };
+}
+
 const evidencePath = join(repoRoot, 'experiments', 'hac-330', 'evidence', 'baseline.evidence.json');
 const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'));
 
@@ -83,7 +100,7 @@ const manifest = {
   title: 'S1 end-to-end collision proof on real Agent Runtime',
   declaredAt: 'committed before any cloud resource was created; see git history',
   sourceRevision: git('rev-parse', 'HEAD'),
-  sourceClean: git('status', '--porcelain') === '',
+  sourceClean: sourceIsClean().clean,
 
   toolchain: {
     node: process.version,
@@ -252,7 +269,10 @@ if (coupling === undefined) {
   problems.push('the committed evidence carries no coupling between the two intents target paths');
 }
 if (!manifest.sourceClean) {
-  problems.push('the working tree is dirty; a preflight from a dirty tree cannot be recounted');
+  problems.push(
+    `source tree is dirty (${sourceIsClean().paths.join(', ')}); ` +
+      'a preflight declared from drifted source cannot be recounted',
+  );
 }
 
 if (problems.length > 0) {
