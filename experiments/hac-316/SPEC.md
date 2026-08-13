@@ -31,15 +31,30 @@ no judgment calls.
 ## 0. Erratum log — post-freeze corrections
 
 This document was frozen at commit `c2a7c5d` ("HAC-316: freeze the
-implementation spec against the two-target topology"). Three of its verification
+implementation spec against the two-target topology"). Four of its verification
 commands were **unsatisfiable as written**.
 
-The cause is the same in all three cases: each command is a `grep` whose scan
-tree contains the text of its own prohibition. A scanner that scans the document
-declaring the rule will always match the rule's own words, so the command could
-never print `PASS` — not on a violating tree, and not on a perfectly clean one.
-It could not have passed at the freeze commit either; §0.1-§0.3 each reproduce
-the failure at `c2a7c5d` directly.
+Three share one cause: each is a `grep` whose scan tree contains the text of its
+own prohibition. A scanner that scans the document declaring the rule will always
+match the rule's own words, so the command could never print `PASS` — not on a
+violating tree, and not on a perfectly clean one. It could not have passed at the
+freeze commit either; §0.1-§0.3 each reproduce the failure at `c2a7c5d` directly.
+
+The fourth (§0.7) has a different cause and is not a self-match. REQ-009's
+cross-check counts distinct ADK import paths and demands exactly one; an owner
+ruling issued **after** the freeze fixed the agent runtime in a way that makes
+the working import surface two modules rather than one. That is a post-freeze
+requirement change, not implementation drift, and the count is the only part of
+the check that is wrong.
+
+**Erratum index:**
+
+| Erratum | Section | Requirement | Defect |
+| -- | -- | -- | -- |
+| E-01 | §0.1 | REQ-027 (X-19) | `grep` matched its own prohibition text in `SPEC.md` |
+| E-02 | §0.2 | REQ-058 (X-01) | `grep` matched the frozen preflight artifacts' record of compliance |
+| E-03 | §0.3 | REQ-064 (X-09) | `grep` matched the exclusion fence entry that must name what it forbids |
+| E-04 | §0.7 | REQ-009 | counter demanded exactly one ADK import path; a post-freeze owner ruling makes the working surface two |
 
 **Owner ruling, applied here verbatim:**
 
@@ -80,9 +95,12 @@ same-basename file elsewhere in the tree, which `grep --exclude` would.
 ### 0.0.1 How each correction was proved still load-bearing
 
 A scratch mirror of `experiments/hac-316/` and `src/` was made outside the
-worktree, each corrected command was run against it (all three `PASS`), then
+worktree, each corrected command was run against it (all four `PASS`), then
 temporary probe files were added, the commands re-run, and the probes deleted.
 Recorded per erratum below. No probe file was ever created inside the repository.
+E-04 (§0.7) was proved the same way, against a mirror of
+`experiments/hac-316/agents/` and `experiments/hac-316/evidence/`, and its probes
+mutate a *copy* of `toolchain.json` — the committed artifact was never edited.
 
 ---
 
@@ -247,6 +265,9 @@ other than this document — including `DEBT.md`, the receipts path is covered b
 
 ### 0.4 What this erratum does not do
 
+This section states the limits of §0.1-§0.3. §0.7 states E-04's own limits
+separately, because E-04 is not a scope exclusion and so is bounded differently.
+
 - It does not renumber, reword or relax any other requirement.
 - It does not remove or weaken any exclusion-fence entry.
 - It does not edit Preflight V1, its producer, or Preflight V2.
@@ -277,6 +298,160 @@ The harm verdict combines two runtime observations with two fixture assertions,
 and the frozen spec did not say so anywhere a reader would find it. §5.9 states
 it plainly and REQ-074 requires it to be carried into the packet and the receipt.
 This narrows what the experiment claims; it does not change any measurement.
+
+---
+
+### 0.7 ERRATUM E-04 — REQ-009 (ADK import surface is captured, not guessed)
+
+**Original** (frozen at `SPEC.md:615`, the cross-check under REQ-009):
+
+```sh
+cd "$REPO" && test "$(grep -rhoE 'google\.adk\.tools\.mcp_tool[.a-zA-Z_]*' experiments/hac-316/agents | sort -u | wc -l | tr -d ' ')" = "1" \
+  && grep -rq "$(node -p 'require("./experiments/hac-316/evidence/toolchain.json").adkImport.modulePath')" experiments/hac-316/agents \
+  && echo PASS || echo FAIL
+```
+
+Expected output at the freeze: `PASS`.
+
+**Why it cannot pass, and why that is not implementation drift.** The first
+conjunct requires the agents to reference exactly **one** distinct
+`google.adk.tools.mcp_tool` path. After the freeze the owner ruled that HAC-316
+must use Gemini-backed ADK `LlmAgent`. On the pinned `google-adk 2.6.3` that
+runtime needs two symbols, and they are defined in two different modules:
+
+| Symbol | Defining module |
+| -- | -- |
+| `McpToolset` | `google.adk.tools.mcp_tool.mcp_toolset` |
+| `StreamableHTTPConnectionParams` | `google.adk.tools.mcp_tool.mcp_session_manager` |
+
+`experiments/hac-316/agents/_toolset.py:37-38` therefore references two paths,
+the counter reads `2`, and the command prints `FAIL` on a tree where the ADK
+import surface is fully and correctly captured:
+
+```
+$ grep -rhoE 'google\.adk\.tools\.mcp_tool[.a-zA-Z_]*' experiments/hac-316/agents | sort -u
+google.adk.tools.mcp_tool.mcp_session_manager
+google.adk.tools.mcp_tool.mcp_toolset
+```
+
+The cause is a **post-freeze owner ruling**, not drift: the frozen counter was
+written against a runtime choice that the ruling superseded. No implementation
+choice can restore the count without making the artifact worse — see below.
+
+**The re-export, and why relying on it was rejected.** `mcp_toolset` does
+re-export `StreamableHTTPConnectionParams`, verified by import in the pinned
+interpreter:
+
+```
+$ python -c 'import importlib
+a = importlib.import_module("google.adk.tools.mcp_tool.mcp_toolset")
+b = importlib.import_module("google.adk.tools.mcp_tool.mcp_session_manager")
+print(a.StreamableHTTPConnectionParams is b.StreamableHTTPConnectionParams)
+print(a.StreamableHTTPConnectionParams.__module__)'
+True
+google.adk.tools.mcp_tool.mcp_session_manager
+```
+
+Importing both symbols from `mcp_toolset` would collapse the count to `1` and
+make the frozen command print `PASS`. It was **rejected**. The re-export is not
+where the class is defined; it is a convenience alias that the library is free to
+drop in a later version without notice, and `__module__` already disagrees with
+it. An import path chosen to satisfy a counter is a worse artifact than an
+accurate one — it makes the evidence record a fact about the checker rather than
+a fact about the runtime. The implementer declined the collapse and recorded the
+defect instead. That is the correct call, and this erratum ratifies it.
+
+**Corrected** (the operative command; also inline at REQ-009):
+
+```sh
+cd "$REPO" && node -e '
+const fs=require("fs"), path=require("path");
+const t=require("./experiments/hac-316/evidence/toolchain.json");
+const captured=t.adkImports||(t.adkImport?[t.adkImport]:[]);
+const fail=(m)=>{console.error(m);process.exit(1);};
+if(!captured.length) fail("no ADK import was mechanically captured");
+for(const e of captured){
+  if(!e||e.method!=="executed") fail("adkImport not mechanically captured");
+  if(typeof e.modulePath!=="string"||!e.modulePath.length) fail("no modulePath");
+  if(typeof e.resolvedFile!=="string"||!e.resolvedFile.length) fail("no resolvedFile");
+}
+const referenced=new Set();
+const walk=(d)=>{for(const n of fs.readdirSync(d)){const p=path.join(d,n);
+  if(fs.statSync(p).isDirectory()){if(n!=="__pycache__")walk(p);continue;}
+  if(!n.endsWith(".py"))continue;
+  for(const m of fs.readFileSync(p,"utf8").matchAll(/google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g))referenced.add(m[0]);}};
+walk("experiments/hac-316/agents");
+if(!referenced.size) fail("the agents reference no ADK mcp_tool module at all");
+const have=new Set(captured.map(e=>e.modulePath));
+const uncaptured=[...referenced].filter(p=>!have.has(p));
+const unused=[...have].filter(p=>!referenced.has(p));
+if(uncaptured.length) fail("imported but never captured: "+uncaptured.join(", "));
+if(unused.length) fail("captured but never imported: "+unused.join(", "));
+' && echo PASS || echo FAIL
+```
+
+Expected output:
+```
+PASS
+```
+
+**What changed, exactly.** The cardinality assertion `= "1"` is replaced by a
+**bidirectional set correspondence**: every `google.adk.tools.mcp_tool` path the
+agents reference must appear in `toolchain.json`, and every path
+`toolchain.json` captures must be referenced by the agents. The extraction regex
+`google\.adk\.tools\.mcp_tool[.a-zA-Z_]*` and the scan root
+`experiments/hac-316/agents` are byte-identical to the frozen form — compare them
+character by character. The per-entry shape checks (`method === "executed"`, a
+non-empty `modulePath`, a non-empty `resolvedFile`) are the frozen REQ-009
+predicate, now applied to **every** captured entry rather than only the first.
+
+**The intent is unchanged.** REQ-009 exists so the agents' ADK import surface is
+mechanically captured and pinned rather than left to drift or to documentation
+guesswork — V1's prose about `mcp_toolset` may not be promoted unless reproduced.
+That is exactly what the corrected command enforces, and it enforces it *more*
+strictly than the counter did:
+
+- The frozen command grepped for the single captured `modulePath` anywhere under
+  `agents/`. A second, entirely unverified import would have to also break the
+  count to be caught; a capture of a path nobody imports was never caught at all.
+- The corrected command admits **no** uncaptured import and **no** unused
+  capture. A capture cannot be padded with paths nobody imports, and an import
+  cannot appear that nobody reproduced in the interpreter the agents run on.
+
+Nothing became permissible. Adding an ADK import without capturing it still
+fails. The number of paths is no longer asserted because the runtime, not the
+spec, determines it — but every path there is must still be mechanically
+reproduced.
+
+**Proved both failure directions bite.** A scratch mirror of
+`experiments/hac-316/agents/` and `experiments/hac-316/evidence/` was made
+outside the worktree (baseline `PASS`), probes were added, the command re-run,
+and the probes deleted. No probe was ever created inside the repository, and
+`toolchain.json` was mutated only in the mirror.
+
+| Probe | Content | Result |
+| -- | -- | -- |
+| `experiments/hac-316/agents/probe_uncaptured.py` | `from google.adk.tools.mcp_tool.mcp_probe import ProbeParams` | `FAIL` — `imported but never captured: google.adk.tools.mcp_tool.mcp_probe` |
+| `evidence/toolchain.json` (mirror copy) | extra `adkImports` entry for `google.adk.tools.mcp_tool.mcp_probe_unused` | `FAIL` — `captured but never imported: google.adk.tools.mcp_tool.mcp_probe_unused` |
+| `evidence/toolchain.json` (mirror copy) | second entry's `method` set to `asserted` | `FAIL` — `adkImport not mechanically captured` |
+| (all probes deleted) | — | `PASS` |
+
+The first two rows are the two directions of the correspondence; the third
+confirms the mechanical-capture predicate still reaches every entry, not just the
+first. The corrected command also returns `PASS` on the unmodified worktree.
+
+**What E-04 does not do.**
+
+- It does not touch the first REQ-009 command (the shape check on
+  `toolchain.json.adkImport`), which is satisfiable as frozen and is unchanged.
+- It does not change the extraction pattern or the scan root.
+- It does not add, remove or renumber any REQ. The §7.4 count stays at 74.
+- It does not touch any exclusion-fence entry. The closed exclusion set of §0.0
+  is unchanged, and E-04 excludes nothing — it is a correspondence check, not a
+  scope exclusion, so §0.0's four-path fence does not apply to it.
+- It does not edit Preflight V1, its producer, or Preflight V2.
+- It does not permit a hand-asserted import path. `method === "executed"` is
+  still required, now of every captured entry.
 
 ---
 
@@ -895,6 +1070,18 @@ PASS
 **REQ-009 — The ADK import path actually used by the agents is captured, not
 promoted from prior prose.**
 
+> **ERRATUM E-04 (§0.7).** The frozen cross-check required the agents to
+> reference exactly **one** distinct `google.adk.tools.mcp_tool` path. A
+> post-freeze owner ruling fixed the runtime on Gemini-backed ADK `LlmAgent`,
+> whose two required symbols are defined in two different modules on the pinned
+> `google-adk 2.6.3`, so the count is `2` and the command could not print `PASS`
+> on a correctly captured tree. The counter is replaced by the **bidirectional
+> correspondence** it was standing in for: every referenced path is captured, and
+> every captured path is referenced. **The extraction pattern, the scan root, and
+> REQ-009's intent are unchanged** — the ADK import surface must still be
+> mechanically reproduced in the interpreter the agents run on, never guessed and
+> never promoted from prose. The new form is strictly stronger; see §0.7.
+
 V1's note about `google.adk.tools.mcp_tool.mcp_toolset` is **prose**, not
 evidence. It may not be promoted unless reproduced.
 
@@ -913,18 +1100,46 @@ Expected output:
 PASS
 ```
 
-Cross-check that the captured path is the one the agents import:
+Cross-check that the captured paths are exactly the ones the agents import — no
+import that was not reproduced, and no capture that nobody imports (corrected per
+§0.7):
 
 ```sh
-cd "$REPO" && test "$(grep -rhoE 'google\.adk\.tools\.mcp_tool[.a-zA-Z_]*' experiments/hac-316/agents | sort -u | wc -l | tr -d ' ')" = "1" \
-  && grep -rq "$(node -p 'require("./experiments/hac-316/evidence/toolchain.json").adkImport.modulePath')" experiments/hac-316/agents \
-  && echo PASS || echo FAIL
+cd "$REPO" && node -e '
+const fs=require("fs"), path=require("path");
+const t=require("./experiments/hac-316/evidence/toolchain.json");
+const captured=t.adkImports||(t.adkImport?[t.adkImport]:[]);
+const fail=(m)=>{console.error(m);process.exit(1);};
+if(!captured.length) fail("no ADK import was mechanically captured");
+for(const e of captured){
+  if(!e||e.method!=="executed") fail("adkImport not mechanically captured");
+  if(typeof e.modulePath!=="string"||!e.modulePath.length) fail("no modulePath");
+  if(typeof e.resolvedFile!=="string"||!e.resolvedFile.length) fail("no resolvedFile");
+}
+const referenced=new Set();
+const walk=(d)=>{for(const n of fs.readdirSync(d)){const p=path.join(d,n);
+  if(fs.statSync(p).isDirectory()){if(n!=="__pycache__")walk(p);continue;}
+  if(!n.endsWith(".py"))continue;
+  for(const m of fs.readFileSync(p,"utf8").matchAll(/google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g))referenced.add(m[0]);}};
+walk("experiments/hac-316/agents");
+if(!referenced.size) fail("the agents reference no ADK mcp_tool module at all");
+const have=new Set(captured.map(e=>e.modulePath));
+const uncaptured=[...referenced].filter(p=>!have.has(p));
+const unused=[...have].filter(p=>!referenced.has(p));
+if(uncaptured.length) fail("imported but never captured: "+uncaptured.join(", "));
+if(unused.length) fail("captured but never imported: "+unused.join(", "));
+' && echo PASS || echo FAIL
 ```
 
 Expected output:
 ```
 PASS
 ```
+
+Still load-bearing in both directions: an agent file importing
+`google.adk.tools.mcp_tool.mcp_probe` flips this to `FAIL` with `imported but
+never captured`, and a `toolchain.json` entry for a path no agent imports flips
+it to `FAIL` with `captured but never imported` (§0.7).
 
 ---
 
@@ -2764,9 +2979,11 @@ The packet verifier `experiments/hac-316/bin/verify-packet.mjs` must execute
 
 The command below is unchanged; only its expected count moves, from 68 to 74,
 because §0.5 and §0.6 added REQ-069 … REQ-074. No existing id was renumbered, so
-the count is the only thing that changes. REQ-027, REQ-058 and REQ-064 must be
-executed in their **corrected** form (§0) — a verifier that still runs the frozen
-form of any of the three will report a failure that no implementation can clear.
+the count is the only thing that changes. **E-04 (§0.7) does not move the count
+again** — it corrects REQ-009's cross-check and adds no requirement, so 74 stands.
+REQ-009, REQ-027, REQ-058 and REQ-064 must be executed in their **corrected**
+form (§0) — a verifier that still runs the frozen form of any of the four will
+report a failure that no implementation can clear.
 
 ```sh
 cd "$REPO" && node experiments/hac-316/bin/verify-packet.mjs --all 2>&1 | tail -2
