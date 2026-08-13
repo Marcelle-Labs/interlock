@@ -197,29 +197,56 @@ file, fixture, or evidence packet.**
 
 ## Studio
 
-Not checked out at bootstrap. HAC-328 admits Studio only when it materially
-reduces context switching and remains correctly permissioned, and no approved
-Studio issue is active in the current phase. Two further reasons to wait:
+`studio/` is checked out — `Marcelle-Labs/director` at
+`98857b697fc74b3a4ddb55aa72828b4760e6c86f` — **for visibility only, read-only.**
 
-- the local checkouts named `demo-studio` and `demo-studio-v3` both point at
-  `Marcelle-Labs/director`, so "Studio v3" does not resolve to one unambiguous
-  remote without a decision;
-- a checkout that is present but unauthorized invites exactly the boundary
-  crossing this document exists to prevent.
+HAC-328 permits a day-one Studio clone to avoid context switching, and requires
+it stay read-only until an approved Studio issue activates work. No such issue is
+active, so:
 
-When an approved Studio issue activates work, clone it as a sibling, add it to
-`interlock.code-workspace`, add its row to the permissions matrix, and record it
-in `provenance/manifest.json` — read-only until the issue says otherwise.
+- do not edit anything under `studio/`;
+- do not create an Interlock dependency on it;
+- it is absent from `provenance/manifest.json` on purpose — the manifest records
+  what the submission *consumes*, and Studio is not consumed.
+
+"Studio v3" still does not resolve to one unambiguous line of work: the local
+`demo-studio` and `demo-studio-v3` checkouts both point at
+`Marcelle-Labs/director`. An approved Studio issue should name the revision
+before anything depends on it.
+
+When such an issue lands, move Studio into the permissions matrix above, and
+record it in `provenance/manifest.json` with a disclosure line in the same pull
+request as the code that consumes it.
+
+## Merge gates on `main`
+
+`main` is protected. Current state:
+
+| Control | Setting |
+| -- | -- |
+| Pull request required | yes |
+| Required status check | `Provenance boundary` |
+| Branch must be up to date before merge | yes |
+| Linear history required | yes |
+| Conversation resolution required | yes |
+| Force pushes / deletions | blocked |
+| Administrator enforcement | off — matches the convention on the WorkspaceJSON repositories |
+
+Administrator enforcement being off is a break-glass affordance, not a routine
+path. **Do not bypass a required check to recover green**, and do not weaken a
+gate to make a change fit. Fix the cause, or record the conflict on the issue and
+choose the safer boundary. META-337 owns hardening these gates further.
 
 ## Known gaps
 
 Recorded rather than papered over. Current state and rationale are in the
 [bootstrap receipt](../receipts/HAC-328-bootstrap-receipt.md).
 
-- **Branch protection on `Marcelle-Labs/interlock` is unavailable.** The
-  organization is on the GitHub Free plan and the repository is private, so
-  protected branches and rulesets both return HTTP 403. Compensating controls are
-  in the receipt. Do not make the repository public to unlock protection —
-  submission posture is HAC-329's decision, not a bootstrap side effect.
 - **`gcloud` is not installed locally.** S0/S2 need it; installing and
-  authenticating it belongs to HAC-325/HAC-326, which own that surface.
+  authenticating it, and choosing the project/region, belongs to HAC-325/HAC-326,
+  which own that surface. No Google Cloud project context is recorded at
+  bootstrap because none is configured yet.
+- **`Marcelle-Labs/ai-swarm` cannot be branch-protected.** It is private and the
+  organization is on the GitHub Free plan, so protected branches and rulesets
+  return HTTP 403 there. It is execute/read for this phase, so no Interlock change
+  depends on that gate; META-331/META-337 own its posture.
