@@ -251,8 +251,6 @@ function buildFixtures() {
     `${fixtures.baseline.commitCount} commits in each`,
   );
 
-  const baselineRepo = fixtures.baseline.repo;
-  const perturbedRepo = fixtures.perturbed.repo;
   return fixtures;
 }
 
@@ -417,7 +415,7 @@ function runArms({ baselineRepo, perturbedRepo, evidence, aloneA, aloneB, baseli
       treatmentDecision.basisRevision === fixtures.baseline.head,
     `cited ${treatmentDecision.couplings?.[0]?.files.join(' <-> ')} at support ${treatmentDecision.couplings?.[0]?.support}, basis ${treatmentDecision.basisRevision?.slice(0, 12)}…`,
   );
-  return { arms, treatmentDecision, perturbedDecision, treatment, perturbedRun, uncoordinated };
+  return { treatmentDecision, perturbedDecision, treatment, perturbedRun, uncoordinated };
 }
 
 // ---------------------------------------------------------------------------
@@ -536,7 +534,7 @@ async function main() {
   );
 
   // -- 5. The three arms --------------------------------------------------
-  const { arms, treatmentDecision, perturbedDecision, treatment, perturbedRun, uncoordinated } = runArms({
+  const { treatmentDecision, perturbedDecision, treatment, perturbedRun, uncoordinated } = runArms({
     baselineRepo,
     perturbedRepo,
     evidence,
