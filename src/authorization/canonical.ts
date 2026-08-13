@@ -51,7 +51,7 @@ export class CanonicalizationError extends Error {
 }
 
 /**
- * Order two keys by UTF-16 code unit.
+ * Order two strings by UTF-16 code unit.
  *
  * Explicit rather than relying on the default sort, and deliberately **not**
  * `localeCompare`: a locale-aware comparison is locale-dependent, so the same
@@ -60,8 +60,13 @@ export class CanonicalizationError extends Error {
  * implementations agree on, and it is the same order the default sort uses — so
  * this changes nothing except making the requirement legible and immune to a
  * well-meaning refactor toward `localeCompare`.
+ *
+ * Exported because the coupled-set precedence sort in `broker/pairing` needs the
+ * same guarantee for the same reason — two proxies that disagreed about ordering
+ * would disagree about which intent leads — and one shared comparator is one
+ * place for that requirement to be stated and tested.
  */
-function byCodeUnit(left: string, right: string): number {
+export function byCodeUnit(left: string, right: string): number {
   if (left < right) return -1;
   return left > right ? 1 : 0;
 }

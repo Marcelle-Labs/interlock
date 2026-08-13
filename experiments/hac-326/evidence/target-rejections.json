@@ -34,7 +34,7 @@
       "description": "expired receipt",
       "status": 403,
       "reasonCode": "RECEIPT_EXPIRED",
-      "detail": "receipt expired at 2026-08-13T10:40:01.543Z; now 2026-08-13T10:41:01.544Z",
+      "detail": "receipt expired at 2026-08-13T11:08:58.636Z; now 2026-08-13T11:09:58.638Z",
       "stateUnchanged": true,
       "revisionUnchanged": true
     },

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   CanonicalizationError,
+  byCodeUnit,
   canonicalDigest,
   canonicalize,
 } from '../src/authorization/canonical.js';
@@ -62,6 +63,39 @@ describe('canonicalize', () => {
 
   it('carries its algorithm in the digest string', () => {
     expect(canonicalDigest({ a: 1 })).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+});
+
+describe('byCodeUnit', () => {
+  // Shared by canonicalization and by coupled-set precedence. Both need the
+  // same guarantee: every machine that evaluates it reaches the same order.
+
+  it('orders by code unit in both directions', () => {
+    expect(byCodeUnit('a', 'b')).toBe(-1);
+    expect(byCodeUnit('b', 'a')).toBe(1);
+  });
+
+  it('reports equality as 0, so a sort using it is stable on ties', () => {
+    expect(byCodeUnit('a', 'a')).toBe(0);
+  });
+
+  it('is antisymmetric, which a comparator has to be to sort correctly', () => {
+    for (const [left, right] of [
+      ['a', 'b'],
+      ['Z', 'a'],
+      ['2026-08-13|ilk-a', '2026-08-13|ilk-b'],
+    ] as const) {
+      expect(byCodeUnit(left, right)).toBe(-byCodeUnit(right, left));
+    }
+  });
+
+  it('orders uppercase before lowercase, unlike a locale-aware comparison', () => {
+    // The property that makes this safe to sign over: 'Z' < 'a' by code unit
+    // everywhere, whereas localeCompare puts 'a' first in many locales. If this
+    // ever flips, canonicalization is locale-dependent and signatures break
+    // across machines.
+    expect(byCodeUnit('Z', 'a')).toBe(-1);
+    expect(canonicalize({ a: 1, Z: 2 })).toBe('{"Z":2,"a":1}');
   });
 });
 

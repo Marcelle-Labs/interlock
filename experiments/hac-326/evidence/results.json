@@ -135,13 +135,13 @@
       "id": "LAT-1",
       "criterion": "latency is reported as a distribution over repeated requests, not one happy-path number",
       "passed": true,
-      "detail": "n=200, median 1.156ms, p95 1.856ms, max 3.464ms"
+      "detail": "n=200, median 1.588ms, p95 2.72ms, max 4.557ms"
     },
     {
       "id": "LAT-2",
       "criterion": "the concurrent two-request case is measured",
       "passed": true,
-      "detail": "median 1.436ms, p95 2.735ms"
+      "detail": "median 3.16ms, p95 7.093ms"
     }
   ]
 }

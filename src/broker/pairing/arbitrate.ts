@@ -26,6 +26,7 @@
  * permits, so no future edit can accidentally add one without moving the
  * permissive answer upward past a guard, which is visible in review.
  */
+import { byCodeUnit } from '../../authorization/canonical.js';
 import type { PendingIntent, StoreResult } from './store.js';
 
 /** What Interlock decided about an arriving intent. */
@@ -219,18 +220,6 @@ function findCouplings(
  */
 function precedenceOf(intent: PendingIntent): string {
   return `${intent.recordedAt}|${intent.correlationId}`;
-}
-
-/**
- * Order two precedence keys by UTF-16 code unit.
- *
- * Not `localeCompare`: the winner of a coupled set must be the same on every
- * machine that evaluates it, and a locale-aware comparison is not. Two proxies
- * disagreeing about who leads would compose the pair the decision just refused.
- */
-function byCodeUnit(left: string, right: string): number {
-  if (left < right) return -1;
-  return left > right ? 1 : 0;
 }
 
 /** Read a member that is only useful if it is a string, for a failure message. */

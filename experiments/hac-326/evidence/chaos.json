@@ -9,8 +9,8 @@
       "bypassAttemptStatus": 403,
       "bypassAttemptReason": "RECEIPT_ABSENT",
       "stateUnchanged": true,
-      "deadProxyUrl": "http://127.0.0.1:61084",
-      "deadTargetUrl": "http://127.0.0.1:61083"
+      "deadProxyUrl": "http://127.0.0.1:52435",
+      "deadTargetUrl": "http://127.0.0.1:52434"
     },
     {
       "arm": "B",
