@@ -224,35 +224,19 @@ async function runDegradedCases({ baselineRepo, fixtures, evidence, miner }) {
   return { guards, shallow, absent, absentGuard, misattributed, misattributedGuard };
 }
 
-// ---------------------------------------------------------------------------
-
-async function main() {
-  rmSync(WORK_DIR, { recursive: true, force: true });
-  mkdirSync(FIXTURE_DIR, { recursive: true });
-  mkdirSync(EVIDENCE_DIR, { recursive: true });
-
-  // -- 0. Pins ------------------------------------------------------------
-  section('0. Pinned upstream revisions');
-  const cliCheckout = resolveCliCheckout();
-  const pins = verifyPinnedCheckouts(cliCheckout);
-
-  const miner = await loadMiner();
-  console.log(
-    `  producer: ${miner.producer.package}@${miner.producer.version} ` +
-      `(${miner.producer.published ? 'published' : 'private, unpublished'}) ` +
-      `bundle sha256 ${miner.producer.bundleSha256.slice(0, 16)}…`,
-  );
-
-  // -- 1. Fixtures --------------------------------------------------------
+/**
+ * Build both fixture histories and assert the controls that make the whole
+ * experiment attributable: same final tree, same commit count.
+ */
+function buildFixtures() {
   section('1. Frozen fixtures');
   const fixtures = {};
   for (const [name, rebalances] of Object.entries(FIXTURES)) {
     fixtures[name] = buildFixture(join(FIXTURE_DIR, name), rebalances);
     console.log(`  ${name.padEnd(9)} head=${fixtures[name].head} commits=${fixtures[name].commitCount}`);
   }
-  // Already relative to the repository root; see the note at the top.
-  const recordedFixtures = fixtures;
-  writeJson(join(EVIDENCE_DIR, 'fixtures.json'), { totalReservable: TOTAL_RESERVABLE, ...recordedFixtures });
+  // Already relative to the repository root; see the note at the top of the file.
+  writeJson(join(EVIDENCE_DIR, 'fixtures.json'), { totalReservable: TOTAL_RESERVABLE, ...fixtures });
 
   check(
     'CTL-TREE',
@@ -269,25 +253,13 @@ async function main() {
 
   const baselineRepo = fixtures.baseline.repo;
   const perturbedRepo = fixtures.perturbed.repo;
+  return fixtures;
+}
 
-  // -- 2. Both actions are green alone ------------------------------------
-  section('2. Each action is valid in isolation');
-  const aloneA = validateAlone(baselineRepo, INTENT_A);
-  const aloneB = validateAlone(baselineRepo, INTENT_B);
-  check(
-    'ACC-1',
-    'action A is valid in isolation',
-    aloneA.holds && aloneA.exitCode === 0,
-    `A alone → total ${aloneA.report.total} <= ${aloneA.report.totalReservable}, verify.mjs exit ${aloneA.exitCode}`,
-  );
-  check(
-    'ACC-2',
-    'action B is valid in isolation',
-    aloneB.holds && aloneB.exitCode === 0,
-    `B alone → total ${aloneB.report.total} <= ${aloneB.report.totalReservable}, verify.mjs exit ${aloneB.exitCode}`,
-  );
-
-  // -- 3. Real mined evidence ---------------------------------------------
+/**
+ * Mine both histories with the pinned producer and write the artifacts.
+ */
+async function mineBothFixtures(fixtures, miner, pins) {
   section('3. Real mined evidence from the pinned producer');
   const evidence = {};
   for (const [name, fixture] of Object.entries(fixtures)) {
@@ -333,82 +305,21 @@ async function main() {
   );
 
   // Determinism: two mines of the same basis must agree byte for byte.
-  const remined = await mineEvidence({ fixture: 'baseline', repo: baselineRepo, miner });
+  const remined = await mineEvidence({ fixture: 'baseline', repo: fixtures.baseline.repo, miner });
   check(
     'ACC-5',
     'evidence is deterministic — two runs at the same basis produce identical bytes',
     remined.digest === evidence.baseline.digest,
     `sha256 ${remined.digest}`,
   );
+  return { evidence, baselinePairs, perturbedPairs, AB, CONTROL };
+}
 
-  // -- 3b. What the normal producer path does and does not give us --------
-  //
-  // HAC-330 requires proving the exact producer/miner path Interlock uses,
-  // rather than assuming `generated.coChange` is available or current. So the
-  // published producer is run against the same fixture and its output is read.
-  section('3b. The published producer path');
-  const producerOut = execFileSync(
-    process.execPath,
-    [join(cliCheckout, 'packages', 'cli', 'dist', 'cli.js'), 'generate', baselineRepo, '--dry-run'],
-    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
-  );
-  const produced = JSON.parse(producerOut);
-  const producerPath = {
-    command: 'node packages/cli/dist/cli.js generate <fixture> --dry-run',
-    cliVersion: produced.generated?.by?.version ?? null,
-    specVersion: produced.generated?.specVersion ?? null,
-    generatedSectionKeys: Object.keys(produced.generated ?? {}),
-    coChangePresent: Object.hasOwn(produced.generated ?? {}, 'coChange'),
-    basisRevisionPresent: Object.hasOwn(produced.generated ?? {}, 'basisRevision'),
-    mentionsCoChangeAnywhere: producerOut.includes('coChange'),
-    historyRefreshOption: null,
-    finding:
-      'The published producer emits no coChange block and exposes no history-refresh option, and its output carries a wall-clock generatedAt. Interlock therefore consumes the mine -> score -> select pipeline directly and pins the basis revision itself, rather than reading generated.coChange from an artifact.',
-  };
-  writeJson(join(EVIDENCE_DIR, 'producer-path.json'), producerPath);
-  console.log(`  generate → keys [${producerPath.generatedSectionKeys.join(', ')}]`);
-  console.log(`  coChange present: ${producerPath.coChangePresent}`);
-  check(
-    'ACC-18',
-    'the evidence path is the one Interlock actually uses, not an assumed generated.coChange',
-    producerPath.coChangePresent === false &&
-      producerPath.mentionsCoChangeAnywhere === false &&
-      evidence.baseline.envelope.producer.pipeline === 'mine -> score -> select',
-    'the published producer emits no coChange; Interlock consumes mine -> score -> select directly, and no workspace.json is written',
-  );
-
-  // -- 4. The perturbation changes the evidence ---------------------------
-  section('4. Controlled history perturbation');
-  check(
-    'ACC-6',
-    'perturbing the source history changes the evidence artifact',
-    evidence.baseline.digest !== evidence.perturbed.digest,
-    `baseline ${evidence.baseline.digest.slice(0, 16)}… ≠ perturbed ${evidence.perturbed.digest.slice(0, 16)}…`,
-  );
-  check(
-    'ACC-7',
-    'the coupling under test disappears in the perturbed history',
-    baselinePairs.has(AB) && !perturbedPairs.has(AB),
-    `alpha↔beta: baseline support ${baselinePairs.get(AB)?.support} → perturbed absent (never co-changed)`,
-  );
-  check(
-    'CTL-PAIR',
-    'the control pair is unchanged, so the perturbation is surgical',
-    baselinePairs.has(CONTROL) &&
-      perturbedPairs.has(CONTROL) &&
-      baselinePairs.get(CONTROL).support === perturbedPairs.get(CONTROL).support &&
-      baselinePairs.get(CONTROL).occurrences === perturbedPairs.get(CONTROL).occurrences,
-    `docs↔tests identical in both: support ${baselinePairs.get(CONTROL)?.support}, occurrences ${baselinePairs.get(CONTROL)?.occurrences}`,
-  );
-  check(
-    'CTL-STATE',
-    'both histories reach the same completeness state, so the decision cannot turn on completeness',
-    evidence.baseline.envelope.completeness.state === 'QUALIFYING_RELATIONSHIP_OBSERVED' &&
-      evidence.perturbed.envelope.completeness.state === 'QUALIFYING_RELATIONSHIP_OBSERVED',
-    'both QUALIFYING_RELATIONSHIP_OBSERVED — the perturbed history is mined and non-empty, not degraded',
-  );
-
-  // -- 5. The three arms --------------------------------------------------
+/**
+ * Run the three counterfactual arms through one decision function and one
+ * apply path, and record what each one did.
+ */
+function runArms({ baselineRepo, perturbedRepo, evidence, aloneA, aloneB, baselinePairs, AB, fixtures }) {
   section('5. Counterfactual arms');
   const arms = {};
 
@@ -506,6 +417,135 @@ async function main() {
       treatmentDecision.basisRevision === fixtures.baseline.head,
     `cited ${treatmentDecision.couplings?.[0]?.files.join(' <-> ')} at support ${treatmentDecision.couplings?.[0]?.support}, basis ${treatmentDecision.basisRevision?.slice(0, 12)}…`,
   );
+  return { arms, treatmentDecision, perturbedDecision, treatment, perturbedRun, uncoordinated };
+}
+
+// ---------------------------------------------------------------------------
+
+async function main() {
+  rmSync(WORK_DIR, { recursive: true, force: true });
+  mkdirSync(FIXTURE_DIR, { recursive: true });
+  mkdirSync(EVIDENCE_DIR, { recursive: true });
+
+  // -- 0. Pins ------------------------------------------------------------
+  section('0. Pinned upstream revisions');
+  const cliCheckout = resolveCliCheckout();
+  const pins = verifyPinnedCheckouts(cliCheckout);
+
+  const miner = await loadMiner();
+  console.log(
+    `  producer: ${miner.producer.package}@${miner.producer.version} ` +
+      `(${miner.producer.published ? 'published' : 'private, unpublished'}) ` +
+      `bundle sha256 ${miner.producer.bundleSha256.slice(0, 16)}…`,
+  );
+
+  // -- 1. Fixtures --------------------------------------------------------
+  const fixtures = buildFixtures();
+  const baselineRepo = fixtures.baseline.repo;
+  const perturbedRepo = fixtures.perturbed.repo;
+
+  // -- 2. Both actions are green alone ------------------------------------
+  section('2. Each action is valid in isolation');
+  const aloneA = validateAlone(baselineRepo, INTENT_A);
+  const aloneB = validateAlone(baselineRepo, INTENT_B);
+  check(
+    'ACC-1',
+    'action A is valid in isolation',
+    aloneA.holds && aloneA.exitCode === 0,
+    `A alone → total ${aloneA.report.total} <= ${aloneA.report.totalReservable}, verify.mjs exit ${aloneA.exitCode}`,
+  );
+  check(
+    'ACC-2',
+    'action B is valid in isolation',
+    aloneB.holds && aloneB.exitCode === 0,
+    `B alone → total ${aloneB.report.total} <= ${aloneB.report.totalReservable}, verify.mjs exit ${aloneB.exitCode}`,
+  );
+
+  // -- 3. Real mined evidence ---------------------------------------------
+  const { evidence, baselinePairs, perturbedPairs, AB, CONTROL } = await mineBothFixtures(
+    fixtures,
+    miner,
+    pins,
+  );
+
+  // -- 3b. What the normal producer path does and does not give us --------
+  //
+  // HAC-330 requires proving the exact producer/miner path Interlock uses,
+  // rather than assuming `generated.coChange` is available or current. So the
+  // published producer is run against the same fixture and its output is read.
+  section('3b. The published producer path');
+  const producerOut = execFileSync(
+    process.execPath,
+    [join(cliCheckout, 'packages', 'cli', 'dist', 'cli.js'), 'generate', baselineRepo, '--dry-run'],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+  );
+  const produced = JSON.parse(producerOut);
+  const producerPath = {
+    command: 'node packages/cli/dist/cli.js generate <fixture> --dry-run',
+    cliVersion: produced.generated?.by?.version ?? null,
+    specVersion: produced.generated?.specVersion ?? null,
+    generatedSectionKeys: Object.keys(produced.generated ?? {}),
+    coChangePresent: Object.hasOwn(produced.generated ?? {}, 'coChange'),
+    basisRevisionPresent: Object.hasOwn(produced.generated ?? {}, 'basisRevision'),
+    mentionsCoChangeAnywhere: producerOut.includes('coChange'),
+    historyRefreshOption: null,
+    finding:
+      'The published producer emits no coChange block and exposes no history-refresh option, and its output carries a wall-clock generatedAt. Interlock therefore consumes the mine -> score -> select pipeline directly and pins the basis revision itself, rather than reading generated.coChange from an artifact.',
+  };
+  writeJson(join(EVIDENCE_DIR, 'producer-path.json'), producerPath);
+  console.log(`  generate → keys [${producerPath.generatedSectionKeys.join(', ')}]`);
+  console.log(`  coChange present: ${producerPath.coChangePresent}`);
+  check(
+    'ACC-18',
+    'the evidence path is the one Interlock actually uses, not an assumed generated.coChange',
+    producerPath.coChangePresent === false &&
+      producerPath.mentionsCoChangeAnywhere === false &&
+      evidence.baseline.envelope.producer.pipeline === 'mine -> score -> select',
+    'the published producer emits no coChange; Interlock consumes mine -> score -> select directly, and no workspace.json is written',
+  );
+
+  // -- 4. The perturbation changes the evidence ---------------------------
+  section('4. Controlled history perturbation');
+  check(
+    'ACC-6',
+    'perturbing the source history changes the evidence artifact',
+    evidence.baseline.digest !== evidence.perturbed.digest,
+    `baseline ${evidence.baseline.digest.slice(0, 16)}… ≠ perturbed ${evidence.perturbed.digest.slice(0, 16)}…`,
+  );
+  check(
+    'ACC-7',
+    'the coupling under test disappears in the perturbed history',
+    baselinePairs.has(AB) && !perturbedPairs.has(AB),
+    `alpha↔beta: baseline support ${baselinePairs.get(AB)?.support} → perturbed absent (never co-changed)`,
+  );
+  check(
+    'CTL-PAIR',
+    'the control pair is unchanged, so the perturbation is surgical',
+    baselinePairs.has(CONTROL) &&
+      perturbedPairs.has(CONTROL) &&
+      baselinePairs.get(CONTROL).support === perturbedPairs.get(CONTROL).support &&
+      baselinePairs.get(CONTROL).occurrences === perturbedPairs.get(CONTROL).occurrences,
+    `docs↔tests identical in both: support ${baselinePairs.get(CONTROL)?.support}, occurrences ${baselinePairs.get(CONTROL)?.occurrences}`,
+  );
+  check(
+    'CTL-STATE',
+    'both histories reach the same completeness state, so the decision cannot turn on completeness',
+    evidence.baseline.envelope.completeness.state === 'QUALIFYING_RELATIONSHIP_OBSERVED' &&
+      evidence.perturbed.envelope.completeness.state === 'QUALIFYING_RELATIONSHIP_OBSERVED',
+    'both QUALIFYING_RELATIONSHIP_OBSERVED — the perturbed history is mined and non-empty, not degraded',
+  );
+
+  // -- 5. The three arms --------------------------------------------------
+  const { arms, treatmentDecision, perturbedDecision, treatment, perturbedRun, uncoordinated } = runArms({
+    baselineRepo,
+    perturbedRepo,
+    evidence,
+    aloneA,
+    aloneB,
+    baselinePairs,
+    AB,
+    fixtures,
+  });
 
   // -- 6. Degraded evidence must never be green ---------------------------
   section('6. Missing, refused and stale evidence');
@@ -569,7 +609,7 @@ async function main() {
     checks,
     pins,
     producer: miner.producer,
-    fixtures: recordedFixtures,
+    fixtures,
     evidenceDigests: {
       baseline: evidence.baseline.digest,
       perturbed: evidence.perturbed.digest,
