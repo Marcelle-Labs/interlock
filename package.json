@@ -11,6 +11,16 @@
   "packageManager": "pnpm@10.24.0",
   "scripts": {
     "check:provenance": "node scripts/check-provenance.mjs",
-    "check": "npm run check:provenance"
+    "check": "pnpm run check:provenance",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "@vitest/coverage-v8": "3.2.4",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
   }
 }
