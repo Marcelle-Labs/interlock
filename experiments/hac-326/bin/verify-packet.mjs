@@ -213,7 +213,7 @@ if (cloud !== null) {
 const SECRET_PATTERNS = [
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'private key block'],
   [/\bya29\.[A-Za-z0-9._-]{20,}/, 'Google OAuth access token'],
-  [/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/, 'JWT'],
+  [/\beyJ[A-Za-z0-9_-]{10,4096}\.[A-Za-z0-9_-]{10,4096}\.[A-Za-z0-9_-]{10,4096}/, 'JWT'],
   [/\bAIza[0-9A-Za-z_-]{30,}/, 'Google API key'],
 ];
 

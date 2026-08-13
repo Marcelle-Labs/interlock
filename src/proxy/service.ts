@@ -33,7 +33,7 @@ import { intentDigest } from '../authorization/intent.js';
 import type { ReceiptClaims, SignedReceipt, SigningKey } from '../authorization/receipt.js';
 import { RECEIPT_DECISION_ALLOW, RECEIPT_VERSION, signReceipt } from '../authorization/receipt.js';
 import type { Coupling } from '../broker/pairing/arbitrate.js';
-import { Decision, Reason, arbitrate } from '../broker/pairing/arbitrate.js';
+import { Decision, arbitrate } from '../broker/pairing/arbitrate.js';
 import type { PendingIntent, PendingIntentStore } from '../broker/pairing/store.js';
 import type { TargetResponse } from '../target/service.js';
 

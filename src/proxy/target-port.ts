@@ -51,7 +51,7 @@ export class HttpTargetPort implements TargetPort {
     }
     const body = (await response.json()) as { revision?: unknown };
     if (typeof body.revision !== 'string') {
-      throw new Error('target state response carries no revision');
+      throw new TypeError('target state response carries no revision');
     }
     return body.revision;
   }

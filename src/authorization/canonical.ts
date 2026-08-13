@@ -50,6 +50,22 @@ export class CanonicalizationError extends Error {
   }
 }
 
+/**
+ * Order two keys by UTF-16 code unit.
+ *
+ * Explicit rather than relying on the default sort, and deliberately **not**
+ * `localeCompare`: a locale-aware comparison is locale-dependent, so the same
+ * object would canonicalize differently on two machines and every signature over
+ * it would stop verifying. Code-unit order is what canonical-JSON
+ * implementations agree on, and it is the same order the default sort uses — so
+ * this changes nothing except making the requirement legible and immune to a
+ * well-meaning refactor toward `localeCompare`.
+ */
+function byCodeUnit(left: string, right: string): number {
+  if (left < right) return -1;
+  return left > right ? 1 : 0;
+}
+
 function canonicalizeNumber(value: number, path: string): string {
   if (!Number.isFinite(value)) {
     throw new CanonicalizationError(
@@ -84,9 +100,7 @@ function canonicalizeValue(value: unknown, path: string): string {
   }
 
   const source = value as Record<string, unknown>;
-  // Sorted by code unit, which is what `Array.prototype.sort` does by default and
-  // what every other canonical-JSON implementation agrees on.
-  const keys = Object.keys(source).sort();
+  const keys = Object.keys(source).sort(byCodeUnit);
   const members = keys.map((key) => {
     const member = source[key];
     if (member === undefined) {
@@ -95,7 +109,9 @@ function canonicalizeValue(value: unknown, path: string): string {
         path,
       );
     }
-    return `${JSON.stringify(key)}:${canonicalizeValue(member, `${path}/${key}`)}`;
+    const serializedKey = JSON.stringify(key);
+    const serializedValue = canonicalizeValue(member, `${path}/${key}`);
+    return `${serializedKey}:${serializedValue}`;
   });
   return `{${members.join(',')}}`;
 }

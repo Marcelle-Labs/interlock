@@ -222,6 +222,159 @@ function precedenceOf(intent: PendingIntent): string {
 }
 
 /**
+ * Order two precedence keys by UTF-16 code unit.
+ *
+ * Not `localeCompare`: the winner of a coupled set must be the same on every
+ * machine that evaluates it, and a locale-aware comparison is not. Two proxies
+ * disagreeing about who leads would compose the pair the decision just refused.
+ */
+function byCodeUnit(left: string, right: string): number {
+  if (left < right) return -1;
+  return left > right ? 1 : 0;
+}
+
+/** Read a member that is only useful if it is a string, for a failure message. */
+function describe(value: unknown, fallback: string): string {
+  return typeof value === 'string' ? value : fallback;
+}
+
+/**
+ * The guards that adjudicate whether the evidence may be read at all.
+ *
+ * Split out of `arbitrate` so that the coupling logic and the admissibility
+ * logic can each be followed on their own. Returns a `Verdict` when the evidence
+ * is inadmissible, or the facts the caller needs when it is.
+ */
+function admitEvidence(
+  evidence: unknown,
+  sourceRevision: string,
+):
+  | { readonly ok: false; readonly verdict: Verdict }
+  | {
+      readonly ok: true;
+      readonly pairs: readonly unknown[];
+      readonly state: string;
+      readonly basisRevision: string;
+      readonly evidenceRefs: readonly string[];
+    } {
+  const no = (verdict: Verdict) => ({ ok: false, verdict }) as const;
+
+  // --- Guard 1: the evidence exists at all. ------------------------------
+  if (evidence === null || evidence === undefined) {
+    return no(
+      insufficient(
+        Reason.EVIDENCE_ABSENT,
+        'no co-change evidence was supplied; absence of evidence is not evidence of independence',
+      ),
+    );
+  }
+
+  if (!isRecord(evidence)) {
+    return no(insufficient(Reason.EVIDENCE_MALFORMED, 'the evidence envelope is not an object'));
+  }
+
+  const selection = evidence['selection'];
+  if (!isRecord(selection)) {
+    return no(
+      insufficient(Reason.EVIDENCE_MALFORMED, 'the evidence envelope carries no selection object'),
+    );
+  }
+
+  // --- Guard 2: it is a shape we know how to read. -----------------------
+  const completeness = selection['completeness'];
+  const pairs = selection['pairs'];
+  if (!isRecord(completeness) || typeof completeness['state'] !== 'string' || !Array.isArray(pairs)) {
+    return no(
+      insufficient(
+        Reason.EVIDENCE_MALFORMED,
+        'the selection is missing completeness or pairs; a partial artifact cannot be read as a clean one',
+      ),
+    );
+  }
+
+  if (selection['l0SelectionVersion'] !== SUPPORTED_SELECTION_VERSION) {
+    return no(
+      insufficient(
+        Reason.EVIDENCE_VERSION_UNSUPPORTED,
+        `selection version ${describe(selection['l0SelectionVersion'], 'of an unreadable type')} is not ` +
+          `${SUPPORTED_SELECTION_VERSION}; an unknown shape may mean different fields, not merely more of them`,
+      ),
+    );
+  }
+
+  // --- Guard 3: the history was actually mined. --------------------------
+  //
+  // A shallow clone, a missing repository and an unreadable history all yield
+  // zero pairs. Zero pairs must not read as "analysed, nothing found".
+  const state = completeness['state'];
+  if (!MINED_STATES.includes(state)) {
+    return no(
+      insufficient(
+        state === 'EVIDENCE_UNAVAILABLE'
+          ? Reason.HISTORY_EVIDENCE_UNAVAILABLE
+          : Reason.HISTORY_NOT_MINED,
+        `completeness is ${state}; the history behind this evidence was not successfully mined`,
+      ),
+    );
+  }
+
+  // --- Guard 4: the evidence is about the repository being mutated. ------
+  //
+  // Git resolves a path by walking up until it finds a repository, so mining a
+  // directory that is not itself a repository succeeds against the nearest
+  // ancestor and returns a well-formed MINED result about the wrong subject. No
+  // completeness state covers this — the analysis really did run — which is why
+  // this sits after the completeness check. Observed during HAC-330.
+  const source = isRecord(evidence['source']) ? evidence['source'] : null;
+  if (source?.['isRequestedRepository'] !== true) {
+    return no(
+      insufficient(
+        Reason.EVIDENCE_REPOSITORY_MISMATCH,
+        'the evidence is not attributed to the repository it names: requested ' +
+          `${describe(source?.['repository'], '(none)')}, mined ${describe(source?.['toplevel'], '(no repository)')}`,
+      ),
+    );
+  }
+
+  // --- Guard 5: the claim is pinned to exactly one commit. ---------------
+  const scoringBasis = isRecord(selection['scoringBasis']) ? selection['scoringBasis'] : null;
+  const basisRevision = scoringBasis?.['basisRevision'];
+  if (typeof basisRevision !== 'string' || basisRevision === '') {
+    return no(
+      insufficient(
+        Reason.NO_BASIS_PIN,
+        'the selection carries no basisRevision; an unpinned observation cannot be recounted and asserts nothing',
+      ),
+    );
+  }
+
+  const artifact = isRecord(evidence['artifact']) ? evidence['artifact'] : null;
+  const evidenceRefs = [
+    `basis:${basisRevision}`,
+    // `unknown` rather than an omitted reference: a reader of the receipt must
+    // be able to tell "not recorded" from "not checked".
+    `artifact:sha256:${describe(artifact?.['sha256'], 'unknown')}`,
+  ];
+
+  // --- Guard 6: the claim is about the state being mutated. --------------
+  //
+  // A stale observation is unknown, not clean: the coupling this composition
+  // would breach may have been introduced after the basis commit.
+  if (basisRevision !== sourceRevision) {
+    return no(
+      insufficient(
+        Reason.STALE_BASIS,
+        `evidence is pinned to ${basisRevision} but the intents target ${sourceRevision}; ` +
+          'a stale observation is unknown, not clean',
+        evidenceRefs,
+      ),
+    );
+  }
+
+  return { ok: true, pairs, state, basisRevision, evidenceRefs };
+}
+
+/**
  * Decide whether an arriving intent may proceed alongside what is in flight.
  *
  * @returns a verdict that is safe to serialize into a receipt or a denial. The
@@ -243,100 +396,14 @@ export function arbitrate(input: ArbitrationInput): Verdict {
     );
   }
 
-  // --- Guard 1: the evidence exists at all. ------------------------------
-  if (input.evidence === null || input.evidence === undefined) {
-    return insufficient(
-      Reason.EVIDENCE_ABSENT,
-      'no co-change evidence was supplied; absence of evidence is not evidence of independence',
-    );
-  }
-
-  if (!isRecord(input.evidence)) {
-    return insufficient(Reason.EVIDENCE_MALFORMED, 'the evidence envelope is not an object');
-  }
-
-  const selection = input.evidence['selection'];
-  if (!isRecord(selection)) {
-    return insufficient(
-      Reason.EVIDENCE_MALFORMED,
-      'the evidence envelope carries no selection object',
-    );
-  }
-
-  // --- Guard 2: it is a shape we know how to read. -----------------------
-  const completeness = selection['completeness'];
-  const pairs = selection['pairs'];
-  if (!isRecord(completeness) || typeof completeness['state'] !== 'string' || !Array.isArray(pairs)) {
-    return insufficient(
-      Reason.EVIDENCE_MALFORMED,
-      'the selection is missing completeness or pairs; a partial artifact cannot be read as a clean one',
-    );
-  }
-
-  if (selection['l0SelectionVersion'] !== SUPPORTED_SELECTION_VERSION) {
-    return insufficient(
-      Reason.EVIDENCE_VERSION_UNSUPPORTED,
-      `selection version ${String(selection['l0SelectionVersion'])} is not ${SUPPORTED_SELECTION_VERSION}; ` +
-        'an unknown shape may mean different fields, not merely more of them',
-    );
-  }
-
-  // --- Guard 3: the history was actually mined. --------------------------
+  // --- Guards 1-6: is this evidence admissible at all? -------------------
   //
-  // A shallow clone, a missing repository and an unreadable history all yield
-  // zero pairs. Zero pairs must not read as "analysed, nothing found".
-  const state = completeness['state'];
-  if (!MINED_STATES.includes(state)) {
-    return insufficient(
-      state === 'EVIDENCE_UNAVAILABLE' ? Reason.HISTORY_EVIDENCE_UNAVAILABLE : Reason.HISTORY_NOT_MINED,
-      `completeness is ${state}; the history behind this evidence was not successfully mined`,
-    );
-  }
+  // Extracted so that admissibility and coupling can each be read on their
+  // own. Every failure inside it returns INSUFFICIENT_EVIDENCE.
+  const admissible = admitEvidence(input.evidence, input.sourceRevision);
+  if (!admissible.ok) return admissible.verdict;
 
-  // --- Guard 4: the evidence is about the repository being mutated. ------
-  //
-  // Git resolves a path by walking up until it finds a repository, so mining a
-  // directory that is not itself a repository succeeds against the nearest
-  // ancestor and returns a well-formed MINED result about the wrong subject. No
-  // completeness state covers this — the analysis really did run — which is why
-  // this sits after the completeness check. Observed during HAC-330.
-  const source = isRecord(input.evidence['source']) ? input.evidence['source'] : null;
-  if (source?.['isRequestedRepository'] !== true) {
-    return insufficient(
-      Reason.EVIDENCE_REPOSITORY_MISMATCH,
-      `the evidence is not attributed to the repository it names: requested ${String(source?.['repository'] ?? '(none)')}, ` +
-        `mined ${String(source?.['toplevel'] ?? '(no repository)')}`,
-    );
-  }
-
-  // --- Guard 5: the claim is pinned to exactly one commit. ---------------
-  const scoringBasis = isRecord(selection['scoringBasis']) ? selection['scoringBasis'] : null;
-  const basisRevision = scoringBasis?.['basisRevision'];
-  if (typeof basisRevision !== 'string' || basisRevision === '') {
-    return insufficient(
-      Reason.NO_BASIS_PIN,
-      'the selection carries no basisRevision; an unpinned observation cannot be recounted and asserts nothing',
-    );
-  }
-
-  const artifact = isRecord(input.evidence['artifact']) ? input.evidence['artifact'] : null;
-  const evidenceRefs = [
-    `basis:${basisRevision}`,
-    `artifact:sha256:${String(artifact?.['sha256'] ?? 'unknown')}`,
-  ];
-
-  // --- Guard 6: the claim is about the state being mutated. --------------
-  //
-  // A stale observation is unknown, not clean: the coupling this composition
-  // would breach may have been introduced after the basis commit.
-  if (basisRevision !== input.sourceRevision) {
-    return insufficient(
-      Reason.STALE_BASIS,
-      `evidence is pinned to ${basisRevision} but the intents target ${input.sourceRevision}; ` +
-        'a stale observation is unknown, not clean',
-      evidenceRefs,
-    );
-  }
+  const { pairs, state, basisRevision, evidenceRefs } = admissible;
 
   // --- The claim is admissible. Read it. ---------------------------------
   const couplings = findCouplings(
@@ -353,7 +420,7 @@ export function arbitrate(input: ArbitrationInput): Verdict {
     const contended = new Set(couplings.flatMap((coupling) => coupling.correlationIds));
     const leader = [input.candidate, ...input.others.value.filter((other) => contended.has(other.correlationId))]
       .map(precedenceOf)
-      .sort()[0];
+      .sort(byCodeUnit)[0];
 
     if (leader !== precedenceOf(input.candidate)) {
       return {

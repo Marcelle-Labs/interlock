@@ -330,8 +330,11 @@ jobs:
           node-version: '22.19.0'
           cache: pnpm
 
+      # `--ignore-scripts`: a dependency lifecycle script runs arbitrary code in
+      # the job, and this one only needs TypeScript to compile and Node to run
+      # the experiment. Nothing it installs has a legitimate postinstall.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Verify the committed HAC-326 evidence packet
         run: pnpm run check:packet:s2

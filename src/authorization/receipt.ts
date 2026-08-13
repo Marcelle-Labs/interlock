@@ -238,7 +238,7 @@ export function readSignedReceipt(value: unknown): SignedReceipt | null {
     artifactSha256: readString(evidence, 'artifactSha256'),
     producerSha: readString(evidence, 'producerSha'),
   };
-  if (Object.values(scalars).some((member) => member === null)) return null;
+  if (Object.values(scalars).includes(null)) return null;
 
   return {
     claims: {
@@ -284,36 +284,48 @@ function parseInstant(value: string): number | null {
  * an unverified receipt is reading attacker-controlled input. Only once the bytes
  * are known to be authentic do the bindings get compared.
  */
-export function verifyReceipt(value: unknown, expected: ReceiptExpectations): ReceiptVerdict {
+/**
+ * Establish that a presented value is a genuine, unaltered receipt.
+ *
+ * Separated from the binding checks because the two answer different questions —
+ * "are these bytes authentic" and "do they authorize *this* request" — and
+ * because every binding check below reads a claim. Reading a claim from a receipt
+ * whose signature has not been verified is reading attacker-controlled input, so
+ * the ordering is part of the contract rather than a stylistic choice.
+ */
+function authenticate(
+  value: unknown,
+  keys: VerificationKeys,
+): { readonly ok: true; readonly receipt: SignedReceipt } | { readonly ok: false; readonly verdict: ReceiptVerdict } {
+  const no = (reasonCode: ReceiptRejectionCode, detail: string) =>
+    ({ ok: false, verdict: reject(reasonCode, detail) }) as const;
+
   if (value === null || value === undefined) {
-    return reject(ReceiptRejection.ABSENT, 'no authorization receipt accompanied the request');
+    return no(ReceiptRejection.ABSENT, 'no authorization receipt accompanied the request');
   }
 
   const receipt = readSignedReceipt(value);
   if (receipt === null) {
-    return reject(
-      ReceiptRejection.MALFORMED,
-      'the receipt is not a structurally complete signed receipt',
-    );
+    return no(ReceiptRejection.MALFORMED, 'the receipt is not a structurally complete signed receipt');
   }
 
   if (receipt.claims.receiptVersion !== RECEIPT_VERSION) {
-    return reject(
+    return no(
       ReceiptRejection.VERSION_UNSUPPORTED,
       `receipt version ${receipt.claims.receiptVersion} is not ${RECEIPT_VERSION}`,
     );
   }
 
   if (receipt.alg !== RECEIPT_ALGORITHM) {
-    return reject(
+    return no(
       ReceiptRejection.ALGORITHM_UNSUPPORTED,
       `signature algorithm ${receipt.alg} is not ${RECEIPT_ALGORITHM}`,
     );
   }
 
-  const publicKey = expected.keys.get(receipt.keyId);
+  const publicKey = keys.get(receipt.keyId);
   if (publicKey === undefined) {
-    return reject(
+    return no(
       ReceiptRejection.UNKNOWN_KEY,
       `no verification key registered under key id ${receipt.keyId}`,
     );
@@ -326,11 +338,20 @@ export function verifyReceipt(value: unknown, expected: ReceiptExpectations): Re
     Buffer.from(receipt.signature, 'base64url'),
   );
   if (!signatureValid) {
-    return reject(
+    return no(
       ReceiptRejection.SIGNATURE_INVALID,
       'the signature does not verify over the canonical claims; the receipt was edited or fabricated',
     );
   }
+
+  return { ok: true, receipt };
+}
+
+export function verifyReceipt(value: unknown, expected: ReceiptExpectations): ReceiptVerdict {
+  const authentic = authenticate(value, expected.keys);
+  if (!authentic.ok) return authentic.verdict;
+
+  const receipt = authentic.receipt;
 
   // --- The bytes are authentic. Now: do they authorize *this* request? ------
 

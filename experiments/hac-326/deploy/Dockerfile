@@ -15,7 +15,10 @@ WORKDIR /build
 # Manifest and lockfile first, so a source-only change does not re-resolve
 # dependencies.
 COPY package.json pnpm-lock.yaml ./
-RUN corepack enable && pnpm install --frozen-lockfile
+# --ignore-scripts: a dependency lifecycle script runs arbitrary code at build
+# time, and this image only needs TypeScript to compile. Nothing here has a
+# legitimate postinstall.
+RUN corepack enable && pnpm install --frozen-lockfile --ignore-scripts
 
 COPY tsconfig.json tsconfig.build.json ./
 COPY src ./src

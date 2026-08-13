@@ -85,9 +85,12 @@ export function readSetReservation(value: unknown): SetReservation | null {
   return { service, reserved: reserved as number };
 }
 
+/** Why a mutation was refused on integrity grounds, after it was authorized. */
+export type MutationRejectionCode = 'UNKNOWN_SERVICE' | 'INVARIANT_BREACH';
+
 export type MutationResult =
   | { readonly ok: true; readonly state: ReservationState; readonly invariant: InvariantReport }
-  | { readonly ok: false; readonly reasonCode: string; readonly detail: string };
+  | { readonly ok: false; readonly reasonCode: MutationRejectionCode; readonly detail: string };
 
 /**
  * Apply a mutation.

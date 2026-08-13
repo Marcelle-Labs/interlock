@@ -119,14 +119,13 @@ export function startProxy(env: Environment): Promise<StartedProxy> {
 }
 
 if (process.argv[1]?.endsWith('proxy/main.js') === true) {
-  startProxy(process.env)
-    .then((started) => {
-      process.stdout.write(`${JSON.stringify({ event: 'proxy.listening', port: started.port })}\n`);
-    })
-    .catch((error: unknown) => {
-      process.stderr.write(
-        `${JSON.stringify({ event: 'proxy.failed', error: (error as Error).message })}\n`,
-      );
-      process.exitCode = 1;
-    });
+  try {
+    const started = await startProxy(process.env);
+    process.stdout.write(`${JSON.stringify({ event: 'proxy.listening', port: started.port })}\n`);
+  } catch (error) {
+    process.stderr.write(
+      `${JSON.stringify({ event: 'proxy.failed', error: (error as Error).message })}\n`,
+    );
+    process.exitCode = 1;
+  }
 }

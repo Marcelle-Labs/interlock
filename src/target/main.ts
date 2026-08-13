@@ -42,14 +42,13 @@ export function startTarget(env: Environment): Promise<StartedTarget> {
 // Started only when executed directly, so importing this module in a test does
 // not bind a port.
 if (process.argv[1]?.endsWith('target/main.js') === true) {
-  startTarget(process.env)
-    .then((started) => {
-      process.stdout.write(
-        `${JSON.stringify({ event: 'target.listening', port: started.port })}\n`,
-      );
-    })
-    .catch((error: unknown) => {
-      process.stderr.write(`${JSON.stringify({ event: 'target.failed', error: (error as Error).message })}\n`);
-      process.exitCode = 1;
-    });
+  try {
+    const started = await startTarget(process.env);
+    process.stdout.write(`${JSON.stringify({ event: 'target.listening', port: started.port })}\n`);
+  } catch (error) {
+    process.stderr.write(
+      `${JSON.stringify({ event: 'target.failed', error: (error as Error).message })}\n`,
+    );
+    process.exitCode = 1;
+  }
 }

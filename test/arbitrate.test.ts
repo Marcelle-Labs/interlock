@@ -61,6 +61,27 @@ describe('arbitrate — the permissive answer', () => {
     expect(verdict.evidenceRefs).toContain(`basis:${BASELINE_BASIS}`);
     expect(verdict.evidenceRefs.some((ref) => ref.startsWith('artifact:sha256:'))).toBe(true);
   });
+
+  it('still decides, and still names what it read, when provenance is partial', () => {
+    // An envelope missing its artifact block is not a reason to refuse — the
+    // selection itself is intact and pinned. But the reference must say
+    // `unknown` rather than silently omit the digest, so a reader of the receipt
+    // can tell "not recorded" from "not checked".
+    const evidence = evidenceCopy();
+    delete evidence['artifact'];
+
+    const verdict = arbitrate(input({ evidence }));
+
+    expect(verdict.decision).toBe(Decision.ALLOW_PARALLEL);
+    expect(verdict.evidenceRefs).toContain('artifact:sha256:unknown');
+  });
+
+  it('reports an unknown digest when the artifact block carries no sha256', () => {
+    const evidence = evidenceCopy();
+    evidence['artifact'] = { serialization: 'serializeSelection' };
+
+    expect(arbitrate(input({ evidence })).evidenceRefs).toContain('artifact:sha256:unknown');
+  });
 });
 
 describe('arbitrate — the unsafe composed pair', () => {

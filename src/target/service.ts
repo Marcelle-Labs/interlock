@@ -31,6 +31,24 @@ import {
   readSetReservation,
 } from './state.js';
 
+/**
+ * Refusals the target itself adds, beyond the admission gate's.
+ *
+ * Enumerated rather than widened to `string`: a union with `string` in it is
+ * just `string`, which would let a typo in a refusal code compile and would stop
+ * the compiler from telling a caller which codes it has to handle.
+ */
+export const TargetRejection = {
+  UNSUPPORTED_OPERATION: 'UNSUPPORTED_OPERATION',
+  MALFORMED_ARGUMENTS: 'MALFORMED_ARGUMENTS',
+  UNKNOWN_SERVICE: 'UNKNOWN_SERVICE',
+  INVARIANT_BREACH: 'INVARIANT_BREACH',
+} as const;
+
+export type TargetRejectionCode =
+  | AdmissionRejectionCode
+  | (typeof TargetRejection)[keyof typeof TargetRejection];
+
 export interface TargetRequest {
   readonly correlationId: string;
   /** The receipt as presented, if any. `null` is the bypass case. */
@@ -54,7 +72,7 @@ export type TargetResponse =
   | {
       readonly status: 'REJECTED';
       readonly correlationId: string;
-      readonly reasonCode: AdmissionRejectionCode | 'UNSUPPORTED_OPERATION' | 'MALFORMED_ARGUMENTS' | string;
+      readonly reasonCode: TargetRejectionCode;
       readonly detail: string;
       /** Unchanged. Returned so a caller can see nothing moved. */
       readonly revision: string;
@@ -98,7 +116,7 @@ export class ProtectedTarget {
 
   private refuse(
     correlationId: string,
-    reasonCode: string,
+    reasonCode: TargetRejectionCode,
     detail: string,
   ): TargetResponse {
     return { status: 'REJECTED', correlationId, reasonCode, detail, revision: this.currentRevision };

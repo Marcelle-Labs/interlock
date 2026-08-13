@@ -19,9 +19,20 @@
  * Usage:  node experiments/hac-326/bin/20-cloud-run.mjs
  */
 import { execFileSync } from 'node:child_process';
+
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+
+/**
+ * The gcloud binary.
+ *
+ * Resolved from an explicit variable rather than left to a PATH lookup: PATH is
+ * writable per-shell, so an implicit lookup decides which binary handles the
+ * operator's credentials based on ambient state. Override GCLOUD_BIN with an
+ * absolute path when that matters.
+ */
+const GCLOUD = process.env.GCLOUD_BIN ?? 'gcloud';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const experimentDir = join(here, '..');
@@ -36,7 +47,7 @@ const SAMPLES = Number(process.env.HAC326_CLOUD_SAMPLES ?? 40);
  * describe the identity *shape* are recorded, never the token.
  */
 function identityToken() {
-  return execFileSync('gcloud', ['auth', 'print-identity-token'], { encoding: 'utf8' }).trim();
+  return execFileSync(GCLOUD, ['auth', 'print-identity-token'], { encoding: 'utf8' }).trim();
 }
 
 const token = identityToken();
@@ -63,6 +74,18 @@ const callTool = (baseUrl, service, reserved) =>
 
 const readState = async () =>
   (await (await fetch(`${topology.targetUrl}/v1/state`, { headers: authorized() })).json());
+
+/**
+ * Describe an identity without recording who ran the experiment.
+ *
+ * The packet needs to prove WHICH identity field arrived, not the person behind
+ * it, so the domain survives and the local part does not.
+ */
+function shapeOf(identity) {
+  if (identity.includes('@')) return `<local-part>@${identity.split('@')[1]}`;
+  if (identity === 'unavailable') return 'unavailable';
+  return '<opaque-subject>';
+}
 
 const checks = [];
 const check = (id, criterion, passed, detail) => {
@@ -201,7 +224,7 @@ let observedIdentity = { error: 'not read' };
 let rawLogSample = [];
 try {
   const raw = execFileSync(
-    'gcloud',
+    GCLOUD,
     [
       'logging',
       'read',
@@ -227,14 +250,7 @@ try {
       // The identity is the operator's own account. Recorded as a shape, with
       // the local part redacted: the packet needs to prove which field arrived,
       // not who ran the experiment.
-      return {
-        identitySource,
-        identityShape: identity.includes('@')
-          ? `<local-part>@${identity.split('@')[1]}`
-          : identity === 'unavailable'
-            ? 'unavailable'
-            : '<opaque-subject>',
-      };
+      return { identitySource, identityShape: shapeOf(identity) };
     }),
     sampleCount: payloads.length,
   };
@@ -243,9 +259,7 @@ try {
     transport: payload.transport,
     correlationId: payload.correlationId,
     identitySource: payload.identitySource,
-    identity: payload.identity.includes('@')
-      ? `<local-part>@${payload.identity.split('@')[1]}`
-      : payload.identity,
+    identity: shapeOf(payload.identity),
   }));
 } catch (error) {
   observedIdentity = { error: error.message.slice(0, 200) };
