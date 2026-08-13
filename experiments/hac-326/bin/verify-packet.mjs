@@ -200,8 +200,24 @@ if (cloud !== null) {
   const identities = cloud.callerIdentityObserved?.distinctIdentitiesObserved ?? [];
   if (identities.length === 0) fail('cloud-run.json records no observed caller identity');
   for (const identity of identities) {
-    if (/@[^.]+\.[a-z]+$/i.test(identity.identityShape ?? '') && !identity.identityShape.startsWith('<')) {
-      fail(`cloud-run.json records an unredacted identity: ${identity.identityShape}`);
+    // Allowlist the redacted forms rather than pattern-matching for an
+    // unredacted one.
+    //
+    // The earlier version asked "does this look like an email address?", which
+    // is the wrong question twice over. It needed a regex whose runtime was
+    // super-linear on a near-match, and — worse — it only caught leaks that
+    // happened to look like the shape it was expecting. A raw subject id, a
+    // token fragment or a bare username would all have passed.
+    //
+    // `shapeOf` in 20-cloud-run.mjs emits exactly three forms. Anything else in
+    // this field is unrecognised, and unrecognised must fail: this is a leak
+    // check, and the safe default for a leak check is to refuse what it cannot
+    // account for.
+    const shape = identity.identityShape ?? '';
+    const redacted =
+      shape.startsWith('<local-part>@') || shape === '<opaque-subject>' || shape === 'unavailable';
+    if (!redacted) {
+      fail(`cloud-run.json records an identity shape that is not a recognised redaction: ${shape}`);
     }
   }
 }
