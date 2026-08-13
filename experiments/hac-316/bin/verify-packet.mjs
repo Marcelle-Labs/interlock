@@ -1418,9 +1418,31 @@ function phase8() {
   const notRun = (detail) => ({ outcome: Outcome.NOT_EXERCISED, detail });
 
   check('REQ-059', 8, () => {
+    // The tool has to exist and be closed *before* anything is provisioned. A
+    // teardown guard written after the fact is a guard that was never in force
+    // when it mattered.
+    must(exists('experiments/hac-316/bin/teardown.mjs'), 'no teardown tool exists');
+    const refused = spawnSync(
+      process.execPath,
+      [join(here, 'teardown.mjs'), '--verify', '--project', 'hac316-s1-not-declared'],
+      {
+        cwd: repoRoot,
+        encoding: 'utf8',
+        // Ambient project set on purpose: it must change nothing, and it must
+        // certainly not become the project the tool acts on.
+        env: { ...process.env, CLOUDSDK_CORE_PROJECT: 'ambient-must-be-ignored' },
+      },
+    );
+    must(refused.status !== 0, 'the teardown tool did not refuse an undeclared project');
+    must(!refused.stdout.includes('PASS'), 'the teardown tool reported PASS with nothing declared');
+    must(refused.stdout.includes('REFUSED'), 'the refusal is not reported as one');
+
     const teardown = artifacts.results.teardown;
     if (teardown.status === 'NOT_APPLICABLE_LOCAL') {
-      return notRun('Phase 7 did not run, so there is nothing to tear down and nothing to verify');
+      return notRun(
+        'Phase 7 did not run, so there is nothing to tear down; the guard refuses an undeclared ' +
+          'project and never prints PASS for one',
+      );
     }
     must(teardown.verifiedBy === 'independent-reread', 'teardown not independently verified');
     must(teardown.remainingResources === 0, `resources remain: ${teardown.remainingResources}`);
