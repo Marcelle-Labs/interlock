@@ -72,9 +72,15 @@ code upstream is the expensive mistake; the reverse is cheap to correct.
 
 ## Permissions matrix — current phase
 
-Valid **before HAC-330, HAC-325 and HAC-326 pass**. After S-1 + S0 + S2 pass,
-this matrix is re-derived from the frozen ADR, and broader HAC-316/HAC-317 work
-is authorized. Until then:
+The three entry gates have now been adjudicated: **HAC-330 (S-1) passed**,
+**HAC-325 (S0) executed to a recorded FAILED/PIVOTED result**, and **HAC-326
+(S2) passed**, freezing the fallback enforcement topology in
+[`../architecture/enforcement-topology.md`](../architecture/enforcement-topology.md).
+HAC-316/HAC-317 work is therefore authorized.
+
+The dispositions below are unchanged by that adjudication — freezing the
+enforcement point settled where Interlock enforces, not who may write to which
+repository. Each still requires its own authorizing issue to widen:
 
 | Repository | Disposition | Rule |
 | -- | -- | -- |
@@ -242,10 +248,13 @@ choose the safer boundary. META-337 owns hardening these gates further.
 Recorded rather than papered over. Current state and rationale are in the
 [bootstrap receipt](../receipts/HAC-328-bootstrap-receipt.md).
 
-- **`gcloud` is not installed locally.** S0/S2 need it; installing and
-  authenticating it, and choosing the project/region, belongs to HAC-325/HAC-326,
-  which own that surface. No Google Cloud project context is recorded at
-  bootstrap because none is configured yet.
+- ~~**`gcloud` is not installed locally.**~~ **Closed by HAC-325.** Google Cloud
+  CLI 580.0.0 is installed at `~/google-cloud-sdk` and authenticated; the region
+  is `us-central1`. Experiments provision their own **disposable** project and
+  delete it at teardown, so no long-lived project context is recorded here on
+  purpose — see the HAC-325 and HAC-326 receipts for what each run created and
+  destroyed. Pass `--project` explicitly rather than relying on `gcloud config`,
+  which may still name a deleted experiment project.
 - **`Marcelle-Labs/ai-swarm` cannot be branch-protected.** It is private and the
   organization is on the GitHub Free plan, so protected branches and rulesets
   return HTTP 403 there. It is execute/read for this phase, so no Interlock change
