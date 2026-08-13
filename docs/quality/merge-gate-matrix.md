@@ -101,14 +101,11 @@ Full stack, where each tool has a distinct job.
 | Repository | CI (blocking) | Greptile | Sonar | Codecov | Sourcery |
 | --- | --- | --- | --- | --- | --- |
 | `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | **required** | reporting, **not required** — never observed red | absent | advisory |
-| `workspacejson/integrations` | `build-and-smoke (20)`, `build-and-smoke (22)`, `standard-candidate-consumption` | **required**, but see §5 | **required** | absent | advisory |
+| `workspacejson/integrations` | `build-and-smoke (20)`, `build-and-smoke (22)`, `standard-candidate-consumption`, `parity-receipt-reproduction` | **not required** — trial exhausted, see §5 | **required** | absent | advisory |
 | `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | reporting, **deliberately not required** | **gate status `NONE`** | absent | advisory |
 
 `workspacejson/cli` not requiring Greptile is a deliberate outcome of the META-321
 calibration, not an oversight. It is preserved.
-
-`parity-receipt-reproduction` on `workspacejson/integrations` is proven but
-**deliberately not yet required** — see gap 4 in §4.
 
 ### 3c. Supporting repositories
 
@@ -156,17 +153,20 @@ produces a false green.
    that repository's own merge policy as a known gap explicitly out of scope for
    META-322; it was in scope here.
 
-   `standard-candidate-consumption` is **now required** (proven, see
-   [`hardening-receipts.md`](hardening-receipts.md)).
+   **Both are now required** and proven — see
+   [`hardening-receipts.md`](hardening-receipts.md).
 
-   `parity-receipt-reproduction` is proven but **deliberately still not required**,
-   because promoting it as it stands would install a false green. Both of its
-   substantive steps were gated on `steps.check-receipt.outputs.has_receipt`, so a
-   branch with no committed receipt produced a **green job that had reproduced
-   nothing**. Requiring that would make "delete the receipt" the cheapest way to
-   satisfy a failing parity gate. The fix is
-   [integrations#15](https://github.com/workspacejson/integrations/pull/15);
-   the promotion follows the merge, not the other way round.
+   `parity-receipt-reproduction` was held back until its false green was closed.
+   Both of its substantive steps had been gated on
+   `steps.check-receipt.outputs.has_receipt`, so a branch with no committed receipt
+   produced a **green job that had reproduced nothing** — and requiring that would
+   have made "delete the receipt" the cheapest way to satisfy a failing parity
+   gate. [integrations#15](https://github.com/workspacejson/integrations/pull/15)
+   made absence a hard failure and merged on 2026-08-13; the promotion followed the
+   merge rather than preceding it. Review of that PR added an explicit
+   `shell: bash`, on the reasoning that a gate whose failure mode is "silently did
+   not fail" should not rest on a runner defaulting to the shell its
+   `set -euo pipefail` needs.
 
 5. ~~**`workspacejson/integrations` pins its CI contexts to `app_id: null`**~~ —
    **closed** (2026-08-12). Any app could previously satisfy
@@ -191,22 +191,23 @@ produces a false green.
 
 ## 5. Open decisions, recorded rather than assumed
 
-* **Greptile is out of credits**, confirmed by the account owner on 2026-08-13.
-  It produced no check on any `workspacejson/integrations` PR created after
-  2026-08-12T15:39Z (#14, #15, #16), while continuing to report normally on
-  `standard` (#36, created within a minute of #14) and `cli` — so the symptom was
-  repository-scoped exhaustion, not an outage.
+* **Greptile's trial ran out.** It produced no check on any
+  `workspacejson/integrations` PR created after 2026-08-12T15:39Z (#14, #15, #16),
+  while continuing to report normally on `standard` (#36, created within a minute
+  of #14) and `cli` — so the symptom presented as repository-scoped, and the cause
+  was the trial expiring. Recorded upstream in
+  [integrations#18](https://github.com/workspacejson/integrations/pull/18) (GTM-45).
 
-  `Greptile Review` is a required context on `integrations`, so the repository is
-  **currently unmergeable except by administrator bypass**. That is the *correct*
-  posture under META-337 — an unavailable analyzer must fail closed, never read as
-  green — and `integrations` is under HAC-328's development freeze, so the cost is
-  low. It is left required deliberately.
+  With `Greptile Review` required and unable to report, `integrations` was
+  unmergeable except by administrator bypass. The context has since been **removed
+  from the required set** on that repository, which is the honest resolution: an
+  analyzer that cannot run should either block or be openly stood down with the
+  reason recorded, and GTM-45 records it. What must not happen is the third option
+  — leaving it required and routinely bypassing it, which trains everyone to treat
+  a red gate as noise.
 
-  The alternative, if `integrations` must merge before credits are restored, is a
-  time-boxed waiver with owner, expiry and risk, as META-337's acceptance clause
-  allows. Silently dropping the context is not on the table: it would convert a
-  known-unavailable reviewer into an invisible one.
+  Semantic review on `integrations` is therefore **unowned** until credits are
+  restored. `standard` still requires `Greptile Review` and still has credits.
 
 * **Socket Security** reports on all three WorkspaceJSON repositories and is
   required on none. It owns a real failure class nothing else covers. Promoting
