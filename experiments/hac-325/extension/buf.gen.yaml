@@ -1,0 +1,10 @@
+version: v2
+managed:
+  enabled: true
+plugins:
+  # Pinned: an unpinned plugin silently moves the gencode version, which then
+  # mismatches the protobuf runtime in requirements.txt and fails at import.
+  - remote: buf.build/protocolbuffers/python:v35.1
+    out: gen
+  - remote: buf.build/grpc/python:v1.76.0
+    out: gen

@@ -1,0 +1,3155 @@
+[
+  {
+    "insertId": "6a7d3cc4000d3fe7e2385819",
+    "labels": {
+      "instanceId": "001548f7296433dd5771508c9f94de2c8cea488369567bf2e11cbd1959a6ec63f49050280a96bbe5d8f6714f5f30d69049aae71d86eeda9cc7eaee9bebd6064ceeb1fee9e310a03778fecff928b3d9b6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:40:52.876695574Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Shutting down user disabled instance",
+    "timestamp": "2026-08-13T03:40:52.868327Z"
+  },
+  {
+    "insertId": "6a7d3cbe0009e7e58435c222",
+    "labels": {
+      "instanceId": "001548f7295ce9a74db65726a2e3f05d96ae890829de0c3d7b3ba9e3f8a953df21f805d5333bc981398908444c7047ae68dc589d52701adcb849c7bb39f4bd971d38c9b9a78e5d775495a2be7de39d"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:40:46.655299725Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Shutting down user disabled instance",
+    "timestamp": "2026-08-13T03:40:46.649189Z"
+  },
+  {
+    "insertId": "-rynmsme1i0qw",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00005-krx",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "d7bec819-a39f-4274-ad31-623415b95ebd",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:40:35.546017Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "ftnlavzztu",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "5",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00005-krx",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5XgFpHs",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00005-krx",
+          "uid": "528adbac-dc87-457b-8f35-81b1d1daf079"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5bd48a2085d70aae32e5f94ad190b2d75da1fc0ac987ea1db622de1348c855c7",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:40:44.654715Z",
+              "message": "Deploying revision succeeded in 9.11s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:43.318757Z",
+              "severity": "Info",
+              "status": "True",
+              "type": "Active"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:40.864344Z",
+              "message": "Containers became healthy in 1.05s.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:38.717049Z",
+              "message": "Container image import completed in 2.42s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:44.602517Z",
+              "reason": "MinInstancesWarming",
+              "severity": "Info",
+              "status": "Unknown",
+              "type": "MinInstancesProvisioned"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:40.169733Z",
+              "message": "Provisioning imported containers completed in 1.45s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5bd48a2085d70aae32e5f94ad190b2d75da1fc0ac987ea1db622de1348c855c7",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5bd48a2085d70aae32e5f94ad190b2d75da1fc0ac987ea1db622de1348c855c7",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00005-krx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00005-krx%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00005-krx with message: Deploying revision succeeded in 9.11s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:40:44.951539270Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:40:44.666718Z"
+  },
+  {
+    "insertId": "gnk1kzdzp6e",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/maxScale": "20",
+            "run.googleapis.com/operation-id": "d7bec819-a39f-4274-ad31-623415b95ebd",
+            "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+            "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+          "generation": 5,
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1"
+          },
+          "name": "interlock-s0-ext",
+          "namespace": "708527487974",
+          "resourceVersion": "AAZY5XgE26M",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+          "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+        },
+        "spec": {
+          "template": {
+            "metadata": {
+              "annotations": {
+                "autoscaling.knative.dev/maxScale": "2",
+                "autoscaling.knative.dev/minScale": "1",
+                "run.googleapis.com/client-name": "gcloud",
+                "run.googleapis.com/client-version": "580.0.0",
+                "run.googleapis.com/cpu-throttling": "false",
+                "run.googleapis.com/startup-cpu-boost": "true"
+              },
+              "labels": {
+                "client.knative.dev/nonce": "ftnlavzztu",
+                "run.googleapis.com/startupProbeType": "Default"
+              }
+            },
+            "spec": {
+              "containerConcurrency": 80,
+              "containers": [
+                {
+                  "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                  "ports": [
+                    {
+                      "containerPort": 8080,
+                      "name": "h2c"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "1000m",
+                      "memory": "512Mi"
+                    }
+                  },
+                  "startupProbe": {
+                    "failureThreshold": 1,
+                    "periodSeconds": 240,
+                    "tcpSocket": {
+                      "port": 8080
+                    },
+                    "timeoutSeconds": 240
+                  }
+                }
+              ],
+              "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+              "timeoutSeconds": 300
+            }
+          },
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100
+            }
+          ]
+        },
+        "status": {
+          "address": {
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          },
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:40:44.603299Z",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:38.842359Z",
+              "status": "True",
+              "type": "ConfigurationsReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:44.556913Z",
+              "status": "True",
+              "type": "RoutesReady"
+            }
+          ],
+          "latestCreatedRevisionName": "interlock-s0-ext-00005-krx",
+          "latestReadyRevisionName": "interlock-s0-ext-00005-krx",
+          "observedGeneration": 5,
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100,
+              "revisionName": "interlock-s0-ext-00005-krx"
+            }
+          ],
+          "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Service interlock-s0-ext."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:40:45.522036967Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:40:44.624151Z"
+  },
+  {
+    "insertId": "bpbjove19x9k",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00005-krx",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "d7bec819-a39f-4274-ad31-623415b95ebd",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:40:35.546017Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "ftnlavzztu",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "5",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00005-krx",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5XfwEZk",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00005-krx",
+          "uid": "528adbac-dc87-457b-8f35-81b1d1daf079"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5bd48a2085d70aae32e5f94ad190b2d75da1fc0ac987ea1db622de1348c855c7",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:40:43.240857Z",
+              "message": "Deploying revision succeeded in 7.69s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:40.864344Z",
+              "message": "Containers became healthy in 1.05s.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:38.717049Z",
+              "message": "Container image import completed in 2.42s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:43.193692Z",
+              "message": "Min instances provisioned successfully  in 4.28s.",
+              "status": "True",
+              "type": "MinInstancesProvisioned"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:40:40.169733Z",
+              "message": "Provisioning imported containers completed in 1.45s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5bd48a2085d70aae32e5f94ad190b2d75da1fc0ac987ea1db622de1348c855c7",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5bd48a2085d70aae32e5f94ad190b2d75da1fc0ac987ea1db622de1348c855c7",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00005-krx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00005-krx%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00005-krx with message: Deploying revision succeeded in 7.69s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:40:44.180295010Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:40:43.249701Z"
+  },
+  {
+    "insertId": "6a7d3cb8000e42c8592c43ea",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.7865924409354862e+18
+    },
+    "labels": {
+      "instanceId": "001548f7290a981aa0ca431817f688d53cdd6686d2ea3ccf5fde6c471b9a28fe3185acc1a841ab5058ba3bad0c938aa1ec65e566e4fc041de1945840f7ddc780c835ea9179d2fca2864f12abe536cbdc"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:40:40.942972793Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:40:40.934600Z"
+  },
+  {
+    "insertId": "6a7d3cb8000e1018a8f11349",
+    "labels": {
+      "instanceId": "001548f7290a981aa0ca431817f688d53cdd6686d2ea3ccf5fde6c471b9a28fe3185acc1a841ab5058ba3bad0c938aa1ec65e566e4fc041de1945840f7ddc780c835ea9179d2fca2864f12abe536cbdc"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:40:41.014077462Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:40:40.921624Z"
+  },
+  {
+    "insertId": "6a7d3cb8000d46620a3332da",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.786592440870911e+18
+    },
+    "labels": {
+      "instanceId": "001548f729216f22f095e0a9b6bc33307feca01edfc9c302c2222989d7fb57326e7525a3e2f7d0a884528bc8a61f78cbce9a4701b84e2f825bb2dc08b8a0fcd01dd658c03c92b63efa4fcb7a728dad"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:40:40.881796675Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:40:40.869986Z"
+  },
+  {
+    "insertId": "6a7d3cb8000d0e483f910829",
+    "labels": {
+      "instanceId": "001548f729216f22f095e0a9b6bc33307feca01edfc9c302c2222989d7fb57326e7525a3e2f7d0a884528bc8a61f78cbce9a4701b84e2f825bb2dc08b8a0fcd01dd658c03c92b63efa4fcb7a728dad"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:40:41.017403264Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:40:40.855624Z"
+  },
+  {
+    "insertId": "6a7d3cb7000a4ccddfbeaf4f",
+    "labels": {
+      "instanceId": "001548f7290a981aa0ca431817f688d53cdd6686d2ea3ccf5fde6c471b9a28fe3185acc1a841ab5058ba3bad0c938aa1ec65e566e4fc041de1945840f7ddc780c835ea9179d2fca2864f12abe536cbdc",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:40:39.684772905Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "timestamp": "2026-08-13T03:40:39.675021Z"
+  },
+  {
+    "insertId": "6a7d3cb7000a4872f582adda",
+    "labels": {
+      "instanceId": "001548f729216f22f095e0a9b6bc33307feca01edfc9c302c2222989d7fb57326e7525a3e2f7d0a884528bc8a61f78cbce9a4701b84e2f825bb2dc08b8a0fcd01dd658c03c92b63efa4fcb7a728dad",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:40:39.680493813Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00005-krx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "timestamp": "2026-08-13T03:40:39.673906Z"
+  },
+  {
+    "insertId": "1ixzsfse108uy",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Factivity",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "authenticationInfo": {
+        "oauthInfo": {
+          "oauthClientId": "32555940559.apps.googleusercontent.com"
+        },
+        "principalEmail": "qwynn@marcellelabs.io",
+        "principalSubject": "user:qwynn@marcellelabs.io"
+      },
+      "authorizationInfo": [
+        {
+          "granted": true,
+          "permission": "run.services.update",
+          "permissionType": "ADMIN_WRITE",
+          "resource": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+          "resourceAttributes": {}
+        },
+        {
+          "granted": true,
+          "permission": "run.services.update",
+          "permissionType": "ADMIN_WRITE",
+          "resource": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+          "resourceAttributes": {
+            "name": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+            "service": "run.googleapis.com/",
+            "type": "run.googleapis.com/Service"
+          }
+        }
+      ],
+      "methodName": "google.cloud.run.v1.Services.ReplaceService",
+      "request": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.ReplaceServiceRequest",
+        "name": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+        "service": {
+          "apiVersion": "serving.knative.dev/v1",
+          "kind": "Service",
+          "metadata": {
+            "annotations": {
+              "run.googleapis.com/client-name": "gcloud",
+              "run.googleapis.com/client-version": "580.0.0",
+              "run.googleapis.com/ingress": "all",
+              "run.googleapis.com/ingress-status": "all",
+              "run.googleapis.com/maxScale": "20",
+              "run.googleapis.com/operation-id": "d79f537e-d9c2-4843-a218-0b6d6cae391f",
+              "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+              "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+              "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+            },
+            "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+            "generation": 4,
+            "labels": {
+              "cloud.googleapis.com/location": "us-central1"
+            },
+            "name": "interlock-s0-ext",
+            "namespace": "708527487974",
+            "resourceVersion": "AAZY5W04iHE",
+            "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+            "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "spec": {
+            "template": {
+              "metadata": {
+                "annotations": {
+                  "autoscaling.knative.dev/maxScale": "2",
+                  "autoscaling.knative.dev/minScale": "1",
+                  "run.googleapis.com/client-name": "gcloud",
+                  "run.googleapis.com/client-version": "580.0.0",
+                  "run.googleapis.com/cpu-throttling": "False",
+                  "run.googleapis.com/startup-cpu-boost": "true"
+                },
+                "labels": {
+                  "client.knative.dev/nonce": "ftnlavzztu",
+                  "run.googleapis.com/startupProbeType": "Default"
+                }
+              },
+              "spec": {
+                "containerConcurrency": 80,
+                "containers": [
+                  {
+                    "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                    "resources": {
+                      "limits": {
+                        "cpu": "1000m",
+                        "memory": "512Mi"
+                      }
+                    }
+                  }
+                ],
+                "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+                "timeoutSeconds": 300
+              }
+            },
+            "traffic": [
+              {
+                "latestRevision": true,
+                "percent": 100
+              }
+            ]
+          },
+          "status": {
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-08-13T03:37:43.440497Z",
+                "status": "True",
+                "type": "Ready"
+              },
+              {
+                "lastTransitionTime": "2026-08-13T03:37:38.241851Z",
+                "status": "True",
+                "type": "ConfigurationsReady"
+              },
+              {
+                "lastTransitionTime": "2026-08-13T03:37:43.401419Z",
+                "status": "True",
+                "type": "RoutesReady"
+              }
+            ],
+            "latestCreatedRevisionName": "interlock-s0-ext-00004-rlm",
+            "latestReadyRevisionName": "interlock-s0-ext-00004-rlm",
+            "observedGeneration": 4,
+            "traffic": [
+              {
+                "latestRevision": true,
+                "percent": 100,
+                "revisionName": "interlock-s0-ext-00004-rlm"
+              }
+            ],
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          }
+        }
+      },
+      "requestMetadata": {
+        "callerIp": "68.54.37.251",
+        "callerSuppliedUserAgent": "google-cloud-sdk gcloud/580.0.0 agent-name/claude-code_2-1-229_agent command/gcloud.run.deploy invocation-id/fd6c29ce9cda419bb7d2072a5a8dafd9 environment/None environment-version/None client-os/MACOSX client-os-ver/25.1.0 client-pltf-arch/arm interactive/False from-script/False python/3.14.6 term/xterm-256color  (Macintosh; Intel Mac OS X 25.1.0),gzip(gfe)",
+        "destinationAttributes": {},
+        "requestAttributes": {
+          "auth": {},
+          "time": "2026-08-13T03:40:35.496505Z"
+        }
+      },
+      "resourceLocation": {
+        "currentLocations": [
+          "us-central1"
+        ]
+      },
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "serviceName": "run.googleapis.com",
+      "status": {}
+    },
+    "receiveTimestamp": "2026-08-13T03:40:36.182076915Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "NOTICE",
+    "timestamp": "2026-08-13T03:40:35.290643Z"
+  },
+  {
+    "insertId": "6a7d3c11000b5a5c03af06d1",
+    "labels": {
+      "instanceId": "001548f72988653ddc42c3b036489762f5615e783e93c7868889744f6936580c59bfba49b4928974fae1c8dbe2a673e55ea7b40a8d79ef2924a285cb91ad5808506b1fc98e2d6660e09daebac1269ebf"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:37:53.750866566Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Shutting down user disabled instance",
+    "timestamp": "2026-08-13T03:37:53.744028Z"
+  },
+  {
+    "insertId": "6a7d3c0b0001d082c64ccb47",
+    "labels": {
+      "instanceId": "001548f729758704769162ec7a9929bdb89cc4330ae631b4bd66c0c7d59f70217ccf901f2acee8f9ddb80d76c841f4b7d2964266a3519a749bcf9b62aaa189db8b0f76faed43e0c21b785fbd35be97"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:37:47.125226041Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Shutting down user disabled instance",
+    "timestamp": "2026-08-13T03:37:47.118914Z"
+  },
+  {
+    "insertId": "-cz7w0xdyk5w",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00004-rlm",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "d79f537e-d9c2-4843-a218-0b6d6cae391f",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:37:36.023330Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "rpfaqvggag",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "4",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00004-rlm",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5W05qu4",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00004-rlm",
+          "uid": "e8b4d5c1-7f9b-4424-921c-9d643ecab3a9"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:c0ca18d3d562ac2c9820d35df678e09d9476196885db3287cbec7dcd09971899",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:37:43.514862Z",
+              "message": "Deploying revision succeeded in 7.49s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:42.224068Z",
+              "severity": "Info",
+              "status": "True",
+              "type": "Active"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:39.758479Z",
+              "message": "Containers became healthy.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:38.154564Z",
+              "message": "Container image import completed in 1.25s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:43.458109Z",
+              "reason": "MinInstancesWarming",
+              "severity": "Info",
+              "status": "Unknown",
+              "type": "MinInstancesProvisioned"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:39.613692Z",
+              "message": "Provisioning imported containers completed in 1.46s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:c0ca18d3d562ac2c9820d35df678e09d9476196885db3287cbec7dcd09971899",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:c0ca18d3d562ac2c9820d35df678e09d9476196885db3287cbec7dcd09971899",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00004-rlm&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00004-rlm%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00004-rlm with message: Deploying revision succeeded in 7.49s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:37:43.601884763Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:37:43.529525Z"
+  },
+  {
+    "insertId": "ve2psbe1otvc",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/maxScale": "20",
+            "run.googleapis.com/operation-id": "d79f537e-d9c2-4843-a218-0b6d6cae391f",
+            "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+            "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+          "generation": 4,
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1"
+          },
+          "name": "interlock-s0-ext",
+          "namespace": "708527487974",
+          "resourceVersion": "AAZY5W04iHE",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+          "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+        },
+        "spec": {
+          "template": {
+            "metadata": {
+              "annotations": {
+                "autoscaling.knative.dev/maxScale": "2",
+                "autoscaling.knative.dev/minScale": "1",
+                "run.googleapis.com/client-name": "gcloud",
+                "run.googleapis.com/client-version": "580.0.0",
+                "run.googleapis.com/cpu-throttling": "false",
+                "run.googleapis.com/startup-cpu-boost": "true"
+              },
+              "labels": {
+                "client.knative.dev/nonce": "rpfaqvggag",
+                "run.googleapis.com/startupProbeType": "Default"
+              }
+            },
+            "spec": {
+              "containerConcurrency": 80,
+              "containers": [
+                {
+                  "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                  "ports": [
+                    {
+                      "containerPort": 8080,
+                      "name": "h2c"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "1000m",
+                      "memory": "512Mi"
+                    }
+                  },
+                  "startupProbe": {
+                    "failureThreshold": 1,
+                    "periodSeconds": 240,
+                    "tcpSocket": {
+                      "port": 8080
+                    },
+                    "timeoutSeconds": 240
+                  }
+                }
+              ],
+              "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+              "timeoutSeconds": 300
+            }
+          },
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100
+            }
+          ]
+        },
+        "status": {
+          "address": {
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          },
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:37:43.440497Z",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:38.241851Z",
+              "status": "True",
+              "type": "ConfigurationsReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:43.401419Z",
+              "status": "True",
+              "type": "RoutesReady"
+            }
+          ],
+          "latestCreatedRevisionName": "interlock-s0-ext-00004-rlm",
+          "latestReadyRevisionName": "interlock-s0-ext-00004-rlm",
+          "observedGeneration": 4,
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100,
+              "revisionName": "interlock-s0-ext-00004-rlm"
+            }
+          ],
+          "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Service interlock-s0-ext."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:37:43.983112152Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:37:43.452460Z"
+  },
+  {
+    "insertId": "wiwadtdxg86",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00004-rlm",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "d79f537e-d9c2-4843-a218-0b6d6cae391f",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:37:36.023330Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "rpfaqvggag",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "4",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00004-rlm",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5W0kzIs",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00004-rlm",
+          "uid": "e8b4d5c1-7f9b-4424-921c-9d643ecab3a9"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:c0ca18d3d562ac2c9820d35df678e09d9476196885db3287cbec7dcd09971899",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:37:42.147211Z",
+              "message": "Deploying revision succeeded in 6.12s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:39.758479Z",
+              "message": "Containers became healthy.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:38.154564Z",
+              "message": "Container image import completed in 1.25s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:42.092612Z",
+              "message": "Min instances provisioned successfully  in 3.78s.",
+              "status": "True",
+              "type": "MinInstancesProvisioned"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:37:39.613692Z",
+              "message": "Provisioning imported containers completed in 1.46s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:c0ca18d3d562ac2c9820d35df678e09d9476196885db3287cbec7dcd09971899",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:c0ca18d3d562ac2c9820d35df678e09d9476196885db3287cbec7dcd09971899",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00004-rlm&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00004-rlm%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00004-rlm with message: Deploying revision succeeded in 6.12s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:37:43.128665784Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:37:42.163031Z"
+  },
+  {
+    "insertId": "6a7d3c04000ce91c73838769",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.7865922608458127e+18
+    },
+    "labels": {
+      "instanceId": "001548f7296433dd5771508c9f94de2c8cea488369567bf2e11cbd1959a6ec63f49050280a96bbe5d8f6714f5f30d69049aae71d86eeda9cc7eaee9bebd6064ceeb1fee9e310a03778fecff928b3d9b6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:37:40.852230814Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:37:40.846108Z"
+  },
+  {
+    "insertId": "6a7d3c04000c9e5684e56de9",
+    "labels": {
+      "instanceId": "001548f7296433dd5771508c9f94de2c8cea488369567bf2e11cbd1959a6ec63f49050280a96bbe5d8f6714f5f30d69049aae71d86eeda9cc7eaee9bebd6064ceeb1fee9e310a03778fecff928b3d9b6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:37:41.105299083Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:37:40.826966Z"
+  },
+  {
+    "insertId": "6a7d3c03000b9bea1940fbe7",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.7865922597612652e+18
+    },
+    "labels": {
+      "instanceId": "001548f7295ce9a74db65726a2e3f05d96ae890829de0c3d7b3ba9e3f8a953df21f805d5333bc981398908444c7047ae68dc589d52701adcb849c7bb39f4bd971d38c9b9a78e5d775495a2be7de39d"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:37:39.768097459Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:37:39.760810Z"
+  },
+  {
+    "insertId": "6a7d3c03000b5b6a5ba6f9e7",
+    "labels": {
+      "instanceId": "001548f7295ce9a74db65726a2e3f05d96ae890829de0c3d7b3ba9e3f8a953df21f805d5333bc981398908444c7047ae68dc589d52701adcb849c7bb39f4bd971d38c9b9a78e5d775495a2be7de39d"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:37:39.764239499Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:37:39.744298Z"
+  },
+  {
+    "insertId": "6a7d3c02000bb52a15ee0315",
+    "labels": {
+      "instanceId": "001548f7296433dd5771508c9f94de2c8cea488369567bf2e11cbd1959a6ec63f49050280a96bbe5d8f6714f5f30d69049aae71d86eeda9cc7eaee9bebd6064ceeb1fee9e310a03778fecff928b3d9b6",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:37:38.774844382Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "timestamp": "2026-08-13T03:37:38.767274Z"
+  },
+  {
+    "insertId": "6a7d3c02000b93800ea14c8e",
+    "labels": {
+      "instanceId": "001548f7295ce9a74db65726a2e3f05d96ae890829de0c3d7b3ba9e3f8a953df21f805d5333bc981398908444c7047ae68dc589d52701adcb849c7bb39f4bd971d38c9b9a78e5d775495a2be7de39d",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:37:38.765500093Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00004-rlm",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "timestamp": "2026-08-13T03:37:38.758656Z"
+  },
+  {
+    "insertId": "16hqafcdy89w",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Factivity",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "authenticationInfo": {
+        "oauthInfo": {
+          "oauthClientId": "32555940559.apps.googleusercontent.com"
+        },
+        "principalEmail": "qwynn@marcellelabs.io",
+        "principalSubject": "user:qwynn@marcellelabs.io"
+      },
+      "authorizationInfo": [
+        {
+          "granted": true,
+          "permission": "run.services.update",
+          "permissionType": "ADMIN_WRITE",
+          "resource": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+          "resourceAttributes": {}
+        },
+        {
+          "granted": true,
+          "permission": "run.services.update",
+          "permissionType": "ADMIN_WRITE",
+          "resource": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+          "resourceAttributes": {
+            "name": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+            "service": "run.googleapis.com/",
+            "type": "run.googleapis.com/Service"
+          }
+        }
+      ],
+      "methodName": "google.cloud.run.v1.Services.ReplaceService",
+      "request": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.ReplaceServiceRequest",
+        "name": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+        "service": {
+          "apiVersion": "serving.knative.dev/v1",
+          "kind": "Service",
+          "metadata": {
+            "annotations": {
+              "run.googleapis.com/client-name": "gcloud",
+              "run.googleapis.com/client-version": "580.0.0",
+              "run.googleapis.com/ingress": "all",
+              "run.googleapis.com/ingress-status": "all",
+              "run.googleapis.com/maxScale": "20",
+              "run.googleapis.com/operation-id": "c9987519-152b-405c-aa6b-58683ff55c0c",
+              "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+              "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+              "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+            },
+            "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+            "generation": 3,
+            "labels": {
+              "cloud.googleapis.com/location": "us-central1"
+            },
+            "name": "interlock-s0-ext",
+            "namespace": "708527487974",
+            "resourceVersion": "AAZY5WOVwH4",
+            "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+            "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "spec": {
+            "template": {
+              "metadata": {
+                "annotations": {
+                  "autoscaling.knative.dev/maxScale": "2",
+                  "autoscaling.knative.dev/minScale": "1",
+                  "run.googleapis.com/client-name": "gcloud",
+                  "run.googleapis.com/client-version": "580.0.0",
+                  "run.googleapis.com/cpu-throttling": "False",
+                  "run.googleapis.com/startup-cpu-boost": "true"
+                },
+                "labels": {
+                  "client.knative.dev/nonce": "rpfaqvggag",
+                  "run.googleapis.com/startupProbeType": "Default"
+                }
+              },
+              "spec": {
+                "containerConcurrency": 80,
+                "containers": [
+                  {
+                    "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                    "resources": {
+                      "limits": {
+                        "cpu": "1000m",
+                        "memory": "512Mi"
+                      }
+                    }
+                  }
+                ],
+                "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+                "timeoutSeconds": 300
+              }
+            },
+            "traffic": [
+              {
+                "latestRevision": true,
+                "percent": 100
+              }
+            ]
+          },
+          "status": {
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-08-13T03:35:01.777534Z",
+                "status": "True",
+                "type": "Ready"
+              },
+              {
+                "lastTransitionTime": "2026-08-13T03:34:56.601987Z",
+                "status": "True",
+                "type": "ConfigurationsReady"
+              },
+              {
+                "lastTransitionTime": "2026-08-13T03:35:01.734617Z",
+                "status": "True",
+                "type": "RoutesReady"
+              }
+            ],
+            "latestCreatedRevisionName": "interlock-s0-ext-00003-zqx",
+            "latestReadyRevisionName": "interlock-s0-ext-00003-zqx",
+            "observedGeneration": 3,
+            "traffic": [
+              {
+                "latestRevision": true,
+                "percent": 100,
+                "revisionName": "interlock-s0-ext-00003-zqx"
+              }
+            ],
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          }
+        }
+      },
+      "requestMetadata": {
+        "callerIp": "68.54.37.251",
+        "callerSuppliedUserAgent": "google-cloud-sdk gcloud/580.0.0 agent-name/claude-code_2-1-229_agent command/gcloud.run.deploy invocation-id/5715b21f35254496a166a414aa960459 environment/None environment-version/None client-os/MACOSX client-os-ver/25.1.0 client-pltf-arch/arm interactive/False from-script/False python/3.14.6 term/xterm-256color  (Macintosh; Intel Mac OS X 25.1.0),gzip(gfe)",
+        "destinationAttributes": {},
+        "requestAttributes": {
+          "auth": {},
+          "time": "2026-08-13T03:37:35.959366Z"
+        }
+      },
+      "resourceLocation": {
+        "currentLocations": [
+          "us-central1"
+        ]
+      },
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "serviceName": "run.googleapis.com",
+      "status": {}
+    },
+    "receiveTimestamp": "2026-08-13T03:37:36.806718925Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "NOTICE",
+    "timestamp": "2026-08-13T03:37:35.754629Z"
+  },
+  {
+    "insertId": "6a7d3b6d000e25316082f986",
+    "labels": {
+      "instanceId": "001548f7298323d8a6345eef627a8d43f3a7348c35aadc4d454ae87cc0777d212a6759a25d5f623f707d9f40c74ad48157176ded0dd8af870a4f098afa8393265593832bf4b07c9bdeddd079b20968"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:35:09.933469397Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Shutting down user disabled instance",
+    "timestamp": "2026-08-13T03:35:09.927025Z"
+  },
+  {
+    "insertId": "6a7d3b690005f663e4290f75",
+    "labels": {
+      "instanceId": "001548f7299d0a2a6bde6d3b8f5a5f723f2ab7508621ced373c4e858c6a83f38e2c9b4af293b614de5a1366a0b994169e114bb7f13ff022d47ddf01798a69ec666ce8975b332224d75275ddcf12366"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:35:05.399392178Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Shutting down user disabled instance",
+    "timestamp": "2026-08-13T03:35:05.390755Z"
+  },
+  {
+    "insertId": "t700wadssje",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/maxScale": "20",
+            "run.googleapis.com/operation-id": "c9987519-152b-405c-aa6b-58683ff55c0c",
+            "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+            "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+          "generation": 3,
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1"
+          },
+          "name": "interlock-s0-ext",
+          "namespace": "708527487974",
+          "resourceVersion": "AAZY5WOVwH4",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+          "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+        },
+        "spec": {
+          "template": {
+            "metadata": {
+              "annotations": {
+                "autoscaling.knative.dev/maxScale": "2",
+                "autoscaling.knative.dev/minScale": "1",
+                "run.googleapis.com/client-name": "gcloud",
+                "run.googleapis.com/client-version": "580.0.0",
+                "run.googleapis.com/cpu-throttling": "false",
+                "run.googleapis.com/startup-cpu-boost": "true"
+              },
+              "labels": {
+                "client.knative.dev/nonce": "mhanihurks",
+                "run.googleapis.com/startupProbeType": "Default"
+              }
+            },
+            "spec": {
+              "containerConcurrency": 80,
+              "containers": [
+                {
+                  "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                  "ports": [
+                    {
+                      "containerPort": 8080,
+                      "name": "h2c"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "1000m",
+                      "memory": "512Mi"
+                    }
+                  },
+                  "startupProbe": {
+                    "failureThreshold": 1,
+                    "periodSeconds": 240,
+                    "tcpSocket": {
+                      "port": 8080
+                    },
+                    "timeoutSeconds": 240
+                  }
+                }
+              ],
+              "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+              "timeoutSeconds": 300
+            }
+          },
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100
+            }
+          ]
+        },
+        "status": {
+          "address": {
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          },
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:35:01.777534Z",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:56.601987Z",
+              "status": "True",
+              "type": "ConfigurationsReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:35:01.734617Z",
+              "status": "True",
+              "type": "RoutesReady"
+            }
+          ],
+          "latestCreatedRevisionName": "interlock-s0-ext-00003-zqx",
+          "latestReadyRevisionName": "interlock-s0-ext-00003-zqx",
+          "observedGeneration": 3,
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100,
+              "revisionName": "interlock-s0-ext-00003-zqx"
+            }
+          ],
+          "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Service interlock-s0-ext."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:35:01.851725643Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:35:01.792414Z"
+  },
+  {
+    "insertId": "-lc074we1s0l6",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00003-zqx",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "c9987519-152b-405c-aa6b-58683ff55c0c",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:34:53.335126Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "mhanihurks",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "3",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00003-zqx",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5WOUjD8",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00003-zqx",
+          "uid": "0d13f2cb-70e8-4b00-b7f6-001efe6c9c3b"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5377a4488c2926b051c588ce76573689267c793777a9ecb9628480e99360cd2c",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:35:01.698623Z",
+              "message": "Deploying revision succeeded in 8.36s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:35:00.183761Z",
+              "severity": "Info",
+              "status": "True",
+              "type": "Active"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:58.819407Z",
+              "message": "Containers became healthy in 1.38s.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:56.501748Z",
+              "message": "Container image import completed in 2.44s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:35:01.641375Z",
+              "reason": "MinInstancesWarming",
+              "severity": "Info",
+              "status": "Unknown",
+              "type": "MinInstancesProvisioned"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:58.027624Z",
+              "message": "Provisioning imported containers completed in 1.53s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5377a4488c2926b051c588ce76573689267c793777a9ecb9628480e99360cd2c",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5377a4488c2926b051c588ce76573689267c793777a9ecb9628480e99360cd2c",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00003-zqx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00003-zqx%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00003-zqx with message: Deploying revision succeeded in 8.36s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:35:02.401693644Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:35:01.707286Z"
+  },
+  {
+    "insertId": "-urycy4dinqu",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/maxScale": "20",
+            "run.googleapis.com/operation-id": "c9987519-152b-405c-aa6b-58683ff55c0c",
+            "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+            "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+          "generation": 3,
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1"
+          },
+          "name": "interlock-s0-ext",
+          "namespace": "708527487974",
+          "resourceVersion": "AAZY5WOQ7fo",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+          "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+        },
+        "spec": {
+          "template": {
+            "metadata": {
+              "annotations": {
+                "autoscaling.knative.dev/maxScale": "2",
+                "autoscaling.knative.dev/minScale": "1",
+                "run.googleapis.com/client-name": "gcloud",
+                "run.googleapis.com/client-version": "580.0.0",
+                "run.googleapis.com/cpu-throttling": "false",
+                "run.googleapis.com/startup-cpu-boost": "true"
+              },
+              "labels": {
+                "client.knative.dev/nonce": "mhanihurks",
+                "run.googleapis.com/startupProbeType": "Default"
+              }
+            },
+            "spec": {
+              "containerConcurrency": 80,
+              "containers": [
+                {
+                  "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                  "ports": [
+                    {
+                      "containerPort": 8080,
+                      "name": "h2c"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "1000m",
+                      "memory": "512Mi"
+                    }
+                  },
+                  "startupProbe": {
+                    "failureThreshold": 1,
+                    "periodSeconds": 240,
+                    "tcpSocket": {
+                      "port": 8080
+                    },
+                    "timeoutSeconds": 240
+                  }
+                }
+              ],
+              "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+              "timeoutSeconds": 300
+            }
+          },
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100
+            }
+          ]
+        },
+        "status": {
+          "address": {
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          },
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:35:01.461498Z",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:56.601987Z",
+              "status": "True",
+              "type": "ConfigurationsReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:35:01.421463Z",
+              "status": "True",
+              "type": "RoutesReady"
+            }
+          ],
+          "latestCreatedRevisionName": "interlock-s0-ext-00003-zqx",
+          "latestReadyRevisionName": "interlock-s0-ext-00003-zqx",
+          "observedGeneration": 3,
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100,
+              "revisionName": "interlock-s0-ext-00003-zqx"
+            }
+          ],
+          "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Service interlock-s0-ext."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:35:01.636126268Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:35:01.474605Z"
+  },
+  {
+    "insertId": "-xaagode219o0",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00003-zqx",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "c9987519-152b-405c-aa6b-58683ff55c0c",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:34:53.335126Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "mhanihurks",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "3",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00003-zqx",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5WN78ao",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00003-zqx",
+          "uid": "0d13f2cb-70e8-4b00-b7f6-001efe6c9c3b"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5377a4488c2926b051c588ce76573689267c793777a9ecb9628480e99360cd2c",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:35:00.086186Z",
+              "message": "Deploying revision succeeded in 6.75s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:58.819407Z",
+              "message": "Containers became healthy in 1.38s.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:56.501748Z",
+              "message": "Container image import completed in 2.44s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:35:00.020819Z",
+              "message": "Min instances provisioned successfully  in 3.35s.",
+              "status": "True",
+              "type": "MinInstancesProvisioned"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:34:58.027624Z",
+              "message": "Provisioning imported containers completed in 1.53s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5377a4488c2926b051c588ce76573689267c793777a9ecb9628480e99360cd2c",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:5377a4488c2926b051c588ce76573689267c793777a9ecb9628480e99360cd2c",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00003-zqx&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00003-zqx%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00003-zqx with message: Deploying revision succeeded in 6.75s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:35:00.515493549Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:35:00.103047Z"
+  },
+  {
+    "insertId": "6a7d3b62000cac38dd91c079",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.786592098823737e+18
+    },
+    "labels": {
+      "instanceId": "001548f729758704769162ec7a9929bdb89cc4330ae631b4bd66c0c7d59f70217ccf901f2acee8f9ddb80d76c841f4b7d2964266a3519a749bcf9b62aaa189db8b0f76faed43e0c21b785fbd35be97"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:34:58.839185907Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:34:58.830520Z"
+  },
+  {
+    "insertId": "6a7d3b62000c4869d410ef65",
+    "labels": {
+      "instanceId": "001548f729758704769162ec7a9929bdb89cc4330ae631b4bd66c0c7d59f70217ccf901f2acee8f9ddb80d76c841f4b7d2964266a3519a749bcf9b62aaa189db8b0f76faed43e0c21b785fbd35be97"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:34:58.844791984Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:34:58.804969Z"
+  },
+  {
+    "insertId": "6a7d3b6200025041d2853b97",
+    "labels": {
+      "instanceId": "001548f72988653ddc42c3b036489762f5615e783e93c7868889744f6936580c59bfba49b4928974fae1c8dbe2a673e55ea7b40a8d79ef2924a285cb91ad5808506b1fc98e2d6660e09daebac1269ebf"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:34:58.174967321Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:34:58.151617Z"
+  },
+  {
+    "insertId": "6a7d3b6200024daf0cc6509e",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.7865920981521577e+18
+    },
+    "labels": {
+      "instanceId": "001548f72988653ddc42c3b036489762f5615e783e93c7868889744f6936580c59bfba49b4928974fae1c8dbe2a673e55ea7b40a8d79ef2924a285cb91ad5808506b1fc98e2d6660e09daebac1269ebf"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:34:58.160271341Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:34:58.150959Z"
+  },
+  {
+    "insertId": "6a7d3b610002a11e5491ede6",
+    "labels": {
+      "instanceId": "001548f729758704769162ec7a9929bdb89cc4330ae631b4bd66c0c7d59f70217ccf901f2acee8f9ddb80d76c841f4b7d2964266a3519a749bcf9b62aaa189db8b0f76faed43e0c21b785fbd35be97",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:34:57.177718036Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "timestamp": "2026-08-13T03:34:57.172318Z"
+  },
+  {
+    "insertId": "6a7d3b61000295701384ad40",
+    "labels": {
+      "instanceId": "001548f72988653ddc42c3b036489762f5615e783e93c7868889744f6936580c59bfba49b4928974fae1c8dbe2a673e55ea7b40a8d79ef2924a285cb91ad5808506b1fc98e2d6660e09daebac1269ebf",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:34:57.174622129Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00003-zqx",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "timestamp": "2026-08-13T03:34:57.169328Z"
+  },
+  {
+    "insertId": "1adphcndrfdp",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Factivity",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "authenticationInfo": {
+        "oauthInfo": {
+          "oauthClientId": "32555940559.apps.googleusercontent.com"
+        },
+        "principalEmail": "qwynn@marcellelabs.io",
+        "principalSubject": "user:qwynn@marcellelabs.io"
+      },
+      "authorizationInfo": [
+        {
+          "granted": true,
+          "permission": "run.services.update",
+          "permissionType": "ADMIN_WRITE",
+          "resource": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+          "resourceAttributes": {}
+        },
+        {
+          "granted": true,
+          "permission": "run.services.update",
+          "permissionType": "ADMIN_WRITE",
+          "resource": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+          "resourceAttributes": {
+            "name": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+            "service": "run.googleapis.com/",
+            "type": "run.googleapis.com/Service"
+          }
+        }
+      ],
+      "methodName": "google.cloud.run.v1.Services.ReplaceService",
+      "request": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.ReplaceServiceRequest",
+        "name": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+        "service": {
+          "apiVersion": "serving.knative.dev/v1",
+          "kind": "Service",
+          "metadata": {
+            "annotations": {
+              "run.googleapis.com/client-name": "gcloud",
+              "run.googleapis.com/client-version": "580.0.0",
+              "run.googleapis.com/ingress": "all",
+              "run.googleapis.com/ingress-status": "all",
+              "run.googleapis.com/maxScale": "20",
+              "run.googleapis.com/operation-id": "24544dc7-834a-4c0c-bc94-024c7d63b439",
+              "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+              "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+              "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+            },
+            "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+            "generation": 2,
+            "labels": {
+              "cloud.googleapis.com/location": "us-central1"
+            },
+            "name": "interlock-s0-ext",
+            "namespace": "708527487974",
+            "resourceVersion": "AAZY5Vh3rS4",
+            "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+            "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "spec": {
+            "template": {
+              "metadata": {
+                "annotations": {
+                  "autoscaling.knative.dev/maxScale": "2",
+                  "autoscaling.knative.dev/minScale": "1",
+                  "run.googleapis.com/client-name": "gcloud",
+                  "run.googleapis.com/client-version": "580.0.0",
+                  "run.googleapis.com/cpu-throttling": "False",
+                  "run.googleapis.com/startup-cpu-boost": "true"
+                },
+                "labels": {
+                  "client.knative.dev/nonce": "mhanihurks",
+                  "run.googleapis.com/startupProbeType": "Default"
+                }
+              },
+              "spec": {
+                "containerConcurrency": 80,
+                "containers": [
+                  {
+                    "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                    "resources": {
+                      "limits": {
+                        "cpu": "1000m",
+                        "memory": "512Mi"
+                      }
+                    }
+                  }
+                ],
+                "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+                "timeoutSeconds": 300
+              }
+            },
+            "traffic": [
+              {
+                "latestRevision": true,
+                "percent": 100
+              }
+            ]
+          },
+          "status": {
+            "conditions": [
+              {
+                "lastTransitionTime": "2026-08-13T03:31:55.257134Z",
+                "status": "True",
+                "type": "Ready"
+              },
+              {
+                "lastTransitionTime": "2026-08-13T03:31:49.898673Z",
+                "status": "True",
+                "type": "ConfigurationsReady"
+              },
+              {
+                "lastTransitionTime": "2026-08-13T03:31:55.195125Z",
+                "status": "True",
+                "type": "RoutesReady"
+              }
+            ],
+            "latestCreatedRevisionName": "interlock-s0-ext-00002-v8p",
+            "latestReadyRevisionName": "interlock-s0-ext-00002-v8p",
+            "observedGeneration": 2,
+            "traffic": [
+              {
+                "latestRevision": true,
+                "percent": 100,
+                "revisionName": "interlock-s0-ext-00002-v8p"
+              }
+            ],
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          }
+        }
+      },
+      "requestMetadata": {
+        "callerIp": "68.54.37.251",
+        "callerSuppliedUserAgent": "google-cloud-sdk gcloud/580.0.0 agent-name/claude-code_2-1-229_agent command/gcloud.run.deploy invocation-id/c40c982cc90542559f71f32a3b511632 environment/None environment-version/None client-os/MACOSX client-os-ver/25.1.0 client-pltf-arch/arm interactive/False from-script/False python/3.14.6 term/xterm-256color  (Macintosh; Intel Mac OS X 25.1.0),gzip(gfe)",
+        "destinationAttributes": {},
+        "requestAttributes": {
+          "auth": {},
+          "time": "2026-08-13T03:34:53.266743Z"
+        }
+      },
+      "resourceLocation": {
+        "currentLocations": [
+          "us-central1"
+        ]
+      },
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "serviceName": "run.googleapis.com",
+      "status": {}
+    },
+    "receiveTimestamp": "2026-08-13T03:34:53.652130931Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "NOTICE",
+    "timestamp": "2026-08-13T03:34:53.077552Z"
+  },
+  {
+    "insertId": "-4zni3ee1mdm8",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/services/interlock-s0-ext",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/maxScale": "20",
+            "run.googleapis.com/operation-id": "24544dc7-834a-4c0c-bc94-024c7d63b439",
+            "run.googleapis.com/urls": "[\"https://interlock-s0-ext-708527487974.us-central1.run.app\",\"https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app\"]",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io",
+            "serving.knative.dev/lastModifier": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:29:15.923633Z",
+          "generation": 2,
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1"
+          },
+          "name": "interlock-s0-ext",
+          "namespace": "708527487974",
+          "resourceVersion": "AAZY5Vh3rS4",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/services/interlock-s0-ext",
+          "uid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+        },
+        "spec": {
+          "template": {
+            "metadata": {
+              "annotations": {
+                "autoscaling.knative.dev/maxScale": "2",
+                "autoscaling.knative.dev/minScale": "1",
+                "run.googleapis.com/client-name": "gcloud",
+                "run.googleapis.com/client-version": "580.0.0",
+                "run.googleapis.com/cpu-throttling": "false",
+                "run.googleapis.com/startup-cpu-boost": "true"
+              },
+              "labels": {
+                "client.knative.dev/nonce": "hgemkulmbk",
+                "run.googleapis.com/startupProbeType": "Default"
+              }
+            },
+            "spec": {
+              "containerConcurrency": 80,
+              "containers": [
+                {
+                  "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext:s0",
+                  "ports": [
+                    {
+                      "containerPort": 8080,
+                      "name": "h2c"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "1000m",
+                      "memory": "512Mi"
+                    }
+                  },
+                  "startupProbe": {
+                    "failureThreshold": 1,
+                    "periodSeconds": 240,
+                    "tcpSocket": {
+                      "port": 8080
+                    },
+                    "timeoutSeconds": 240
+                  }
+                }
+              ],
+              "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+              "timeoutSeconds": 300
+            }
+          },
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100
+            }
+          ]
+        },
+        "status": {
+          "address": {
+            "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+          },
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:31:55.257134Z",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:49.898673Z",
+              "status": "True",
+              "type": "ConfigurationsReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:55.195125Z",
+              "status": "True",
+              "type": "RoutesReady"
+            }
+          ],
+          "latestCreatedRevisionName": "interlock-s0-ext-00002-v8p",
+          "latestReadyRevisionName": "interlock-s0-ext-00002-v8p",
+          "observedGeneration": 2,
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100,
+              "revisionName": "interlock-s0-ext-00002-v8p"
+            }
+          ],
+          "url": "https://interlock-s0-ext-cu6pyv3cca-uc.a.run.app"
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Service interlock-s0-ext."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:31:56.248109092Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:31:55.269392Z"
+  },
+  {
+    "insertId": "-m6683he1ftak",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00002-v8p",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "24544dc7-834a-4c0c-bc94-024c7d63b439",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:31:47.783614Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "hgemkulmbk",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "2",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00002-v8p",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5Vh1cZY",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00002-v8p",
+          "uid": "f73ca146-ead1-46db-ab44-325de02469df"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:b22726d938f5fb642d7333849efab6a5b9676fd8e9210d7f167e5310f9f838f3",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:31:55.110806Z",
+              "message": "Updating revision scaling succeeded in 5.21s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:52.579365Z",
+              "severity": "Info",
+              "status": "True",
+              "type": "Active"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:52.421970Z",
+              "message": "Containers became healthy.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:49.772932Z",
+              "message": "Container image import completed in 1.26s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:54.985799Z",
+              "message": "Min instances provisioned successfully  in 5.09s.",
+              "status": "True",
+              "type": "MinInstancesProvisioned"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:51.147533Z",
+              "message": "Provisioning imported containers completed in 1.37s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:b22726d938f5fb642d7333849efab6a5b9676fd8e9210d7f167e5310f9f838f3",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:b22726d938f5fb642d7333849efab6a5b9676fd8e9210d7f167e5310f9f838f3",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00002-v8p&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00002-v8p%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00002-v8p with message: Updating revision scaling succeeded in 5.21s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:31:55.524576720Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:31:55.125422Z"
+  },
+  {
+    "insertId": "6a7d3aa9000adb8608fa0cfb",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.7865919137086042e+18
+    },
+    "labels": {
+      "instanceId": "001548f7299d0a2a6bde6d3b8f5a5f723f2ab7508621ced373c4e858c6a83f38e2c9b4af293b614de5a1366a0b994169e114bb7f13ff022d47ddf01798a69ec666ce8975b332224d75275ddcf12366"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:31:53.727231221Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:31:53.711558Z"
+  },
+  {
+    "insertId": "6a7d3aa9000ac867ad92dac7",
+    "labels": {
+      "instanceId": "001548f7299d0a2a6bde6d3b8f5a5f723f2ab7508621ced373c4e858c6a83f38e2c9b4af293b614de5a1366a0b994169e114bb7f13ff022d47ddf01798a69ec666ce8975b332224d75275ddcf12366"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:31:53.845090658Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:31:53.706663Z"
+  },
+  {
+    "insertId": "6a7d3aa8000cd10f99d2b14a",
+    "labels": {
+      "instanceId": "001548f7299d0a2a6bde6d3b8f5a5f723f2ab7508621ced373c4e858c6a83f38e2c9b4af293b614de5a1366a0b994169e114bb7f13ff022d47ddf01798a69ec666ce8975b332224d75275ddcf12366",
+      "scaling_reason": "MANUAL_OR_CUSTOMER_MIN_INSTANCE"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:31:52.846570243Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: MANUAL_OR_CUSTOMER_MIN_INSTANCE - Instance started because of customer-configured min-instances or manual scaling.",
+    "timestamp": "2026-08-13T03:31:52.839951Z"
+  },
+  {
+    "insertId": "6a7d3aa8000b5da55960db2b",
+    "labels": {
+      "instanceId": "001548f729a61574324c8abfac79ef3df6c20670d96d096012529b3288847eab01ba88fc9add02d9d780643a1b429c10b790abfc834c01b633a7847ace9c3ec34d1789a6ab6216430287ea746951eb"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:31:52.858558946Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00001-7d8",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Default STARTUP TCP probe failed 1 time consecutively for container \"interlock-s0-ext-1\" on port 8080. The instance was not started.\nConnection failed with status CANCELLED.",
+    "timestamp": "2026-08-13T03:31:52.744869Z"
+  },
+  {
+    "insertId": "6a7d3aa80009efe9e5319306",
+    "labels": {
+      "container_name": "interlock-s0-ext-1",
+      "instanceId": "001548f729a61574324c8abfac79ef3df6c20670d96d096012529b3288847eab01ba88fc9add02d9d780643a1b429c10b790abfc834c01b633a7847ace9c3ec34d1789a6ab6216430287ea746951eb"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:31:52.858558946Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00001-7d8",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "WARNING",
+    "textPayload": "Container called exit(1).",
+    "timestamp": "2026-08-13T03:31:52.651202236Z"
+  },
+  {
+    "insertId": "-vcmc3ye21az0",
+    "logName": "projects/interlock-s0-gate/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/interlock-s0-gate/revisions/interlock-s0-ext-00002-v8p",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "2",
+            "autoscaling.knative.dev/minScale": "1",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "580.0.0",
+            "run.googleapis.com/cpu-throttling": "false",
+            "run.googleapis.com/operation-id": "24544dc7-834a-4c0c-bc94-024c7d63b439",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "qwynn@marcellelabs.io"
+          },
+          "creationTimestamp": "2026-08-13T03:31:47.783614Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "hgemkulmbk",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "interlock-s0-ext",
+            "serving.knative.dev/configurationGeneration": "2",
+            "serving.knative.dev/route": "interlock-s0-ext",
+            "serving.knative.dev/service": "interlock-s0-ext",
+            "serving.knative.dev/serviceUid": "ad1fba79-00b5-4f47-857c-74041af9d790"
+          },
+          "name": "interlock-s0-ext-00002-v8p",
+          "namespace": "708527487974",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "interlock-s0-ext",
+              "uid": "f42096cf-f52a-4cb2-8211-fd978c0af7c0"
+            }
+          ],
+          "resourceVersion": "AAZY5VhNY58",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/708527487974/revisions/interlock-s0-ext-00002-v8p",
+          "uid": "f73ca146-ead1-46db-ab44-325de02469df"
+        },
+        "spec": {
+          "containerConcurrency": 80,
+          "containers": [
+            {
+              "image": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:b22726d938f5fb642d7333849efab6a5b9676fd8e9210d7f167e5310f9f838f3",
+              "name": "interlock-s0-ext-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "h2c"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "708527487974-compute@developer.gserviceaccount.com",
+          "timeoutSeconds": 300
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-13T03:31:52.485791Z",
+              "message": "Deploying revision succeeded in 4.7s.",
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:52.421970Z",
+              "message": "Containers became healthy.",
+              "status": "True",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:49.772932Z",
+              "message": "Container image import completed in 1.26s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-13T03:31:51.147533Z",
+              "message": "Provisioning imported containers completed in 1.37s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:b22726d938f5fb642d7333849efab6a5b9676fd8e9210d7f167e5310f9f838f3",
+              "name": "interlock-s0-ext-1"
+            }
+          ],
+          "desiredReplicas": 1,
+          "imageDigest": "us-central1-docker.pkg.dev/interlock-s0-gate/interlock-s0-images/interlock-s0-ext@sha256:b22726d938f5fb642d7333849efab6a5b9676fd8e9210d7f167e5310f9f838f3",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=interlock-s0-gate&resource=cloud_run_revision/service_name/interlock-s0-ext/revision_name/interlock-s0-ext-00002-v8p&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22interlock-s0-ext%22%0Aresource.labels.revision_name%3D%22interlock-s0-ext-00002-v8p%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Ready condition status changed to True for Revision interlock-s0-ext-00002-v8p with message: Deploying revision succeeded in 4.7s."
+      }
+    },
+    "receiveTimestamp": "2026-08-13T03:31:52.738154770Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:31:52.499175Z"
+  },
+  {
+    "insertId": "6a7d3aa800063ca957847a54",
+    "jsonPayload": {
+      "deny_marker": "interlock-s0-deny",
+      "event": "server.start",
+      "port": "8080",
+      "ts": 1.7865919124094822e+18
+    },
+    "labels": {
+      "instanceId": "001548f7298323d8a6345eef627a8d43f3a7348c35aadc4d454ae87cc0777d212a6759a25d5f623f707d9f40c74ad48157176ded0dd8af870a4f098afa8393265593832bf4b07c9bdeddd079b20968"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-13T03:31:52.414718156Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-13T03:31:52.408745Z"
+  },
+  {
+    "insertId": "6a7d3aa8000635b55b7a5cfb",
+    "labels": {
+      "instanceId": "001548f7298323d8a6345eef627a8d43f3a7348c35aadc4d454ae87cc0777d212a6759a25d5f623f707d9f40c74ad48157176ded0dd8af870a4f098afa8393265593832bf4b07c9bdeddd079b20968"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:31:52.641324137Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"interlock-s0-ext-1\" on port 8080.",
+    "timestamp": "2026-08-13T03:31:52.406965Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CJTS_LqO9aCpjQE"
+      }
+    ],
+    "insertId": "6a7d3aa80001b485193e8fe3",
+    "labels": {
+      "instanceId": "001548f729a61574324c8abfac79ef3df6c20670d96d096012529b3288847eab01ba88fc9add02d9d780643a1b429c10b790abfc834c01b633a7847ace9c3ec34d1789a6ab6216430287ea746951eb"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-13T03:31:52.119589063Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00001-7d8",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/server.py\", line 19, in <module>\n    from envoy.service.ext_proc.v3 import external_processor_pb2 as ep\n  File \"/app/protodef/envoy/service/ext_proc/v3/external_processor_pb2.py\", line 12, in <module>\n    _runtime_version.ValidateProtobufRuntimeVersion(\n  File \"/usr/local/lib/python3.12/site-packages/google/protobuf/runtime_version.py\", line 100, in ValidateProtobufRuntimeVersion\n    _ReportVersionError(\n  File \"/usr/local/lib/python3.12/site-packages/google/protobuf/runtime_version.py\", line 50, in _ReportVersionError\n    raise VersionError(msg)\ngoogle.protobuf.runtime_version.VersionError: Detected incompatible Protobuf Gencode/Runtime versions when loading envoy/service/ext_proc/v3/external_processor.proto: gencode 7.35.1 runtime 6.33.1. Runtime version cannot be older than the linked gencode version. See Protobuf version guarantees at https://protobuf.dev/support/cross-version-runtime-guarantee.",
+    "timestamp": "2026-08-13T03:31:52.111749Z"
+  },
+  {
+    "insertId": "6a7d3aa70007eed5a0c045d7",
+    "labels": {
+      "instanceId": "001548f729a61574324c8abfac79ef3df6c20670d96d096012529b3288847eab01ba88fc9add02d9d780643a1b429c10b790abfc834c01b633a7847ace9c3ec34d1789a6ab6216430287ea746951eb",
+      "scaling_reason": "MANUAL_OR_CUSTOMER_MIN_INSTANCE"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:31:51.527027766Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00001-7d8",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: MANUAL_OR_CUSTOMER_MIN_INSTANCE - Instance started because of customer-configured min-instances or manual scaling.",
+    "timestamp": "2026-08-13T03:31:51.519893Z"
+  },
+  {
+    "insertId": "6a7d3aa70004a0057a1f29b4",
+    "labels": {
+      "instanceId": "001548f7298323d8a6345eef627a8d43f3a7348c35aadc4d454ae87cc0777d212a6759a25d5f623f707d9f40c74ad48157176ded0dd8af870a4f098afa8393265593832bf4b07c9bdeddd079b20968",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/interlock-s0-gate/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-13T03:31:51.319910599Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "interlock-s0-ext",
+        "location": "us-central1",
+        "project_id": "interlock-s0-gate",
+        "revision_name": "interlock-s0-ext-00002-v8p",
+        "service_name": "interlock-s0-ext"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "timestamp": "2026-08-13T03:31:51.303109Z"
+  }
+]

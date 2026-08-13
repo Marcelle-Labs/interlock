@@ -1,0 +1,34 @@
+{
+  "agentGatewayCard": {
+    "mtlsEndpoint": "projects/me4720b97952dbe94p-tp/regions/us-central1/serviceAttachments/unitkind1-swp-mtls-psc-sa",
+    "rootCertificates": [
+      "-----BEGIN CERTIFICATE-----\nMIIDwjCCAqqgAwIBAgISdJjkoIFdVsNteWYe4zkwdfzsMA0GCSqGSIb3DQEBCwUA\nMF8xJTAjBgNVBAoTHEdvb2dsZSBDbG91ZCBNYW5hZ2VkIFNlcnZpY2UxNjA0BgNV\nBAMTLUFnZW50IEdhdGV3YXkgVExTIEluc3BlY3Rpb24gQ0EgKHVzLWNlbnRyYWwx\nKTAeFw0yNjA4MTIyMjA3NTFaFw0zNjA4MDkyMjA3NTBaMF8xJTAjBgNVBAoTHEdv\nb2dsZSBDbG91ZCBNYW5hZ2VkIFNlcnZpY2UxNjA0BgNVBAMTLUFnZW50IEdhdGV3\nYXkgVExTIEluc3BlY3Rpb24gQ0EgKHVzLWNlbnRyYWwxKTCCASIwDQYJKoZIhvcN\nAQEBBQADggEPADCCAQoCggEBAMAYh6zl96BqRcqIlHmOQMp3JCdMBXq8+6PYPa/o\nBmXJLkYJvlDSzLGDZJ16V2K3XpVzE/f5tig5QomckWYeZlMHGoja+mItCBACZmfM\nJ1BtW5DXOQEAenuKhl8OCIHiB6TEfr46GosHhIJQp2wVb//FpxnQL+NnzwhGFXlq\nUPr/+imT9nAf7eVGCbJfERHPVdvzyu4yU/ZmNPsvMFAGRfhdKlA4HWlqGlDsQ1JH\ntLNTe4+V0qYxlFjiHYDJV6U9zj6M8VHLxhN5u2RkFgRaZ0ePWI7Zle565KeFDjbh\nWzz1L6wYn7++6/ayFmvCpU0hJtOud3333ZF2gVH+Z83d9pcCAwEAAaN4MHYwDgYD\nVR0PAQH/BAQDAgEmMBMGA1UdJQQMMAoGCCsGAQUFBwMBMA8GA1UdEwEB/wQFMAMB\nAf8wHQYDVR0OBBYEFOy2y0vSjWGoD10l4mG+ALm5ON/lMB8GA1UdIwQYMBaAFOy2\ny0vSjWGoD10l4mG+ALm5ON/lMA0GCSqGSIb3DQEBCwUAA4IBAQCA7P2oDf1LOLRk\n9KVRhRTaS9raFPbHndby8soIg4gQXffsxBCwHqeDtARm1oEHuL5ckA5fZdCcliWu\n+NI5o1JLuddrH7E2v5pQ3Yrt50iXsWamUjP1D7KDAZ3OL/kBmYbrBG4sFXUQRrNU\nCTRizGTAuVUqpK33S+I5XmnlzEGJiMb8ofKdt4nqccAHQmEooeLipgqMNH3I7War\n4VAzp3vqZ+e8I3JZR97L7pdJIvlS18Am3qp2OJ11DENURgOVtyw5OaXLW5OwTzG1\n9+CojhC8EMBxn2//VfcodBnpzyl/nROyDkV7QpRmfh7u53Mcj/DCsEJCkdwwhXyF\nCQRwHfuD\n-----END CERTIFICATE-----\n"
+    ],
+    "serviceExtensionsServiceAccount": "service-542551520541@gcp-sa-dep.iam.gserviceaccount.com"
+  },
+  "createTime": "2026-08-13T04:05:51.932901044Z",
+  "etag": "ZJUGY4Ce0fXAUsIwkDcz5wqxdRVuNMKYcehiaekq-_c",
+  "googleManaged": {
+    "governedAccessPath": "AGENT_TO_ANYWHERE"
+  },
+  "name": "projects/interlock-s0-gate/locations/us-central1/agentGateways/interlock-s0-gw-egress",
+  "networkConfig": {
+    "dnsPeeringConfig": {
+      "domains": [
+        "s0.interlock.internal."
+      ],
+      "targetNetwork": "projects/interlock-s0-gate/global/networks/interlock-s0-vpc",
+      "targetProject": "interlock-s0-gate"
+    },
+    "egress": {
+      "networkAttachment": "projects/interlock-s0-gate/regions/us-central1/networkAttachments/interlock-s0-na"
+    }
+  },
+  "protocols": [
+    "MCP"
+  ],
+  "registries": [
+    "//agentregistry.googleapis.com/projects/interlock-s0-gate/locations/us-central1"
+  ],
+  "updateTime": "2026-08-13T04:09:55.646008008Z"
+}

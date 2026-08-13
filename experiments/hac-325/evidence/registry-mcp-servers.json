@@ -1,0 +1,20 @@
+[
+  {
+    "attributes": {
+      "agentregistry.googleapis.com/system/RuntimeReference": {
+        "uri": "//agentregistry.googleapis.com/projects/708527487974/locations/us-central1/services/interlock-s0-mcp"
+      }
+    },
+    "createTime": "2026-08-13T03:43:46.704553Z",
+    "displayName": "Interlock S0 target",
+    "interfaces": [
+      {
+        "protocolBinding": "JSONRPC",
+        "url": "https://interlock-s0-target-708527487974.us-central1.run.app"
+      }
+    ],
+    "mcpServerId": "urn:mcp:projects-708527487974:projects:708527487974:locations:us-central1:agentregistry:services:interlock-s0-mcp",
+    "name": "projects/interlock-s0-gate/locations/us-central1/mcpServers/agentregistry-00000000-0000-0000-23bd-870760b12070",
+    "updateTime": "2026-08-13T03:43:46.704553Z"
+  }
+]

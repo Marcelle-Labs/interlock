@@ -1,0 +1,27 @@
+{
+  "createTime": "2026-08-13T03:33:12.291974442Z",
+  "etag": "ddsBVFVj1T6L1RvZsXr6hwolg-2BdkHxBSwJ9I3arKY",
+  "googleManaged": {
+    "governedAccessPath": "CLIENT_TO_AGENT"
+  },
+  "name": "projects/interlock-s0-gate/locations/us-central1/agentGateways/interlock-s0-gw",
+  "networkConfig": {
+    "dnsPeeringConfig": {
+      "domains": [
+        "s0.interlock.internal."
+      ],
+      "targetNetwork": "projects/interlock-s0-gate/global/networks/interlock-s0-vpc",
+      "targetProject": "interlock-s0-gate"
+    },
+    "egress": {
+      "networkAttachment": "projects/interlock-s0-gate/regions/us-central1/networkAttachments/interlock-s0-na"
+    }
+  },
+  "protocols": [
+    "MCP"
+  ],
+  "registries": [
+    "//agentregistry.googleapis.com/projects/interlock-s0-gate/locations/us-central1"
+  ],
+  "updateTime": "2026-08-13T03:44:28.898741842Z"
+}

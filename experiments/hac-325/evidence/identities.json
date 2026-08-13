@@ -1,0 +1,9 @@
+{
+  "projectId": "interlock-s0-gate",
+  "projectNumber": "708527487974",
+  "region": "us-central1",
+  "caller": "qwynn@marcellelabs.io",
+  "gcloudVersion": "",
+  "dependencyServiceAgent": "service-708527487974@gcp-sa-dep.iam.gserviceaccount.com",
+  "cloudBuildServiceAgent": "service-708527487974@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+}

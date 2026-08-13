@@ -1,0 +1,34 @@
+{
+  "action": "CUSTOM",
+  "createTime": "2026-08-13T03:41:22.079889497Z",
+  "customProvider": {
+    "authzExtension": {
+      "resources": [
+        "projects/708527487974/locations/us-central1/authzExtensions/interlock-s0-authz-ext"
+      ]
+    }
+  },
+  "httpRules": [
+    {
+      "to": {
+        "operations": [
+          {
+            "paths": [
+              {
+                "prefix": "/"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "name": "projects/interlock-s0-gate/locations/us-central1/authzPolicies/interlock-s0-authz-policy",
+  "policyProfile": "CONTENT_AUTHZ",
+  "target": {
+    "resources": [
+      "projects/708527487974/locations/us-central1/agentGateways/interlock-s0-gw"
+    ]
+  },
+  "updateTime": "2026-08-13T03:41:41.871331661Z"
+}

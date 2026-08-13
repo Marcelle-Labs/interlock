@@ -1,0 +1,6 @@
+name: projects/interlock-s0-gate/locations/us-central1/authzExtensions/interlock-s0-authz-ext
+description: HAC-325 S0 consolidated CONTENT_AUTHZ probe. No product policy.
+service: ext.s0.interlock.internal
+failOpen: false
+timeout: 1s
+wireFormat: EXT_PROC_GRPC

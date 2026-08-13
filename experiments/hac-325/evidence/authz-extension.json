@@ -1,0 +1,9 @@
+{
+  "createTime": "2026-08-13T03:41:17.494674707Z",
+  "description": "HAC-325 S0 consolidated CONTENT_AUTHZ probe. No product policy.",
+  "name": "projects/interlock-s0-gate/locations/us-central1/authzExtensions/interlock-s0-authz-ext",
+  "service": "ext.s0.interlock.internal",
+  "timeout": "1s",
+  "updateTime": "2026-08-13T03:41:18.608431713Z",
+  "wireFormat": "EXT_PROC_GRPC"
+}

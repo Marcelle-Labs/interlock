@@ -1,0 +1,762 @@
+[
+  {
+    "insertId": "6a7d49450005aab92f20db37",
+    "labels": {
+      "service.version": "6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:34:13.610788505Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 416, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 63, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/applications.py\", line 1163, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/applications.py\", line 96, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 198, in __call__\n    raise app_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 382, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 323, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 1281, in handle\n    await super().handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 280, in handle\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 145, in app\n    await response(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 273, in __call__\n    async with create_collapsing_task_group() as task_group:\n  File \"/usr/local/lib/python3.11/contextlib.py\", line 231, in __aexit__\n    await self.gen.athrow(typ, value, traceback)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_utils.py\", line 93, in create_collapsing_task_group\n    raise exc from exc.__cause__ or context\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_core/_tasks.py\", line 275, in _run_coro\n    retval = await self._coro\n             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 276, in wrap\n    await func()\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 250, in stream_response\n    async for chunk in self.body_iterator:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 800, in json_generator\n    async for chunk in output:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 922, in _aiter_from_iter\n    chunk = await run_in_threadpool(next, iterator)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 2641, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 1033, in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1279, in stream_query\n    session = self.create_session(user_id=user_id)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1657, in create_session\n    raise RuntimeError(\"Failed to create session.\") from None\nRuntimeError: Failed to create session.",
+    "timestamp": "2026-08-13T04:34:13.371385Z"
+  },
+  {
+    "insertId": "6a7d493b0004eff091d1cffb",
+    "labels": {
+      "service.version": "6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:34:03.621262720Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"/usr/local/lib/python3.11/threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1644, in _asyncio_thread_main\n    result = asyncio.run(_invoke_async_create_session())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1635, in _invoke_async_create_session\n    return await self.async_create_session(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1601, in async_create_session\n    session = await self._tmpl_attrs.get(\"session_service\").create_session(\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/sessions/vertex_ai_session_service.py\", line 201, in create_session\n    api_response = await api_client.agent_engines.sessions.create(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 1347, in create\n    operation = await self._create(\n                ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 860, in _create\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1680, in _async_request_once\n    response = await session.request(  # type: ignore[union-attr]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 308, in request\n    response = await with_timeout(\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 80, in with_timeout\n    response = await asyncio.wait_for(coro, remaining)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/tasks.py\", line 489, in wait_for\n    return fut.result()\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 187, in __call__\n    raise client_exc from caught_exc\ngoogle.auth.exceptions.TransportError: Failed to send request to https://us-central1-aiplatform.mtls.googleapis.com/v1beta1/projects/interlock-s0-gate/locations/us-central1/reasoningEngines/6822295377757077504/sessions.",
+    "timestamp": "2026-08-13T04:34:03.323568Z"
+  },
+  {
+    "insertId": "6a7d493b000487f132fc842a",
+    "labels": {
+      "service.version": "6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:34:03.621262720Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 174, in __call__\n    response = await self._session.request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 858, in _request\n    resp = await handler(req)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 812, in _connect_and_send_request\n    conn = await self._connector.connect(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 657, in connect\n    proto = await self._create_connection(req, traces, timeout)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1242, in _create_connection\n    _, proto = await self._create_direct_connection(req, traces, timeout)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1620, in _create_direct_connection\n    raise last_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1589, in _create_direct_connection\n    transp, proto = await self._wrap_create_connection(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1318, in _wrap_create_connection\n    raise ClientConnectorCertificateError(req.connection_key, exc) from exc\naiohttp.client_exceptions.ClientConnectorCertificateError: Cannot connect to host us-central1-aiplatform.mtls.googleapis.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)')]",
+    "timestamp": "2026-08-13T04:34:03.296945Z"
+  },
+  {
+    "insertId": "6a7d493b000463ac7ae12172",
+    "labels": {
+      "service.version": "6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:34:03.621262720Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1316, in _wrap_create_connection\n    return await self._loop.create_connection(*args, **kwargs, sock=sock)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1113, in create_connection\n    transport, protocol = await self._create_connection_transport(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1146, in _create_connection_transport\n    await waiter\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 578, in _on_handshake_complete\n    raise handshake_exc\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 560, in _do_handshake\n    self._sslobj.do_handshake()\n  File \"/usr/local/lib/python3.11/ssl.py\", line 979, in do_handshake\n    self._sslobj.do_handshake()\nssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)",
+    "timestamp": "2026-08-13T04:34:03.287660Z"
+  },
+  {
+    "insertId": "6a7d4905000078a8ab0f7f67",
+    "labels": {
+      "service.version": "6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:33:09.091786437Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/initializer.py\", line 103, in _set_project_as_env_var_or_google_auth_default\n    project_id = resource_manager_utils.get_project_id(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/utils/resource_manager_utils.py\", line 54, in get_project_id\n    project = projects_client.get_project(name=f\"projects/{project_number}\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/resourcemanager_v3/services/projects/client.py\", line 833, in get_project\n    response = rpc(\n               ^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/gapic_v1/method.py\", line 189, in __call__\n    return wrapped_func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 295, in retry_wrapped_func\n    return retry_target(\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 157, in retry_target\n    next_sleep = _retry_error_helper(\n                 ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py\", line 230, in _retry_error_helper\n    raise final_exc from source_exc\ngoogle.api_core.exceptions.RetryError: Timeout of 60.0s exceeded, last exception: 503 failed to connect to all addresses; last error: FAILED_PRECONDITION: ipv6:%5B2607:f8b0:4001:c19::5f%5D:443: connect failed: addr: ipv6:%5B2607:f8b0:4001:c19::5f%5D:443 error: Network is unreachable",
+    "timestamp": "2026-08-13T04:33:09.030888Z"
+  },
+  {
+    "insertId": "6a7d49050000788b63ac6535",
+    "labels": {
+      "service.version": "6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:33:09.091786437Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 148, in retry_target\n    result = target()\n             ^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/timeout.py\", line 130, in func_with_timeout\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 57, in error_remapped_callable\n    raise exceptions.from_grpc_error(exc) from exc\ngoogle.api_core.exceptions.ServiceUnavailable: 503 failed to connect to all addresses; last error: FAILED_PRECONDITION: ipv6:%5B2607:f8b0:4001:c19::5f%5D:443: connect failed: addr: ipv6:%5B2607:f8b0:4001:c19::5f%5D:443 error: Network is unreachable",
+    "timestamp": "2026-08-13T04:33:09.030859Z"
+  },
+  {
+    "insertId": "6a7d490500007866a8f88ce9",
+    "labels": {
+      "service.version": "6"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:33:09.091786437Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 55, in error_remapped_callable\n    return callable_(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 276, in __call__\n    response, ignored_call = self._with_call(\n                             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 331, in _with_call\n    return call.result(), call\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 447, in result\n    raise self\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 314, in continuation\n    response, call = self._thunk(new_method).with_call(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 1182, in with_call\n    return _end_unary_response_blocking(state, call, True, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 999, in _end_unary_response_blocking\n    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ngrpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:",
+    "timestamp": "2026-08-13T04:33:09.030822Z"
+  },
+  {
+    "insertId": "6a7d481c0006808410f693c3",
+    "labels": {
+      "service.version": "5"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:29:16.691199201Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 416, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 63, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/applications.py\", line 1163, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/applications.py\", line 96, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 198, in __call__\n    raise app_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 382, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 323, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 1281, in handle\n    await super().handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 280, in handle\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 145, in app\n    await response(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 273, in __call__\n    async with create_collapsing_task_group() as task_group:\n  File \"/usr/local/lib/python3.11/contextlib.py\", line 231, in __aexit__\n    await self.gen.athrow(typ, value, traceback)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_utils.py\", line 93, in create_collapsing_task_group\n    raise exc from exc.__cause__ or context\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_core/_tasks.py\", line 275, in _run_coro\n    retval = await self._coro\n             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 276, in wrap\n    await func()\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 250, in stream_response\n    async for chunk in self.body_iterator:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 800, in json_generator\n    async for chunk in output:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 922, in _aiter_from_iter\n    chunk = await run_in_threadpool(next, iterator)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 2641, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 1033, in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1279, in stream_query\n    session = self.create_session(user_id=user_id)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1657, in create_session\n    raise RuntimeError(\"Failed to create session.\") from None\nRuntimeError: Failed to create session.",
+    "timestamp": "2026-08-13T04:29:16.426116Z"
+  },
+  {
+    "insertId": "6a7d4812000625c0922f8593",
+    "labels": {
+      "service.version": "5"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:29:06.700461020Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"/usr/local/lib/python3.11/threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1644, in _asyncio_thread_main\n    result = asyncio.run(_invoke_async_create_session())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1635, in _invoke_async_create_session\n    return await self.async_create_session(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1601, in async_create_session\n    session = await self._tmpl_attrs.get(\"session_service\").create_session(\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/sessions/vertex_ai_session_service.py\", line 201, in create_session\n    api_response = await api_client.agent_engines.sessions.create(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 1347, in create\n    operation = await self._create(\n                ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 860, in _create\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1680, in _async_request_once\n    response = await session.request(  # type: ignore[union-attr]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 308, in request\n    response = await with_timeout(\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 80, in with_timeout\n    response = await asyncio.wait_for(coro, remaining)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/tasks.py\", line 489, in wait_for\n    return fut.result()\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 187, in __call__\n    raise client_exc from caught_exc\ngoogle.auth.exceptions.TransportError: Failed to send request to https://us-central1-aiplatform.mtls.googleapis.com/v1beta1/projects/interlock-s0-gate/locations/us-central1/reasoningEngines/6822295377757077504/sessions.",
+    "timestamp": "2026-08-13T04:29:06.402880Z"
+  },
+  {
+    "insertId": "6a7d48120005b5cda750d918",
+    "labels": {
+      "service.version": "5"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:29:06.700461020Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 174, in __call__\n    response = await self._session.request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 858, in _request\n    resp = await handler(req)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 812, in _connect_and_send_request\n    conn = await self._connector.connect(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 657, in connect\n    proto = await self._create_connection(req, traces, timeout)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1242, in _create_connection\n    _, proto = await self._create_direct_connection(req, traces, timeout)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1620, in _create_direct_connection\n    raise last_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1589, in _create_direct_connection\n    transp, proto = await self._wrap_create_connection(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1318, in _wrap_create_connection\n    raise ClientConnectorCertificateError(req.connection_key, exc) from exc\naiohttp.client_exceptions.ClientConnectorCertificateError: Cannot connect to host us-central1-aiplatform.mtls.googleapis.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)')]",
+    "timestamp": "2026-08-13T04:29:06.374221Z"
+  },
+  {
+    "insertId": "6a7d48120005a055fe031eaf",
+    "labels": {
+      "service.version": "5"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:29:06.700461020Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1316, in _wrap_create_connection\n    return await self._loop.create_connection(*args, **kwargs, sock=sock)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1113, in create_connection\n    transport, protocol = await self._create_connection_transport(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1146, in _create_connection_transport\n    await waiter\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 578, in _on_handshake_complete\n    raise handshake_exc\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 560, in _do_handshake\n    self._sslobj.do_handshake()\n  File \"/usr/local/lib/python3.11/ssl.py\", line 979, in do_handshake\n    self._sslobj.do_handshake()\nssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)",
+    "timestamp": "2026-08-13T04:29:06.368725Z"
+  },
+  {
+    "insertId": "6a7d47ea000c1b3a3e15a6c7",
+    "labels": {
+      "service.version": "5"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:28:26.825371868Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/initializer.py\", line 103, in _set_project_as_env_var_or_google_auth_default\n    project_id = resource_manager_utils.get_project_id(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/utils/resource_manager_utils.py\", line 54, in get_project_id\n    project = projects_client.get_project(name=f\"projects/{project_number}\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/resourcemanager_v3/services/projects/client.py\", line 833, in get_project\n    response = rpc(\n               ^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/gapic_v1/method.py\", line 189, in __call__\n    return wrapped_func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 295, in retry_wrapped_func\n    return retry_target(\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 157, in retry_target\n    next_sleep = _retry_error_helper(\n                 ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py\", line 230, in _retry_error_helper\n    raise final_exc from source_exc\ngoogle.api_core.exceptions.RetryError: Timeout of 60.0s exceeded, last exception: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:240.0.0.2:443: Tls handshake failed (TSI_PROTOCOL_FAILURE): SSL_ERROR_SSL: error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED: self signed certificate in certificate chain: OK",
+    "timestamp": "2026-08-13T04:28:26.793402Z"
+  },
+  {
+    "insertId": "6a7d47ea000c1b1c3d0f94fa",
+    "labels": {
+      "service.version": "5"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:28:26.825371868Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 148, in retry_target\n    result = target()\n             ^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/timeout.py\", line 130, in func_with_timeout\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 57, in error_remapped_callable\n    raise exceptions.from_grpc_error(exc) from exc\ngoogle.api_core.exceptions.ServiceUnavailable: 503 failed to connect to all addresses; last error: UNKNOWN: ipv4:240.0.0.2:443: Tls handshake failed (TSI_PROTOCOL_FAILURE): SSL_ERROR_SSL: error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED: self signed certificate in certificate chain: OK",
+    "timestamp": "2026-08-13T04:28:26.793372Z"
+  },
+  {
+    "insertId": "6a7d47ea000c1aeb3b2404be",
+    "labels": {
+      "service.version": "5"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:28:26.825371868Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 55, in error_remapped_callable\n    return callable_(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 276, in __call__\n    response, ignored_call = self._with_call(\n                             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 331, in _with_call\n    return call.result(), call\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 447, in result\n    raise self\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 314, in continuation\n    response, call = self._thunk(new_method).with_call(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 1182, in with_call\n    return _end_unary_response_blocking(state, call, True, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 999, in _end_unary_response_blocking\n    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ngrpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:",
+    "timestamp": "2026-08-13T04:28:26.793323Z"
+  },
+  {
+    "insertId": "6a7d4706000d6875a1ecb127",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:39.074234074Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 416, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 63, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/applications.py\", line 1163, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/applications.py\", line 96, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 198, in __call__\n    raise app_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 382, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 323, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 1281, in handle\n    await super().handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 280, in handle\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 145, in app\n    await response(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 273, in __call__\n    async with create_collapsing_task_group() as task_group:\n  File \"/usr/local/lib/python3.11/contextlib.py\", line 231, in __aexit__\n    await self.gen.athrow(typ, value, traceback)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_utils.py\", line 93, in create_collapsing_task_group\n    raise exc from exc.__cause__ or context\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_core/_tasks.py\", line 275, in _run_coro\n    retval = await self._coro\n             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 276, in wrap\n    await func()\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 250, in stream_response\n    async for chunk in self.body_iterator:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 800, in json_generator\n    async for chunk in output:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 922, in _aiter_from_iter\n    chunk = await run_in_threadpool(next, iterator)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 2641, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 1033, in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1279, in stream_query\n    session = self.create_session(user_id=user_id)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1657, in create_session\n    raise RuntimeError(\"Failed to create session.\") from None\nRuntimeError: Failed to create session.",
+    "timestamp": "2026-08-13T04:24:38.878709Z"
+  },
+  {
+    "insertId": "6a7d46fc000d57b8c96b2ef2",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:29.087932832Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"/usr/local/lib/python3.11/threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1644, in _asyncio_thread_main\n    result = asyncio.run(_invoke_async_create_session())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1635, in _invoke_async_create_session\n    return await self.async_create_session(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1601, in async_create_session\n    session = await self._tmpl_attrs.get(\"session_service\").create_session(\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/sessions/vertex_ai_session_service.py\", line 201, in create_session\n    api_response = await api_client.agent_engines.sessions.create(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 1347, in create\n    operation = await self._create(\n                ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 860, in _create\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1680, in _async_request_once\n    response = await session.request(  # type: ignore[union-attr]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 308, in request\n    response = await with_timeout(\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 80, in with_timeout\n    response = await asyncio.wait_for(coro, remaining)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/tasks.py\", line 489, in wait_for\n    return fut.result()\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 187, in __call__\n    raise client_exc from caught_exc\ngoogle.auth.exceptions.TransportError: Failed to send request to https://us-central1-aiplatform.mtls.googleapis.com/v1beta1/projects/interlock-s0-gate/locations/us-central1/reasoningEngines/6822295377757077504/sessions.",
+    "timestamp": "2026-08-13T04:24:28.874424Z"
+  },
+  {
+    "insertId": "6a7d46fc000d3e6deadab37b",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:29.087932832Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 174, in __call__\n    response = await self._session.request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 858, in _request\n    resp = await handler(req)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 812, in _connect_and_send_request\n    conn = await self._connector.connect(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 657, in connect\n    proto = await self._create_connection(req, traces, timeout)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1242, in _create_connection\n    _, proto = await self._create_direct_connection(req, traces, timeout)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1620, in _create_direct_connection\n    raise last_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1589, in _create_direct_connection\n    transp, proto = await self._wrap_create_connection(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1318, in _wrap_create_connection\n    raise ClientConnectorCertificateError(req.connection_key, exc) from exc\naiohttp.client_exceptions.ClientConnectorCertificateError: Cannot connect to host us-central1-aiplatform.mtls.googleapis.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)')]",
+    "timestamp": "2026-08-13T04:24:28.867949Z"
+  },
+  {
+    "insertId": "6a7d46fc000d363b2b46841f",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:29.087932832Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1316, in _wrap_create_connection\n    return await self._loop.create_connection(*args, **kwargs, sock=sock)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1113, in create_connection\n    transport, protocol = await self._create_connection_transport(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1146, in _create_connection_transport\n    await waiter\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 578, in _on_handshake_complete\n    raise handshake_exc\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 560, in _do_handshake\n    self._sslobj.do_handshake()\n  File \"/usr/local/lib/python3.11/ssl.py\", line 979, in do_handshake\n    self._sslobj.do_handshake()\nssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)",
+    "timestamp": "2026-08-13T04:24:28.865851Z"
+  },
+  {
+    "insertId": "6a7d46eb0002487a4187da2d",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:11.449715441Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 416, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 63, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/applications.py\", line 1163, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/applications.py\", line 96, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 198, in __call__\n    raise app_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 382, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 323, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 1281, in handle\n    await super().handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 280, in handle\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 145, in app\n    await response(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 273, in __call__\n    async with create_collapsing_task_group() as task_group:\n  File \"/usr/local/lib/python3.11/contextlib.py\", line 231, in __aexit__\n    await self.gen.athrow(typ, value, traceback)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_utils.py\", line 93, in create_collapsing_task_group\n    raise exc from exc.__cause__ or context\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_core/_tasks.py\", line 275, in _run_coro\n    retval = await self._coro\n             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 276, in wrap\n    await func()\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 250, in stream_response\n    async for chunk in self.body_iterator:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 800, in json_generator\n    async for chunk in output:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 922, in _aiter_from_iter\n    chunk = await run_in_threadpool(next, iterator)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 2641, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 1033, in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1279, in stream_query\n    session = self.create_session(user_id=user_id)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1657, in create_session\n    raise RuntimeError(\"Failed to create session.\") from None\nRuntimeError: Failed to create session.",
+    "timestamp": "2026-08-13T04:24:11.149626Z"
+  },
+  {
+    "insertId": "6a7d46e10002397b5a700ba9",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:01.448932597Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"/usr/local/lib/python3.11/threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1644, in _asyncio_thread_main\n    result = asyncio.run(_invoke_async_create_session())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1635, in _invoke_async_create_session\n    return await self.async_create_session(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1601, in async_create_session\n    session = await self._tmpl_attrs.get(\"session_service\").create_session(\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/sessions/vertex_ai_session_service.py\", line 201, in create_session\n    api_response = await api_client.agent_engines.sessions.create(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 1347, in create\n    operation = await self._create(\n                ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 860, in _create\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1680, in _async_request_once\n    response = await session.request(  # type: ignore[union-attr]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 308, in request\n    response = await with_timeout(\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 80, in with_timeout\n    response = await asyncio.wait_for(coro, remaining)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/tasks.py\", line 489, in wait_for\n    return fut.result()\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 187, in __call__\n    raise client_exc from caught_exc\ngoogle.auth.exceptions.TransportError: Failed to send request to https://us-central1-aiplatform.mtls.googleapis.com/v1beta1/projects/interlock-s0-gate/locations/us-central1/reasoningEngines/6822295377757077504/sessions.",
+    "timestamp": "2026-08-13T04:24:01.145787Z"
+  },
+  {
+    "insertId": "6a7d46e100022277afc9cf95",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:01.448932597Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 174, in __call__\n    response = await self._session.request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 858, in _request\n    resp = await handler(req)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 812, in _connect_and_send_request\n    conn = await self._connector.connect(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 657, in connect\n    proto = await self._create_connection(req, traces, timeout)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1242, in _create_connection\n    _, proto = await self._create_direct_connection(req, traces, timeout)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1620, in _create_direct_connection\n    raise last_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1589, in _create_direct_connection\n    transp, proto = await self._wrap_create_connection(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1318, in _wrap_create_connection\n    raise ClientConnectorCertificateError(req.connection_key, exc) from exc\naiohttp.client_exceptions.ClientConnectorCertificateError: Cannot connect to host us-central1-aiplatform.mtls.googleapis.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)')]",
+    "timestamp": "2026-08-13T04:24:01.139895Z"
+  },
+  {
+    "insertId": "6a7d46e1000219cd1c2e11e2",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:24:01.448932597Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1316, in _wrap_create_connection\n    return await self._loop.create_connection(*args, **kwargs, sock=sock)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1113, in create_connection\n    transport, protocol = await self._create_connection_transport(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1146, in _create_connection_transport\n    await waiter\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 578, in _on_handshake_complete\n    raise handshake_exc\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 560, in _do_handshake\n    self._sslobj.do_handshake()\n  File \"/usr/local/lib/python3.11/ssl.py\", line 979, in do_handshake\n    self._sslobj.do_handshake()\nssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)",
+    "timestamp": "2026-08-13T04:24:01.137677Z"
+  },
+  {
+    "insertId": "6a7d46c4000b427e03ccbd68",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:23:33.036663686Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 416, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 63, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/applications.py\", line 1163, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/applications.py\", line 96, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 198, in __call__\n    raise app_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 382, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 323, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 1281, in handle\n    await super().handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 280, in handle\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 145, in app\n    await response(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 273, in __call__\n    async with create_collapsing_task_group() as task_group:\n  File \"/usr/local/lib/python3.11/contextlib.py\", line 231, in __aexit__\n    await self.gen.athrow(typ, value, traceback)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_utils.py\", line 93, in create_collapsing_task_group\n    raise exc from exc.__cause__ or context\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_core/_tasks.py\", line 275, in _run_coro\n    retval = await self._coro\n             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 276, in wrap\n    await func()\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 250, in stream_response\n    async for chunk in self.body_iterator:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 800, in json_generator\n    async for chunk in output:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 922, in _aiter_from_iter\n    chunk = await run_in_threadpool(next, iterator)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 2641, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 1033, in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1279, in stream_query\n    session = self.create_session(user_id=user_id)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1657, in create_session\n    raise RuntimeError(\"Failed to create session.\") from None\nRuntimeError: Failed to create session.",
+    "timestamp": "2026-08-13T04:23:32.737918Z"
+  },
+  {
+    "insertId": "6a7d46ba000aaf0a08080b53",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:23:23.044940159Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"/usr/local/lib/python3.11/threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1644, in _asyncio_thread_main\n    result = asyncio.run(_invoke_async_create_session())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1635, in _invoke_async_create_session\n    return await self.async_create_session(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/agent_engines/templates/adk.py\", line 1601, in async_create_session\n    session = await self._tmpl_attrs.get(\"session_service\").create_session(\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/sessions/vertex_ai_session_service.py\", line 201, in create_session\n    api_response = await api_client.agent_engines.sessions.create(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 1347, in create\n    operation = await self._create(\n                ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/vertexai/_genai/sessions.py\", line 860, in _create\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1680, in _async_request_once\n    response = await session.request(  # type: ignore[union-attr]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 308, in request\n    response = await with_timeout(\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/sessions.py\", line 80, in with_timeout\n    response = await asyncio.wait_for(coro, remaining)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/tasks.py\", line 489, in wait_for\n    return fut.result()\n           ^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 187, in __call__\n    raise client_exc from caught_exc\ngoogle.auth.exceptions.TransportError: Failed to send request to https://us-central1-aiplatform.mtls.googleapis.com/v1beta1/projects/interlock-s0-gate/locations/us-central1/reasoningEngines/6822295377757077504/sessions.",
+    "timestamp": "2026-08-13T04:23:22.700170Z"
+  },
+  {
+    "insertId": "6a7d46ba000a75acd12c1757",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:23:22.714149646Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/auth/aio/transport/aiohttp.py\", line 174, in __call__\n    response = await self._session.request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 858, in _request\n    resp = await handler(req)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/client.py\", line 812, in _connect_and_send_request\n    conn = await self._connector.connect(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 657, in connect\n    proto = await self._create_connection(req, traces, timeout)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1242, in _create_connection\n    _, proto = await self._create_direct_connection(req, traces, timeout)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1620, in _create_direct_connection\n    raise last_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1589, in _create_direct_connection\n    transp, proto = await self._wrap_create_connection(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1318, in _wrap_create_connection\n    raise ClientConnectorCertificateError(req.connection_key, exc) from exc\naiohttp.client_exceptions.ClientConnectorCertificateError: Cannot connect to host us-central1-aiplatform.mtls.googleapis.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)')]",
+    "timestamp": "2026-08-13T04:23:22.685484Z"
+  },
+  {
+    "insertId": "6a7d46ba000a5f69cbc9d597",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:23:22.714149646Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/aiohttp/connector.py\", line 1316, in _wrap_create_connection\n    return await self._loop.create_connection(*args, **kwargs, sock=sock)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1113, in create_connection\n    transport, protocol = await self._create_connection_transport(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 1146, in _create_connection_transport\n    await waiter\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 578, in _on_handshake_complete\n    raise handshake_exc\n  File \"/usr/local/lib/python3.11/asyncio/sslproto.py\", line 560, in _do_handshake\n    self._sslobj.do_handshake()\n  File \"/usr/local/lib/python3.11/ssl.py\", line 979, in do_handshake\n    self._sslobj.do_handshake()\nssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1016)",
+    "timestamp": "2026-08-13T04:23:22.679785Z"
+  },
+  {
+    "insertId": "6a7d46920005dfde5963fbd5",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:22:42.598208468Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/initializer.py\", line 103, in _set_project_as_env_var_or_google_auth_default\n    project_id = resource_manager_utils.get_project_id(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/utils/resource_manager_utils.py\", line 54, in get_project_id\n    project = projects_client.get_project(name=f\"projects/{project_number}\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/resourcemanager_v3/services/projects/client.py\", line 833, in get_project\n    response = rpc(\n               ^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/gapic_v1/method.py\", line 189, in __call__\n    return wrapped_func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 295, in retry_wrapped_func\n    return retry_target(\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 157, in retry_target\n    next_sleep = _retry_error_helper(\n                 ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py\", line 230, in _retry_error_helper\n    raise final_exc from source_exc\ngoogle.api_core.exceptions.RetryError: Timeout of 60.0s exceeded, last exception: 503 failed to connect to all addresses; last error: FAILED_PRECONDITION: ipv6:%5B2607:f8b0:4001:c72::5f%5D:443: connect failed: addr: ipv6:%5B2607:f8b0:4001:c72::5f%5D:443 error: Network is unreachable",
+    "timestamp": "2026-08-13T04:22:42.384990Z"
+  },
+  {
+    "insertId": "6a7d46920005dfc3c537785b",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:22:42.598208468Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 148, in retry_target\n    result = target()\n             ^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/timeout.py\", line 130, in func_with_timeout\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 57, in error_remapped_callable\n    raise exceptions.from_grpc_error(exc) from exc\ngoogle.api_core.exceptions.ServiceUnavailable: 503 failed to connect to all addresses; last error: FAILED_PRECONDITION: ipv6:%5B2607:f8b0:4001:c72::5f%5D:443: connect failed: addr: ipv6:%5B2607:f8b0:4001:c72::5f%5D:443 error: Network is unreachable",
+    "timestamp": "2026-08-13T04:22:42.384963Z"
+  },
+  {
+    "insertId": "6a7d46920005df9f8712b629",
+    "labels": {
+      "service.version": "4"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:22:42.598208468Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 55, in error_remapped_callable\n    return callable_(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 276, in __call__\n    response, ignored_call = self._with_call(\n                             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 331, in _with_call\n    return call.result(), call\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 447, in result\n    raise self\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 314, in continuation\n    response, call = self._thunk(new_method).with_call(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 1182, in with_call\n    return _end_unary_response_blocking(state, call, True, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 999, in _end_unary_response_blocking\n    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ngrpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:",
+    "timestamp": "2026-08-13T04:22:42.384927Z"
+  },
+  {
+    "insertId": "6a7d456e0000aec21573f577",
+    "labels": {
+      "service.version": "3"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:17:50.176355794Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/initializer.py\", line 103, in _set_project_as_env_var_or_google_auth_default\n    project_id = resource_manager_utils.get_project_id(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/utils/resource_manager_utils.py\", line 54, in get_project_id\n    project = projects_client.get_project(name=f\"projects/{project_number}\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/resourcemanager_v3/services/projects/client.py\", line 833, in get_project\n    response = rpc(\n               ^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/gapic_v1/method.py\", line 189, in __call__\n    return wrapped_func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 295, in retry_wrapped_func\n    return retry_target(\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 157, in retry_target\n    next_sleep = _retry_error_helper(\n                 ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py\", line 215, in _retry_error_helper\n    raise final_exc from source_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 148, in retry_target\n    result = target()\n             ^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/timeout.py\", line 130, in func_with_timeout\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 57, in error_remapped_callable\n    raise exceptions.from_grpc_error(exc) from exc\ngoogle.api_core.exceptions.PermissionDenied: 403 Cloud Resource Manager API has not been used in project 708527487974 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/cloudresourcemanager.googleapis.com/overview?project=708527487974 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. [reason: \"SERVICE_DISABLED\"",
+    "timestamp": "2026-08-13T04:17:50.044738Z"
+  },
+  {
+    "insertId": "6a7d456e0000ae918cb520e9",
+    "labels": {
+      "service.version": "3"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:17:50.176355794Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 55, in error_remapped_callable\n    return callable_(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 276, in __call__\n    response, ignored_call = self._with_call(\n                             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 331, in _with_call\n    return call.result(), call\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 447, in result\n    raise self\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 314, in continuation\n    response, call = self._thunk(new_method).with_call(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 1182, in with_call\n    return _end_unary_response_blocking(state, call, True, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 999, in _end_unary_response_blocking\n    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ngrpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:",
+    "timestamp": "2026-08-13T04:17:50.044689Z"
+  },
+  {
+    "insertId": "6a7d41d10003da6397997922",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:25.282787146Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 416, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 63, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/applications.py\", line 1163, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/applications.py\", line 96, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 198, in __call__\n    raise app_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 382, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/api_server.py\", line 323, in __call__\n    await self._app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 1281, in handle\n    await super().handle(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/routing.py\", line 280, in handle\n    await self.app(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/fastapi/routing.py\", line 145, in app\n    await response(scope, receive, send)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 273, in __call__\n    async with create_collapsing_task_group() as task_group:\n  File \"/usr/local/lib/python3.11/contextlib.py\", line 231, in __aexit__\n    await self.gen.athrow(typ, value, traceback)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/_utils.py\", line 93, in create_collapsing_task_group\n    raise exc from exc.__cause__ or context\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_core/_tasks.py\", line 275, in _run_coro\n    retval = await self._coro\n             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 276, in wrap\n    await func()\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/responses.py\", line 250, in stream_response\n    async for chunk in self.body_iterator:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 800, in json_generator\n    async for chunk in output:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/cli/fast_api.py\", line 922, in _aiter_from_iter\n    chunk = await run_in_threadpool(next, iterator)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/starlette/concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 2641, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nRuntimeError: coroutine raised StopIteration",
+    "timestamp": "2026-08-13T04:02:25.252515Z"
+  },
+  {
+    "insertId": "6a7d41d10003da38000cf830",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:25.282787146Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py\", line 1033, in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-08-13T04:02:25.252472Z"
+  },
+  {
+    "insertId": "6a7d41d1000348b9fa57e46a",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:25.282787146Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"/usr/local/lib/python3.11/threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 1006, in _asyncio_thread_main\n    asyncio.run(_invoke_run_async())\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/asyncio/base_events.py\", line 654, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 999, in _invoke_run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 1111, in run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 628, in _run_node_async\n    await self._cleanup_root_task(task, self.agent.name)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 906, in _cleanup_root_task\n    await task\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 610, in _drive_root_node\n    raise e.error\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 136, in run\n    await self._execute_node(ctx, node_input)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 274, in _execute_node\n    await self._run_node_loop(ctx, node_input)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 288, in _run_node_loop\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_base_node.py\", line 166, in run\n    async for item in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/llm_agent.py\", line 599, in _run_impl\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_llm_agent_wrapper.py\", line 370, in run_llm_agent_as_node\n    async for event in run_iter:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/base_agent.py\", line 306, in run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/llm_agent.py\", line 548, in _run_async_impl\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 956, in run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1036, in _run_one_step_async\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1483, in _call_llm_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1461, in _call_llm_with_tracing\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1544, in _run_and_handle_error\n    async for response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 419, in _run_and_handle_error\n    raise model_error\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 396, in _run_and_handle_error\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/models/google_llm.py\", line 304, in generate_content_async\n    raise ce\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/models/google_llm.py\", line 282, in generate_content_async\n    response = await self.api_client.aio.models.generate_content(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/models.py\", line 8760, in generate_content\n    response = await self._generate_content(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/models.py\", line 7216, in _generate_content\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1654, in _async_request_once\n    await errors.APIError.raise_for_async_response(response)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/errors.py\", line 265, in raise_for_async_response\n    await cls.raise_error_async(status_code, response_json, response)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/errors.py\", line 287, in raise_error_async\n    raise ClientError(status_code, response_json, response)\ngoogle.genai.errors.ClientError: 403 PERMISSION_DENIED. {'error': {'code': 403, 'message': \"Permission 'aiplatform.endpoints.predict' denied on resource '//aiplatform.googleapis.com/projects/708527487974/locations/us-central1/publishers/google/models/gemini-2.0-flash' (or it may not exist). Remediate access with this Troubleshooter URL or share it with your administrator - https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g%3D .\", 'status': 'PERMISSION_DENIED', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'IAM_PERMISSION_DENIED', 'domain': 'aiplatform.googleapis.com', 'metadata': {'troubleshooter_url': 'https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g%3D', 'error_info_id': 'CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g=', 'permission': 'aiplatform.endpoints.predict', 'resource': 'projects/708527487974/locations/us-central1/publishers/google/models/gemini-2.0-flash'}}]}}",
+    "timestamp": "2026-08-13T04:02:25.215225Z"
+  },
+  {
+    "insertId": "6a7d41d10002cc30ce5c006f",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:25.282787146Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 601, in _drive_root_node\n    await root_ctx._run_node_internal(\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/context.py\", line 603, in _run_node_internal\n    raise DynamicNodeFailError(\ngoogle.adk.workflow._errors.DynamicNodeFailError: Dynamic node interlock_s0_probe failed",
+    "timestamp": "2026-08-13T04:02:25.183344Z"
+  },
+  {
+    "insertId": "6a7d41d10002b2ed61628e94",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:25.282787146Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 906, in _cleanup_root_task\n    await task\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 610, in _drive_root_node\n    raise e.error\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 136, in run\n    await self._execute_node(ctx, node_input)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 274, in _execute_node\n    await self._run_node_loop(ctx, node_input)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 288, in _run_node_loop\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_base_node.py\", line 166, in run\n    async for item in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/llm_agent.py\", line 599, in _run_impl\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_llm_agent_wrapper.py\", line 370, in run_llm_agent_as_node\n    async for event in run_iter:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/base_agent.py\", line 306, in run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/llm_agent.py\", line 548, in _run_async_impl\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 956, in run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1036, in _run_one_step_async\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1483, in _call_llm_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1461, in _call_llm_with_tracing\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1544, in _run_and_handle_error\n    async for response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 419, in _run_and_handle_error\n    raise model_error\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 396, in _run_and_handle_error\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/models/google_llm.py\", line 304, in generate_content_async\n    raise ce\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/models/google_llm.py\", line 282, in generate_content_async\n    response = await self.api_client.aio.models.generate_content(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/models.py\", line 8760, in generate_content\n    response = await self._generate_content(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/models.py\", line 7216, in _generate_content\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1654, in _async_request_once\n    await errors.APIError.raise_for_async_response(response)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/errors.py\", line 265, in raise_for_async_response\n    await cls.raise_error_async(status_code, response_json, response)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/errors.py\", line 287, in raise_error_async\n    raise ClientError(status_code, response_json, response)\ngoogle.genai.errors.ClientError: 403 PERMISSION_DENIED. {'error': {'code': 403, 'message': \"Permission 'aiplatform.endpoints.predict' denied on resource '//aiplatform.googleapis.com/projects/708527487974/locations/us-central1/publishers/google/models/gemini-2.0-flash' (or it may not exist). Remediate access with this Troubleshooter URL or share it with your administrator - https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g%3D .\", 'status': 'PERMISSION_DENIED', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'IAM_PERMISSION_DENIED', 'domain': 'aiplatform.googleapis.com', 'metadata': {'troubleshooter_url': 'https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g%3D', 'error_info_id': 'CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g=', 'permission': 'aiplatform.endpoints.predict', 'resource': 'projects/708527487974/locations/us-central1/publishers/google/models/gemini-2.0-flash'}}]}}",
+    "timestamp": "2026-08-13T04:02:25.176877Z"
+  },
+  {
+    "insertId": "6a7d41d10002b2bdebf790ed",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:25.282787146Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/runners.py\", line 601, in _drive_root_node\n    await root_ctx._run_node_internal(\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/context.py\", line 603, in _run_node_internal\n    raise DynamicNodeFailError(\ngoogle.adk.workflow._errors.DynamicNodeFailError: Dynamic node interlock_s0_probe failed",
+    "timestamp": "2026-08-13T04:02:25.176829Z"
+  },
+  {
+    "insertId": "6a7d41d0000cfe783ba8a6cf",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:24.947559350Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 136, in run\n    await self._execute_node(ctx, node_input)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 274, in _execute_node\n    await self._run_node_loop(ctx, node_input)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_node_runner.py\", line 288, in _run_node_loop\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_base_node.py\", line 166, in run\n    async for item in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/llm_agent.py\", line 599, in _run_impl\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/workflow/_llm_agent_wrapper.py\", line 370, in run_llm_agent_as_node\n    async for event in run_iter:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/base_agent.py\", line 306, in run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/agents/llm_agent.py\", line 548, in _run_async_impl\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 956, in run_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1036, in _run_one_step_async\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1483, in _call_llm_async\n    async for event in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1461, in _call_llm_with_tracing\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 1544, in _run_and_handle_error\n    async for response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 419, in _run_and_handle_error\n    raise model_error\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/flows/llm_flows/base_llm_flow.py\", line 396, in _run_and_handle_error\n    async for llm_response in agen:\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/models/google_llm.py\", line 304, in generate_content_async\n    raise ce\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/adk/models/google_llm.py\", line 282, in generate_content_async\n    response = await self.api_client.aio.models.generate_content(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/models.py\", line 8760, in generate_content\n    response = await self._generate_content(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/models.py\", line 7216, in _generate_content\n    response = await self._api_client.async_request(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1793, in async_request\n    result = await self._async_request(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1726, in _async_request\n    return await self._async_retry(  # type: ignore[no-any-return]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 413, in exc_check\n    raise retry_exc.reraise()\n          ^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/__init__.py\", line 184, in reraise\n    raise self.last_attempt.result()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/home/myuser/.local/lib/python3.11/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/_api_client.py\", line 1654, in _async_request_once\n    await errors.APIError.raise_for_async_response(response)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/errors.py\", line 265, in raise_for_async_response\n    await cls.raise_error_async(status_code, response_json, response)\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/genai/errors.py\", line 287, in raise_error_async\n    raise ClientError(status_code, response_json, response)\ngoogle.genai.errors.ClientError: 403 PERMISSION_DENIED. {'error': {'code': 403, 'message': \"Permission 'aiplatform.endpoints.predict' denied on resource '//aiplatform.googleapis.com/projects/708527487974/locations/us-central1/publishers/google/models/gemini-2.0-flash' (or it may not exist). Remediate access with this Troubleshooter URL or share it with your administrator - https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g%3D .\", 'status': 'PERMISSION_DENIED', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'IAM_PERMISSION_DENIED', 'domain': 'aiplatform.googleapis.com', 'metadata': {'troubleshooter_url': 'https://console.cloud.google.com/iam-admin/troubleshooter/summary;errorId=CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g%3D', 'error_info_id': 'CiQwMTlmZjk0OS0xNzg4LTcxYzctYTM4Ni1hZjA5NGE1Njg5ZjMSVXByb2plY3RzLzcwODUyNzQ4Nzk3NC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvcHVibGlzaGVycy9nb29nbGUvbW9kZWxzL2dlbWluaS0yLjAtZmxhc2g=', 'permission': 'aiplatform.endpoints.predict', 'resource': 'projects/708527487974/locations/us-central1/publishers/google/models/gemini-2.0-flash'}}]}}",
+    "timestamp": "2026-08-13T04:02:24.851576Z"
+  },
+  {
+    "insertId": "6a7d41ba000e3a75997e0625",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:03.091489386Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/initializer.py\", line 103, in _set_project_as_env_var_or_google_auth_default\n    project_id = resource_manager_utils.get_project_id(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/aiplatform/utils/resource_manager_utils.py\", line 54, in get_project_id\n    project = projects_client.get_project(name=f\"projects/{project_number}\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/cloud/resourcemanager_v3/services/projects/client.py\", line 833, in get_project\n    response = rpc(\n               ^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/gapic_v1/method.py\", line 189, in __call__\n    return wrapped_func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 295, in retry_wrapped_func\n    return retry_target(\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 157, in retry_target\n    next_sleep = _retry_error_helper(\n                 ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py\", line 215, in _retry_error_helper\n    raise final_exc from source_exc\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py\", line 148, in retry_target\n    result = target()\n             ^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/timeout.py\", line 130, in func_with_timeout\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 57, in error_remapped_callable\n    raise exceptions.from_grpc_error(exc) from exc\ngoogle.api_core.exceptions.PermissionDenied: 403 Cloud Resource Manager API has not been used in project 708527487974 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/cloudresourcemanager.googleapis.com/overview?project=708527487974 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry. [reason: \"SERVICE_DISABLED\"",
+    "timestamp": "2026-08-13T04:02:02.932469Z"
+  },
+  {
+    "insertId": "6a7d41ba000e3a5304e3b1e0",
+    "labels": {
+      "service.version": "2"
+    },
+    "logName": "projects/interlock-s0-gate/logs/aiplatform.googleapis.com%2Freasoning_engine_stderr",
+    "receiveTimestamp": "2026-08-13T04:02:03.091489386Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "reasoning_engine_id": "6822295377757077504",
+        "resource_container": "708527487974"
+      },
+      "type": "aiplatform.googleapis.com/ReasoningEngine"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/home/myuser/.local/lib/python3.11/site-packages/google/api_core/grpc_helpers.py\", line 55, in error_remapped_callable\n    return callable_(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 276, in __call__\n    response, ignored_call = self._with_call(\n                             ^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 331, in _with_call\n    return call.result(), call\n           ^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 447, in result\n    raise self\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_interceptor.py\", line 314, in continuation\n    response, call = self._thunk(new_method).with_call(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 1182, in with_call\n    return _end_unary_response_blocking(state, call, True, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/myuser/.local/lib/python3.11/site-packages/grpc/_channel.py\", line 999, in _end_unary_response_blocking\n    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ngrpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:",
+    "timestamp": "2026-08-13T04:02:02.932435Z"
+  }
+]
