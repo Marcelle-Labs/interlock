@@ -35,7 +35,7 @@
     "purpose": "the build verify-packet.mjs re-derives through. dist/ is gitignored, so without this block a stale or divergent build could silently redefine the decision function while the verifier reported it had re-derived against the real one.",
     "builtBy": "pnpm run build (tsc -p tsconfig.build.json)",
     "typescript": "5.9.2",
-    "pinnedFromSha": "573b69fddae13cc50317eaa614c03d76aac72982",
+    "pinnedFromSha": "b3ae7b60322323b7d62f1a282654500991fb0f40",
     "naming": {
       "built": "sha256 of each compiled decision-path module on disk",
       "source": "sha256 of the TypeScript each was compiled from; catches a correct build of stale source",

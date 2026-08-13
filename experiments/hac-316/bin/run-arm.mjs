@@ -824,6 +824,12 @@ export function retainAttempt(index, armName, result) {
  * sample, and the filter would be invisible; a run that kept only a summary of
  * them would be reporting that the filter existed without saying what it
  * removed.
+ *
+ * The budget is on *invocation pairs*, not on successful ones. One pass of this
+ * loop is one pair and consumes one of the three, whatever came back — a
+ * `MODEL_FAILURE / INVALID_TRIAL` costs an attempt exactly as a missed
+ * concurrency window does. There is no separate pool for invalid trials, which
+ * is the shape a hidden retry would take if one ever appeared here.
  */
 async function runArm(armName, timeline) {
   const maxAttempts = PREFLIGHT_V1.predeclared.concurrencyAttempts.maximum;
