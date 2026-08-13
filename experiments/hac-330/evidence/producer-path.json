@@ -1,0 +1,20 @@
+{
+  "command": "node packages/cli/dist/cli.js generate <fixture> --dry-run",
+  "cliVersion": "0.5.2",
+  "specVersion": "0.4",
+  "generatedSectionKeys": [
+    "specVersion",
+    "generatedAt",
+    "by",
+    "frameworkManifest",
+    "conventions",
+    "fileIndex",
+    "topology",
+    "hygiene"
+  ],
+  "coChangePresent": false,
+  "basisRevisionPresent": false,
+  "mentionsCoChangeAnywhere": false,
+  "historyRefreshOption": null,
+  "finding": "The published producer emits no coChange block and exposes no history-refresh option, and its output carries a wall-clock generatedAt. Interlock therefore consumes the mine -> score -> select pipeline directly and pins the basis revision itself, rather than reading generated.coChange from an artifact."
+}

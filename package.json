@@ -11,11 +11,13 @@
   "packageManager": "pnpm@10.24.0",
   "scripts": {
     "check:provenance": "node scripts/check-provenance.mjs",
-    "check": "pnpm run check:provenance",
+    "check:packet": "node experiments/hac-330/bin/verify-packet.mjs",
+    "check": "pnpm run check:provenance && pnpm run check:packet",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "hac330": "node experiments/hac-330/bin/run-experiment.mjs"
   },
   "devDependencies": {
     "@types/node": "22.15.3",

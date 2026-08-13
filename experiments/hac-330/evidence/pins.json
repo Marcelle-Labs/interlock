@@ -1,0 +1,24 @@
+{
+  "workspacejson-cli": {
+    "id": "workspacejson-cli",
+    "repository": "workspacejson/cli",
+    "remote": "https://github.com/workspacejson/cli.git",
+    "disposition": "EXECUTE_READ_ONLY",
+    "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "observedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "clean": true,
+    "matches": true,
+    "problems": []
+  },
+  "workspacejson-standard": {
+    "id": "workspacejson-standard",
+    "repository": "workspacejson/standard",
+    "remote": "https://github.com/workspacejson/standard.git",
+    "disposition": "READ_ONLY_PINNED",
+    "pinnedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+    "observedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+    "clean": true,
+    "matches": true,
+    "problems": []
+  }
+}

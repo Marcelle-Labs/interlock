@@ -1,0 +1,210 @@
+{
+  "baseline": {
+    "description": "Interlock disabled. Both locally valid intents execute.",
+    "interlock": "disabled",
+    "decision": null,
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 60,
+        "beta": 60,
+        "gamma": 20
+      }
+    },
+    "invariant": {
+      "holds": false,
+      "exitCode": 1,
+      "report": {
+        "invariant": "sum(services[].reserved) <= budget.totalReservable",
+        "totalReservable": 130,
+        "reserved": [
+          {
+            "service": "alpha",
+            "reserved": 60
+          },
+          {
+            "service": "beta",
+            "reserved": 60
+          },
+          {
+            "service": "gamma",
+            "reserved": 20
+          }
+        ],
+        "total": 140,
+        "headroom": -10,
+        "holds": false
+      }
+    },
+    "events": [
+      {
+        "intent": "A",
+        "outcome": "PRECONDITION_OK_AT_BASE",
+        "total": 120
+      },
+      {
+        "intent": "B",
+        "outcome": "PRECONDITION_OK_AT_BASE",
+        "total": 120
+      },
+      {
+        "intent": "A",
+        "outcome": "APPLIED",
+        "why": "composition permitted without coordination"
+      },
+      {
+        "intent": "B",
+        "outcome": "APPLIED",
+        "why": "composition permitted without coordination"
+      }
+    ]
+  },
+  "treatment": {
+    "description": "Interlock consumes the real mined baseline evidence.",
+    "interlock": "enabled",
+    "decision": {
+      "decision": "WITHHOLD_SERIALIZE",
+      "reason": "COUPLING_OBSERVED",
+      "detail": "1 qualifying co-change coupling(s) between the pending intents at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; the composition is withheld and the intents are serialized with revalidation",
+      "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "couplings": [
+        {
+          "intents": [
+            "A",
+            "B"
+          ],
+          "files": [
+            "services/alpha/reservation.json",
+            "services/beta/reservation.json"
+          ],
+          "support": 8,
+          "occurrences": 10
+        }
+      ]
+    },
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 60,
+        "beta": 40,
+        "gamma": 20
+      }
+    },
+    "invariant": {
+      "holds": true,
+      "exitCode": 0,
+      "report": {
+        "invariant": "sum(services[].reserved) <= budget.totalReservable",
+        "totalReservable": 130,
+        "reserved": [
+          {
+            "service": "alpha",
+            "reserved": 60
+          },
+          {
+            "service": "beta",
+            "reserved": 40
+          },
+          {
+            "service": "gamma",
+            "reserved": 20
+          }
+        ],
+        "total": 120,
+        "headroom": 10,
+        "holds": true
+      }
+    },
+    "events": [
+      {
+        "intent": "A",
+        "outcome": "ADMITTED",
+        "why": "revalidated against the current state after every previously admitted intent",
+        "total": 120
+      },
+      {
+        "intent": "B",
+        "outcome": "REJECTED",
+        "why": "revalidation against the post-admission state breaches the target invariant (total 140 > 130)",
+        "total": 140
+      }
+    ],
+    "applied": [
+      "A"
+    ],
+    "rejected": [
+      "B"
+    ]
+  },
+  "perturbedControl": {
+    "description": "Same decision function and same target state; evidence mined from the perturbed history.",
+    "interlock": "enabled",
+    "decision": {
+      "decision": "ALLOW_PARALLEL",
+      "reason": "NO_QUALIFYING_COUPLING",
+      "detail": "history at db8a63ec9405191bdd40d0ed0fc69684fca5d17b was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between the pending intents at support >= 3",
+      "basisRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+      "pairsConsidered": 3
+    },
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 60,
+        "beta": 60,
+        "gamma": 20
+      }
+    },
+    "invariant": {
+      "holds": false,
+      "exitCode": 1,
+      "report": {
+        "invariant": "sum(services[].reserved) <= budget.totalReservable",
+        "totalReservable": 130,
+        "reserved": [
+          {
+            "service": "alpha",
+            "reserved": 60
+          },
+          {
+            "service": "beta",
+            "reserved": 60
+          },
+          {
+            "service": "gamma",
+            "reserved": 20
+          }
+        ],
+        "total": 140,
+        "headroom": -10,
+        "holds": false
+      }
+    },
+    "events": [
+      {
+        "intent": "A",
+        "outcome": "PRECONDITION_OK_AT_BASE",
+        "total": 120
+      },
+      {
+        "intent": "B",
+        "outcome": "PRECONDITION_OK_AT_BASE",
+        "total": 120
+      },
+      {
+        "intent": "A",
+        "outcome": "APPLIED",
+        "why": "composition permitted without coordination"
+      },
+      {
+        "intent": "B",
+        "outcome": "APPLIED",
+        "why": "composition permitted without coordination"
+      }
+    ],
+    "applied": [
+      "A",
+      "B"
+    ],
+    "rejected": []
+  }
+}

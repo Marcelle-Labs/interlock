@@ -103,6 +103,28 @@
   ],
   "submissionLocalMachinery": [
     {
+      "id": "hac-330-evidence-adapter",
+      "purpose": "Bounded consumer-local adapter for HAC-330/S-1. Locates the pinned workspacejson/cli sibling checkout, refuses to run unless it matches the manifest pin and is clean, executes the upstream mine -> score -> select pipeline in place, and wraps the verbatim selection in a provenance envelope recording producer SHA, package version, producer bundle digest, source revision, history basis and artifact digest. It adds one check the upstream package does not make: whether the repository that was mined is the repository that was requested.",
+      "status": "BUILT",
+      "notPartOfReleasedStandard": true,
+      "disclosureLanguage": "The HAC-330 evidence adapter is a submission-local wrapper authored during the contest. It executes the pre-existing open-source workspace.json mining pipeline at a pinned revision and records provenance around the result; it contains no mining logic of its own, emits no workspace.json artifact, and is NOT part of released WorkspaceJSON v0.4 (@workspacejson/spec 0.4.4). It carries no specification authority.",
+      "harvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
+      "harvestTarget": "workspacejson/cli, only via a separately approved upstream issue carrying the repository-attribution finding recorded in experiments/hac-330/README.md",
+      "boundaryNotes": [
+        "Consumes mine -> score -> select only. project() is exported by @workspacejson/mining-core but is deliberately not called: L1 emission onto generated.coChange is step 3 of the A-009 staged transition, which that package does not authorize.",
+        "No workspace.json is written by this experiment, and no coChange key appears in any committed evidence artifact.",
+        "Upstream was not modified. The experiment refuses to run against a workspacejson/cli checkout that is dirty or off the manifest pin."
+      ]
+    },
+    {
+      "id": "hac-330-fixture-harness",
+      "purpose": "Frozen local fixtures, protected mutation broker and evaluation harness for the HAC-330/S-1 concept gate. Generates two deterministic Git histories that differ only in which files were historically co-maintained, drives two individually valid intents through one decision path, and checks each acceptance criterion mechanically against a deterministic target invariant.",
+      "status": "BUILT",
+      "notPartOfReleasedStandard": true,
+      "disclosureLanguage": "The HAC-330 fixture harness is submission-local experimental machinery authored during the contest for the S-1 concept gate. It generates synthetic Git histories for a controlled local experiment and is NOT part of released WorkspaceJSON v0.4, nor of any WorkspaceJSON repository. It carries no specification authority.",
+      "harvestDisposition": "DELETE_AFTER_SUBMISSION"
+    },
+    {
       "id": "revision-anchor-extension",
       "purpose": "Submission-local experimental WorkspaceJSON revision-anchor extension used by the Interlock composition engine.",
       "status": "PLANNED",

@@ -70,6 +70,41 @@ The canonical reproduction driver is `evidence/meta-310/meta310-mine.mjs` in
 `5be5c814caed895b30a26d6fee697e1b65bc01c95789235dc49ad2a3f805e83c`. That digest
 was verified during HAC-328 bootstrap.
 
+## Submission-local machinery for the S-1 concept gate (HAC-330)
+
+Two pieces of submission-local machinery were authored during the contest for the
+S-1 local concept gate. Both live only in this repository.
+
+> **Neither is part of released WorkspaceJSON v0.4** (`@workspacejson/spec` 0.4.4).
+> Neither carries specification authority, and neither may be described as a
+> WorkspaceJSON feature.
+
+**`hac-330-evidence-adapter`** — a thin wrapper that locates the pinned
+`workspacejson/cli` sibling checkout, refuses to run unless that checkout matches
+the manifest pin and is clean, executes the upstream `mine → score → select`
+pipeline in place, and records provenance around the verbatim result: producer
+repository SHA, package version, producer bundle digest, source revision, history
+basis revision, and artifact digest. It contains **no mining logic of its own**
+and writes **no `workspace.json`**.
+
+It adds exactly one check the upstream package does not make. Git resolves a path
+by walking *up* until it finds a repository, so asking the miner about a directory
+that is not itself a repository succeeds against the nearest ancestor and returns
+a well-formed, correctly-pinned result about a different repository. No
+completeness state describes that, because from the miner's side the analysis
+genuinely succeeded. The adapter records whether the repository mined is the
+repository requested, and Interlock refuses evidence that fails it. This is a
+consumer-local defence; the finding is written up in
+[`experiments/hac-330/README.md`](./experiments/hac-330/README.md) for a
+separately approved upstream issue to consider. **No upstream change was made.**
+
+**`hac-330-fixture-harness`** — the frozen fixtures, protected mutation broker and
+evaluation harness for the experiment. It generates two synthetic Git histories
+that differ only in which files were historically co-maintained. The histories are
+synthetic and are labelled as such everywhere they appear; the **co-change
+evidence derived from them is not** — it is produced solely by the pinned upstream
+miner reading those commit graphs.
+
 ## The submission-local revision-anchor extension
 
 The `revision-anchor-extension` is authored during the contest and lives only in

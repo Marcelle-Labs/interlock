@@ -2,13 +2,22 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: ['test/**/*.test.ts'],
+    // Two patterns, one runner. The repository's production tests live in
+    // `test/` as TypeScript; the HAC-330 experiment's decision-function tests
+    // live beside the experiment as ESM. Running them under a second test
+    // runner would fork ownership of the `test` context, which META-337's
+    // matrix gives to exactly one owner, so they are included here instead.
+    include: ['test/**/*.test.ts', 'experiments/**/test/*.test.mjs'],
     coverage: {
       provider: 'v8',
       // `lcov` is what Codecov consumes; `text-summary` is what a human or an
       // agent reads in the job log without leaving the failure output.
       reporter: ['text-summary', 'lcov'],
       reportsDirectory: 'coverage',
+      // Coverage stays scoped to production source. `experiments/` is a frozen
+      // evaluation harness, not shipped behaviour, and widening this would
+      // change the denominator of the patch-coverage gate Codecov owns —
+      // a different issue's contract, not this one's to alter.
       include: ['src/**/*.ts'],
 
       // Deliberately no `thresholds` block.
