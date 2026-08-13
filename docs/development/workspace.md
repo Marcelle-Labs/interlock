@@ -211,15 +211,35 @@ When an approved Studio issue activates work, clone it as a sibling, add it to
 `interlock.code-workspace`, add its row to the permissions matrix, and record it
 in `provenance/manifest.json` — read-only until the issue says otherwise.
 
+## Merge gates on `main`
+
+`main` is protected. Current state:
+
+| Control | Setting |
+| -- | -- |
+| Pull request required | yes |
+| Required status check | `Provenance boundary` |
+| Branch must be up to date before merge | yes |
+| Linear history required | yes |
+| Conversation resolution required | yes |
+| Force pushes / deletions | blocked |
+| Administrator enforcement | off — matches the convention on the WorkspaceJSON repositories |
+
+Administrator enforcement being off is a break-glass affordance, not a routine
+path. **Do not bypass a required check to recover green**, and do not weaken a
+gate to make a change fit. Fix the cause, or record the conflict on the issue and
+choose the safer boundary. META-337 owns hardening these gates further.
+
 ## Known gaps
 
 Recorded rather than papered over. Current state and rationale are in the
 [bootstrap receipt](../receipts/HAC-328-bootstrap-receipt.md).
 
-- **Branch protection on `Marcelle-Labs/interlock` is unavailable.** The
-  organization is on the GitHub Free plan and the repository is private, so
-  protected branches and rulesets both return HTTP 403. Compensating controls are
-  in the receipt. Do not make the repository public to unlock protection —
-  submission posture is HAC-329's decision, not a bootstrap side effect.
 - **`gcloud` is not installed locally.** S0/S2 need it; installing and
-  authenticating it belongs to HAC-325/HAC-326, which own that surface.
+  authenticating it, and choosing the project/region, belongs to HAC-325/HAC-326,
+  which own that surface. No Google Cloud project context is recorded at
+  bootstrap because none is configured yet.
+- **`Marcelle-Labs/ai-swarm` cannot be branch-protected.** It is private and the
+  organization is on the GitHub Free plan, so protected branches and rulesets
+  return HTTP 403 there. It is execute/read for this phase, so no Interlock change
+  depends on that gate; META-331/META-337 own its posture.
