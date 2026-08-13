@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Deterministic by construction: pinned runner image, pinned Node, no network
+# dependency beyond the checkout, and no step that can pass by being skipped.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  provenance:
+    name: Provenance boundary
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+
+      - name: Check provenance boundary
+        run: npm run check:provenance
+
+      - name: Required authority files are present
+        run: |
+          set -euo pipefail
+          missing=0
+          for f in AGENTS.md CLAUDE.md DISCLOSURE.md \
+                   provenance/manifest.json provenance/manifest.schema.json \
+                   docs/development/workspace.md; do
+            if [ ! -f "$f" ]; then
+              echo "missing required file: $f"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Canonical product spelling
+        run: |
+          set -euo pipefail
+          # HAC-328 fixes "Interlock" as the canonical name. Catch the
+          # misspellings before they reach the submission.
+          #
+          # The three excluded paths are the ones that *define* the rule, so
+          # they must name the forbidden spellings in order to forbid them.
+          # Excluding anything else means a real misspelling shipped.
+          if git grep -nEi 'interlok|interloc([^k]|$)' -- \
+               ':!.github/workflows/ci.yml' \
+               ':!AGENTS.md' \
+               ':!scripts/check-provenance.mjs' > /tmp/hits 2>/dev/null; then
+            echo "Non-canonical product spelling found. Use 'Interlock'."
+            cat /tmp/hits
+            exit 1
+          fi
+          echo "Canonical spelling OK"

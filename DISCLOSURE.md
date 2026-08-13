@@ -1,0 +1,120 @@
+# DISCLOSURE
+
+**Product:** Interlock
+**Submission repository:** `Marcelle-Labs/interlock`
+**Owning organization:** Marcelle-Labs
+**Authoritative bootstrap issue:** HAC-328
+
+This document states, in plain language, what in this submission was built during
+the contest and what already existed. The machine-readable record is
+[`provenance/manifest.json`](./provenance/manifest.json); it is enforced in CI by
+[`scripts/check-provenance.mjs`](./scripts/check-provenance.mjs). Where the two
+disagree, the manifest and the script win — this file is the readable summary of
+the same facts, not a second source of truth.
+
+## Short version, for Devpost
+
+Interlock is a new application built during the contest. It stands on a
+pre-existing open-source specification and toolchain — **workspace.json** —
+published by the same organization before the contest began. That upstream work
+is **consumed at pinned revisions**, the way any project consumes a dependency.
+No upstream source was copied into this repository, and no upstream
+specification was changed to make this submission work.
+
+## What is new, created during the contest
+
+Everything in this repository, beginning at commit
+`c83a5d0f93d0b81af552a4af0fbdaca3f74ad61a` (repository created 2026-08-12):
+
+- the Interlock composition engine and reference application;
+- Google ADK / Agent Runtime / Agent Gateway adapters and deployment configuration;
+- a submission-local, experimental WorkspaceJSON **revision-anchor extension**;
+- frozen fixtures and the evaluation harness specific to Interlock;
+- the protected target/tool implementation used by the reference system;
+- pending-intent coordination and receipt implementation;
+- the independent verifier;
+- submission documentation, architecture notes, reproducibility instructions, and this file.
+
+## What already existed, and is consumed rather than copied
+
+| Repository | Owner | Pinned at | How it is used |
+| -- | -- | -- | -- |
+| `workspacejson/standard` | workspacejson | `a3caece60bde12c41105a9987f50afa9e33dcb7b` (`@workspacejson/spec` / `@workspacejson/rules` 0.4.4) | Specification authority — schema, validation semantics, deterministic rules. Read-only and pinned. |
+| `workspacejson/cli` | workspacejson | `defac1e5dce6fb692a48e775fb44854b371cbca4` (`@workspacejson/cli` 0.5.2, `@workspacejson/mining-core` 0.0.0) | Real commit-history co-change mining and the neutral producer. Executed as an external tool. |
+| `workspacejson/integrations` | workspacejson | `70cfd57ff57c873fb22daaa8d94afa5a14601d27` | Inspected for prior art on host-integration and authorization seams. |
+| `Marcelle-Labs/ai-swarm` | Marcelle-Labs | `74e4ee1f9ec083b0dba029b4b2db6339cc49c5fa` | Private development infrastructure — agent orchestration and merge gates. Not part of the submitted product. |
+
+All four are **CONSUMED**: linked, installed, or executed in place at the pinned
+revision. None is **COPIED**. `scripts/check-provenance.mjs` fails the build if any
+entry is ever marked `COPIED`, and fails if any of these siblings is marked
+writable while the current phase says otherwise.
+
+### Why the mining path is executed, not vendored
+
+The co-change evidence that drives the Interlock counterfactual comes from
+`@workspacejson/mining-core`, the L0 commit-graph mining core inside
+`workspacejson/cli`. Two consequences matter for disclosure:
+
+1. That package is `private: true` and unpublished. It cannot be installed from a
+   registry, so Interlock executes it from the pinned sibling checkout. This is a
+   deliberate boundary, not an oversight — **mining logic is never copied into
+   this repository**.
+2. The package authorizes `mine → score → select` only. Projecting a selection
+   onto `generated.coChange` is a separate, staged step that the package
+   explicitly does not authorize. Interlock therefore consumes mined observations
+   as *evidence* and does not emit co-change into a `workspace.json` artifact on
+   the strength of that package.
+
+The canonical reproduction driver is `evidence/meta-310/meta310-mine.mjs` in
+`workspacejson/cli`, byte-frozen at sha256
+`5be5c814caed895b30a26d6fee697e1b65bc01c95789235dc49ad2a3f805e83c`. That digest
+was verified during HAC-328 bootstrap.
+
+## The submission-local revision-anchor extension
+
+The `revision-anchor-extension` is authored during the contest and lives only in
+this repository.
+
+> **It is not part of released WorkspaceJSON v0.4** (`@workspacejson/spec` 0.4.4).
+> It carries no specification authority, has not been ratified, and must not be
+> described as a WorkspaceJSON feature.
+
+After submission it is either harvested into `workspacejson/standard` through a
+separately approved Standard issue and ADR, or deleted. `check-provenance.mjs`
+requires every submission-local item to carry that statement explicitly.
+
+## Ownership boundary
+
+The dependency direction is one-way and must stay that way:
+
+```
+Interlock  ──consumes──▶  standard / cli / integrations
+```
+
+`workspacejson/standard` forbids proprietary references — including
+`@marcelle-labs/*` — and forbids prescriptive policy in that repository. Nothing
+in Interlock may be added to, referenced from, or required by the upstream
+specification in order to make this submission work.
+
+## What is deliberately not here
+
+- No copied WorkspaceJSON specification, rules, producer, or mining source.
+- No private swarm machinery. `Marcelle-Labs/ai-swarm` is development
+  infrastructure and is not submitted as product.
+- No Studio implementation adopted for convenience.
+- No secrets. Environment variable **names** are recorded in the bootstrap
+  receipt; values never are. `check-provenance.mjs` scans for credential-shaped
+  strings and fails the build on a hit.
+
+## Keeping this honest
+
+Update `provenance/manifest.json` in the same pull request as the change it
+describes, whenever you:
+
+- add or upgrade a dependency on a sibling repository;
+- change a pinned revision;
+- add submission-local machinery;
+- change what any of it is used for.
+
+CI runs `npm run check:provenance` on every pull request. A change that widens
+the provenance boundary without recording it does not merge.
