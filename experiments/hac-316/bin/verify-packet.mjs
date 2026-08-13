@@ -50,6 +50,8 @@ import { Decision, Reason, arbitrate } from '../../../dist/broker/pairing/arbitr
 import { asCanonical, INITIAL_STATE } from '../../../dist/target/state.js';
 import { genesisRevision } from '../../../dist/broker/revision/revision.js';
 
+import { isDirectInvocation } from '../src/entrypoint.mjs';
+import { insideVitest, readEnumEnv } from '../src/env.mjs';
 import { formatVerdict } from '../src/global-verifier.mjs';
 import { runComposition } from './run-arm.mjs';
 
@@ -66,7 +68,32 @@ const exists = (path) => existsSync(join(repoRoot, path));
 const sha256Hex = (value) => createHash('sha256').update(value).digest('hex');
 const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' });
 
-const FAULT = process.env['HAC316_FAULT_INJECT'] ?? null;
+/** The faults this verifier knows how to install. Anything else is an error. */
+const FAULTS = Object.freeze(['invert-composition', 'stub-reread', 'tamper-recorded-decision']);
+
+/**
+ * Which fault, if any, is installed.
+ *
+ * Read strictly. `HAC316_FAULT_INJECT=''` used to be *non-null*, which made
+ * REQ-026 believe a fault was installed and skip the spawn of the deliberately
+ * broken verifier — the one check that proves this gate can go red. And an
+ * unrecognised fault name used to select "no fault", so a typo produced a green
+ * run that the operator believed was a fault-injected one.
+ */
+const FAULT = (() => {
+  try {
+    return readEnumEnv('HAC316_FAULT_INJECT', FAULTS);
+  } catch (error) {
+    // A hard error, never a skip. Exiting cleanly when we are the program, and
+    // rethrowing when we are imported, so a test importing SCAN sees the throw
+    // rather than losing its runner to process.exit.
+    if (isDirectInvocation(import.meta.url)) {
+      process.stderr.write(`verify-packet: ${error.message}\n`);
+      process.exit(2);
+    }
+    throw error;
+  }
+})();
 
 /**
  * The patterns the prohibition scans use, assembled from fragments.
@@ -294,15 +321,23 @@ async function selfcheckComposition() {
 let suiteCache;
 function suiteResults() {
   if (suiteCache !== undefined) return suiteCache;
-  if (process.env['VITEST'] !== undefined) {
+  // Strictly. `VITEST=''` is not "inside vitest": reading it as such downgraded
+  // every suite-backed requirement to NOT_EXERCISED without saying so, which is
+  // a quieter gate wearing the same output as a satisfied one. `insideVitest`
+  // also refuses an unparseable value rather than guessing.
+  if (insideVitest()) {
     suiteCache = { available: false, reason: 'already running inside vitest' };
     return suiteCache;
   }
   const outputFile = join(mkdtempSync(join(tmpdir(), 'hac316-')), 'vitest.json');
+  // The child must run clean. The variable is *removed* rather than blanked:
+  // an empty value is now absent by rule, but deleting it says so unambiguously.
+  const childEnv = { ...process.env };
+  delete childEnv['HAC316_FAULT_INJECT'];
   const run = spawnSync(
     'npx',
     ['vitest', 'run', 'experiments/hac-316/test', '--reporter=json', `--outputFile=${outputFile}`],
-    { cwd: repoRoot, encoding: 'utf8', env: { ...process.env, HAC316_FAULT_INJECT: '' } },
+    { cwd: repoRoot, encoding: 'utf8', env: childEnv },
   );
   if (!existsSync(outputFile)) {
     suiteCache = { available: false, reason: `vitest produced no report: ${run.stderr?.slice(-400)}` };
@@ -1280,8 +1315,11 @@ function phase8() {
  */
 export { SCAN };
 
-const invokedDirectly =
-  process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1];
+// Realpath-correct on both sides. A raw `fileURLToPath(import.meta.url) ===
+// process.argv[1]` is false whenever this file is reached through a symlink,
+// and the consequence is a verifier that exits 0 having checked nothing. See
+// `src/entrypoint.mjs`.
+const invokedDirectly = isDirectInvocation(import.meta.url);
 
 async function main() {
 const mode = process.argv.slice(2).find((argument) => argument.startsWith('--')) ?? '--all';

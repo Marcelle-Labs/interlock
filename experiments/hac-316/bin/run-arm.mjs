@@ -63,6 +63,8 @@ import { createTargetServer } from '../../../dist/target/http.js';
 import { OPERATION_SET_RESERVATION } from '../../../dist/target/state.js';
 
 import { CompositionUnawareIssuer } from '../src/baseline-issuer.mjs';
+import { isDirectInvocation } from '../src/entrypoint.mjs';
+import { readBooleanEnv } from '../src/env.mjs';
 import { formatVerdict, httpReread, verifyComposition } from '../src/global-verifier.mjs';
 import {
   PARTITIONED_SERVICES,
@@ -92,8 +94,11 @@ export const FIXTURE = readJson(join(evidenceDir, 'fixture.json'));
  * Divergence here would make the arms incomparable for a reason that has
  * nothing to do with composition (REQ-039), so it is not settled per component.
  */
-const ENFORCE_CALLER_IDENTITY =
-  (process.env['INTERLOCK_ENFORCE_CALLER_IDENTITY'] ?? 'false').toLowerCase() === 'true';
+// Read strictly: unset (or empty) is `false`, `true`/`false`/`1`/`0` are
+// honoured, and anything else stops the run. The old `?? 'false'` spelling read
+// `INTERLOCK_ENFORCE_CALLER_IDENTITY=yes` as *off*, which is a typo silently
+// becoming a disabled setting in the one variable REQ-039 exists to police.
+const ENFORCE_CALLER_IDENTITY = readBooleanEnv('INTERLOCK_ENFORCE_CALLER_IDENTITY') ?? false;
 
 const CALLER_IDENTITY_SOURCE = 'experiment-harness';
 
@@ -817,7 +822,9 @@ function report(results) {
   return lines;
 }
 
-const invokedDirectly = process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1];
+// Realpath-correct on both sides; see `src/entrypoint.mjs`. Comparing the raw
+// strings makes a symlinked invocation exit 0 without running anything.
+const invokedDirectly = isDirectInvocation(import.meta.url);
 
 if (invokedDirectly) {
   const results = await runAll();
