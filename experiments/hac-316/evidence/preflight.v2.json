@@ -131,7 +131,7 @@
       "path": "perturbationEvidence.note",
       "v1": null,
       "v2": "The perturbation arm must be run at THIS basis revision, not the baseline one. The two artifacts are pinned to different commits, and an arm that swapped the evidence while keeping the baseline sourceRevision would be denied for a stale basis rather than for the absence of a qualifying pair — a denial that looks like Interlock holding and proves nothing. SPEC 5.4; enforced by REQ-047 and REQ-056.",
-      "why": "New; states the trap in full so it cannot be rediscovered late."
+      "why": "New; states the trap in full so nobody has to find it again halfway through a cloud run."
     },
     {
       "path": "perturbationEvidence.producer_artifact_sha256",
