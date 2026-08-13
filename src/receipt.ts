@@ -173,10 +173,18 @@ export function validateReceipt(input: unknown): ValidationResult {
     proof[field] = raw.trim();
   }
 
-  // INJECTED DEFECT (META-337 §8 proof, reverted in the next commit): the
-  // bidirectional-proof requirement for blocking gates is dropped, so a receipt
-  // may now claim a gate is blocking without ever having observed it fail.
-  void posture;
+  if (posture === 'blocking') {
+    for (const field of PROOF_FIELDS) {
+      if (proof[field] === undefined) {
+        issues.push({
+          field,
+          reason:
+            'is required for a blocking gate: a gate that has not been observed failing ' +
+            'has not been distinguished from a gate that is skipped',
+        });
+      }
+    }
+  }
 
   if (issues.length > 0) {
     return { ok: false, issues };
