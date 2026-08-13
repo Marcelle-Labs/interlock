@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Least privilege by default. This workflow only reads the repository. Any job
+# that needs more must raise it at the job level, with a reason.
+permissions:
+  contents: read
+
+# A superseded push to the same branch has nothing left to prove. `main` is
+# excluded from cancellation so the record of what landed stays complete.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      # Do not cancel Node 20 because Node 22 failed. Knowing whether a failure
+      # is version-specific is most of the diagnosis.
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      # `--frozen-lockfile` is what makes this job deterministic: a lockfile that
+      # does not match the manifest fails here rather than silently resolving to
+      # a different dependency set than the one that was reviewed.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Typecheck before build and test. A type error is the cheapest failure to
+      # read, so it should not be buried under a test report.
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Test with coverage
+        run: pnpm run test:coverage
+
+      # Coverage is produced here but adjudicated by Codecov, not by this job.
+      # Uploading it as an artifact keeps the evidence attached to the run even
+      # when the external service is unavailable.
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-node-${{ matrix.node-version }}
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 7
+
+      # META-337 §7: failure output must be agent-actionable. An implementation
+      # agent reading only this summary should learn what the gate asserts, who
+      # owns it, what discharges it, and what it must not do to turn it green.
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## CI failed on Node ${{ matrix.node-version }}"
+            echo
+            echo "**Invariant.** \`main\` builds, typechecks, and passes its tests"
+            echo "deterministically on every supported Node version."
+            echo
+            echo "**Why it matters.** This is the only gate in the set that proves the"
+            echo "code runs at all. Every other signal — coverage, new-code quality,"
+            echo "semantic review — is interpreting a build that this job already"
+            echo "established was sound. If this is red, the others are not meaningful."
+            echo
+            echo "**Authority.** Repository CI (\`.github/workflows/ci.yml\`), reported by"
+            echo "the \`github-actions\` app as \`test (${{ matrix.node-version }})\`. No"
+            echo "external service can discharge or override it."
+            echo
+            echo "**Evidence required.** A passing \`pnpm run typecheck\`,"
+            echo "\`pnpm run build\`, and \`pnpm run test:coverage\` on this exact head."
+            echo "Reproduce locally with those three commands before pushing again."
+            echo
+            echo "**Do not weaken.** Do not delete or \`skip\` the failing test, loosen a"
+            echo "\`tsconfig\` strictness flag, drop a Node version from the matrix, or"
+            echo "add \`continue-on-error\` to recover green. If the assertion is wrong,"
+            echo "say so in the PR and change it deliberately — that is a reviewable"
+            echo "decision, not a CI fix."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,98 @@
+# Codecov configuration for Marcelle-Labs/interlock (META-337).
+#
+# Codecov owns exactly one failure class here: **coverage of changed production
+# code**. It does not own reliability, security, maintainability, duplication or
+# complexity — SonarQube Cloud owns those on new code — and it does not own
+# build/typecheck/test correctness, which repository CI owns. If Codecov and
+# another tool would both report the same defect, the other tool is the owner and
+# this file should be narrowed, not widened.
+#
+# The gate is the **patch** status. Repository-wide percentage is a vanity number
+# on a young repository: it can sit comfortably green while the one function that
+# authorizes a mutation has no test at all. `project` is kept only to catch an
+# unexplained regression, not as the primary signal.
+
+codecov:
+  require_ci_to_pass: true
+  notify:
+    # Do not post a verdict built from a partial upload set.
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    patch:
+      default:
+        target: 90%
+        threshold: 0%
+        # "Missing is not green." A patch status that cannot find a report, or
+        # whose upload never arrived, must read as a failure — never as a pass.
+        # These three settings are the whole reason this gate is trustworthy.
+        if_no_uploads: error
+        if_not_found: failure
+        if_ci_failed: error
+
+    project:
+      default:
+        # `auto` compares against the base commit, so this fires on regression
+        # rather than asserting an arbitrary absolute number.
+        target: auto
+        threshold: 1%
+        if_no_uploads: error
+        if_not_found: failure
+        if_ci_failed: error
+
+# Critical Interlock paths.
+#
+# META-337 requires these to carry explicit tests even when the aggregate
+# percentage is green. The paths below are populated by HAC-317; until that work
+# lands, most of these components match zero files.
+#
+# A component matching zero files is NOT evidence that its subject is covered —
+# it is evidence that its subject does not exist yet. Do not read a green
+# component as a discharged obligation. Once HAC-317 lands the corresponding
+# module, its component becomes load-bearing, and the deterministic CI — not
+# Codecov — is what asserts the path exists at all.
+component_management:
+  default_rules:
+    statuses:
+      - type: patch
+        target: 100%
+        threshold: 0%
+        if_no_uploads: error
+        if_not_found: failure
+
+  individual_components:
+    - component_id: authorization_receipt_validation
+      name: authorization receipt validation
+      paths:
+        - src/receipt.ts
+        - src/authorization/**
+
+    - component_id: bypass_rejection
+      name: bypass rejection
+      paths:
+        - src/broker/bypass/**
+
+    - component_id: stale_revision
+      name: stale revision
+      paths:
+        - src/broker/revision/**
+
+    - component_id: pair_arbitration
+      name: unsafe pair block and independent pair permit
+      paths:
+        - src/broker/pairing/**
+
+    - component_id: duplicate_retry
+      name: duplicate and retry behavior
+      paths:
+        - src/broker/idempotency/**
+
+    - component_id: failed_observation
+      name: failed observation
+      paths:
+        - src/observation/**
