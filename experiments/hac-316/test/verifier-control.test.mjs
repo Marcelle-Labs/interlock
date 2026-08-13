@@ -133,6 +133,12 @@ describe('a broken verifier cannot produce a green experiment', () => {
     const tampered = run('--counterfactual', 'tamper-recorded-decision');
     expect(tampered.status).not.toBe(0);
     expect(tampered.stdout).toContain('attribution   FAILED');
-    expect(tampered.stderr).toMatch(/recorded ALLOW_PARALLEL.*re-derived WITHHOLD_SERIALIZE/s);
+    // The fault rewrites the first recorded decision to ALLOW_PARALLEL. Which
+    // correlation id that is depends on the order the two concurrent requests
+    // came back in, so the assertion is on the disagreement, not on which
+    // decision re-derivation produced instead.
+    expect(tampered.stderr).toMatch(
+      /recorded ALLOW_PARALLEL\/NO_QUALIFYING_COUPLING, re-derived (?!ALLOW_PARALLEL\/NO_QUALIFYING_COUPLING)/,
+    );
   }, 60_000);
 });

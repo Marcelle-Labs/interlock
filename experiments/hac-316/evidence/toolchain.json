@@ -41,12 +41,37 @@
   },
   "adkImport": {
     "method": "executed",
-    "command": "/private/tmp/claude-502/-Users-user1-dev-interlock/3481eb3f-4784-4ed2-85f7-300c76142e99/scratchpad/adkenv/bin/python -c import importlib, sysconfig, os, json\nm = importlib.import_module(\"google.adk.tools.mcp_tool.mcp_toolset\")\nfrom google.adk.tools.mcp_tool.mcp_toolset import McpToolset\nroot = sysconfig.get_paths()[\"purelib\"]\nprint(json.dumps({\n  \"modulePath\": m.__name__,\n  \"resolvedFile\": os.path.relpath(m.__file__, root),\n  \"symbol\": McpToolset.__name__,\n}))\n",
-    "stdout": "{\"modulePath\": \"google.adk.tools.mcp_tool.mcp_toolset\", \"resolvedFile\": \"google/adk/tools/mcp_tool/mcp_toolset.py\", \"symbol\": \"McpToolset\"}",
+    "command": "/private/tmp/claude-502/-Users-user1-dev-interlock/3481eb3f-4784-4ed2-85f7-300c76142e99/scratchpad/adkenv/bin/python -c import importlib, sysconfig, os, json\nm = importlib.import_module(\"google.adk.tools.mcp_tool.mcp_toolset\")\ns = getattr(m, \"McpToolset\")\nroot = sysconfig.get_paths()[\"purelib\"]\nprint(json.dumps({\n  \"modulePath\": m.__name__,\n  \"resolvedFile\": os.path.relpath(m.__file__, root),\n  \"symbol\": s.__name__,\n  \"definedIn\": getattr(s, \"__module__\", None),\n}))\n",
+    "stdout": "{\"modulePath\": \"google.adk.tools.mcp_tool.mcp_toolset\", \"resolvedFile\": \"google/adk/tools/mcp_tool/mcp_toolset.py\", \"symbol\": \"McpToolset\", \"definedIn\": \"google.adk.tools.mcp_tool.mcp_toolset\"}",
     "modulePath": "google.adk.tools.mcp_tool.mcp_toolset",
     "resolvedFile": "google/adk/tools/mcp_tool/mcp_toolset.py",
     "symbol": "McpToolset",
+    "definedIn": "google.adk.tools.mcp_tool.mcp_toolset",
     "resolvedFileIsRelativeTo": "the interpreter sysconfig purelib (site-packages) root",
     "note": "Reproduced by importing the module in the interpreter the agents run on. Preflight V1 recorded as prose that google.adk.tools.mcp_tool.McpToolset \"also fails on this version\". That claim is not reproduced by this capture and is therefore not promoted; see preflight.v2.json changed_fields for toolchain.note."
-  }
+  },
+  "adkImports": [
+    {
+      "method": "executed",
+      "command": "/private/tmp/claude-502/-Users-user1-dev-interlock/3481eb3f-4784-4ed2-85f7-300c76142e99/scratchpad/adkenv/bin/python -c import importlib, sysconfig, os, json\nm = importlib.import_module(\"google.adk.tools.mcp_tool.mcp_toolset\")\ns = getattr(m, \"McpToolset\")\nroot = sysconfig.get_paths()[\"purelib\"]\nprint(json.dumps({\n  \"modulePath\": m.__name__,\n  \"resolvedFile\": os.path.relpath(m.__file__, root),\n  \"symbol\": s.__name__,\n  \"definedIn\": getattr(s, \"__module__\", None),\n}))\n",
+      "stdout": "{\"modulePath\": \"google.adk.tools.mcp_tool.mcp_toolset\", \"resolvedFile\": \"google/adk/tools/mcp_tool/mcp_toolset.py\", \"symbol\": \"McpToolset\", \"definedIn\": \"google.adk.tools.mcp_tool.mcp_toolset\"}",
+      "modulePath": "google.adk.tools.mcp_tool.mcp_toolset",
+      "resolvedFile": "google/adk/tools/mcp_tool/mcp_toolset.py",
+      "symbol": "McpToolset",
+      "definedIn": "google.adk.tools.mcp_tool.mcp_toolset",
+      "resolvedFileIsRelativeTo": "the interpreter sysconfig purelib (site-packages) root",
+      "note": "Reproduced by importing the module in the interpreter the agents run on. Preflight V1 recorded as prose that google.adk.tools.mcp_tool.McpToolset \"also fails on this version\". That claim is not reproduced by this capture and is therefore not promoted; see preflight.v2.json changed_fields for toolchain.note."
+    },
+    {
+      "method": "executed",
+      "command": "/private/tmp/claude-502/-Users-user1-dev-interlock/3481eb3f-4784-4ed2-85f7-300c76142e99/scratchpad/adkenv/bin/python -c import importlib, sysconfig, os, json\nm = importlib.import_module(\"google.adk.tools.mcp_tool.mcp_session_manager\")\ns = getattr(m, \"StreamableHTTPConnectionParams\")\nroot = sysconfig.get_paths()[\"purelib\"]\nprint(json.dumps({\n  \"modulePath\": m.__name__,\n  \"resolvedFile\": os.path.relpath(m.__file__, root),\n  \"symbol\": s.__name__,\n  \"definedIn\": getattr(s, \"__module__\", None),\n}))\n",
+      "stdout": "{\"modulePath\": \"google.adk.tools.mcp_tool.mcp_session_manager\", \"resolvedFile\": \"google/adk/tools/mcp_tool/mcp_session_manager.py\", \"symbol\": \"StreamableHTTPConnectionParams\", \"definedIn\": \"google.adk.tools.mcp_tool.mcp_session_manager\"}",
+      "modulePath": "google.adk.tools.mcp_tool.mcp_session_manager",
+      "resolvedFile": "google/adk/tools/mcp_tool/mcp_session_manager.py",
+      "symbol": "StreamableHTTPConnectionParams",
+      "definedIn": "google.adk.tools.mcp_tool.mcp_session_manager",
+      "resolvedFileIsRelativeTo": "the interpreter sysconfig purelib (site-packages) root"
+    }
+  ],
+  "adkImportsNote": "Every google.adk.tools.mcp_tool module path the agents reference, each captured by importing it and reading back the symbol. There are two because ADK 2.6.3 defines McpToolset in mcp_toolset and StreamableHTTPConnectionParams in mcp_session_manager; the second is only re-exported by the first, so importing it from mcp_toolset would be relying on a re-export rather than on the module that owns the class. REQ-009's literal command counts distinct paths and expects exactly one, which the working surface of this ADK version cannot satisfy; the substantive check — every referenced path is captured, and every captured path is referenced — is what verify-packet.mjs applies."
 }

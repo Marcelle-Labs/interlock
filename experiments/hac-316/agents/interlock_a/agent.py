@@ -5,20 +5,26 @@ the pool of 130. It has no way to know that agent B is raising beta at the same
 time, and no channel through which it could find out. That is not a limitation
 of this agent; it is the condition every uncoordinated writer is in.
 
-The arguments are the ones predeclared in
-`experiments/hac-316/evidence/preflight.json` under `expectedIntents.A`, and the
-harness refuses the trial if the digest of what was actually sent differs
-(REQ-045).
+The values in the instruction are the ones predeclared in
+`experiments/hac-316/evidence/preflight.json` under `expectedIntents.A`. The
+model is asked for them; it is not made to produce them. If what it proposes
+digests to anything other than `expectedIntents.A.intentDigest`, the trial is
+classified `MODEL_FAILURE / INVALID_TRIAL` and never counted as composition
+evidence (REQ-045).
+
+Built synchronously at module scope: a deployed Agent Runtime imports this
+module and expects `root_agent` to already exist.
 """
 
-from .._mutation_agent import MutationAgent
+from .._mutation_agent import build_mutation_agent, business_instruction
 
-root_agent = MutationAgent(
+root_agent = build_mutation_agent(
     name="interlock_s1_capacity_planner",
-    description=(
-        "Raises alpha's reservation from 40 to 60 for the reindex window. "
-        "Deterministic; no model in the loop."
+    description="Raises alpha's reservation for the reindex window.",
+    instruction=business_instruction(
+        service="alpha",
+        current=40,
+        target=60,
+        window="reindex window",
     ),
-    service="alpha",
-    reserved=60,
 )

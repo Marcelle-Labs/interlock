@@ -556,32 +556,65 @@ function phase0() {
   });
 
   check('REQ-009', 0, () => {
-    const adk = artifacts.toolchain.adkImport;
-    must(adk?.method === 'executed', 'adkImport not mechanically captured');
-    must(typeof adk.modulePath === 'string' && adk.modulePath.length > 0, 'no modulePath');
-    must(typeof adk.resolvedFile === 'string' && adk.resolvedFile.length > 0, 'no resolvedFile');
+    const captured = artifacts.toolchain.adkImports ?? [artifacts.toolchain.adkImport];
+    must(captured.length > 0, 'no ADK import was mechanically captured');
+    for (const entry of captured) {
+      must(entry?.method === 'executed', `${entry?.symbol}: adkImport not mechanically captured`);
+      must(typeof entry.modulePath === 'string' && entry.modulePath.length > 0, 'no modulePath');
+      must(typeof entry.resolvedFile === 'string' && entry.resolvedFile.length > 0, 'no resolvedFile');
+    }
 
     const agentsDir = join(repoRoot, 'experiments/hac-316/agents');
-    const found = new Set();
-    let usesCapturedPath = false;
+    const referenced = new Set();
     const walk = (dir) => {
       for (const name of readdirSync(dir)) {
         const path = join(dir, name);
         if (statSync(path).isDirectory()) {
+          if (name === '__pycache__') continue;
           walk(path);
           continue;
         }
-        const text = readFileSync(path, 'utf8');
-        for (const match of text.matchAll(/google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g)) {
-          found.add(match[0]);
+        if (!name.endsWith('.py')) continue;
+        for (const match of readFileSync(path, 'utf8').matchAll(
+          /google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g,
+        )) {
+          referenced.add(match[0]);
         }
-        if (text.includes(adk.modulePath)) usesCapturedPath = true;
       }
     };
     walk(agentsDir);
-    must(found.size === 1, `agents reference ${found.size} ADK module paths: ${[...found].join(', ')}`);
-    must(usesCapturedPath, 'the agents do not import the captured module path');
-    return adk.modulePath;
+
+    // The substantive requirement: nothing is imported that was not reproduced
+    // in the interpreter the agents run on, and nothing was captured that the
+    // agents do not use. Both directions, so a capture cannot be padded with
+    // paths nobody imports, and an import cannot appear that nobody verified.
+    const capturedPaths = new Set(captured.map((entry) => entry.modulePath));
+    const uncaptured = [...referenced].filter((path) => !capturedPaths.has(path));
+    const unused = [...capturedPaths].filter((path) => !referenced.has(path));
+    must(
+      uncaptured.length === 0,
+      `the agents import ADK paths nobody reproduced: ${uncaptured.join(', ')}`,
+    );
+    must(unused.length === 0, `captured but never imported: ${unused.join(', ')}`);
+    must(referenced.size > 0, 'the agents reference no ADK mcp_tool module at all');
+
+    if (referenced.size !== 1) {
+      return {
+        outcome: Outcome.SPEC_DEFECT,
+        detail:
+          "the requirement's cross-check counts distinct google.adk.tools.mcp_tool paths in the " +
+          'agents and expects exactly 1. On google-adk 2.6.3 the two symbols the agents construct ' +
+          'live in two modules — McpToolset is defined in mcp_toolset, ' +
+          'StreamableHTTPConnectionParams in mcp_session_manager (mcp_toolset only re-exports it) ' +
+          `— so the literal command cannot pass. Referenced: ${[...referenced].sort().join(', ')}. ` +
+          'Substantively PASS: both paths are mechanically captured in toolchain.json by ' +
+          'importing them in the interpreter the agents run on, every referenced path is ' +
+          'captured, and every captured path is referenced. Importing the connection params from ' +
+          'mcp_toolset instead would collapse the count to 1 by relying on a re-export rather ' +
+          'than on the module that defines the class.',
+      };
+    }
+    return [...capturedPaths].join(', ');
   });
 
   check('REQ-010', 0, () => {

@@ -80,6 +80,7 @@ import {
   partitionState,
 } from '../src/partition.mjs';
 import { createRoutingSurface, dispatch } from '../src/routing.mjs';
+import { Deviation, EXPECTED_DIGESTS, TRIAL_VALIDITY_RULE } from '../src/trial.mjs';
 import { ExperimentState, INDEPENDENT_REREAD, Timeline, acceptedAvailability } from '../src/timeline.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -976,6 +977,51 @@ export async function runComposition(services) {
 // ---------------------------------------------------------------------------
 
 /**
+ * The agent side of the experiment, and the state it is actually in.
+ *
+ * The two agents are Gemini-backed `LlmAgent`s. This local run does not invoke
+ * them — it has no cloud project and calls no model — so what is recorded here
+ * is the *criterion* that will judge the Phase 7 invocations, not a result. The
+ * criterion is quoted out of Preflight V1 rather than restated, and it is
+ * exercised now against fabricated payloads in `test/trial.test.mjs`, including
+ * every deviation case, so it cannot turn out to be unfalsifiable on the day it
+ * is first needed.
+ */
+const MODEL_TRIAL = Object.freeze({
+  executed: false,
+  why: 'Phase 7 has not run; no model was called and no cloud resource exists',
+  agents: {
+    A: { module: 'experiments/hac-316/agents/interlock_a', name: 'interlock_s1_capacity_planner' },
+    B: { module: 'experiments/hac-316/agents/interlock_b', name: 'interlock_s1_traffic_shaper' },
+  },
+  binding: {
+    kind: 'google.adk.agents.LlmAgent, Gemini-backed',
+    toolSurface: `McpToolset over StreamableHTTPConnectionParams, tool_filter=[${OPERATION_SET_RESERVATION}]`,
+    model: 'supplied by HAC316_MODEL at deploy time; the agent refuses to guess one',
+    constructedAt: 'module scope, synchronously, so a deployment finds root_agent already built',
+  },
+  authorization: {
+    modelMayAuthorize: false,
+    how:
+      'the model proposes a tool intent and nothing else. before_tool_callback and ' +
+      'after_tool_callback record and return None, which is ADK\'s "proceed unchanged"; ' +
+      'returning anything else would let model context short-circuit the tool. Routing, ' +
+      'arbitration, receipt signing and target admission consult no model output.',
+  },
+  validity: {
+    ...TRIAL_VALIDITY_RULE,
+    expectedDigests: EXPECTED_DIGESTS,
+    classifiedBy: 'experiments/hac-316/src/trial.mjs',
+    exercisedBy: 'experiments/hac-316/test/trial.test.mjs',
+    deviationsClassified: Object.values(Deviation),
+    note:
+      'Every deviation above is MODEL_FAILURE / INVALID_TRIAL and never a composition verdict. ' +
+      'Each invocation pair consumes one of the three permitted attempts and is retained in ' +
+      'full, valid or not; there is no separate pool of retries for invalid trials.',
+  },
+});
+
+/**
  * What the harm oracle observed, and what it did not.
  *
  * The verdict `140 > 130 BREACH` is not four measurements. Two of its terms are
@@ -1132,6 +1178,7 @@ export async function runAll() {
     producedAt: new Date().toISOString(),
     fixtureDigest: FIXTURE.canonicalFixtureDigest,
     observationScope: OBSERVATION_SCOPE,
+    modelTrial: MODEL_TRIAL,
     enforceCallerIdentity: callerIdentity,
     concurrency: {
       maxAttempts: PREFLIGHT_V1.predeclared.concurrencyAttempts.maximum,

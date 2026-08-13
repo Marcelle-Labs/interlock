@@ -89,36 +89,64 @@ const captured = {
  * would pin the manifest to one machine's directory layout, which is not a fact
  * about the toolchain; the relative path is what another checkout can compare.
  */
-const MODULE_PATH = 'google.adk.tools.mcp_tool.mcp_toolset';
-const adkProbe = capture('adkImport', python, [
-  '-c',
-  'import importlib, sysconfig, os, json\n' +
-    `m = importlib.import_module(${JSON.stringify(MODULE_PATH)})\n` +
-    'from google.adk.tools.mcp_tool.mcp_toolset import McpToolset\n' +
-    'root = sysconfig.get_paths()["purelib"]\n' +
-    'print(json.dumps({\n' +
-    '  "modulePath": m.__name__,\n' +
-    '  "resolvedFile": os.path.relpath(m.__file__, root),\n' +
-    '  "symbol": McpToolset.__name__,\n' +
-    '}))\n',
-]);
+const probeImport = (modulePath, symbol) =>
+  capture(`adkImport:${symbol}`, python, [
+    '-c',
+    'import importlib, sysconfig, os, json\n' +
+      `m = importlib.import_module(${JSON.stringify(modulePath)})\n` +
+      `s = getattr(m, ${JSON.stringify(symbol)})\n` +
+      'root = sysconfig.get_paths()["purelib"]\n' +
+      'print(json.dumps({\n' +
+      '  "modulePath": m.__name__,\n' +
+      '  "resolvedFile": os.path.relpath(m.__file__, root),\n' +
+      '  "symbol": s.__name__,\n' +
+      '  "definedIn": getattr(s, "__module__", None),\n' +
+      '}))\n',
+  ]);
 
-const parsedProbe = adkProbe.ok ? JSON.parse(adkProbe.stdout.trim().split('\n').at(-1)) : null;
+const parseProbe = (probe) =>
+  probe.ok ? JSON.parse(probe.stdout.trim().split('\n').at(-1)) : null;
+
+/**
+ * The two symbols the agents construct, each imported from where it is defined.
+ *
+ * ADK 2.6.3 puts them in two modules: `McpToolset` is defined in `mcp_toolset`,
+ * `StreamableHTTPConnectionParams` in `mcp_session_manager`. The second is
+ * re-exported by the first, which is why one import path used to be enough —
+ * and why relying on it was a bet on a re-export nobody had recorded. Each is
+ * therefore captured from its defining module, and `definedIn` is recorded
+ * alongside so a reader can see that the two are not interchangeable by
+ * accident.
+ */
+const MODULE_PATH = 'google.adk.tools.mcp_tool.mcp_toolset';
+const CONNECTION_MODULE_PATH = 'google.adk.tools.mcp_tool.mcp_session_manager';
+
+const toolsetProbe = probeImport(MODULE_PATH, 'McpToolset');
+const connectionProbe = probeImport(CONNECTION_MODULE_PATH, 'StreamableHTTPConnectionParams');
+const parsedProbe = parseProbe(toolsetProbe);
+const parsedConnection = parseProbe(connectionProbe);
+
+const describeImport = (probe, parsed) => ({
+  method: probe.method,
+  command: probe.command,
+  stdout: probe.stdout,
+  modulePath: parsed?.modulePath ?? '',
+  resolvedFile: parsed?.resolvedFile ?? '',
+  symbol: parsed?.symbol ?? '',
+  definedIn: parsed?.definedIn ?? '',
+  resolvedFileIsRelativeTo: 'the interpreter sysconfig purelib (site-packages) root',
+});
 
 const adkImport = {
-  method: adkProbe.method,
-  command: adkProbe.command,
-  stdout: adkProbe.stdout,
-  modulePath: parsedProbe?.modulePath ?? '',
-  resolvedFile: parsedProbe?.resolvedFile ?? '',
-  symbol: parsedProbe?.symbol ?? '',
-  resolvedFileIsRelativeTo: 'the interpreter sysconfig purelib (site-packages) root',
+  ...describeImport(toolsetProbe, parsedProbe),
   note:
     'Reproduced by importing the module in the interpreter the agents run on. Preflight V1 ' +
     'recorded as prose that google.adk.tools.mcp_tool.McpToolset "also fails on this version". ' +
     'That claim is not reproduced by this capture and is therefore not promoted; see ' +
     'preflight.v2.json changed_fields for toolchain.note.',
 };
+
+const adkImports = [adkImport, describeImport(connectionProbe, parsedConnection)];
 
 const manifest = {
   experiment: 'HAC-316',
@@ -128,6 +156,16 @@ const manifest = {
   interpreter: python,
   captured,
   adkImport,
+  adkImports,
+  adkImportsNote:
+    'Every google.adk.tools.mcp_tool module path the agents reference, each captured by importing ' +
+    'it and reading back the symbol. There are two because ADK 2.6.3 defines McpToolset in ' +
+    'mcp_toolset and StreamableHTTPConnectionParams in mcp_session_manager; the second is only ' +
+    're-exported by the first, so importing it from mcp_toolset would be relying on a re-export ' +
+    'rather than on the module that owns the class. REQ-009\'s literal command counts distinct ' +
+    'paths and expects exactly one, which the working surface of this ADK version cannot satisfy; ' +
+    'the substantive check — every referenced path is captured, and every captured path is ' +
+    'referenced — is what verify-packet.mjs applies.',
 };
 
 mkdirSync(evidenceDir, { recursive: true });
@@ -136,7 +174,9 @@ writeFileSync(join(evidenceDir, 'toolchain.json'), `${JSON.stringify(manifest, n
 const problems = Object.values(captured)
   .filter((entry) => !entry.ok)
   .map((entry) => `${entry.label}: ${entry.command} failed — ${entry.detail}`);
-if (!adkProbe.ok) problems.push(`adkImport: ${adkProbe.command} failed — ${adkProbe.detail}`);
+for (const probe of [toolsetProbe, connectionProbe]) {
+  if (!probe.ok) problems.push(`${probe.label}: ${probe.command} failed — ${probe.detail}`);
+}
 
 if (problems.length > 0) {
   for (const problem of problems) process.stderr.write(`capture-toolchain: ${problem}\n`);
@@ -145,5 +185,9 @@ if (problems.length > 0) {
   for (const [name, entry] of Object.entries(captured)) {
     process.stdout.write(`${name.padEnd(12)} ${entry.stdout}\n`);
   }
-  process.stdout.write(`adkImport    ${adkImport.modulePath} -> ${adkImport.resolvedFile}\n`);
+  for (const entry of adkImports) {
+    process.stdout.write(
+      `adkImport    ${entry.symbol} from ${entry.modulePath} -> ${entry.resolvedFile}\n`,
+    );
+  }
 }

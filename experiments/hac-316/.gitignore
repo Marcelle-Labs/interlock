@@ -1,0 +1,6 @@
+# Python bytecode caches, created whenever the agent package is imported —
+# by a deployment, or by anything that checks the agents import cleanly.
+# They are build output of an interpreter, not evidence, and a preflight
+# regeneration refuses to run against a tree they have dirtied.
+__pycache__/
+*.pyc
