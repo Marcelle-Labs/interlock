@@ -2,6 +2,7 @@ node_modules/
 dist/
 build/
 coverage/
+*.tsbuildinfo
 
 # Never commit environment values. Record variable NAMES in the bootstrap
 # receipt instead; DISCLOSURE.md and check-provenance.mjs both depend on this.
