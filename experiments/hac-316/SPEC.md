@@ -28,6 +28,258 @@ no judgment calls.
 
 ---
 
+## 0. Erratum log — post-freeze corrections
+
+This document was frozen at commit `c2a7c5d` ("HAC-316: freeze the
+implementation spec against the two-target topology"). Three of its verification
+commands were **unsatisfiable as written**.
+
+The cause is the same in all three cases: each command is a `grep` whose scan
+tree contains the text of its own prohibition. A scanner that scans the document
+declaring the rule will always match the rule's own words, so the command could
+never print `PASS` — not on a violating tree, and not on a perfectly clean one.
+It could not have passed at the freeze commit either; §0.1-§0.3 each reproduce
+the failure at `c2a7c5d` directly.
+
+**Owner ruling, applied here verbatim:**
+
+- Preflight V1 is **not** edited. X-12 and REQ-004 stand untouched.
+- The semantic prohibitions are **not** changed. X-19, X-01 and X-09 remain
+  exactly as strict as they were frozen. Nothing that was forbidden becomes
+  permitted.
+- Only the **verification scope** is corrected, so that immutable evidence and
+  spec prose are not treated as executable implementation.
+- Correction is by **excluding named immutable paths**, never by loosening the
+  match pattern. Every pattern below is byte-identical to its frozen form —
+  compare them character by character against the `Original` blocks.
+
+### 0.0 The exclusion set is closed
+
+Exactly four paths may be excluded, each already immutable under an existing
+requirement:
+
+| Path | Immutable by | Why it is not implementation |
+| -- | -- | -- |
+| `experiments/hac-316/SPEC.md` | this document | Prose. Never imported, never executed, never deployed. |
+| `experiments/hac-316/evidence/preflight.json` | REQ-004, X-12 — byte-for-byte frozen | Immutable evidence; its prose *records* the prohibition. |
+| `experiments/hac-316/bin/preflight.mjs` | §2.3 — committed V1 producer, preserved byte-for-byte | Produces the frozen V1 artifact; not part of the experiment's executable path. |
+| `experiments/hac-316/evidence/preflight.v2.json` | REQ-005, REQ-067 — machine-generated from `dist/`, immutable once committed | Carries V1's discipline note forward verbatim (REQ-007). |
+
+No other path is excluded from any command. Each corrected command excludes only
+the subset it actually needs — REQ-027 and REQ-064 exclude `SPEC.md` alone, and
+leave the preflight artifacts fully in scope, because the correction is meant to
+be minimal rather than uniform. `experiments/hac-316/bin/preflight-v2.mjs` is
+deliberately **not** excluded from anything: it was checked and contains no match
+for any of the three patterns, so the V2 producer stays entirely in scope.
+
+Exclusion is applied by filtering `grep -rn` output on the **full path prefix**,
+anchored at line start and terminated by the `:` that `grep -rn` emits. That
+form excludes a named file and nothing else — it cannot accidentally exclude a
+same-basename file elsewhere in the tree, which `grep --exclude` would.
+
+### 0.0.1 How each correction was proved still load-bearing
+
+A scratch mirror of `experiments/hac-316/` and `src/` was made outside the
+worktree, each corrected command was run against it (all three `PASS`), then
+temporary probe files were added, the commands re-run, and the probes deleted.
+Recorded per erratum below. No probe file was ever created inside the repository.
+
+---
+
+### 0.1 ERRATUM E-01 — REQ-027 (X-19, local target invariants)
+
+**Original** (frozen at `SPEC.md:1057`):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'disable[_ -]?invariant|skipInvariant|INVARIANT_DISABLED|bypassInvariant' experiments/hac-316/)" \
+  && echo PASS || echo FAIL
+```
+
+**Why it could not pass at `c2a7c5d`.** The scan tree `experiments/hac-316/`
+contains `SPEC.md`, and `SPEC.md:1057` *is* this command — the literal string
+`disable[_ -]?invariant` appears there. Reproduced against the freeze commit:
+
+```
+$ git archive c2a7c5d experiments/hac-316 | tar -x -C /tmp/freeze && cd /tmp/freeze
+$ grep -rniE 'disable[_ -]?invariant|skipInvariant|INVARIANT_DISABLED|bypassInvariant' experiments/hac-316/
+experiments/hac-316/SPEC.md:1057:cd "$REPO" && test -z "$(grep -rniE 'disable[_ -]?invariant|…
+```
+
+One match, sourced entirely from the prohibition's own text. `test -z` fails and
+the command prints `FAIL` on a tree containing zero real violations.
+
+**Corrected** (the operative command; also inline at REQ-027):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'disable[_ -]?invariant|skipInvariant|INVARIANT_DISABLED|bypassInvariant' experiments/hac-316/ \
+  | grep -vE '^experiments/hac-316/SPEC\.md:')" \
+  && echo PASS || echo FAIL
+```
+
+**Excluded:** `SPEC.md` only. Pattern unchanged. Scan tree unchanged.
+
+**The prohibition is unchanged.** X-19 still forbids disabling, skipping or
+bypassing local target invariants anywhere in the experiment. Every executable
+file, every agent, every evidence artifact other than this document remains in
+scope. Nothing became permissible.
+
+**Proved still load-bearing.** In the scratch mirror:
+
+| Probe | Content | Result |
+| -- | -- | -- |
+| `experiments/hac-316/src/probe-027.mjs` | `export const skipInvariant = true;` | `FAIL` |
+| `experiments/hac-316/src/probe2.mjs` | `const INVARIANT_DISABLED = 1;` | `FAIL` |
+| `experiments/hac-316/evidence/preflight.v2.json` | `"probe": "skipInvariant"` injected | `FAIL` — confirming the exclusion is not a blanket over evidence |
+| (probes deleted) | — | `PASS` |
+
+---
+
+### 0.2 ERRATUM E-02 — REQ-058 (X-01, Agent Gateway not retried)
+
+**Original** (frozen at `SPEC.md:1715`):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml')" \
+  && echo PASS || echo FAIL
+```
+
+**Why it could not pass at `c2a7c5d`.** The `--include` list admits `*.json` and
+`*.mjs`, which pulls in the **immutable Preflight V1** and its committed
+producer. Both name the falsified topology in prose, precisely in order to
+record that HAC-316 does not retry it. Preflight V2 carries the same note
+forward verbatim, as REQ-007 requires. Reproduced against the freeze commit
+(V2 did not exist yet):
+
+```
+$ grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ \
+    --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml'
+experiments/hac-316/evidence/preflight.json:22:    "note": "… it does not retry the AGENT_TO_ANYWHERE / CONTENT_AUTHZ topology HAC-325 falsified."
+experiments/hac-316/bin/preflight.mjs:128:      'does not retry the AGENT_TO_ANYWHERE / CONTENT_AUTHZ topology HAC-325 falsified.',
+```
+
+Both hits are the *record of compliance*, read as evidence of violation. The
+text cannot be removed: V1 is frozen byte-for-byte by REQ-004 and X-12, and
+deleting the sentence would destroy the very statement that the topology is not
+being retried. On the current tree a third hit appears at
+`evidence/preflight.v2.json:244`, from the same carried-forward note.
+
+**Corrected** (the operative command; also inline at REQ-058):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ \
+    --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml' \
+  | grep -vE '^experiments/hac-316/(evidence/preflight\.json|evidence/preflight\.v2\.json|bin/preflight\.mjs):')" \
+  && echo PASS || echo FAIL
+```
+
+**Excluded:** the three frozen preflight paths only. Pattern unchanged. Scan
+tree and `--include` list unchanged. `SPEC.md` needs no exclusion here — it is
+already outside the `--include` list, which is why this document may discuss the
+falsified topology in prose (§1.3, §0.2, Phase 7 manifest) without tripping the
+check.
+
+**The prohibition is unchanged.** X-01 still forbids retrying Agent Gateway.
+`bin/preflight-v2.mjs`, `bin/run-arm.mjs`, `bin/teardown.mjs`, `bin/10-provision.sh`,
+`src/**`, `agents/**`, `test/**`, `evidence/results.json`, `evidence/topology.json`,
+`evidence/resources.json` and every workflow YAML all remain in scope. A
+provisioning script that created a gateway resource would still fail this check —
+and REQ-069/REQ-070 fail it a second way, independently.
+
+**Proved still load-bearing.** In the scratch mirror:
+
+| Probe | Content | Result |
+| -- | -- | -- |
+| `experiments/hac-316/agents/probe_058.py` | `GATEWAY = "AGENT_TO_ANYWHERE"` | `FAIL` |
+| (probe deleted) | — | `PASS` |
+| `evidence/preflight.v2.json` mutated with an unrelated probe | — | `PASS` — the three named frozen paths are the *only* thing excluded |
+
+---
+
+### 0.3 ERRATUM E-03 — REQ-064 (X-09, no vendored ai-swarm content)
+
+**Original** (frozen at `SPEC.md:1840`):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'ai-swarm|spec-writer|swarm/templates' experiments/hac-316/ src/ 2>/dev/null)" \
+  && pnpm run check:provenance >/dev/null 2>&1 && echo PASS || echo FAIL
+```
+
+**Why it could not pass at `c2a7c5d`.** Three hits, all in this document:
+`SPEC.md:192` (exclusion-fence entry X-09, which must name what it forbids),
+`SPEC.md:1837` (the REQ's own title) and `SPEC.md:1840` (the command itself).
+Reproduced against the freeze commit:
+
+```
+$ grep -rniE 'ai-swarm|spec-writer|swarm/templates' experiments/hac-316/
+experiments/hac-316/SPEC.md:192:| X-09 | **Do not vendor ai-swarm templates into Interlock.** …
+experiments/hac-316/SPEC.md:1837:**REQ-064 — No ai-swarm content was vendored (X-09).**
+experiments/hac-316/SPEC.md:1840:cd "$REPO" && test -z "$(grep -rniE 'ai-swarm|spec-writer|…
+```
+
+An exclusion fence that cannot name the thing it excludes is not a usable
+fence, so the fix must be to the scanner, not to X-09.
+
+**Corrected** (the operative command; also inline at REQ-064):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'ai-swarm|spec-writer|swarm/templates' experiments/hac-316/ src/ 2>/dev/null \
+  | grep -vE '^experiments/hac-316/SPEC\.md:')" \
+  && pnpm run check:provenance >/dev/null 2>&1 && echo PASS || echo FAIL
+```
+
+**Excluded:** `SPEC.md` only. Pattern unchanged. Both scan roots unchanged, and
+the `check:provenance` conjunct is retained exactly.
+
+**The prohibition is unchanged.** X-09 still forbids vendoring ai-swarm content.
+All of `src/` stays in scope, as does every file under `experiments/hac-316/`
+other than this document — including `DEBT.md`, the receipts path is covered by
+`check:provenance`, and the preflight artifacts are *not* excluded here.
+
+**Proved still load-bearing.** In the scratch mirror:
+
+| Probe | Content | Result |
+| -- | -- | -- |
+| `experiments/hac-316/bin/probe-064.mjs` | `// vendored from ai-swarm/templates` | `FAIL` |
+| `src/routing-probe.ts` | `// ai-swarm spec-writer` | `FAIL` — the `src/` scan root is intact |
+| (probes deleted) | — | `PASS` |
+
+---
+
+### 0.4 What this erratum does not do
+
+- It does not renumber, reword or relax any other requirement.
+- It does not remove or weaken any exclusion-fence entry.
+- It does not edit Preflight V1, its producer, or Preflight V2.
+- It does not change any pattern, scan root, or `--include` list.
+- It adds no new permission. Three commands that could only ever print `FAIL`
+  now print `FAIL` exactly when the rule they were written to enforce is
+  actually broken.
+
+Sections §0.5 and §0.6 record two additions made at the same time, which are
+extensions rather than corrections: the Phase 7 resource manifest (§6 Phase 7,
+REQ-069 - REQ-073) and the recorded `gamma` limitation (§5.9, REQ-074). No
+existing REQ id was changed by either.
+
+### 0.5 Addition — Phase 7 resource manifest (REQ-069 - REQ-073)
+
+The frozen spec required Phase 7 to tear down "disposable Google resources"
+(REQ-059) without ever enumerating what Phase 7 creates. A teardown gate over an
+unenumerated resource set cannot be verified: nobody can tell whether zero
+remaining resources means everything was removed or that the wrong things were
+counted. §6 Phase 7 now opens with a frozen resource manifest, the exact
+provisioning commands, the exact teardown command, and a fail-closed teardown
+guard. REQ-059 is unchanged and still stands; REQ-071 - REQ-073 constrain the
+`teardown.mjs` it invokes.
+
+### 0.6 Addition — the `gamma` limitation (REQ-074)
+
+The harm verdict combines two runtime observations with two fixture assertions,
+and the frozen spec did not say so anywhere a reader would find it. §5.9 states
+it plainly and REQ-074 requires it to be carried into the packet and the receipt.
+This narrows what the experiment claims; it does not change any measurement.
+
+---
+
 ## 1. Scope Declaration
 
 ### 1.1 In scope
@@ -114,6 +366,9 @@ a new active critical-path issue**:
 | `experiments/hac-316/evidence/toolchain.json` | mechanically captured toolchain (§6 Phase 0) |
 | `experiments/hac-316/evidence/pins.json` | green-main SHA + artifact SHA pins |
 | `experiments/hac-316/evidence/fixture.json` | canonical fixture digest + partition projection |
+| `experiments/hac-316/evidence/resources.json` | **frozen Phase 7 resource manifest** — the closed set of Google resources the phase may create (§6 Phase 7, REQ-069) |
+| `experiments/hac-316/evidence/topology.json` | recorded actuals from the provisioning run: project id, project number, service URLs, reasoning-engine resource names, staging bucket (§6 Phase 7, REQ-069) |
+| `experiments/hac-316/bin/10-provision.sh` | Phase 7 provisioning, one command per manifest row (REQ-070) |
 | `experiments/hac-316/bin/preflight-v2.mjs` | produces `preflight.v2.json` (mirrors the V1 producer's derive-from-`dist/` discipline) |
 | `experiments/hac-316/bin/capture-toolchain.mjs` | produces `toolchain.json` |
 | `experiments/hac-316/bin/verify-packet.mjs` | HAC-316 packet verifier |
@@ -363,6 +618,51 @@ Global patch target 90%, threshold 0% (`codecov.yml:26-36`).
 Since no `src/**` executable line changes, no component obligation is triggered
 — verified by REQ-021.
 
+### 5.9 Recorded limitation — `gamma` and `cap` are asserted, not observed
+
+**FROZEN.** The harm verdict combines four quantities. Only two of them are
+runtime observations.
+
+| Quantity | Value | Provenance | Independently re-read at runtime? |
+| -- | -- | -- | -- |
+| alpha reservation | 60 | re-read of the alpha target after the arm (REQ-024, REQ-044) | **yes — observed** |
+| beta reservation | 60 | re-read of the beta target after the arm (REQ-024, REQ-044) | **yes — observed** |
+| `gamma` reservation | 20 | canonical fixture `src/target/state.ts:35-38`, immutable | **no — asserted** |
+| `cap` (`totalReservable`) | 130 | same fixture, immutable | **no — asserted** |
+
+`gamma` is never in flight (§5.5) and there is no gamma target (X-14), so nothing
+in the experiment ever observes it. `cap` is a fixture constant. Both are
+*derived* from `INITIAL_STATE` rather than hardcoded (REQ-022, X-14) — derivation
+makes them faithful to the fixture; it does not turn them into measurements.
+Deriving an asserted value is still asserting it.
+
+**The epistemic weight, stated plainly.** The breach margin is **10** —
+`140 - 130`. The asserted `gamma` is **20**, twice that margin. The verdict is
+therefore:
+
+```
+harm = (observed 60) + (observed 60) + (asserted 20)  >  (asserted cap 130)
+       └────────── measured 120 ──────────┘
+```
+
+If the asserted `gamma` were wrong by more than 10, the breach would not follow
+from the observations alone. What the runtime evidence establishes on its own is
+that the two governed partitions reached 120 together; the step from 120 to
+"140 exceeds 130" is carried by the fixture, not by the cloud.
+
+This is a **limitation, not a defect.** The question the experiment asks is
+whether Interlock changes the *composed* outcome, and both quantities Interlock
+actually governs are independently re-read in every arm. The composition is real;
+the residual term is stipulated. But it must not be overstated, and a reader must
+not have to reconstruct it — so it is recorded per-quantity in
+`results.json.arms.*.globalVerification.provenance`, recorded once in
+`results.json.limitations.gammaAsserted`, and **carried into
+`docs/receipts/HAC-316-s1-receipt.md` in the same terms** (REQ-074).
+
+Adding a third independently re-read partition would close the gap and is
+**not in scope here** — the projection is deliberately two-target (§1.3), and
+widening it would change the counterfactual under test.
+
 **Do not misread a green component.** `codecov.yml:48-58` records that several
 component paths are populated by HAC-317 and until then match few or no files; a
 green zero-file component is not a discharged obligation. HAC-316 must not treat
@@ -379,9 +679,13 @@ Phases are ordered so that **cloud spend happens as late as possible**. Phases
 Each REQ carries a bash verification command and its expected output.
 
 > **On REQ numbering.** REQ ids are stable unique identifiers, not an ordering.
-> The set REQ-001 … REQ-068 is complete with no gaps; a few higher-numbered
+> The set REQ-001 … REQ-074 is complete with no gaps; a few higher-numbered
 > requirements appear in earlier phases because they were added after the
 > initial numbering. Execute by phase, verify by id.
+>
+> REQ-069 … REQ-074 were added after the freeze by §0.5 and §0.6. No existing id
+> was renumbered, reworded or relaxed. Three commands were corrected in scope
+> only, each recorded in §0 and flagged inline: REQ-027, REQ-058, REQ-064.
 
 ### Phase 0 — Governance, pinning, and Preflight V2 (no cloud spend)
 
@@ -1053,8 +1357,16 @@ PASS
 
 **REQ-027 — Local target invariants remain enabled (defense in depth, X-19).**
 
+> **ERRATUM E-01 (§0.1).** The frozen command scanned `experiments/hac-316/`,
+> which contains this document, so it matched its own pattern text and could
+> never print `PASS` — including at the freeze commit `c2a7c5d`. `SPEC.md` is now
+> filtered out of the results. **The pattern, the scan root, and X-19 itself are
+> unchanged**; only prose is removed from scope. Every executable file, agent and
+> evidence artifact — the preflight artifacts included — stays in scope.
+
 ```sh
-cd "$REPO" && test -z "$(grep -rniE 'disable[_ -]?invariant|skipInvariant|INVARIANT_DISABLED|bypassInvariant' experiments/hac-316/)" \
+cd "$REPO" && test -z "$(grep -rniE 'disable[_ -]?invariant|skipInvariant|INVARIANT_DISABLED|bypassInvariant' experiments/hac-316/ \
+  | grep -vE '^experiments/hac-316/SPEC\.md:')" \
   && echo PASS || echo FAIL
 ```
 
@@ -1062,6 +1374,9 @@ Expected output:
 ```
 PASS
 ```
+
+Still load-bearing: a probe file `experiments/hac-316/src/probe-027.mjs`
+containing `export const skipInvariant = true;` flips this to `FAIL` (§0.1).
 
 ---
 
@@ -1503,6 +1818,187 @@ PASS
 
 Do not enter this phase until Phases 0-6 are green.
 
+#### Phase 7 Resource Manifest (**FROZEN**)
+
+Added post-freeze by §0.5. This is the **closed set** of Google Cloud resources
+Phase 7 may create. Provisioning something not listed here is a FAIL (REQ-069),
+not an oversight to be documented later — an unenumerated resource is exactly the
+thing a teardown gate cannot prove it removed.
+
+**Identifiers.** Every run generates a fresh disposable project id and never
+reuses one:
+
+```
+PROJECT_ID = interlock-s1-<8 lowercase hex>     e.g. interlock-s1-1a2b3c4d
+REGION     = us-central1                        (every regional resource, no exceptions)
+```
+
+The `interlock-s1-` prefix and the 8-hex suffix are not cosmetic. They are the
+shape the teardown guard enforces (G-4 below), so that a teardown command can
+never name a long-lived project even if someone pastes the wrong id.
+
+**The resources.**
+
+| id | Type | Name | Location | Purpose |
+| -- | -- | -- | -- | -- |
+| `R-01` | `cloudresourcemanager.projects` | `${PROJECT_ID}` | global | Disposable project. Deleting it is the exhaustive teardown (HAC-326 precedent) — it cannot strand a resource nobody remembered to list. |
+| `R-02` | `billing.projectBillingInfo` | link to `${BILLING_ACCOUNT}` | global | Required before Cloud Run or Agent Engine will provision. Unlinked at project deletion. |
+| `R-03` | `serviceusage.services` | `run`, `cloudbuild`, `artifactregistry`, `aiplatform`, `storage` | global | The five APIs the topology needs, and only those. |
+| `R-04` | `artifactregistry.repositories` | `interlock-s1` (docker) | `us-central1` | Holds the single container image. |
+| `R-05` | container image | `us-central1-docker.pkg.dev/${PROJECT_ID}/interlock-s1/interlock-s1:latest` | `us-central1` | One image, three entry points. Identical bytes behind all three services, which is what makes the arms comparable (REQ-056 deployment digest). |
+| `R-06` | `run.services` | `interlock-s1-target-alpha` | `us-central1` | Unchanged `ProtectedTarget`, alpha partition. `--no-allow-unauthenticated`, `--max-instances=1`. |
+| `R-07` | `run.services` | `interlock-s1-target-beta` | `us-central1` | Unchanged `ProtectedTarget`, beta partition. Same flags. |
+| `R-08` | `run.services` | `interlock-s1-proxy` | `us-central1` | The routing surface: **one process**, two `InterlockProxy` instances, **one** `PendingIntentStore`. `--max-instances=1` is load-bearing for REQ-028 — a second instance would be a second store and would silently break the coupling. |
+| `R-09` | `aiplatform.reasoningEngines` | `interlock-s1-agent-a` | `us-central1` | Agent Engine resource hosting ADK agent A (alpha mutation). |
+| `R-10` | `aiplatform.reasoningEngines` | `interlock-s1-agent-b` | `us-central1` | Agent Engine resource hosting ADK agent B (beta mutation). |
+| `R-11` | `storage.buckets` | `gs://${PROJECT_ID}-agent-staging` | `us-central1` | Staging bucket the Agent Engine deploy requires. Not optional; enumerate it or teardown verification cannot look for it. |
+| `R-12` | IAM bindings | see below | — | Least privilege. No `allUsers` anywhere (HAC-325 finding 9). |
+| `R-13` | `cloudbuild.builds` | transient | `us-central1` | Image builds. Leaves build logs and the `R-05` image; no standing resource of its own. |
+
+**IAM bindings (`R-12`), in full:**
+
+| Principal | Role | Scope |
+| -- | -- | -- |
+| `${PROJECT_NUMBER}-compute@developer.gserviceaccount.com` | `roles/cloudbuild.builds.builder` | project (HAC-325 finding 1 — absent on a fresh project, and its absence reads like a bucket fault) |
+| proxy runtime service account | `roles/run.invoker` | `interlock-s1-target-alpha`, `interlock-s1-target-beta` |
+| `service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com` | `roles/run.invoker` | `interlock-s1-proxy` |
+| operator account | `roles/run.invoker` | all three Cloud Run services |
+| Agent Engine runtime service account | `roles/storage.objectAdmin` | `gs://${PROJECT_ID}-agent-staging` |
+
+**Explicitly not created (X-01).** No egress gateway, no `networkAttachment`, no
+PSC endpoint, no internal load balancer, no DNS peering, no authorization policy,
+no service extension. HAC-325 falsified that topology
+(`docs/architecture/enforcement-topology.md:35-56`); this phase does not
+re-provision any part of it. REQ-069 and REQ-070 each check this independently of
+REQ-058.
+
+#### Provisioning commands (exact)
+
+Committed as `experiments/hac-316/bin/10-provision.sh`, one block per manifest
+row, in this order. Every `gcloud` call names `${PROJECT_ID}` explicitly — as
+`--project=` where the verb accepts it, as the positional operand where it does
+not. **`gcloud config` is never read and never set** (REQ-070): the ambient
+configuration on the operator's workstation still names a project that was
+deleted at an earlier teardown, and a script that inherits it aims at the wrong
+place or at nothing.
+
+```sh
+# P-00  identifiers — generated, never inferred
+export PROJECT_ID="interlock-s1-$(openssl rand -hex 4)"
+export REGION=us-central1
+export REPO=interlock-s1
+export IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/interlock-s1:latest"
+export BILLING_ACCOUNT="<billing account id>"
+
+# P-01  R-01 + R-02  disposable project, billing linked
+gcloud projects create "${PROJECT_ID}" --name="HAC-316 S1 disposable"
+gcloud billing projects link "${PROJECT_ID}" --billing-account="${BILLING_ACCOUNT}"
+
+# P-02  R-03  APIs
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com aiplatform.googleapis.com storage.googleapis.com \
+  --project="${PROJECT_ID}" --quiet
+
+# P-03  R-12  build role (absent on a fresh project)
+PROJECT_NUMBER="$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')"
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role=roles/cloudbuild.builds.builder --condition=None --quiet
+
+# P-04  R-04  Artifact Registry
+gcloud artifacts repositories create "${REPO}" --repository-format=docker \
+  --location="${REGION}" --project="${PROJECT_ID}" --quiet
+
+# P-05  R-05 + R-13  one image, built once
+gcloud builds submit "${REPO_ROOT}" --config="${WORK_DIR}/cloudbuild.yaml" \
+  --project="${PROJECT_ID}" --quiet
+
+# P-06  R-06  alpha target
+gcloud run deploy interlock-s1-target-alpha --image="${IMAGE}" --region="${REGION}" \
+  --project="${PROJECT_ID}" --no-allow-unauthenticated \
+  --command=node --args=dist/target/main.js \
+  --env-vars-file="${WORK_DIR}/target-alpha.env.json" --max-instances=1 --quiet
+
+# P-07  R-07  beta target
+gcloud run deploy interlock-s1-target-beta --image="${IMAGE}" --region="${REGION}" \
+  --project="${PROJECT_ID}" --no-allow-unauthenticated \
+  --command=node --args=dist/target/main.js \
+  --env-vars-file="${WORK_DIR}/target-beta.env.json" --max-instances=1 --quiet
+
+# P-08  R-08  routing surface — ONE process, ONE PendingIntentStore (REQ-028)
+gcloud run deploy interlock-s1-proxy --image="${IMAGE}" --region="${REGION}" \
+  --project="${PROJECT_ID}" --no-allow-unauthenticated \
+  --command=node --args=experiments/hac-316/src/routing.mjs \
+  --env-vars-file="${WORK_DIR}/proxy.env.json" --max-instances=1 --quiet
+
+# P-09  R-11  Agent Engine staging bucket
+gcloud storage buckets create "gs://${PROJECT_ID}-agent-staging" \
+  --location="${REGION}" --project="${PROJECT_ID}"
+
+# P-10  R-12  invoker bindings
+gcloud run services add-iam-policy-binding interlock-s1-target-alpha \
+  --region="${REGION}" --project="${PROJECT_ID}" \
+  --member="serviceAccount:${PROXY_SA}" --role=roles/run.invoker --quiet
+gcloud run services add-iam-policy-binding interlock-s1-target-beta \
+  --region="${REGION}" --project="${PROJECT_ID}" \
+  --member="serviceAccount:${PROXY_SA}" --role=roles/run.invoker --quiet
+gcloud run services add-iam-policy-binding interlock-s1-proxy \
+  --region="${REGION}" --project="${PROJECT_ID}" \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com" \
+  --role=roles/run.invoker --quiet
+```
+
+`R-09` and `R-10` are created by the Vertex AI Agent Engine SDK
+(`vertexai.agent_engines.create`) from an ADK deploy entry point under
+`experiments/hac-316/agents/`, not by `gcloud` — there is no `gcloud` create verb
+for a `reasoningEngine`. The deploy call takes `project=${PROJECT_ID}`,
+`location=us-central1`, `staging_bucket=gs://${PROJECT_ID}-agent-staging`
+explicitly, from the same variables, and never from ambient configuration. It
+returns resource names of the form
+`projects/${PROJECT_NUMBER}/locations/us-central1/reasoningEngines/<id>`, which
+are recorded as the `R-09` / `R-10` actuals.
+
+The script's final act is to write `experiments/hac-316/evidence/topology.json`:
+`projectId`, `projectNumber`, `region`, and one `actuals` entry per manifest row
+carrying its real name or resource id. **Teardown reads this file** — it is one
+half of the two-key rule (G-3 below), so it must be written before the arms run,
+not reconstructed afterwards.
+
+#### Teardown command (exact)
+
+```sh
+node experiments/hac-316/bin/teardown.mjs --project="${PROJECT_ID}" --confirm --verify
+```
+
+Which performs, and nothing else:
+
+```sh
+gcloud projects delete "${PROJECT_ID}" --quiet     # exit code recorded, never trusted
+```
+
+followed by the independent re-read probes in G-8.
+
+#### Teardown guard — fails closed on an unexpected project identifier
+
+`experiments/hac-316/bin/teardown.mjs` does not exist at the time of writing; the
+implementer builds it to this contract. Deleting a Google Cloud project is
+irreversible enough to matter and cheap enough to get wrong, so the guard is
+specified as refusals rather than as a happy path.
+
+| # | Rule |
+| -- | -- |
+| **G-1** | **Single explicit source.** The project id comes from exactly one place: the `--project=<id>` operand. Absent, empty, or repeated ⇒ **refuse, exit 2**, zero `gcloud` invocations. |
+| **G-2** | **No ambient fallback, ever.** `teardown.mjs` must never invoke `gcloud config get-value project`, never read a project id out of its own environment, and never derive one from `topology.json` alone. The operator's ambient `gcloud config` still names a project deleted at an earlier teardown (`interlock-s0-gate` in HAC-325, `interlock-s2-gate` in HAC-326); a fallback would aim teardown at a stale project, or — worse, on a differently-configured workstation — at a live unrelated one. |
+| **G-3** | **Two-key agreement.** The operand must equal `evidence/topology.json.projectId` under exact byte comparison. No normalization, no case folding, no prefix or substring match. Disagreement, or a missing/unparseable `topology.json` ⇒ **refuse, exit 3**, zero `gcloud` invocations. |
+| **G-4** | **Shape fence.** The id must match `^interlock-s1-[0-9a-f]{8}$`. Anything else — including a perfectly well-formed id belonging to a real long-lived project — ⇒ **refuse, exit 4**, zero `gcloud` invocations. A disposable id is the only id this tool can ever name. G-3 and G-4 are independent: either alone must refuse. |
+| **G-5** | **Explicit confirmation.** Without `--confirm`, teardown runs as a dry run: it prints the closed resource set it would delete, exits 0, and makes zero mutating calls. |
+| **G-6** | **Explicit project on every call.** Every spawned `gcloud` invocation carries `--project="<id>"`, or the id as its positional operand where the verb takes no `--project`. Each is spawned with `CLOUDSDK_CORE_PROJECT=<id>` and `CLOUDSDK_CORE_DISABLE_PROMPTS=1`, and with no other inherited `CLOUDSDK_*` variable. |
+| **G-7** | **The delete call's exit code is not evidence.** `gcloud projects delete` may return 0 for a request that has not taken effect, and non-zero for a project already gone. Its exit code is **recorded** as `teardown.deleteCallExitCode` and is **never** the pass condition. `\|\| true` must appear nowhere in the file. |
+| **G-8** | **Independent re-read is the only pass condition.** After deletion, in fresh processes: `gcloud projects describe "<id>" --format='value(lifecycleState)'` (must yield `DELETE_REQUESTED`, or fail as `NOT_FOUND`/`PERMISSION_DENIED` for a project no longer resolvable); then `gcloud run services list`, `gcloud artifacts repositories list`, `gcloud ai reasoning-engines list` (or the equivalent `reasoningEngines` REST GET), and `gcloud storage buckets list` — each `--project="<id>"`, each regional one `--region=us-central1`. Each must return zero rows, or fail in the way a deleted project fails. **Any other outcome is a FAIL, including an unrecognised error**: ambiguity resolves to not-removed, never to removed. |
+| **G-9** | **Record.** Writes `results.json.teardown = { projectId, verifiedBy: "independent-reread", passedBecause: "independent-reread", deleteCallExitCode, lifecycleState, remainingResources, probes: [{ probe, rows, raw }] }`, with one `probes` entry per G-8 probe. `remainingResources` is the sum of rows naming a live resource. |
+| **G-10** | **No cached pass.** Re-running after a successful teardown re-executes every G-8 probe. A recorded result is never reused as evidence, and G-1 - G-4 refuse again on every invocation. |
+| **G-11** | **Test shim cannot manufacture a pass.** For testability where no `gcloud` binary exists, teardown resolves the binary from `HAC316_GCLOUD_BIN` when set. When that variable is set, teardown **must not** record `verifiedBy: "independent-reread"` and **must** exit non-zero for `--verify`. The shim exercises refusal and dry-run paths only; it can never produce a green teardown. |
+
 ---
 
 **REQ-049 — Maximum concurrency attempts is 3.**
@@ -1711,8 +2207,20 @@ PASS perturbation 140 > 130 BREACH
 
 **REQ-058 — Agent Gateway was not retried (X-01).**
 
+> **ERRATUM E-02 (§0.2).** The frozen command's `--include` list admitted the
+> immutable Preflight V1 (`evidence/preflight.json:22`), its committed producer
+> (`bin/preflight.mjs:128`) and V2's carried-forward copy of the same note
+> (`evidence/preflight.v2.json:244`). Those three name the falsified topology in
+> prose *in order to record that it is not being retried*, and V1 cannot be
+> edited (REQ-004, X-12). The command therefore could never print `PASS`,
+> including at the freeze commit `c2a7c5d`. Those three paths — and nothing else
+> — are now filtered out of the results. **The pattern, the scan root, the
+> `--include` list, and X-01 itself are unchanged.**
+
 ```sh
-cd "$REPO" && test -z "$(grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml')" \
+cd "$REPO" && test -z "$(grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ \
+    --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml' \
+  | grep -vE '^experiments/hac-316/(evidence/preflight\.json|evidence/preflight\.v2\.json|bin/preflight\.mjs):')" \
   && echo PASS || echo FAIL
 ```
 
@@ -1720,6 +2228,83 @@ Expected output:
 ```
 PASS
 ```
+
+Still load-bearing: a probe file `experiments/hac-316/agents/probe_058.py`
+containing `GATEWAY = "AGENT_TO_ANYWHERE"` flips this to `FAIL` (§0.2).
+`bin/preflight-v2.mjs`, `bin/10-provision.sh`, `bin/teardown.mjs`,
+`evidence/resources.json` and `evidence/topology.json` are all still scanned, and
+REQ-069/REQ-070 forbid a gateway-shaped resource independently of this check.
+
+---
+
+**REQ-069 — The Phase 7 resource manifest is committed, closed, and matches what
+was actually provisioned.**
+
+`evidence/resources.json` is the frozen declaration (§6 Phase 7 manifest);
+`evidence/topology.json` is what the provisioning run actually created. The check
+is **bidirectional**: a provisioned resource absent from the manifest is an
+unenumerated resource, and a declared resource never provisioned means the
+manifest describes a topology that was not run. Either is a FAIL.
+
+```sh
+cd "$REPO" && node -e '
+const m=require("./experiments/hac-316/evidence/resources.json");
+const t=require("./experiments/hac-316/evidence/topology.json");
+if(m.closedSet!==true) throw new Error("the manifest does not declare itself the closed set");
+if(!Array.isArray(m.resources)||m.resources.length<11) throw new Error("manifest under-enumerates: "+(m.resources||[]).length);
+for(const r of m.resources){
+  if(!r.id||!r.type||!r.purpose) throw new Error("incomplete manifest entry: "+JSON.stringify(r));
+  if(r.location&&r.location!=="global"&&r.location!=="us-central1") throw new Error("unexpected location "+r.location+" for "+r.id);
+  if(/networkAttachment|serviceExtension|authorizationPolicy|egressGateway/i.test(r.type+r.id))
+    throw new Error("manifest declares a falsified-topology resource (X-01): "+r.id);
+}
+const declared=new Set(m.resources.map(r=>r.id));
+if(!Array.isArray(t.actuals)) throw new Error("topology.json records no actuals");
+for(const a of t.actuals){ if(!declared.has(a.id)) throw new Error("provisioned resource is not in the manifest: "+a.id); }
+for(const id of declared){ if(!t.actuals.some(a=>a.id===id)) throw new Error("declared resource was never provisioned: "+id); }
+if(!/^interlock-s1-[0-9a-f]{8}$/.test(t.projectId)) throw new Error("recorded project id is not a disposable id: "+t.projectId);
+console.log("PASS resources="+m.resources.length);'
+```
+
+Expected output:
+```
+PASS resources=<n>
+```
+with `n >= 11`.
+
+---
+
+**REQ-070 — Provisioning is scripted, region-pinned, and never inherits a project
+from ambient configuration.**
+
+Comment lines are stripped before scanning. A script that *explains* why it never
+touches ambient configuration would otherwise fail a check looking for that
+phrase — which is precisely the defect §0 exists to correct, and it is not
+repeated here.
+
+```sh
+cd "$REPO" && node -e '
+const raw=require("fs").readFileSync("experiments/hac-316/bin/10-provision.sh","utf8");
+const s=raw.split("\n").filter(l=>!/^\s*#/.test(l)).join("\n");
+if(/gcloud\s+config\s+(set|get-value)/.test(s)) throw new Error("provisioning reads or mutates ambient gcloud config");
+const calls=s.split("\n").filter(l=>/^\s*gcloud\s/.test(l));
+if(calls.length<8) throw new Error("too few gcloud invocations to provision the manifest: "+calls.length);
+for(const l of calls){ if(!/PROJECT_ID/.test(l)) throw new Error("gcloud call without an explicit project: "+l.trim()); }
+for(const m of s.match(/--(region|location)=\S+/g)||[]){
+  if(!/us-central1|REGION/.test(m)) throw new Error("location outside us-central1: "+m);
+}
+if(!/REGION=(\$\{REGION:-)?"?us-central1/.test(s)) throw new Error("REGION is not pinned to the literal us-central1");
+for(const f of ["network-security","service-extensions","networkAttachment","authz-polic","network-endpoint-groups"]){
+  if(s.includes(f)) throw new Error("provisioning creates a falsified-topology resource (X-01): "+f);
+}
+console.log("PASS gcloud-calls="+calls.length);'
+```
+
+Expected output:
+```
+PASS gcloud-calls=<n>
+```
+with `n >= 8`.
 
 ---
 
@@ -1756,6 +2341,183 @@ Expected output:
 ```
 PASS
 ```
+
+---
+
+**REQ-071 — Teardown refuses without an explicit project id, and never consults
+ambient configuration (G-1, G-2).**
+
+Static — the ambient code path must not exist in the file. Comment lines are
+stripped first: a teardown script that *documents* why it never reads ambient
+configuration must not be failed for saying so. That is the §0 defect, and it is
+deliberately not repeated here.
+
+```sh
+cd "$REPO" && node -e '
+const raw=require("fs").readFileSync("experiments/hac-316/bin/teardown.mjs","utf8");
+const s=raw.split("\n").filter(l=>!/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
+if(/config\s+get-value/.test(s)) throw new Error("teardown reads ambient gcloud config (G-2)");
+if(/["\x27`]config["\x27`]\s*,/.test(s)) throw new Error("teardown spawns a gcloud config subcommand (G-2)");
+if(/\|\|\s*true/.test(s)) throw new Error("teardown swallows a failure with || true (G-7)");
+if(!/CLOUDSDK_CORE_PROJECT/.test(s)) throw new Error("teardown does not pin CLOUDSDK_CORE_PROJECT (G-6)");
+if(!/CLOUDSDK_CORE_DISABLE_PROMPTS/.test(s)) throw new Error("teardown does not disable prompts (G-6)");
+if(!/\^interlock-s1-\[0-9a-f\]\{8\}\$/.test(s)) throw new Error("teardown does not carry the disposable-id shape fence (G-4)");
+console.log("PASS");'
+```
+
+Expected output:
+```
+PASS
+```
+
+Behavioural — with no `--project`, and with a hostile ambient project deliberately
+exported, teardown must refuse and touch nothing:
+
+```sh
+cd "$REPO" && SHIM="$(mktemp)" && LOG="$(mktemp)" && \
+  printf '#!/bin/sh\necho "$@" >> "$HAC316_GCLOUD_LOG"\nexit 0\n' > "$SHIM" && chmod +x "$SHIM" && \
+  HAC316_GCLOUD_BIN="$SHIM" HAC316_GCLOUD_LOG="$LOG" \
+  CLOUDSDK_CORE_PROJECT=some-live-production-project \
+    node experiments/hac-316/bin/teardown.mjs --confirm --verify >/dev/null 2>&1; \
+  rc=$?; test $rc -eq 2 && test ! -s "$LOG" && echo PASS || echo "FAIL rc=$rc invocations=$(wc -l < "$LOG")"
+```
+
+Expected output:
+```
+PASS
+```
+
+An empty `$LOG` is the load-bearing half: refusal must happen **before** any
+`gcloud` process is spawned, not after one has already been asked to delete
+something.
+
+---
+
+**REQ-072 — Teardown refuses a mismatched or non-disposable project id, with zero
+`gcloud` invocations (G-3, G-4).**
+
+Five probes: a well-formed disposable id that is not the recorded one; the two
+project ids deleted by earlier experiments; an ordinary long-lived-looking id;
+and the recorded id with a trailing character. Each must refuse with exit 2-4 and
+an empty invocation log.
+
+```sh
+cd "$REPO" && SHIM="$(mktemp)" && \
+  printf '#!/bin/sh\necho "$@" >> "$HAC316_GCLOUD_LOG"\nexit 0\n' > "$SHIM" && chmod +x "$SHIM" && \
+  REAL="$(node -p 'require("./experiments/hac-316/evidence/topology.json").projectId')" && \
+  fail=0; \
+  for probe in "interlock-s1-deadbeef" "interlock-s0-gate" "interlock-s2-gate" "my-production-project" "${REAL}x"; do \
+    [ "$probe" = "$REAL" ] && continue; \
+    LOG="$(mktemp)"; \
+    HAC316_GCLOUD_BIN="$SHIM" HAC316_GCLOUD_LOG="$LOG" \
+      node experiments/hac-316/bin/teardown.mjs --project="$probe" --confirm --verify >/dev/null 2>&1; \
+    rc=$?; \
+    { [ $rc -ge 2 ] && [ $rc -le 4 ] && [ ! -s "$LOG" ]; } || { echo "FAIL probe=$probe rc=$rc"; fail=1; }; \
+  done; \
+  test $fail -eq 0 && echo PASS || echo FAIL
+```
+
+Expected output:
+```
+PASS
+```
+
+---
+
+**REQ-073 — Removal is established by independent re-read, never by the delete
+call (G-7, G-8, G-9, G-11).**
+
+```sh
+cd "$REPO" && node -e '
+const s=require("fs").readFileSync("experiments/hac-316/bin/teardown.mjs","utf8");
+for(const probe of ["projects describe","run services list","artifacts repositories list","storage buckets list"]){
+  if(!s.includes(probe)) throw new Error("teardown lacks an independent re-read probe: "+probe);
+}
+if(!/reasoning-engines list|reasoningEngines/.test(s)) throw new Error("teardown lacks a reasoning-engine re-read probe");
+if(!/DELETE_REQUESTED/.test(s)||!/NOT_FOUND/.test(s)) throw new Error("teardown does not interpret the re-read lifecycle state");
+const t=require("./experiments/hac-316/evidence/results.json").teardown;
+if(t.verifiedBy!=="independent-reread") throw new Error("teardown not independently verified: "+t.verifiedBy);
+if(t.passedBecause!=="independent-reread") throw new Error("the pass condition was not the re-read: "+t.passedBecause);
+if(!("deleteCallExitCode" in t)) throw new Error("the delete call exit code was not recorded (G-7)");
+if(!Array.isArray(t.probes)||t.probes.length<5) throw new Error("fewer than 5 re-read probes recorded");
+for(const p of t.probes){ if(typeof p.rows!=="number") throw new Error("probe recorded no row count: "+p.probe); }
+if(t.remainingResources!==t.probes.reduce((n,p)=>n+p.rows,0)) throw new Error("remainingResources disagrees with the probe rows");
+if(t.remainingResources!==0) throw new Error("resources remain: "+t.remainingResources);
+if(!/^interlock-s1-[0-9a-f]{8}$/.test(t.projectId)) throw new Error("teardown recorded a non-disposable project id: "+t.projectId);
+console.log("PASS probes="+t.probes.length);'
+```
+
+Expected output:
+```
+PASS probes=<n>
+```
+with `n >= 5`.
+
+Control — a shimmed `gcloud` must never produce a green teardown, even with the
+correct project id (G-11):
+
+```sh
+cd "$REPO" && SHIM="$(mktemp)" && LOG="$(mktemp)" && \
+  printf '#!/bin/sh\necho "$@" >> "$HAC316_GCLOUD_LOG"\nexit 0\n' > "$SHIM" && chmod +x "$SHIM" && \
+  REAL="$(node -p 'require("./experiments/hac-316/evidence/topology.json").projectId')" && \
+  HAC316_GCLOUD_BIN="$SHIM" HAC316_GCLOUD_LOG="$LOG" \
+    node experiments/hac-316/bin/teardown.mjs --project="$REAL" --confirm --verify >/dev/null 2>&1; \
+  test $? -ne 0 && echo PASS || echo FAIL
+```
+
+Expected output:
+```
+PASS
+```
+
+---
+
+**REQ-074 — The `gamma` limitation is recorded per quantity, not implied
+(§5.9).**
+
+`alpha` and `beta` are independently re-read; `gamma = 20` and `cap = 130` are
+immutable canonical-fixture inputs. The packet must say which is which, and the
+receipt must carry it.
+
+```sh
+cd "$REPO" && node -e '
+const r=require("./experiments/hac-316/evidence/results.json");
+const f=require("./experiments/hac-316/evidence/fixture.json");
+const gamma=f.canonicalFixture.services.gamma, cap=f.canonicalFixture.totalReservable;
+for(const arm of ["baseline","treatment","perturbation"]){
+  const g=r.arms[arm].globalVerification;
+  if(g.source!=="independent-reread") throw new Error(arm+": global verification is not an independent reread");
+  const p=g.provenance;
+  if(!p) throw new Error(arm+": globalVerification records no per-quantity provenance");
+  if(p.alpha!=="observed"||p.beta!=="observed") throw new Error(arm+": alpha and beta must be recorded as observed");
+  if(p.gamma!=="asserted-fixture"||p.cap!=="asserted-fixture")
+    throw new Error(arm+": gamma and cap must be recorded as asserted fixture inputs, got "+p.gamma+"/"+p.cap);
+}
+const l=r.limitations&&r.limitations.gammaAsserted;
+if(!l) throw new Error("results.json records no gammaAsserted limitation");
+if(l.assertedGamma!==gamma||l.assertedCap!==cap)
+  throw new Error("recorded assertions disagree with the canonical fixture");
+const breach=r.arms.perturbation.globalVerification;
+const margin=breach.total-breach.cap;
+if(l.breachMargin!==margin) throw new Error("breachMargin is not derived from the measured breach: "+l.breachMargin+" vs "+margin);
+if(l.assertedGammaExceedsMarginBy!==gamma-margin) throw new Error("the gamma-versus-margin comparison is not recorded");
+if(l.observedQuantities.join(",")!=="alpha,beta") throw new Error("observed quantities misrecorded");
+if(!/receipt/i.test(l.carriedInto||"")) throw new Error("the limitation is not marked as carried into the receipt");
+const rec=require("fs").readFileSync("docs/receipts/HAC-316-s1-receipt.md","utf8").toLowerCase();
+for(const k of ["asserted","gamma","breach margin","independently re-read"]){
+  if(!rec.includes(k)) throw new Error("the receipt does not carry: "+k);
+}
+console.log("PASS observed=alpha,beta asserted-gamma="+gamma+" margin="+margin);'
+```
+
+Expected output:
+```
+PASS observed=alpha,beta asserted-gamma=20 margin=10
+```
+
+The asserted `gamma` is twice the breach margin. That ratio is the reason this
+requirement exists, and it is why `assertedGammaExceedsMarginBy` is recorded
+rather than left to the reader (§5.9).
 
 ---
 
@@ -1836,8 +2598,17 @@ PASS
 
 **REQ-064 — No ai-swarm content was vendored (X-09).**
 
+> **ERRATUM E-03 (§0.3).** The frozen command matched three lines of this
+> document — `SPEC.md:192` (X-09, which must name what it forbids), the REQ's own
+> title, and the command itself — so it could never print `PASS`, including at the
+> freeze commit `c2a7c5d`. `SPEC.md` is now filtered out of the results. **The
+> pattern, both scan roots, the `check:provenance` conjunct, and X-09 itself are
+> unchanged**; all of `src/` and every non-prose file under
+> `experiments/hac-316/` remain in scope.
+
 ```sh
-cd "$REPO" && test -z "$(grep -rniE 'ai-swarm|spec-writer|swarm/templates' experiments/hac-316/ src/ 2>/dev/null)" \
+cd "$REPO" && test -z "$(grep -rniE 'ai-swarm|spec-writer|swarm/templates' experiments/hac-316/ src/ 2>/dev/null \
+  | grep -vE '^experiments/hac-316/SPEC\.md:')" \
   && pnpm run check:provenance >/dev/null 2>&1 && echo PASS || echo FAIL
 ```
 
@@ -1845,6 +2616,10 @@ Expected output:
 ```
 PASS
 ```
+
+Still load-bearing: probe files `experiments/hac-316/bin/probe-064.mjs`
+(`// vendored from ai-swarm/templates`) and `src/routing-probe.ts`
+(`// ai-swarm spec-writer`) each flip this to `FAIL` (§0.3).
 
 ---
 
@@ -1983,16 +2758,22 @@ PACKET_316_OK
 
 ### 7.4 Requirement gate
 
-Every REQ-001 … REQ-068 verification command produces its expected output.
+Every REQ-001 … REQ-074 verification command produces its expected output.
 The packet verifier `experiments/hac-316/bin/verify-packet.mjs` must execute
 **all** of them and enumerate any failure by REQ id.
+
+The command below is unchanged; only its expected count moves, from 68 to 74,
+because §0.5 and §0.6 added REQ-069 … REQ-074. No existing id was renumbered, so
+the count is the only thing that changes. REQ-027, REQ-058 and REQ-064 must be
+executed in their **corrected** form (§0) — a verifier that still runs the frozen
+form of any of the three will report a failure that no implementation can clear.
 
 ```sh
 cd "$REPO" && node experiments/hac-316/bin/verify-packet.mjs --all 2>&1 | tail -2
 ```
 Expected:
 ```
-REQ 68/68 PASS
+REQ 74/74 PASS
 PACKET OK
 ```
 
@@ -2036,6 +2817,18 @@ A green packet with a broken verifier is a failed experiment, not a passed one.
 cd "$REPO" && node experiments/hac-316/bin/teardown.mjs --verify 2>&1 | tail -1
 ```
 Expected: `PASS`
+
+The guard is gated too — a teardown that would delete the wrong project is worse
+than one that fails to run. Added by §0.5; the command above is unchanged.
+
+```sh
+cd "$REPO" && node experiments/hac-316/bin/verify-packet.mjs --req REQ-071,REQ-072,REQ-073 2>&1 | tail -1
+```
+Expected: `REQ 3/3 PASS`
+
+Ordering note: REQ-071 and REQ-072 are refusal tests and run at any time, with or
+without cloud access. REQ-073's recorded half requires Phase 7 to have run and
+been torn down; its shim control (G-11) does not.
 
 ---
 
