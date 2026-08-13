@@ -10,10 +10,13 @@
  * be the answer.
  *
  * The invariant here — reservations never exceed the pool — is the *ground
- * truth* for whether harm occurred. It is not the enforcement mechanism. A real
- * protected system usually cannot detect the harm locally at all; this fixture
- * can, which is what lets the experiment prove that the composition it withheld
- * would in fact have breached something.
+ * truth* for whether harm occurred. It enforces *local* target integrity — a
+ * single target refusing a mutation that would breach its own pool — but it is
+ * not, and cannot be, the cross-resource composition invariant: no single
+ * target observes the joint state that two uncoordinated writers produce. A
+ * real protected system usually cannot detect the harm locally at all; this
+ * fixture can, which is what lets the experiment prove that the composition it
+ * withheld would in fact have breached something.
  */
 import type { CanonicalValue } from '../authorization/canonical.js';
 
