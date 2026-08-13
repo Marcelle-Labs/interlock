@@ -1,0 +1,158 @@
+{
+  "experiment": "HAC-316",
+  "title": "S1 end-to-end collision proof on real Agent Runtime",
+  "declaredAt": "committed before any cloud resource was created; see git history",
+  "sourceRevision": "01fad2972b7127c7a9be8b3262ae3188d5ff4e74",
+  "sourceClean": true,
+  "toolchain": {
+    "node": "v22.19.0",
+    "python": "3.12.12",
+    "google-adk": "2.6.3",
+    "mcp": "1.29.0",
+    "vertexai": "1.164.0",
+    "note": "google-adk 2.6.3 requires mcp>=1.24,<2. A bare `pip install mcp` resolves to 2.0.0 and breaks the import with ModuleNotFoundError: mcp.shared.session. Install `google-adk[mcp]`. The documented import path google.adk.tools.mcp_tool.McpToolset also fails on this version; the working path is google.adk.tools.mcp_tool.mcp_toolset."
+  },
+  "frozenContracts": {
+    "source": "docs/architecture/enforcement-topology.md (frozen by HAC-326)",
+    "receiptVersion": "interlock.receipt.s2-fixture/1",
+    "correlationHeader": "interlock-correlation-id",
+    "receiptHeader": "interlock-receipt",
+    "operation": "set_reservation",
+    "callerDecisionContract": "ALLOW | DENY",
+    "note": "HAC-316 reuses these unchanged. It does not introduce a second enforcement path, and it does not retry the AGENT_TO_ANYWHERE / CONTENT_AUTHZ topology HAC-325 falsified."
+  },
+  "fixture": {
+    "initialState": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 40,
+        "beta": 40,
+        "gamma": 20
+      }
+    },
+    "initialStateDigest": "sha256:3363146a3c54c4fc5ee96a54a6cc88bdd522bb0124910dc6a787e9b0ddd0569f",
+    "genesisRevisionProtectedTarget": "sha256:186534665f0f18d7a860affbd6afa2e22c44d9250f76fbee51315d62747fde87",
+    "genesisRevisionBaselineTarget": "sha256:8216c1beafa066a68c7048ac3ad6359027d051c3e695d779932e43fca384cda5",
+    "invariant": "sum(services[].reserved) <= totalReservable",
+    "note": "The two targets take different targetIds on purpose — a receipt minted for one must not validate against the other — so their genesis revisions differ by construction. The STATE is identical, which is what parity requires; initialStateDigest is the field that must match."
+  },
+  "expectedIntents": {
+    "A": {
+      "agent": "capacity-planner",
+      "summary": "raise alpha's reservation from 40 to 60 for the reindex window",
+      "intent": {
+        "operation": "set_reservation",
+        "arguments": {
+          "service": "alpha",
+          "reserved": 60
+        }
+      },
+      "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
+      "evidencePath": "services/alpha/reservation.json",
+      "validAlone": "60 + others = 120 <= 130"
+    },
+    "B": {
+      "agent": "traffic-shaper",
+      "summary": "raise beta's reservation from 40 to 60 for the backfill window",
+      "intent": {
+        "operation": "set_reservation",
+        "arguments": {
+          "service": "beta",
+          "reserved": 60
+        }
+      },
+      "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+      "evidencePath": "services/beta/reservation.json",
+      "validAlone": "60 + others = 120 <= 130"
+    }
+  },
+  "counterfactual": {
+    "claim": "each intent is valid alone; their composition is not",
+    "totalIfBothApplied": 140,
+    "totalReservable": 130,
+    "compositionBreachesInvariant": true
+  },
+  "couplingEvidence": {
+    "artifact": "experiments/hac-330/evidence/baseline.evidence.json",
+    "artifactSha256": "2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+    "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "producer": "@workspacejson/mining-core@0.0.0",
+    "producerSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "observedCoupling": {
+      "files": [
+        "services/alpha/reservation.json",
+        "services/beta/reservation.json"
+      ],
+      "support": 8,
+      "occurrences": 10
+    },
+    "note": "Consumed verbatim from the pinned upstream miner via HAC-330. Not re-derived here, not hand-authored, and not replaced with a coupling that would be easier to demonstrate."
+  },
+  "predeclared": {
+    "runtimeOverlap": {
+      "formula": "max(tool_start_A, tool_start_B) < min(tool_end_A, tool_end_B)",
+      "measuredAt": "the neutral ingress, which is on both arms identically and is the only component that sees both agents. Client launch time is NOT used to infer concurrency."
+    },
+    "interlockOverlap": {
+      "criterion": "both pending intents are registered before the first protected-target commit, evidenced mechanically by the denied intent's rationale citing the other intent's correlation id with reasonCode COUPLING_OBSERVED",
+      "rationale": "That denial is only reachable when both intents were simultaneously present in the pending-intent store. If both are ALLOWed, they did not overlap in the Interlock window, and that is reported as a negative result rather than reinterpreted."
+    },
+    "trialValidity": {
+      "rule": "digest(A,baseline) == digest(A,treatment) == expectedIntents.A.intentDigest AND digest(B,baseline) == digest(B,treatment) == expectedIntents.B.intentDigest",
+      "onViolation": "MODEL_FAILURE / INVALID_TRIAL — never counted as composition evidence"
+    },
+    "concurrencyAttempts": {
+      "maximum": 3,
+      "retention": "every attempt is retained and reported, valid or not; no silent retries",
+      "onExhaustion": "invoke HAC-316's kill/pivot clause; do not manufacture the collision"
+    },
+    "allowed": [
+      "concurrent harness dispatch of both agent invocations",
+      "identical warm-up of both runtime resources before measurement",
+      "separate sessions per agent",
+      "ordinary Agent Runtime concurrency configuration"
+    ],
+    "forbidden": [
+      "sleeps inserted into either agent to manufacture overlap",
+      "a barrier inside the Interlock proxy",
+      "artificial delay at either target",
+      "widening the pending-intent TTL until overlap appears",
+      "cherry-picking an undisclosed successful attempt"
+    ]
+  },
+  "routing": {
+    "mechanism": "A neutral experiment ingress holds one active run_id -> arm binding, set out of band by the harness before each arm. Requests carry no arm selector, so the MCP body — and therefore the intent digest — is byte-identical across arms.",
+    "arms": {
+      "baseline": "ingress -> baseline target (mutation core only, no Interlock in the path)",
+      "treatment": "ingress -> frozen S2 proxy -> protected target (receipt validated) -> mutation core"
+    },
+    "ingressConstraints": [
+      "no Interlock decision logic",
+      "no receipt issuance",
+      "no argument transformation",
+      "no coupling logic",
+      "JSON-RPC body forwarded byte-for-byte; only a run/trace header is added",
+      "unknown or unset run binding fails closed"
+    ]
+  },
+  "truthModel": {
+    "states": [
+      "REQUESTED",
+      "WITHHELD",
+      "AUTHORIZED",
+      "ACCEPTED",
+      "EXECUTED",
+      "OBSERVED",
+      "FAILED"
+    ],
+    "rule": "An MCP or HTTP acknowledgement is never OBSERVED. Only an independent re-read produces OBSERVED."
+  },
+  "outOfScope": [
+    "the HAC-317 production broker",
+    "restart recovery (HAC-327)",
+    "fleet-scale corpus (HAC-319)",
+    "Studio/UI (HAC-320)",
+    "generalising the experiment ingress into product infrastructure",
+    "promoting any experimental field into WorkspaceJSON Standard"
+  ]
+}
