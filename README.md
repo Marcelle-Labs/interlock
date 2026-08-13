@@ -36,5 +36,3 @@ npm run check:provenance
 
 Work happens on short-lived issue branches from `main`, one bounded Linear issue
 per change stream. No forks, no long-lived integration branch.
-
-<!-- PROOF (META-337): deliberate misspelling — Interlok — reverted in the next commit. -->
