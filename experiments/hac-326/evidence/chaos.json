@@ -1,0 +1,64 @@
+{
+  "note": "Every arm asserts the same thing in different words: an Interlock that cannot answer does not become an Interlock that permits.",
+  "arms": [
+    {
+      "arm": "A",
+      "condition": "proxy unavailable",
+      "callerReachedProxy": false,
+      "transportError": "fetch failed",
+      "bypassAttemptStatus": 403,
+      "bypassAttemptReason": "RECEIPT_ABSENT",
+      "stateUnchanged": true,
+      "deadProxyUrl": "http://127.0.0.1:52435",
+      "deadTargetUrl": "http://127.0.0.1:52434"
+    },
+    {
+      "arm": "B",
+      "condition": "decision exceeds its deadline",
+      "decision": "DENY",
+      "reasonCode": "DECISION_TIMEOUT",
+      "receiptIssued": false,
+      "stateUnchanged": true
+    },
+    {
+      "arm": "C",
+      "condition": "pending-intent store unavailable",
+      "decision": "DENY",
+      "reasonCode": "STORE_WRITE_FAILED",
+      "receiptIssued": false,
+      "stateUnchanged": true
+    },
+    {
+      "arm": "C2",
+      "condition": "replay ledger unavailable at the target",
+      "decision": "DENY",
+      "reasonCode": "TARGET_REJECTED",
+      "targetReason": "REPLAY_LEDGER_UNAVAILABLE",
+      "stateUnchanged": true
+    },
+    {
+      "arm": "D",
+      "condition": "malformed evidence",
+      "decision": "DENY",
+      "reasonCode": "EVIDENCE_MALFORMED",
+      "receiptIssued": false,
+      "stateUnchanged": true
+    },
+    {
+      "arm": "D2",
+      "condition": "evidence absent entirely",
+      "decision": "DENY",
+      "reasonCode": "EVIDENCE_ABSENT",
+      "receiptIssued": false,
+      "stateUnchanged": true
+    },
+    {
+      "arm": "E",
+      "condition": "evidence pinned to a revision other than the one being mutated",
+      "decision": "DENY",
+      "reasonCode": "STALE_BASIS",
+      "receiptIssued": false,
+      "stateUnchanged": true
+    }
+  ]
+}

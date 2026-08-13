@@ -1,0 +1,78 @@
+{
+  "note": "A safe independent pair. alpha and gamma never co-changed in the mined history.",
+  "first": {
+    "decision": "ALLOW",
+    "reasonCode": "NO_QUALIFYING_COUPLING",
+    "correlationId": "ilk-2df042956c524630bd0d3139713e6253",
+    "message": "history at eb67a6f56b3bf7e71846e7324d21af44565c0b70 was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between this intent and the 0 intent(s) in flight at support >= 3",
+    "evidenceRefs": [
+      "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+    ],
+    "execution": {
+      "status": "EXECUTED",
+      "correlationId": "ilk-2df042956c524630bd0d3139713e6253",
+      "receiptId": "rcpt-e3e76edd-1e69-4a18-ad31-954f25eaa71f",
+      "revisionBefore": "sha256:f92a00bf0fa8759754a3818789c45659e86af547d6a2ca69a12edf62548aafa3",
+      "revisionAfter": "sha256:b670d874181fb2d06192307b3887a1444547b398bc14221f11604d6280b8093d",
+      "state": {
+        "totalReservable": 130,
+        "services": {
+          "alpha": 50,
+          "beta": 40,
+          "gamma": 20
+        }
+      },
+      "invariant": {
+        "holds": true,
+        "total": 110,
+        "totalReservable": 130,
+        "detail": "total 110 <= 130"
+      }
+    },
+    "receiptId": "rcpt-e3e76edd-1e69-4a18-ad31-954f25eaa71f"
+  },
+  "second": {
+    "decision": "ALLOW",
+    "reasonCode": "NO_QUALIFYING_COUPLING",
+    "correlationId": "ilk-bd1d1a756e434f6598fddee1e53b6f8f",
+    "message": "history at eb67a6f56b3bf7e71846e7324d21af44565c0b70 was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between this intent and the 0 intent(s) in flight at support >= 3",
+    "evidenceRefs": [
+      "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+    ],
+    "execution": {
+      "status": "EXECUTED",
+      "correlationId": "ilk-bd1d1a756e434f6598fddee1e53b6f8f",
+      "receiptId": "rcpt-d1d8a8dc-1be7-4d11-a853-d421313c0bb3",
+      "revisionBefore": "sha256:b670d874181fb2d06192307b3887a1444547b398bc14221f11604d6280b8093d",
+      "revisionAfter": "sha256:0e906f8760eead54cc2a2fff0a012de5685ef34058715d5e3a01bfe2ca047b94",
+      "state": {
+        "totalReservable": 130,
+        "services": {
+          "alpha": 50,
+          "beta": 40,
+          "gamma": 25
+        }
+      },
+      "invariant": {
+        "holds": true,
+        "total": 115,
+        "totalReservable": 130,
+        "detail": "total 115 <= 130"
+      }
+    },
+    "receiptId": "rcpt-d1d8a8dc-1be7-4d11-a853-d421313c0bb3"
+  },
+  "finalState": {
+    "revision": "sha256:0e906f8760eead54cc2a2fff0a012de5685ef34058715d5e3a01bfe2ca047b94",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 50,
+        "beta": 40,
+        "gamma": 25
+      }
+    }
+  }
+}

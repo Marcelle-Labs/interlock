@@ -1,0 +1,11 @@
+{
+  "note": "One identifier, propagated by the application rather than by any platform field. HAC-325 established that no Agent Gateway trace field can be assumed, and the verifier must not depend on one.",
+  "header": "interlock-correlation-id",
+  "trace": {
+    "caller": "ilk-s2correlation",
+    "proxyRequest": "ilk-s2correlation",
+    "proxyResponse": "ilk-s2correlation",
+    "targetExecution": "ilk-s2correlation",
+    "receiptId": "rcpt-29b8e38b-92bd-4222-a057-f203f0d56256"
+  }
+}

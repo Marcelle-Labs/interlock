@@ -1,0 +1,147 @@
+{
+  "experiment": "HAC-326",
+  "title": "S2 fallback architecture gate: bounded MCP/API proxy enforcement",
+  "result": "PASS",
+  "runtime": "v22.19.0",
+  "evidenceSource": {
+    "artifact": "experiments/hac-330/evidence/baseline.evidence.json",
+    "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "producer": "@workspacejson/mining-core",
+    "producerSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "note": "Real co-change evidence from the pinned upstream miner. Not synthesized here."
+  },
+  "checks": [
+    {
+      "id": "CONTRACT-1",
+      "criterion": "the exact proxy request envelope is captured from a running service",
+      "passed": true,
+      "detail": "mcp and http envelopes recorded"
+    },
+    {
+      "id": "CONTRACT-2",
+      "criterion": "caller identity is recorded as observed, and absence is recorded as absence",
+      "passed": true,
+      "detail": "observed unavailable via none/no-authenticated-principal-observed"
+    },
+    {
+      "id": "SAFE-1",
+      "criterion": "a safe independent request is allowed and the mutation executes",
+      "passed": true,
+      "detail": "decision ALLOW, alpha=50"
+    },
+    {
+      "id": "SAFE-2",
+      "criterion": "a second, uncoupled request is also allowed",
+      "passed": true,
+      "detail": "decision ALLOW, gamma=25"
+    },
+    {
+      "id": "UNSAFE-1",
+      "criterion": "the unsafe composed pair is not composed — exactly one intent proceeds",
+      "passed": true,
+      "detail": "1 allowed, 1 denied"
+    },
+    {
+      "id": "UNSAFE-2",
+      "criterion": "the denial reaches the caller with a machine-readable rationale and evidence refs",
+      "passed": true,
+      "detail": "reasonCode COUPLING_OBSERVED, support 8"
+    },
+    {
+      "id": "UNSAFE-3",
+      "criterion": "no receipt is issued on a denial, so there is nothing to replay later",
+      "passed": true,
+      "detail": "receiptId undefined"
+    },
+    {
+      "id": "UNSAFE-4",
+      "criterion": "the target invariant holds — the harm the composition would have caused did not occur",
+      "passed": true,
+      "detail": "total 120 <= 130"
+    },
+    {
+      "id": "TGT-ALL",
+      "criterion": "every unauthorized shape is refused by the target itself",
+      "passed": true,
+      "detail": "all 403"
+    },
+    {
+      "id": "TGT-NOSIDEEFFECT",
+      "criterion": "every refusal happens before the protected side effect",
+      "passed": true,
+      "detail": "state and revision unchanged"
+    },
+    {
+      "id": "TGT-REPLAY",
+      "criterion": "a replayed receipt is refused on second presentation",
+      "passed": true,
+      "detail": "first 200, replay 403 (RECEIPT_STALE_REVISION)"
+    },
+    {
+      "id": "TGT-NONCE",
+      "criterion": "the nonce ledger independently refuses a second use at an unchanged revision",
+      "passed": true,
+      "detail": "first admitted true, second RECEIPT_REPLAYED"
+    },
+    {
+      "id": "TGT-STALE",
+      "criterion": "a receipt bound to a superseded revision is refused",
+      "passed": true,
+      "detail": "403 RECEIPT_STALE_REVISION"
+    },
+    {
+      "id": "CHAOS-1",
+      "criterion": "no failure mode produces an allow",
+      "passed": true,
+      "detail": "all denied"
+    },
+    {
+      "id": "CHAOS-2",
+      "criterion": "no failure mode produces a mutation",
+      "passed": true,
+      "detail": "no state moved"
+    },
+    {
+      "id": "CHAOS-3",
+      "criterion": "a dead proxy cannot be routed around",
+      "passed": true,
+      "detail": "direct call rejected with RECEIPT_ABSENT"
+    },
+    {
+      "id": "CORR-1",
+      "criterion": "one correlation id survives caller -> proxy -> target -> mutation record",
+      "passed": true,
+      "detail": "distinct ids seen: ilk-s2correlation"
+    },
+    {
+      "id": "OBS-1",
+      "criterion": "no participant can assert OBSERVED about its own work",
+      "passed": true,
+      "detail": "UnassertableStateError raised: true"
+    },
+    {
+      "id": "OBS-2",
+      "criterion": "OBSERVED comes only from an independent re-read of the state",
+      "passed": true,
+      "detail": "OBSERVED by verifier"
+    },
+    {
+      "id": "OBS-3",
+      "criterion": "a trace of acknowledgements alone does not establish observation",
+      "passed": true,
+      "detail": "acknowledgement trace carries no OBSERVED event"
+    },
+    {
+      "id": "LAT-1",
+      "criterion": "latency is reported as a distribution over repeated requests, not one happy-path number",
+      "passed": true,
+      "detail": "n=200, median 1.588ms, p95 2.72ms, max 4.557ms"
+    },
+    {
+      "id": "LAT-2",
+      "criterion": "the concurrent two-request case is measured",
+      "passed": true,
+      "detail": "median 3.16ms, p95 7.093ms"
+    }
+  ]
+}

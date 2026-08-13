@@ -1,0 +1,91 @@
+{
+  "note": "Two individually valid intents submitted concurrently. Real commit history shows alpha and beta co-changing at support 8, so the composition is refused. Exactly one proceeds — serialization, not mutual refusal.",
+  "alpha": {
+    "decision": "ALLOW",
+    "reasonCode": "SERIALIZED_PRECEDENCE",
+    "correlationId": "ilk-997b4445025e47d6ad564fe657bdbccc",
+    "message": "1 qualifying co-change coupling(s) at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; this intent holds precedence within the coupled set and proceeds alone while the others are withheld",
+    "evidenceRefs": [
+      "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+    ],
+    "execution": {
+      "status": "EXECUTED",
+      "correlationId": "ilk-997b4445025e47d6ad564fe657bdbccc",
+      "receiptId": "rcpt-cf2f207a-58c9-4fdd-a4a8-e43a65c36831",
+      "revisionBefore": "sha256:f92a00bf0fa8759754a3818789c45659e86af547d6a2ca69a12edf62548aafa3",
+      "revisionAfter": "sha256:6f742ae68453fb0d84bb068d26beb4370e0a931cd3b71c32c7bdb33910c41528",
+      "state": {
+        "totalReservable": 130,
+        "services": {
+          "alpha": 60,
+          "beta": 40,
+          "gamma": 20
+        }
+      },
+      "invariant": {
+        "holds": true,
+        "total": 120,
+        "totalReservable": 130,
+        "detail": "total 120 <= 130"
+      }
+    },
+    "receiptId": "rcpt-cf2f207a-58c9-4fdd-a4a8-e43a65c36831",
+    "couplings": [
+      {
+        "correlationIds": [
+          "ilk-997b4445025e47d6ad564fe657bdbccc",
+          "ilk-a0229446c3d6409a8410e55066f130e7"
+        ],
+        "files": [
+          "services/alpha/reservation.json",
+          "services/beta/reservation.json"
+        ],
+        "support": 8,
+        "occurrences": 10
+      }
+    ]
+  },
+  "beta": {
+    "decision": "DENY",
+    "reasonCode": "COUPLING_OBSERVED",
+    "correlationId": "ilk-a0229446c3d6409a8410e55066f130e7",
+    "message": "1 qualifying co-change coupling(s) between this intent and 1 intent(s) already in flight at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; this intent does not hold precedence, so the composition is withheld and it must be resubmitted once the leading intent settles",
+    "evidenceRefs": [
+      "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+      "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+    ],
+    "couplings": [
+      {
+        "correlationIds": [
+          "ilk-a0229446c3d6409a8410e55066f130e7",
+          "ilk-997b4445025e47d6ad564fe657bdbccc"
+        ],
+        "files": [
+          "services/alpha/reservation.json",
+          "services/beta/reservation.json"
+        ],
+        "support": 8,
+        "occurrences": 10
+      }
+    ]
+  },
+  "finalState": {
+    "revision": "sha256:6f742ae68453fb0d84bb068d26beb4370e0a931cd3b71c32c7bdb33910c41528",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 60,
+        "beta": 40,
+        "gamma": 20
+      }
+    }
+  },
+  "counterfactual": {
+    "claim": "had both landed, the pool invariant would have been breached",
+    "totalIfBothApplied": 140,
+    "totalReservable": 130,
+    "wouldBreach": true,
+    "actualTotal": 120
+  }
+}

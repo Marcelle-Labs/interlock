@@ -1,0 +1,41 @@
+{
+  "note": "Loopback, single process, one machine. These numbers isolate the enforcement path, not the network. A Cloud Run deployment adds the round trips recorded in cloud-run.json.",
+  "environment": {
+    "runtime": "v22.19.0",
+    "platform": "darwin-arm64",
+    "transport": "HTTP over loopback, proxy and target in one process",
+    "warmupRequests": 20
+  },
+  "authorizedPath": {
+    "count": 200,
+    "medianMs": 1.588,
+    "p95Ms": 2.72,
+    "p99Ms": 3.985,
+    "maxMs": 4.557,
+    "minMs": 1.091
+  },
+  "deniedPath": {
+    "count": 200,
+    "medianMs": 0.76,
+    "p95Ms": 1.999,
+    "p99Ms": 3.299,
+    "maxMs": 9.052,
+    "minMs": 0.456
+  },
+  "twoConcurrentRequests": {
+    "count": 50,
+    "medianMs": 3.16,
+    "p95Ms": 7.093,
+    "p99Ms": 7.934,
+    "maxMs": 7.934,
+    "minMs": 2.188
+  },
+  "receiptSigningOnly": {
+    "count": 500,
+    "medianMs": 0.053,
+    "p95Ms": 0.072,
+    "p99Ms": 0.131,
+    "maxMs": 0.156,
+    "minMs": 0.052
+  }
+}

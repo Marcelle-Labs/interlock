@@ -1,0 +1,26 @@
+{
+  "note": "Caller identity as ACTUALLY observed by the proxy. Nothing here is inferred from documentation. The loopback run carries no authenticated principal, which is recorded as a limitation rather than filled in.",
+  "observedLocally": {
+    "identity": "unavailable",
+    "identitySource": "none/no-authenticated-principal-observed"
+  },
+  "sourcesTheProxyCanRead": [
+    {
+      "source": "x-goog-authenticated-user-email/platform-verified",
+      "precondition": "IAP or Cloud Run forwards an end-user identity header"
+    },
+    {
+      "source": "oidc-id-token/platform-verified:email",
+      "precondition": "Cloud Run deployed with --no-allow-unauthenticated; the platform verifies the Google-signed ID token before the container is invoked"
+    },
+    {
+      "source": "oidc-id-token/platform-verified:sub",
+      "precondition": "as above, for a token carrying no email claim"
+    },
+    {
+      "source": "none/no-authenticated-principal-observed",
+      "precondition": "anything else — recorded, never guessed"
+    }
+  ],
+  "limitation": "No Agent Runtime agent identity is bound. HAC-325 established that the Agent Gateway path does not deliver a request to an extension at all, so the agent-identity fields that path would have carried were never observed and are not claimed here."
+}

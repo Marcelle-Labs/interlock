@@ -1,0 +1,108 @@
+{
+  "note": "Every attack is made DIRECTLY against the protected target, bypassing the proxy. stateUnchanged/revisionUnchanged prove the refusal happened before the side effect.",
+  "firstUseOfReplayedReceipt": 200,
+  "rejections": [
+    {
+      "id": "TGT-1",
+      "description": "no receipt at all (bypass)",
+      "status": 403,
+      "reasonCode": "RECEIPT_ABSENT",
+      "detail": "no authorization receipt accompanied the request",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-2",
+      "description": "malformed receipt header",
+      "status": 403,
+      "reasonCode": "RECEIPT_MALFORMED",
+      "detail": "the receipt is not a structurally complete signed receipt",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-3",
+      "description": "receipt edited after signing",
+      "status": 403,
+      "reasonCode": "RECEIPT_SIGNATURE_INVALID",
+      "detail": "the signature does not verify over the canonical claims; the receipt was edited or fabricated",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-4",
+      "description": "expired receipt",
+      "status": 403,
+      "reasonCode": "RECEIPT_EXPIRED",
+      "detail": "receipt expired at 2026-08-13T11:08:58.636Z; now 2026-08-13T11:09:58.638Z",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-5",
+      "description": "receipt bound to a superseded target revision",
+      "status": 403,
+      "reasonCode": "RECEIPT_STALE_REVISION",
+      "detail": "receipt expects target revision sha256:df7a83be980ca2c70d6db84e54b9f081ccefb37c5c32b9b5eeb440f8ed387184, target is at sha256:c9c7fee7b7eeb406bd076b5c5d1f5e4fb3d921d4527bf370c6b9ef6d46972ced",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-6",
+      "description": "receipt addressed to a different target",
+      "status": 403,
+      "reasonCode": "RECEIPT_WRONG_TARGET",
+      "detail": "receipt authorizes target other-service, presented to interlock-s2-target",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-7",
+      "description": "receipt lifted onto a different operation",
+      "status": 403,
+      "reasonCode": "RECEIPT_WRONG_OPERATION",
+      "detail": "receipt authorizes operation delete_everything, presented for set_reservation",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-8",
+      "description": "receipt whose arguments were changed in transit",
+      "status": 403,
+      "reasonCode": "RECEIPT_INTENT_MISMATCH",
+      "detail": "receipt authorizes intent sha256:782feab31067a53c707422d6a89e75198acd91046cfdf40ef478a5e0649c598c, but the request body digests to sha256:bb7cf1bba697e9b652b176cea49f6285d454ba4b653cfd666581fc4c2746c5c1",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-9",
+      "description": "receipt fabricated with an untrusted key",
+      "status": 403,
+      "reasonCode": "RECEIPT_SIGNATURE_INVALID",
+      "detail": "the signature does not verify over the canonical claims; the receipt was edited or fabricated",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    },
+    {
+      "id": "TGT-10",
+      "description": "receipt replayed after a successful use",
+      "status": 403,
+      "reasonCode": "RECEIPT_STALE_REVISION",
+      "detail": "receipt expects target revision sha256:f92a00bf0fa8759754a3818789c45659e86af547d6a2ca69a12edf62548aafa3, target is at sha256:df7a83be980ca2c70d6db84e54b9f081ccefb37c5c32b9b5eeb440f8ed387184",
+      "stateUnchanged": true,
+      "revisionUnchanged": true
+    }
+  ],
+  "nonceLedgerIsolated": {
+    "note": "TGT-10 is refused by STALE_REVISION, not by the ledger: a successful first use advances the hash-chained revision, so a replayed receipt is necessarily stale too. The ledger is therefore exercised here with the revision held constant — the only condition that distinguishes the two checks.",
+    "constantRevision": "sha256:c9c7fee7b7eeb406bd076b5c5d1f5e4fb3d921d4527bf370c6b9ef6d46972ced",
+    "firstAdmission": {
+      "admitted": true
+    },
+    "secondAdmission": {
+      "admitted": false,
+      "reasonCode": "RECEIPT_REPLAYED",
+      "detail": "nonce nonce-attack-10 was already spent; this authorization has been used"
+    }
+  }
+}

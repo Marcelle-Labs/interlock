@@ -125,6 +125,21 @@
       "harvestDisposition": "DELETE_AFTER_SUBMISSION"
     },
     {
+      "id": "hac-326-fallback-enforcement",
+      "purpose": "The S2 fallback enforcement path for HAC-326: a bounded Interlock MCP/API proxy, deterministic pending-intent arbitration over pinned upstream co-change evidence, an Ed25519 authorization receipt bound to intent, target revision and evidence references, a protected target that validates that receipt independently, and the harness that attacks the target directly and chaos-tests every failure mode. Deployed to Cloud Run for the recorded arm against a disposable project that has since been deleted.",
+      "status": "BUILT",
+      "notPartOfReleasedStandard": true,
+      "disclosureLanguage": "The HAC-326 fallback enforcement path is submission-local machinery authored during the contest for the S2 architecture-freeze gate. It consumes the pinned upstream co-change evidence produced by the HAC-330 adapter and contains no upstream source. It is NOT part of released WorkspaceJSON v0.4 (@workspacejson/spec 0.4.4) and carries no specification authority.",
+      "harvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
+      "harvestTarget": "the Marcelle-Labs/interlock production broker under HAC-317; nothing here is proposed for any workspacejson repository",
+      "boundaryNotes": [
+        "Consumes experiments/hac-330/evidence/baseline.evidence.json verbatim. It does not mine, does not re-derive co-change, and writes no workspace.json.",
+        "The authorization receipt is an S2 contract fixture, not the production schema. HAC-317 owns the production receipt.",
+        "No private key material is committed. Key pairs are minted per deployment into a gitignored .work/ directory, and only environment variable NAMES appear in source.",
+        "The pending-intent store is in-memory and single-instance, and the replay ledger does not survive a restart. Both limitations are recorded in the evidence packet rather than implied away."
+      ]
+    },
+    {
       "id": "revision-anchor-extension",
       "purpose": "Submission-local experimental WorkspaceJSON revision-anchor extension used by the Interlock composition engine.",
       "status": "PLANNED",

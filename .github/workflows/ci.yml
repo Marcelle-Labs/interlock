@@ -57,11 +57,15 @@ jobs:
           #
           # Not hypothetical: during HAC-330 a NUL byte in a template literal
           # made a .mjs file read as binary, and `git grep` stopped seeing it.
+          # It happened again in HAC-326, in a .ts file — which this check did
+          # not cover, so it caught nothing. `*.ts` is included for exactly that
+          # reason: the rule was not wrong, it was scoped to the one language
+          # that had already tripped it.
           # `sort -u`: git lists a path once per stage while a merge is
           # unresolved, which would otherwise report a perfectly good file as
           # binary purely because it appears more than once.
-          all=$(git ls-files -- '*.mjs' '*.js' '*.json' '*.md' | sort -u)
-          text=$(git grep -lI -e '' -- '*.mjs' '*.js' '*.json' '*.md' | sort -u)
+          all=$(git ls-files -- '*.mjs' '*.js' '*.ts' '*.json' '*.md' | sort -u)
+          text=$(git grep -lI -e '' -- '*.mjs' '*.js' '*.ts' '*.json' '*.md' | sort -u)
           binary=$(comm -23 <(echo "$all") <(echo "$text") || true)
           if [ -n "$binary" ]; then
             echo "Source files git treats as binary; repository-wide scans skip them:"
@@ -296,4 +300,91 @@ jobs:
             echo "**Do not weaken.** Do not hand-edit an artifact or a recorded digest to"
             echo "make this pass. Regenerate the packet from a real mining run, or record"
             echo "on HAC-330 why the experiment no longer holds."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Integrity of the committed HAC-326 evidence packet, and a live re-run of the
+  # local enforcement experiment.
+  #
+  # Two steps, two different claims, deliberately not merged:
+  #
+  #   verify-packet  -> the committed evidence still says what the receipt claims
+  #   run-experiment -> the enforcement path still behaves that way on this commit
+  #
+  # The second is possible here — unlike the S-1 gate, which needs a sibling
+  # checkout — because the local arm depends on nothing outside this repository.
+  # The Cloud Run arm is NOT re-run: it executed against a disposable project
+  # that has been deleted, and a merge gate must not depend on live cloud spend.
+  #
+  # Not a required context. Promoting it is a branch-protection change owned by
+  # META-337.
+  s2-enforcement-gate:
+    name: S2 enforcement gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+
+      # `--ignore-scripts`: a dependency lifecycle script runs arbitrary code in
+      # the job, and this one only needs TypeScript to compile and Node to run
+      # the experiment. Nothing it installs has a legitimate postinstall.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the committed HAC-326 evidence packet
+        run: pnpm run check:packet:s2
+
+      - name: Re-run the local enforcement experiment
+        run: pnpm run hac326
+
+      - name: The re-run still passes every check
+        run: |
+          set -euo pipefail
+          # `pnpm run hac326` already exits non-zero on failure. This asserts the
+          # recorded verdict independently, so a runner that swallowed the exit
+          # code cannot pass this job with a FAIL packet on disk.
+          node -e '
+            const results = require("./experiments/hac-326/evidence/results.json");
+            if (results.result !== "PASS") {
+              console.error(`re-run recorded ${results.result}`);
+              process.exit(1);
+            }
+            const failed = results.checks.filter((check) => !check.passed);
+            if (failed.length > 0) {
+              console.error(`failed checks: ${failed.map((c) => c.id).join(", ")}`);
+              process.exit(1);
+            }
+            console.log(`re-run PASS, ${results.checks.length} checks`);
+          '
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## S2 enforcement gate failed"
+            echo
+            echo "**Invariant.** The bounded Interlock proxy denies an unsafe composed pair"
+            echo "before the protected mutation, the protected target refuses every receipt"
+            echo "that is absent, stale, replayed, expired, or bound to another"
+            echo "intent/target/revision, and every failure mode fails closed."
+            echo
+            echo "**Why it matters.** This is the architecture-freeze evidence from HAC-326."
+            echo "HAC-325 already falsified the preferred Agent Gateway insertion point; if"
+            echo "this gate goes red, the fallback insertion point is no longer proven"
+            echo "either, and HAC-316/HAC-317 are building on an unproven contract."
+            echo
+            echo "**Authority.** Repository CI, reported as \`S2 enforcement gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run hac326\` passing on this commit, and"
+            echo "\`pnpm run check:packet:s2\` verifying the committed packet."
+            echo
+            echo "**Do not weaken.** Do not hand-edit an evidence artifact, do not relax a"
+            echo "rejection assertion, and do not delete a chaos arm to recover green. If an"
+            echo "enforcement property genuinely changed, that is an architecture change and"
+            echo "belongs on HAC-326 as a recorded finding."
           } >> "$GITHUB_STEP_SUMMARY"

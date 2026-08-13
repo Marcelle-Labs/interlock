@@ -1,0 +1,95 @@
+{
+  "note": "The exact envelopes observed at the proxy, captured from a running service. Header values that identify a run are redacted; header NAMES are the contract.",
+  "mcp": {
+    "transport": "mcp",
+    "headers": {
+      "host": "127.0.0.1:52412",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "accept": "application/json",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "128"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "tools/call",
+      "params": {
+        "name": "set_reservation",
+        "arguments": {
+          "service": "gamma",
+          "reserved": 21
+        }
+      }
+    },
+    "responseShape": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"decision\": \"ALLOW\",\n  \"reasonCode\": \"NO_QUALIFYING_COUPLING\",\n  \"correlationId\": \"ilk-c379f9f475444186b3bbf1cf5da847d9\",\n  \"message\": \"history at eb67a6f56b3bf7e71846e7324d21af44565c0b70 was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between this intent and the 0 intent(s) in flight at support >= 3\",\n  \"evidenceRefs\": [\n    \"basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70\",\n    \"artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6\"\n  ],\n  \"execution\": {\n    \"status\": \"EXECUTED\",\n    \"correlationId\": \"ilk-c379f9f475444186b3bbf1cf5da847d9\",\n    \"receiptId\": \"rcpt-b057605e-6106-403b-9f98-db7e0365bc4f\",\n    \"revisionBefore\": \"sha256:f92a00bf0fa8759754a3818789c45659e86af547d6a2ca69a12edf62548aafa3\",\n    \"revisionAfter\": \"sha256:df7a83be980ca2c70d6db84e54b9f081ccefb37c5c32b9b5eeb440f8ed387184\",\n    \"state\": {\n      \"totalReservable\": 130,\n      \"services\": {\n        \"alpha\": 40,\n        \"beta\": 40,\n        \"gamma\": 21\n      }\n    },\n    \"invariant\": {\n      \"holds\": true,\n      \"total\": 101,\n      \"totalReservable\": 130,\n      \"detail\": \"total 101 <= 130\"\n    }\n  },\n  \"receiptId\": \"rcpt-b057605e-6106-403b-9f98-db7e0365bc4f\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "decision": "ALLOW",
+          "reasonCode": "NO_QUALIFYING_COUPLING",
+          "correlationId": "ilk-c379f9f475444186b3bbf1cf5da847d9",
+          "message": "history at eb67a6f56b3bf7e71846e7324d21af44565c0b70 was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between this intent and the 0 intent(s) in flight at support >= 3",
+          "evidenceRefs": [
+            "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+            "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+          ],
+          "execution": {
+            "status": "EXECUTED",
+            "correlationId": "ilk-c379f9f475444186b3bbf1cf5da847d9",
+            "receiptId": "rcpt-b057605e-6106-403b-9f98-db7e0365bc4f",
+            "revisionBefore": "sha256:f92a00bf0fa8759754a3818789c45659e86af547d6a2ca69a12edf62548aafa3",
+            "revisionAfter": "sha256:df7a83be980ca2c70d6db84e54b9f081ccefb37c5c32b9b5eeb440f8ed387184",
+            "state": {
+              "totalReservable": 130,
+              "services": {
+                "alpha": 40,
+                "beta": 40,
+                "gamma": 21
+              }
+            },
+            "invariant": {
+              "holds": true,
+              "total": 101,
+              "totalReservable": 130,
+              "detail": "total 101 <= 130"
+            }
+          },
+          "receiptId": "rcpt-b057605e-6106-403b-9f98-db7e0365bc4f"
+        },
+        "isError": false
+      }
+    }
+  },
+  "http": {
+    "transport": "http",
+    "headers": {
+      "host": "127.0.0.1:52412",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "user-agent": "node",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "77"
+    },
+    "body": {
+      "operation": "set_reservation",
+      "arguments": {
+        "service": "gamma",
+        "reserved": 22
+      }
+    }
+  }
+}
