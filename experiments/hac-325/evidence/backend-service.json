@@ -1,0 +1,34 @@
+
+$ /Users/user1/google-cloud-sdk/bin/gcloud compute backend-services describe interlock-s0-bes --region=us-central1 --project=interlock-s0-gate --format=json
+{
+  "affinityCookieTtlSec": 0,
+  "backends": [
+    {
+      "balancingMode": "UTILIZATION",
+      "capacityScaler": 1.0,
+      "group": "https://www.googleapis.com/compute/v1/projects/interlock-s0-gate/regions/us-central1/networkEndpointGroups/interlock-s0-neg"
+    }
+  ],
+  "connectionDraining": {
+    "drainingTimeoutSec": 0
+  },
+  "creationTimestamp": "2026-08-12T20:32:12.130-07:00",
+  "description": "",
+  "fingerprint": "TbShlnPwFPw=",
+  "id": "6050131175174866003",
+  "kind": "compute#backendService",
+  "loadBalancingScheme": "INTERNAL_MANAGED",
+  "name": "interlock-s0-bes",
+  "port": 80,
+  "portName": "http",
+  "protocol": "HTTP2",
+  "region": "https://www.googleapis.com/compute/v1/projects/interlock-s0-gate/regions/us-central1",
+  "selfLink": "https://www.googleapis.com/compute/v1/projects/interlock-s0-gate/regions/us-central1/backendServices/interlock-s0-bes",
+  "sessionAffinity": "NONE",
+  "timeoutSec": 30,
+  "usedBy": [
+    {
+      "reference": "https://www.googleapis.com/compute/v1/projects/interlock-s0-gate/regions/us-central1/urlMaps/interlock-s0-urlmap"
+    }
+  ]
+}

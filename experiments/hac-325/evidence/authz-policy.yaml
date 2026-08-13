@@ -1,0 +1,15 @@
+name: projects/interlock-s0-gate/locations/us-central1/authzPolicies/interlock-s0-authz-policy
+target:
+  resources:
+    - projects/interlock-s0-gate/locations/us-central1/agentGateways/interlock-s0-gw
+policyProfile: CONTENT_AUTHZ
+action: CUSTOM
+customProvider:
+  authzExtension:
+    resources:
+      - projects/interlock-s0-gate/locations/us-central1/authzExtensions/interlock-s0-authz-ext
+httpRules:
+  - to:
+      operations:
+        - paths:
+            - prefix: /

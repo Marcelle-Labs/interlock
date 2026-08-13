@@ -26,6 +26,7 @@ APIS=(
   cloudbuild.googleapis.com
   agentregistry.googleapis.com
   aiplatform.googleapis.com
+  storage.googleapis.com
   logging.googleapis.com
   monitoring.googleapis.com
 )
@@ -48,6 +49,14 @@ export PROJECT_NUMBER
   echo "  \"cloudBuildServiceAgent\": \"service-${PROJECT_NUMBER}@gcp-sa-cloudbuild.iam.gserviceaccount.com\""
   echo "}"
 } > "${EVIDENCE_DIR}/identities.json"
+
+# Cloud Build runs as the Compute Engine default service account, which on a
+# fresh project cannot read its own staged source bucket. Discovered the hard
+# way at first run: `builds submit` fails with a storage.objects.get 403 that
+# reads like a bucket fault rather than a missing role.
+run "$GCLOUD" projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role=roles/cloudbuild.builds.builder --condition=None --format='value(etag)'
 
 run "$GCLOUD" projects get-iam-policy "$PROJECT_ID" --format=json \
   > "${EVIDENCE_DIR}/iam-policy-before.json"

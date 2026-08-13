@@ -1,0 +1,13 @@
+name: projects/interlock-s0-gate/locations/us-central1/agentGateways/interlock-s0-gw
+protocols:
+  - MCP
+googleManaged:
+  governedAccessPath: CLIENT_TO_AGENT
+networkConfig:
+  egress:
+    networkAttachment: projects/interlock-s0-gate/regions/us-central1/networkAttachments/interlock-s0-na
+  dnsPeeringConfig:
+    domains:
+      - s0.interlock.internal.
+    targetNetwork: projects/interlock-s0-gate/global/networks/interlock-s0-vpc
+    targetProject: interlock-s0-gate

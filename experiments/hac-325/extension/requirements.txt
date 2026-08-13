@@ -1,2 +1,4 @@
+# protobuf must be >= the gencode version buf emits, or the generated module
+# refuses to load at import. Pinned to match buf.gen.yaml's plugin pin exactly.
 grpcio==1.76.0
-protobuf==6.33.1
+protobuf==7.35.1

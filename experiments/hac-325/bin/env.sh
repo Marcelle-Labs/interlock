@@ -37,9 +37,11 @@ export GATEWAY="${PREFIX}-gw"
 export AUTHZ_EXTENSION="${PREFIX}-authz-ext"
 export AUTHZ_POLICY="${PREFIX}-authz-policy"
 
-# Per the AuthzExtension schema the per-message timeout must be 10-10000ms.
-# 1000ms is the provisional envelope the ADR assumes; S0 measures against it.
-export EXT_TIMEOUT="${EXT_TIMEOUT:-1000ms}"
+# Per-message timeout. The schema documents the bound in milliseconds (10-10000)
+# but the field is a protobuf Duration, so it must be written in seconds form:
+# "1000ms" is rejected with "failed to parse seconds". 1s is the provisional
+# envelope the ADR assumes; S0 measures against it.
+export EXT_TIMEOUT="${EXT_TIMEOUT:-1s}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export EXPERIMENT_DIR="$(dirname "$HERE")"
@@ -65,6 +67,28 @@ run_ok() {
   local status="${PIPESTATUS[0]}"
   set -e
   printf '[exit %s]\n' "$status" | tee -a "$COMMAND_LOG"
+  return 0
+}
+
+# ensure: a create that is satisfied if the resource is already there. Any other
+# failure still aborts -- "already exists" is the only tolerated error, so a
+# rerun converges without masking a real provisioning fault.
+ensure() {
+  printf '\n$ %s\n' "$*" | tee -a "$COMMAND_LOG"
+  local out status
+  set +e
+  out="$("$@" 2>&1)"
+  status=$?
+  set -e
+  printf '%s\n' "$out" | tee -a "$COMMAND_LOG"
+  if [[ $status -ne 0 ]]; then
+    if grep -qiE 'already exists|alreadyExists|Duplicate|already a backend' <<<"$out"; then
+      printf '[exists; continuing]\n' | tee -a "$COMMAND_LOG"
+      return 0
+    fi
+    printf '[exit %s]\n' "$status" | tee -a "$COMMAND_LOG"
+    return "$status"
+  fi
   return 0
 }
 
