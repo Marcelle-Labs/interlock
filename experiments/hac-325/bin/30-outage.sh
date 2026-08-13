@@ -10,6 +10,11 @@ ENDPOINT="$("$GCLOUD" network-services agent-gateways describe "$GATEWAY" \
   --location="$REGION" --project="$PROJECT_ID" \
   --format='value(googleManaged.endpoint)')"
 
+# The probe reports its result on stdout, never through its exit status. A
+# failed request during the outage arm is the observation being collected, not
+# an error, so returning non-zero would abort the run under `set -e` at exactly
+# the moment the measurement matters. The explicit `return 0` states that: it
+# matches the existing behaviour, since `curl ... || echo` already yields 0.
 probe() {
   local label="$1" out="$2"
   printf '%s ' "$label"
@@ -17,6 +22,7 @@ probe() {
     -X POST "https://${ENDPOINT}/" \
     -H 'Content-Type: application/json' \
     -d '{"probe":"interlock-s0","intent":"allow"}' || echo "curl-failed"
+  return 0
 }
 
 note "outage: healthy baseline"
