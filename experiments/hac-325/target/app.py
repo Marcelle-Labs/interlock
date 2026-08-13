@@ -101,4 +101,14 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))
+    # Plaintext is required here, not a shortcut. The Cloud Run container
+    # runtime contract states that "the container shouldn't implement any
+    # transport layer security directly" and that "TLS is terminated by Cloud
+    # Run for HTTPS and gRPC, and then requests are proxied as HTTP/1 or gRPC to
+    # the container without TLS". Adding application-level TLS would break the
+    # service rather than secure it.
+    #
+    # Recorded because a static analyzer will read this line as clear-text
+    # transport (SonarQube python:S5332) and the disposition is a false positive
+    # against this deployment target, not an accepted risk.
     ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()

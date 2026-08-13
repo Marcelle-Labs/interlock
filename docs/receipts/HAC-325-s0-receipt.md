@@ -204,6 +204,39 @@ needed and spend stopped at that point. Google retains the project recoverably
 for roughly 30 days; `gcloud projects undelete interlock-s0-gate` would restore
 it if the BYOC path is later funded.
 
+## Static analysis on the experiment code
+
+The required `SonarCloud Code Analysis` gate failed this PR on
+`new_security_rating` = C against a threshold of A. Five vulnerabilities, all in
+code added here. Four were real and were fixed rather than excluded, per the
+merge-gate matrix rule that SonarQube Cloud owns new-code security and a gate is
+not weakened to recover green:
+
+| Rule | Finding | Fix |
+| -- | -- | -- |
+| `docker:S6471` ×2 | both images ran as root | drop to uid 10001 |
+| `docker:S8541` | `pip` could execute a dependency's `setup.py` | `--only-binary :all:` |
+| `docker:S8544` | versions pinned, resolved artifacts not | hash-locked requirements, `--require-hashes` |
+
+Hashes were verified by resolving them with `pip download --require-hashes
+--only-binary :all:` for linux/amd64 cp312, the platform Cloud Build targets.
+
+The fifth, `python:S5332` on `target/app.py`, is dispositioned **False Positive**
+— not *Accepted*. The distinction matters: *Accepted* records a valid finding
+that is being deferred, which would misstate this. The Cloud Run container
+runtime contract states that *"the container shouldn't implement any transport
+layer security directly"* and that *"TLS is terminated by Cloud Run for HTTPS and
+gRPC, and then requests are proxied as HTTP/1 or gRPC to the container without
+TLS"*. Serving application-level TLS would contradict the platform contract, so
+this is the analyzer being wrong about the context rather than a risk being
+accepted.
+
+Worth recording for META-337: four genuine security defects in a disposable,
+already-deleted experiment is evidence the gate does work rather than adding
+ceremony. That is also why `experiments/**` was **not** excluded from analysis
+and why `target/` was **not** deleted to clear the finding — a failed
+architecture still needs its reproducible implementation as evidence.
+
 ## Disposition
 
 Per HAC-325's fail/pivot clause and the ADR fail action, the preferred
