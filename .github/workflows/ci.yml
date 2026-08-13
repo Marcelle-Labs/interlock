@@ -79,7 +79,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      # Pinned for the same reason as codecov-action below: a third-party action
+      # on a mutable tag. Sonar did not flag this one only because it is not new
+      # code on this pull request, and "the analyzer did not mention it" is not
+      # evidence that it is safe.
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 
       - uses: actions/setup-node@v4
         with:
@@ -144,4 +148,66 @@ jobs:
             echo "\`tsconfig\` strictness flag, or add \`continue-on-error\` to recover"
             echo "green. If the assertion is wrong, say so in the PR and change it"
             echo "deliberately — that is a reviewable decision, not a CI fix."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Delivery of the coverage report to Codecov, as its own job on purpose.
+  #
+  # Uploading inside `test` would mean a Codecov outage turns the build/typecheck/
+  # test context red, which conflates two different failure classes and teaches
+  # everyone to distrust the one gate that must stay trustworthy. Split out, the
+  # ownership is unambiguous:
+  #
+  #   test            -> the code builds and its tests pass
+  #   Coverage upload -> the evidence reached the adjudicator
+  #   codecov/patch   -> the evidence is good enough (Codecov's call, see codecov.yml)
+  coverage:
+    name: Coverage upload
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      # `fail_ci_if_error` is the whole point. A silently dropped upload leaves
+      # Codecov with nothing to adjudicate, and a patch status that never arrives
+      # is indistinguishable from one that passed. Missing is not green.
+      # Pinned to a commit SHA, not the `v5` tag. A tag is mutable: whoever
+      # controls the action's repository can repoint it, and this step handles
+      # our coverage data with a job token. SonarCloud flagged the tag form as
+      # githubactions:S7637 on the pull request that introduced it, which is the
+      # gate doing its job — the fix is to pin, not to exclude the rule.
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
+        with:
+          files: coverage/lcov.info
+          fail_ci_if_error: true
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Coverage upload failed"
+            echo
+            echo "**Invariant.** Every run that produces coverage delivers it to the"
+            echo "adjudicator."
+            echo
+            echo "**Why it matters.** Codecov cannot fail a patch it never received. If"
+            echo "this job is allowed to fail quietly, \`codecov/patch\` simply never"
+            echo "reports, and a pull request with no test coverage at all looks exactly"
+            echo "like one that passed. Missing is not green."
+            echo
+            echo "**Authority.** Repository CI, reported by \`github-actions\` as"
+            echo "\`Coverage upload\`. It asserts delivery only — whether the coverage is"
+            echo "*adequate* is \`codecov/patch\`'s call, configured in \`codecov.yml\`."
+            echo
+            echo "**Evidence required.** A successful upload of \`coverage/lcov.info\` for"
+            echo "this head. If Codecov is genuinely down, wait and re-run: an outage is"
+            echo "a reason to retry, not a reason to merge without coverage."
+            echo
+            echo "**Do not weaken.** Do not set \`fail_ci_if_error: false\`, do not add"
+            echo "\`continue-on-error\`, and do not drop this job to recover green."
           } >> "$GITHUB_STEP_SUMMARY"
