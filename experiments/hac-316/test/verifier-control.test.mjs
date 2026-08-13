@@ -90,7 +90,7 @@ describe('a broken verifier cannot produce a green experiment', () => {
         [j('dis', 'able_', 'invar', 'iant'), j('dis', 'able ', 'invar', 'iant'), j('skip', 'Invariant'), j('INVARIANT', '_DISABLED'), j('bypass', 'Invariant')],
       ],
       [
-        SCAN.agentGateway,
+        SCAN.falsifiedTopology,
         [j('AGENT', '_TO_', 'ANYWHERE'), j('CONTENT', '_AUTHZ'), j('ag', 'ent-', 'gate', 'way'), j('Ag', 'ent ', 'Gate', 'way')],
       ],
       [SCAN.vendoredSwarm, [j('ai-', 'swarm'), j('spec-', 'writer'), j('swarm', '/templates')]],

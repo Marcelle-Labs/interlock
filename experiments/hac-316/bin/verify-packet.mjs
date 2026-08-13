@@ -101,7 +101,7 @@ const SCAN = {
     ].join('|'),
     'i',
   ),
-  agentGateway: new RegExp(
+  falsifiedTopology: new RegExp(
     [
       ['AGENT', 'TO', 'ANYWHERE'].join('_'),
       ['CONTENT', 'AUTHZ'].join('_'),
@@ -1121,7 +1121,7 @@ function phase7() {
   });
 
   check('REQ-058', 7, () => {
-    const forbidden = SCAN.agentGateway;
+    const forbidden = SCAN.falsifiedTopology;
     const hits = [];
     const walk = (dir) => {
       for (const name of readdirSync(dir)) {
@@ -1147,7 +1147,7 @@ function phase7() {
     // a scan stops matching it would be editing evidence to suit a checker.
     const carriedForward = new Set(['experiments/hac-316/evidence/preflight.v2.json']);
     const mine = hits.filter((path) => !frozen.has(path) && !carriedForward.has(path));
-    must(mine.length === 0, `Agent Gateway was re-attempted in: ${mine.join(', ')}`);
+    must(mine.length === 0, `the falsified S0 topology was re-attempted in: ${mine.join(', ')}`);
     if (hits.length > 0) {
       return {
         outcome: Outcome.SPEC_DEFECT,
