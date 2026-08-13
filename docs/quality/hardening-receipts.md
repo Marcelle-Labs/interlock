@@ -12,17 +12,107 @@ A gate that has never been observed failing has not been distinguished from a ga
 that is silently skipped. That is the whole reason this file exists, and it is why
 an inconclusive run is withdrawn below rather than counted.
 
-## Proven
+## `Marcelle-Labs/interlock`
 
-### `workspacejson/integrations` — `parity-receipt-reproduction`
+All four required contexts are proven. Each proof also records what stayed
+**green**, because a gate set where any defect reddens everything cannot tell you
+where the defect is.
+
+### `test`
 
 | Field | Value |
 | --- | --- |
 | Source app | `github-actions` (15368) |
-| Posture | blocking — **promotion deferred**, see below |
+| Posture | blocking — **required** |
+| Injected defect | Dropped the blocking-gate bidirectional-proof requirement from `validateReceipt` — the invariant the module exists to hold (`fc847c8`) |
+| Observed failure | 2 of 16 tests failed, both guarding that requirement |
+| Repair | Reverted; `src/receipt.ts` byte-identical to `main` (`97e5600`) |
+| Stayed green | `Provenance boundary` |
+| Final state | Required on `main`, pinned to app `15368` |
+
+### `SonarCloud Code Analysis`
+
+| Field | Value |
+| --- | --- |
+| Source app | `sonarqubecloud` (12526) |
+| Posture | blocking — **required** |
+| Injected defect | Same commit as above (`fc847c8`); the injection used `void posture;` to silence the now-unused binding |
+| Observed failure | `Sonar way` gate `ERROR` — `new_maintainability_rating` 3 (C) against threshold 1 (A), from `typescript:S3735` at `src/receipt.ts:179` |
+| Repair | Reverted (`97e5600`); gate `OK` |
+| Final state | Required on `main`, pinned to app `12526`; gate `Sonar way` (id 9), unmodified |
+
+The violation was deliberate and bounded, but the specific rule it tripped was not
+anticipated — the defect was designed to break tests, and Sonar caught the
+mechanism rather than the intent. Recorded as observed, not as a prediction that
+came true.
+
+**Sonar independently caught a real defect in this pass.** On
+[#7](https://github.com/Marcelle-Labs/interlock/pull/7) it flagged
+`codecov/codecov-action@v5` as `githubactions:S7637` (MAJOR/VULNERABILITY),
+putting `new_security_rating` at 3 (C). A mutable tag on a third-party action that
+handles coverage data with a job token is a genuine supply-chain weakness. It was
+fixed by pinning to a commit SHA — not by excluding the rule. `pnpm/action-setup`
+was pinned in the same commit, even though Sonar never flagged it: it was unflagged
+only because it was not new code, and an analyzer's silence about unchanged code is
+not evidence.
+
+### `Provenance boundary`
+
+| Field | Value |
+| --- | --- |
+| Source app | `github-actions` (15368) |
+| Posture | blocking — **required** |
+| Injected defect | A non-canonical product spelling appended to `README.md` (`56a0058`) |
+| Observed failure | `Canonical product spelling` step failed and printed the offending line |
+| Repair | Reverted (`d83cb3c`) |
+| Stayed green | `test`, `SonarCloud Code Analysis` |
+| Final state | Required on `main`, pinned to app `15368` |
+
+Inherited from HAC-328, which required it before it had been observed failing.
+This receipt closes that gap: it had been green on every head, including through a
+deliberate semantic defect, but green-always and green-correctly are different
+claims.
+
+### `codecov/patch`
+
+| Field | Value |
+| --- | --- |
+| Source app | `codecov` (254) |
+| Posture | blocking — **required** |
+| Injected defect | A module with two exported functions and no tests (`89de791`) |
+| Observed failure | `0.00% of diff hit (target 90.00%)` |
+| Repair | Added tests (`6ef461c`); patch green |
+| Stayed green | `test`, `Provenance boundary`, `SonarCloud Code Analysis`, `Coverage upload` |
+| Final state | Required on `main`, pinned to app `254` |
+
+Untested-but-correct code reddened exactly one gate, and it was the one that owns
+coverage. That is the responsibility matrix working.
+
+### Deliberately **not** required
+
+* **The six `codecov/patch/<component>` statuses.** They reported `success` on both
+  the red and green heads while matching **zero changed files** — their paths are
+  populated by HAC-317 and do not exist yet. A component with no referent passes
+  vacuously, which is exactly what META-337 forbids reading as green. They become
+  meaningful when HAC-317 lands the corresponding modules; until then a green
+  component is not a discharged obligation.
+* **`Coverage upload`.** Not required, because it does not need to be: `codecov/patch`
+  *is* required and pinned, so if the upload never happens the patch status never
+  reports, and a required context that never reports blocks the merge. The gate
+  fails closed by construction. `codecov.yml` adds `if_no_uploads: error` and
+  `if_not_found: failure` as belt and braces.
+
+## `workspacejson/integrations`
+
+### `parity-receipt-reproduction`
+
+| Field | Value |
+| --- | --- |
+| Source app | `github-actions` (15368) |
+| Posture | blocking — **promotion deferred** |
 | Injected defect | Deleted `docs/migration/parity-receipt.json` (`4b77a33`) |
-| Observed failure | Job `failure`; annotation `Missing committed parity receipt` on the `Require a committed parity receipt` step |
-| Repair | Restored the receipt from `main` (`4600e18`) |
+| Observed failure | Annotation `Missing committed parity receipt` on the `Require a committed parity receipt` step |
+| Repair | Restored the receipt (`4600e18`) |
 | Final state | Proven; **not yet a required context** |
 
 Promotion is deferred on purpose. Before
@@ -31,36 +121,37 @@ tree concluded `success`: both substantive steps were gated on
 `steps.check-receipt.outputs.has_receipt`, so a missing receipt skipped the
 reproduction and the job went green having verified nothing. Requiring that would
 have made deleting the receipt the cheapest way to satisfy a failing parity gate.
-The check is promoted after #15 merges, not before.
+The check is promoted after #15 merges, not before — and #15 is currently blocked,
+see the Greptile note in [`merge-gate-matrix.md`](merge-gate-matrix.md) §5.
 
-### `workspacejson/integrations` — `standard-candidate-consumption`
+### `standard-candidate-consumption`
 
 | Field | Value |
 | --- | --- |
 | Source app | `github-actions` (15368) |
-| Posture | blocking |
+| Posture | blocking — **required** |
 | Injected defect | Removed `.mcp.json` from the published `files[]` array (`4600e18`) |
-| Observed failure | Harness assertion `tarball contains .mcp.json` failed; job `failure` |
-| Repair | Restored `files[]` from `main` (`eff8bc5`) |
+| Observed failure | Harness assertion `tarball contains .mcp.json` failed |
+| Repair | Restored `files[]` (`eff8bc5`) |
 | Final state | Required on `main`, pinned to app `15368` |
 
-Attribution is clean: this job runs no linter and no formatter, so the failure
+Attribution is clean: this job runs no linter and no formatter, so its failure
 cannot be confused with the formatting artifact that invalidated the withdrawn run
-below. Note that `build-and-smoke` also greps the pack log for `.mcp.json`, so the
-two jobs overlap on this particular assertion — established by reading the
-workflow, **not** by that run.
+below. `build-and-smoke` also greps the pack log for `.mcp.json`, so the two jobs
+overlap on this assertion — established by reading the workflow, **not** by that
+run.
 
-### `workspacejson/integrations` — `SonarCloud Code Analysis`
+### `SonarCloud Code Analysis`
 
 | Field | Value |
 | --- | --- |
 | Source app | `sonarqubecloud` (12526) |
-| Posture | blocking |
-| Defect | **Observed, not injected** — PR #12 carried 10 unresolved issues, including `javascript:S2871` (`CRITICAL/BUG`): a sort comparator not based on `String.localeCompare` |
-| Observed failure | `qualityGateStatus: ERROR`; check `SonarCloud Code Analysis` = `failure`, not required at the time and therefore not blocking |
-| Repair | n/a — the red was a real defect on a real branch, not a fixture |
-| Final state | Required on `main`, pinned to app `12526`; gate `Sonar way` (id 9), unmodified |
+| Posture | blocking — **required** |
+| Defect | **Observed, not injected** — PR #12 carried 10 unresolved issues including `javascript:S2871` (`CRITICAL/BUG`): a sort comparator not based on `String.localeCompare` |
+| Observed failure | `qualityGateStatus: ERROR`; check `failure`, not required at the time and therefore not blocking |
+| Repair | n/a — a real defect on a real branch, not a fixture |
 | Green counterpart | PRs #6, #10, #13, #14, #15, #16 all `OK` |
+| Final state | Required on `main`, pinned to app `12526`; gate `Sonar way` (id 9), unmodified |
 
 This receipt does not satisfy META-337 §8 literally: nobody chose what the gate
 would see. It is stronger evidence of *detection* — the finding was real — and
@@ -87,13 +178,11 @@ A run whose red is not attributable to its injected defect proves nothing. It is
 recorded here so it is not later mistaken for evidence, and as a note on method:
 mutate manifests with a targeted edit, not a serializer round trip.
 
-## Pending proof
+## Still unproven
 
 | Repository | Check | Source app | Blocker |
 | --- | --- | --- | --- |
-| `Marcelle-Labs/interlock` | `test` | `github-actions` | awaiting first PR run post-rebase |
-| `Marcelle-Labs/interlock` | `Provenance boundary` | `github-actions` | required by HAC-328; inherited, not yet independently proven here |
-| `Marcelle-Labs/interlock` | `codecov/patch` | `codecov` | upload not yet wired |
-| `Marcelle-Labs/interlock` | `SonarCloud Code Analysis` | `sonarqubecloud` | no Marcelle-Labs SonarCloud organization yet |
-| `workspacejson/standard` | `SonarCloud Code Analysis` | `sonarqubecloud` | never observed red; needs an injected proof before promotion |
-| `workspacejson/cli` | `SonarCloud Code Analysis` | `sonarqubecloud` | gate status `NONE` — one analysis ever, so no new-code baseline exists |
+| `workspacejson/standard` | `SonarCloud Code Analysis` | `sonarqubecloud` | Never observed red — four PR analyses, all `OK`. Needs an injected proof before promotion. |
+| `workspacejson/cli` | `SonarCloud Code Analysis` | `sonarqubecloud` | Gate status `NONE`: one analysis ever, so no new-code baseline exists. Must be fixed before the check could ever be required. |
+| `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | `github-actions` | Required before this pass; inherited, not independently proven here. |
+| `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | `github-actions` | As above. |

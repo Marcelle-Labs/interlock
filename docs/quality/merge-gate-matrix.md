@@ -63,11 +63,21 @@ Available: deterministic CI, SonarQube Cloud, Codecov. Greptile and Sourcery are
 
 | Failure class | Owner | Posture | State |
 | --- | --- | --- | --- |
-| provenance, authority files, canonical spelling | CI — `Provenance boundary` | blocking | **required** (HAC-328) |
-| build / typecheck / test | CI — `test` | blocking | configured, promotion pending proof |
-| new-code quality | SonarQube Cloud — `SonarCloud Code Analysis` | blocking | pending org + project binding |
-| patch coverage | Codecov — `codecov/patch` | blocking | app installed org-wide; upload not yet wired |
+| provenance, authority files, canonical spelling | CI — `Provenance boundary` (app 15368) | blocking | **required, proven** |
+| build / typecheck / test | CI — `test` (app 15368) | blocking | **required, proven** |
+| new-code quality | SonarQube Cloud — `SonarCloud Code Analysis` (app 12526) | blocking | **required, proven** |
+| coverage of changed code | Codecov — `codecov/patch` (app 254) | blocking | **required, proven** |
+| coverage delivery | CI — `Coverage upload` (app 15368) | advisory | reporting; fails closed via `codecov/patch` |
 | semantic boundaries | — | n/a | out of posture |
+
+All four required contexts carry a bidirectional red/green proof from the expected
+source app — see [`hardening-receipts.md`](hardening-receipts.md). Each proof also
+records what stayed green, because a gate set where any defect reddens everything
+cannot localize a defect.
+
+The six `codecov/patch/<component>` statuses are **deliberately not required**:
+their paths are populated by HAC-317 and currently match zero files, so they pass
+vacuously. A component with no referent is not evidence.
 
 `test` is deliberately a single unversioned context. `engines` declares
 `>=22.0.0` and the repository pins `22.19.0`, so the `test (20)` / `test (22)`
