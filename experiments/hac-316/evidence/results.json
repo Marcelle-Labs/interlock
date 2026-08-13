@@ -6,7 +6,7 @@
     "note": "This packet was produced by the local dry run (SPEC Phase 6). No Google Cloud project, Agent Runtime resource or other billable resource was created, and no Agent Runtime API was called. The Phase 7 arms are not represented here."
   },
   "cloudResourcesCreated": 0,
-  "producedAt": "2026-08-13T21:01:28.349Z",
+  "producedAt": "2026-08-13T21:04:17.189Z",
   "fixtureDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
   "enforceCallerIdentity": {
     "targetAlpha": "false",
@@ -33,10 +33,10 @@
       "measuredAt": "server",
       "usesClientLaunchTime": false,
       "formula": "max(tool_start_A, tool_start_B) < min(tool_end_A, tool_end_B)",
-      "startA": 1786654888333.2046,
-      "endA": 1786654888335.5195,
-      "startB": 1786654888332.611,
-      "endB": 1786654888336.7024,
+      "startA": 1786655057174.261,
+      "endA": 1786655057175.9153,
+      "startB": 1786655057174.784,
+      "endB": 1786655057178.0378,
       "overlapped": true
     },
     "note": "Overlap is stamped by the neutral ingress on receipt and on response. The harness never contributes a timestamp to this measurement."
@@ -68,142 +68,142 @@
     },
     "events": [
       {
-        "correlationId": "ilk-661aea460481490f9cb5f04f7daee66a",
+        "correlationId": "ilk-da3c858f01b743889f057c3e06d264f2",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:01:28.321Z",
+        "at": "2026-08-13T21:04:17.163Z",
         "producedBy": "ingress",
         "detail": "A arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-661aea460481490f9cb5f04f7daee66a",
+        "correlationId": "ilk-da3c858f01b743889f057c3e06d264f2",
         "state": "AUTHORIZED",
-        "at": "2026-08-13T21:01:28.321Z",
+        "at": "2026-08-13T21:04:17.163Z",
         "producedBy": "baseline-issuer",
-        "detail": "receipt rcpt-786b8a82-5c0c-409a-9911-e3de843cb865 minted without consulting anything else in flight"
+        "detail": "receipt rcpt-bedd8cd2-aa17-41e2-bc0b-00d1692310c6 minted without consulting anything else in flight"
       },
       {
-        "correlationId": "ilk-661aea460481490f9cb5f04f7daee66a",
+        "correlationId": "ilk-da3c858f01b743889f057c3e06d264f2",
         "state": "EXECUTED",
-        "at": "2026-08-13T21:01:28.321Z",
+        "at": "2026-08-13T21:04:17.163Z",
         "producedBy": "protected-target",
         "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
       },
       {
-        "correlationId": "ilk-e9050138f582452f94cbfb2a621a8259",
+        "correlationId": "ilk-aa809cb7ba8141ecac44effca6ebaf6d",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:01:28.321Z",
+        "at": "2026-08-13T21:04:17.163Z",
         "producedBy": "ingress",
         "detail": "B arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-e9050138f582452f94cbfb2a621a8259",
+        "correlationId": "ilk-aa809cb7ba8141ecac44effca6ebaf6d",
         "state": "AUTHORIZED",
-        "at": "2026-08-13T21:01:28.321Z",
+        "at": "2026-08-13T21:04:17.163Z",
         "producedBy": "baseline-issuer",
-        "detail": "receipt rcpt-ae1d5d2b-7814-4a76-8b9c-ae1b16f82eca minted without consulting anything else in flight"
+        "detail": "receipt rcpt-ef647aa6-8c56-4a05-a920-f0c22370f0c5 minted without consulting anything else in flight"
       },
       {
-        "correlationId": "ilk-e9050138f582452f94cbfb2a621a8259",
+        "correlationId": "ilk-aa809cb7ba8141ecac44effca6ebaf6d",
         "state": "EXECUTED",
-        "at": "2026-08-13T21:01:28.321Z",
+        "at": "2026-08-13T21:04:17.163Z",
         "producedBy": "protected-target",
         "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
       },
       {
-        "correlationId": "ilk-661aea460481490f9cb5f04f7daee66a",
+        "correlationId": "ilk-da3c858f01b743889f057c3e06d264f2",
         "state": "OBSERVED",
-        "at": "2026-08-13T21:01:28.327Z",
+        "at": "2026-08-13T21:04:17.168Z",
         "producedBy": "independent-reread",
         "detail": "total 140 exceeds the pool of 130"
       },
       {
-        "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
+        "correlationId": "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:01:28.337Z",
+        "at": "2026-08-13T21:04:17.178Z",
         "producedBy": "ingress",
         "detail": "A arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
-        "state": "AUTHORIZED",
-        "at": "2026-08-13T21:01:28.337Z",
-        "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-1b4bb66b-92d8-4282-8e13-62c42fab864f issued after arbitration"
-      },
-      {
-        "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
-        "state": "EXECUTED",
-        "at": "2026-08-13T21:01:28.337Z",
-        "producedBy": "protected-target",
-        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
-      },
-      {
-        "correlationId": "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
-        "state": "REQUESTED",
-        "at": "2026-08-13T21:01:28.337Z",
-        "producedBy": "ingress",
-        "detail": "B arrived at the neutral ingress"
-      },
-      {
-        "correlationId": "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
+        "correlationId": "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
         "state": "WITHHELD",
-        "at": "2026-08-13T21:01:28.337Z",
+        "at": "2026-08-13T21:04:17.178Z",
         "producedBy": "interlock-proxy",
         "detail": "1 qualifying co-change coupling(s) between this intent and 1 intent(s) already in flight at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; this intent does not hold precedence, so the composition is withheld and it must be resubmitted once the leading intent settles"
       },
       {
-        "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
-        "state": "OBSERVED",
-        "at": "2026-08-13T21:01:28.338Z",
-        "producedBy": "independent-reread",
-        "detail": "total 120 <= 130"
-      },
-      {
-        "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+        "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
         "state": "REQUESTED",
-        "at": "2026-08-13T21:01:28.347Z",
-        "producedBy": "ingress",
-        "detail": "A arrived at the neutral ingress"
-      },
-      {
-        "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
-        "state": "AUTHORIZED",
-        "at": "2026-08-13T21:01:28.347Z",
-        "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-0642c338-8aa5-433b-b3bf-872ef93c4da6 issued after arbitration"
-      },
-      {
-        "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
-        "state": "EXECUTED",
-        "at": "2026-08-13T21:01:28.347Z",
-        "producedBy": "protected-target",
-        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
-      },
-      {
-        "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
-        "state": "REQUESTED",
-        "at": "2026-08-13T21:01:28.347Z",
+        "at": "2026-08-13T21:04:17.178Z",
         "producedBy": "ingress",
         "detail": "B arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+        "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
         "state": "AUTHORIZED",
-        "at": "2026-08-13T21:01:28.347Z",
+        "at": "2026-08-13T21:04:17.178Z",
         "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-903fced2-69e7-4d9d-995e-d37e52e81949 issued after arbitration"
+        "detail": "receipt rcpt-8a53246d-9b84-4845-b23d-c9afd8cfd32d issued after arbitration"
       },
       {
-        "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+        "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
         "state": "EXECUTED",
-        "at": "2026-08-13T21:01:28.347Z",
+        "at": "2026-08-13T21:04:17.178Z",
         "producedBy": "protected-target",
         "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
       },
       {
-        "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+        "correlationId": "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
         "state": "OBSERVED",
-        "at": "2026-08-13T21:01:28.348Z",
+        "at": "2026-08-13T21:04:17.180Z",
+        "producedBy": "independent-reread",
+        "detail": "total 120 <= 130"
+      },
+      {
+        "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
+        "state": "REQUESTED",
+        "at": "2026-08-13T21:04:17.188Z",
+        "producedBy": "ingress",
+        "detail": "A arrived at the neutral ingress"
+      },
+      {
+        "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
+        "state": "AUTHORIZED",
+        "at": "2026-08-13T21:04:17.188Z",
+        "producedBy": "interlock-proxy",
+        "detail": "receipt rcpt-8c967f5f-2ecf-4dfe-998f-35cf21aca2b8 issued after arbitration"
+      },
+      {
+        "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
+        "state": "EXECUTED",
+        "at": "2026-08-13T21:04:17.188Z",
+        "producedBy": "protected-target",
+        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+      },
+      {
+        "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
+        "state": "REQUESTED",
+        "at": "2026-08-13T21:04:17.188Z",
+        "producedBy": "ingress",
+        "detail": "B arrived at the neutral ingress"
+      },
+      {
+        "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
+        "state": "AUTHORIZED",
+        "at": "2026-08-13T21:04:17.188Z",
+        "producedBy": "interlock-proxy",
+        "detail": "receipt rcpt-f8181738-276e-4ab0-beee-afa937c26981 issued after arbitration"
+      },
+      {
+        "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
+        "state": "EXECUTED",
+        "at": "2026-08-13T21:04:17.188Z",
+        "producedBy": "protected-target",
+        "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+      },
+      {
+        "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
+        "state": "OBSERVED",
+        "at": "2026-08-13T21:04:17.188Z",
         "producedBy": "independent-reread",
         "detail": "total 140 exceeds the pool of 130"
       }
@@ -230,14 +230,14 @@
       "decisions": [],
       "executed": [
         {
-          "correlationId": "ilk-661aea460481490f9cb5f04f7daee66a",
+          "correlationId": "ilk-da3c858f01b743889f057c3e06d264f2",
           "service": "alpha",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-e9050138f582452f94cbfb2a621a8259",
+          "correlationId": "ilk-aa809cb7ba8141ecac44effca6ebaf6d",
           "service": "beta",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -246,13 +246,13 @@
       ],
       "commits": [
         {
-          "correlationId": "ilk-661aea460481490f9cb5f04f7daee66a",
-          "at": "2026-08-13T21:01:28.318Z",
+          "correlationId": "ilk-da3c858f01b743889f057c3e06d264f2",
+          "at": "2026-08-13T21:04:17.160Z",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-e9050138f582452f94cbfb2a621a8259",
-          "at": "2026-08-13T21:01:28.319Z",
+          "correlationId": "ilk-aa809cb7ba8141ecac44effca6ebaf6d",
+          "at": "2026-08-13T21:04:17.161Z",
           "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
@@ -288,20 +288,20 @@
       },
       "overlap": [
         {
-          "correlationId": "ilk-661aea460481490f9cb5f04f7daee66a",
+          "correlationId": "ilk-da3c858f01b743889f057c3e06d264f2",
           "agent": "capacity-planner",
           "service": "alpha",
           "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "startMs": 1786654888312.8591,
-          "endMs": 1786654888319.0298
+          "startMs": 1786655057151.949,
+          "endMs": 1786655057161.2832
         },
         {
-          "correlationId": "ilk-e9050138f582452f94cbfb2a621a8259",
+          "correlationId": "ilk-aa809cb7ba8141ecac44effca6ebaf6d",
           "agent": "traffic-shaper",
           "service": "beta",
           "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "startMs": 1786654888313.7966,
-          "endMs": 1786654888320.8984
+          "startMs": 1786655057153.0293,
+          "endMs": 1786655057162.7805
         }
       ],
       "outcome": "BOTH_EXECUTED",
@@ -338,98 +338,63 @@
       },
       "arbitrationInputs": [
         {
-          "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
+          "correlationId": "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
           "candidate": {
-            "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
+            "correlationId": "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
             "agent": "capacity-planner",
             "operation": "set_reservation",
             "targets": [
               "services/alpha/reservation.json"
             ],
             "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-            "recordedAt": "2026-08-13T21:01:28.332Z",
-            "expiresAt": "2026-08-13T21:02:28.332Z"
+            "recordedAt": "2026-08-13T21:04:17.174Z",
+            "expiresAt": "2026-08-13T21:05:17.174Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
+              "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
               "agent": "traffic-shaper",
               "operation": "set_reservation",
               "targets": [
                 "services/beta/reservation.json"
               ],
               "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-              "recordedAt": "2026-08-13T21:01:28.333Z",
-              "expiresAt": "2026-08-13T21:02:28.333Z"
+              "recordedAt": "2026-08-13T21:04:17.174Z",
+              "expiresAt": "2026-08-13T21:05:17.174Z"
             }
           ]
         },
         {
-          "correlationId": "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
+          "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
           "candidate": {
-            "correlationId": "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
+            "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
             "agent": "traffic-shaper",
             "operation": "set_reservation",
             "targets": [
               "services/beta/reservation.json"
             ],
             "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-            "recordedAt": "2026-08-13T21:01:28.333Z",
-            "expiresAt": "2026-08-13T21:02:28.333Z"
+            "recordedAt": "2026-08-13T21:04:17.174Z",
+            "expiresAt": "2026-08-13T21:05:17.174Z"
           },
           "storeAnswered": true,
-          "others": [
-            {
-              "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
-              "agent": "capacity-planner",
-              "operation": "set_reservation",
-              "targets": [
-                "services/alpha/reservation.json"
-              ],
-              "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-              "recordedAt": "2026-08-13T21:01:28.332Z",
-              "expiresAt": "2026-08-13T21:02:28.332Z"
-            }
-          ]
+          "others": []
         }
       ],
       "decisions": [
         {
-          "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
+          "correlationId": "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
           "service": "alpha",
-          "decision": "ALLOW_SERIALIZED",
-          "reasonCode": "SERIALIZED_PRECEDENCE",
-          "decidedAt": "2026-08-13T21:01:28.334Z",
-          "decidedAtMs": 1786654888334.0256,
-          "couplings": [
-            {
-              "correlationIds": [
-                "ilk-a491fcb85d574642aa85690f2ff7e5b0",
-                "ilk-9a1539daecd7416fb8ee4f6cf6000c2e"
-              ],
-              "files": [
-                "services/alpha/reservation.json",
-                "services/beta/reservation.json"
-              ],
-              "support": 8,
-              "occurrences": 10
-            }
-          ],
-          "callerDecision": "ALLOW"
-        },
-        {
-          "correlationId": "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
-          "service": "beta",
           "decision": "WITHHOLD_SERIALIZE",
           "reasonCode": "COUPLING_OBSERVED",
-          "decidedAt": "2026-08-13T21:01:28.335Z",
-          "decidedAtMs": 1786654888335.366,
+          "decidedAt": "2026-08-13T21:04:17.175Z",
+          "decidedAtMs": 1786655057175.575,
           "couplings": [
             {
               "correlationIds": [
-                "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
-                "ilk-a491fcb85d574642aa85690f2ff7e5b0"
+                "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
+                "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0"
               ],
               "files": [
                 "services/alpha/reservation.json",
@@ -440,27 +405,37 @@
             }
           ],
           "callerDecision": "DENY"
+        },
+        {
+          "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
+          "service": "beta",
+          "decision": "ALLOW_PARALLEL",
+          "reasonCode": "NO_QUALIFYING_COUPLING",
+          "decidedAt": "2026-08-13T21:04:17.176Z",
+          "decidedAtMs": 1786655057176.2627,
+          "couplings": [],
+          "callerDecision": "ALLOW"
         }
       ],
       "executed": [
         {
-          "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
-          "service": "alpha",
+          "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
+          "service": "beta",
           "status": "EXECUTED",
-          "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
-          "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+          "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+          "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
       "withheldBeforeTargetMutation": true,
       "commits": [
         {
-          "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
-          "at": "2026-08-13T21:01:28.336Z",
-          "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+          "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
+          "at": "2026-08-13T21:04:17.177Z",
+          "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
-      "firstProtectedCommitAt": "2026-08-13T21:01:28.336Z",
-      "firstProtectedCommitAtMs": 1786654888336.475,
+      "firstProtectedCommitAt": "2026-08-13T21:04:17.177Z",
+      "firstProtectedCommitAtMs": 1786655057177.7756,
       "globalVerification": {
         "source": "independent-reread",
         "total": 120,
@@ -470,22 +445,22 @@
         "composedState": {
           "totalReservable": 130,
           "services": {
-            "alpha": 60,
-            "beta": 40,
+            "alpha": 40,
+            "beta": 60,
             "gamma": 20
           }
         },
         "reads": {
           "alpha": {
-            "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+            "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
             "services": {
-              "alpha": 60
+              "alpha": 40
             }
           },
           "beta": {
-            "revision": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+            "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
             "services": {
-              "beta": 40
+              "beta": 60
             }
           }
         },
@@ -493,20 +468,20 @@
       },
       "overlap": [
         {
-          "correlationId": "ilk-9a1539daecd7416fb8ee4f6cf6000c2e",
-          "agent": "traffic-shaper",
-          "service": "beta",
-          "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "startMs": 1786654888333.2046,
-          "endMs": 1786654888335.5195
-        },
-        {
-          "correlationId": "ilk-a491fcb85d574642aa85690f2ff7e5b0",
+          "correlationId": "ilk-99deb40f89054d5c9aa089fbfdf8ce89",
           "agent": "capacity-planner",
           "service": "alpha",
           "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "startMs": 1786654888332.611,
-          "endMs": 1786654888336.7024
+          "startMs": 1786655057174.261,
+          "endMs": 1786655057175.9153
+        },
+        {
+          "correlationId": "ilk-6ba7b20bbdb04a01b07ab9a76d4610e0",
+          "agent": "traffic-shaper",
+          "service": "beta",
+          "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
+          "startMs": 1786655057174.784,
+          "endMs": 1786655057178.0378
         }
       ],
       "outcome": "COMPOSITION_WITHHELD",
@@ -544,94 +519,94 @@
       },
       "arbitrationInputs": [
         {
-          "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+          "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
           "candidate": {
-            "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+            "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
             "agent": "capacity-planner",
             "operation": "set_reservation",
             "targets": [
               "services/alpha/reservation.json"
             ],
             "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-            "recordedAt": "2026-08-13T21:01:28.343Z",
-            "expiresAt": "2026-08-13T21:02:28.343Z"
+            "recordedAt": "2026-08-13T21:04:17.184Z",
+            "expiresAt": "2026-08-13T21:05:17.184Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+              "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
               "agent": "traffic-shaper",
               "operation": "set_reservation",
               "targets": [
                 "services/beta/reservation.json"
               ],
               "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-              "recordedAt": "2026-08-13T21:01:28.343Z",
-              "expiresAt": "2026-08-13T21:02:28.343Z"
+              "recordedAt": "2026-08-13T21:04:17.185Z",
+              "expiresAt": "2026-08-13T21:05:17.185Z"
             }
           ]
         },
         {
-          "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+          "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
           "candidate": {
-            "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+            "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
             "agent": "traffic-shaper",
             "operation": "set_reservation",
             "targets": [
               "services/beta/reservation.json"
             ],
             "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-            "recordedAt": "2026-08-13T21:01:28.343Z",
-            "expiresAt": "2026-08-13T21:02:28.343Z"
+            "recordedAt": "2026-08-13T21:04:17.185Z",
+            "expiresAt": "2026-08-13T21:05:17.185Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+              "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
               "agent": "capacity-planner",
               "operation": "set_reservation",
               "targets": [
                 "services/alpha/reservation.json"
               ],
               "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-              "recordedAt": "2026-08-13T21:01:28.343Z",
-              "expiresAt": "2026-08-13T21:02:28.343Z"
+              "recordedAt": "2026-08-13T21:04:17.184Z",
+              "expiresAt": "2026-08-13T21:05:17.184Z"
             }
           ]
         }
       ],
       "decisions": [
         {
-          "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+          "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
           "service": "alpha",
           "decision": "ALLOW_PARALLEL",
           "reasonCode": "NO_QUALIFYING_COUPLING",
-          "decidedAt": "2026-08-13T21:01:28.344Z",
-          "decidedAtMs": 1786654888344.5007,
+          "decidedAt": "2026-08-13T21:04:17.185Z",
+          "decidedAtMs": 1786655057185.6707,
           "couplings": [],
           "callerDecision": "ALLOW"
         },
         {
-          "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+          "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
           "service": "beta",
           "decision": "ALLOW_PARALLEL",
           "reasonCode": "NO_QUALIFYING_COUPLING",
-          "decidedAt": "2026-08-13T21:01:28.345Z",
-          "decidedAtMs": 1786654888345.2236,
+          "decidedAt": "2026-08-13T21:04:17.186Z",
+          "decidedAtMs": 1786655057186.2393,
           "couplings": [],
           "callerDecision": "ALLOW"
         }
       ],
       "executed": [
         {
-          "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+          "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
           "service": "alpha",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+          "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
           "service": "beta",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -641,18 +616,18 @@
       "withheldBeforeTargetMutation": false,
       "commits": [
         {
-          "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
-          "at": "2026-08-13T21:01:28.346Z",
+          "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
+          "at": "2026-08-13T21:04:17.187Z",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
-          "at": "2026-08-13T21:01:28.347Z",
+          "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
+          "at": "2026-08-13T21:04:17.187Z",
           "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
-      "firstProtectedCommitAt": "2026-08-13T21:01:28.346Z",
-      "firstProtectedCommitAtMs": 1786654888346.5684,
+      "firstProtectedCommitAt": "2026-08-13T21:04:17.187Z",
+      "firstProtectedCommitAtMs": 1786655057187.0928,
       "globalVerification": {
         "source": "independent-reread",
         "total": 140,
@@ -685,20 +660,20 @@
       },
       "overlap": [
         {
-          "correlationId": "ilk-5c9e3dcdc48a4a959ca668554793eec0",
+          "correlationId": "ilk-e21b9308da4845a4b71e34f4f66c0f89",
           "agent": "capacity-planner",
           "service": "alpha",
           "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "startMs": 1786654888343.5557,
-          "endMs": 1786654888346.839
+          "startMs": 1786655057184.9368,
+          "endMs": 1786655057187.4973
         },
         {
-          "correlationId": "ilk-a9b38236fdd9411e92b9acbf0eacac60",
+          "correlationId": "ilk-8aec9d64dd154558b6a0bd9afa02f758",
           "agent": "traffic-shaper",
           "service": "beta",
           "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "startMs": 1786654888343.8865,
-          "endMs": 1786654888347.5056
+          "startMs": 1786655057185.1443,
+          "endMs": 1786655057187.6785
         }
       ],
       "outcome": "BOTH_EXECUTED",
