@@ -46,13 +46,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { intentDigest } from '../../../dist/authorization/intent.js';
 import { Decision, Reason, arbitrate } from '../../../dist/broker/pairing/arbitrate.js';
 import { asCanonical, INITIAL_STATE } from '../../../dist/target/state.js';
 import { genesisRevision } from '../../../dist/broker/revision/revision.js';
 
+import { measureBuildProvenance, verifyDistProvenance } from '../src/dist-provenance.mjs';
 import { isDirectInvocation } from '../src/entrypoint.mjs';
 import { insideVitest, readEnumEnv } from '../src/env.mjs';
 import { formatVerdict } from '../src/global-verifier.mjs';
+import { regenerationChanges } from '../src/regeneration.mjs';
 import { runComposition } from './run-arm.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -253,8 +256,35 @@ for (const [key, path] of Object.entries({
 // Core computations, shared by several modes
 // ---------------------------------------------------------------------------
 
+/**
+ * The functions whose loaded source text is bound to `pins.json`.
+ *
+ * These are the very bindings this file imported, not paths re-read from disk:
+ * the point is to bind what will actually be *called*.
+ */
+const PINNED_SYMBOLS = { arbitrate, asCanonical, genesisRevision, intentDigest };
+
+/**
+ * Assert that `dist/` is the build the packet was pinned to.
+ *
+ * Re-derivation is only meaningful against the frozen decision path. A stale or
+ * hand-edited `dist/` would let this program report "re-derived and it matches"
+ * about a function nobody pinned, so every mode that re-derives calls this
+ * first.
+ */
+function assertDistProvenance() {
+  const measured = measureBuildProvenance({ repoRoot, symbols: PINNED_SYMBOLS });
+  const problems = verifyDistProvenance(artifacts.pins?.dist, measured);
+  must(
+    problems.length === 0,
+    `the build being re-derived through is not the pinned one: ${problems.join('; ')}`,
+  );
+  return measured.digest;
+}
+
 /** Re-derive every recorded decision from the inputs arbitration was handed. */
 function rederiveArm(armName) {
+  assertDistProvenance();
   const arm = artifacts.results?.arms?.[armName];
   must(arm !== undefined, `results.json carries no ${armName} arm`);
   const inputs = arm.arbitrationInputs ?? [];
@@ -600,14 +630,29 @@ function phase0() {
     must(/dist\/target\/state\.js/.test(producer), 'V2 producer does not load state.js');
     noMatch(producer, /"sha256:[0-9a-f]{64}"/, 'V2 producer carries a hand-typed digest');
 
-    const before = readFileSync(join(evidenceDir, 'preflight.v2.json'));
+    // Both outputs, not one. The producer writes `preflight.v2.json` *and*
+    // `fixture.json` (preflight-v2.mjs:506-507), and capturing only the first
+    // meant an in-place change to the fixture was invisible inside the very run
+    // that made it — while four other requirements (REQ-010, REQ-011, REQ-019
+    // and the arms' initial-state comparison) read that fixture.
+    const WRITTEN = ['preflight.v2.json', 'fixture.json'];
+    const snapshot = () =>
+      Object.fromEntries(WRITTEN.map((name) => [name, readFileSync(join(evidenceDir, name))]));
+
+    const before = snapshot();
     const run = spawnSync(process.execPath, [join(here, 'preflight-v2.mjs')], {
       cwd: repoRoot,
       encoding: 'utf8',
     });
-    const after = readFileSync(join(evidenceDir, 'preflight.v2.json'));
+    const after = snapshot();
     must(run.status === 0, `regenerating V2 failed: ${run.stderr?.trim().slice(-300)}`);
-    must(before.equals(after), 'regenerating V2 changed it; V2 is immutable once committed');
+    const changed = regenerationChanges(before, after);
+    must(
+      changed.length === 0,
+      `regenerating V2 rewrote ${changed.join(', ')}; both of the producer's outputs are ` +
+        'immutable once committed',
+    );
+    return `${WRITTEN.length} outputs unchanged`;
   });
 }
 
@@ -745,6 +790,10 @@ function phase2() {
       'the verifier does not import the real arbitration function',
     );
     must(/rederive|reDerive|recomputed/.test(text), 'the verifier does not re-derive');
+    // The import is only worth anything if `dist/` is the build the packet was
+    // pinned to. `dist/` is gitignored and was previously unpinned, so the
+    // anti-circularity claim rested on a build nothing in the repository named.
+    const distDigest = assertDistProvenance();
     const treatment = rederiveArm('treatment');
     const perturbation = rederiveArm('perturbation');
     const mismatched = [...treatment, ...perturbation].filter((entry) => !entry.matches);
@@ -754,7 +803,11 @@ function phase2() {
         .map((entry) => `${entry.correlationId} recorded ${entry.recorded.decision} rederived ${entry.rederived.decision}`)
         .join('; ')}`,
     );
-    return `${treatment.length}/${treatment.length} treatment + ${perturbation.length}/${perturbation.length} perturbation`;
+    return (
+      `${treatment.length}/${treatment.length} treatment + ` +
+      `${perturbation.length}/${perturbation.length} perturbation, ` +
+      `through pinned dist ${distDigest.slice(0, 12)}…`
+    );
   });
 
   check('REQ-027', 2, () => {
@@ -1338,6 +1391,10 @@ if (mode === '--selfcheck-composition') {
 
 if (mode === '--rederive-only') {
   try {
+    // Named in the output, not just checked: a reader has to be able to see
+    // *which* build the decisions were re-derived through.
+    const distDigest = assertDistProvenance();
+    process.stdout.write(`pinned dist ${distDigest}\n`);
     const treatment = rederiveArm('treatment');
     const perturbation = rederiveArm('perturbation');
     const matched = [...treatment, ...perturbation].filter((entry) => entry.matches).length;

@@ -30,5 +30,57 @@
     }
   },
   "auditSha": "f44a6b83580c92776231d3507942a7ef6b1b54f4",
-  "specFrozenAt": "c2a7c5dcad3eabeea7ad83307c83751ae49830ec"
+  "specFrozenAt": "c2a7c5dcad3eabeea7ad83307c83751ae49830ec",
+  "dist": {
+    "purpose": "the build verify-packet.mjs re-derives through. dist/ is gitignored, so without this block a stale or divergent build could silently redefine the decision function while the verifier reported it had re-derived against the real one.",
+    "builtBy": "pnpm run build (tsc -p tsconfig.build.json)",
+    "typescript": "5.9.2",
+    "pinnedFromSha": "573b69fddae13cc50317eaa614c03d76aac72982",
+    "naming": {
+      "built": "sha256 of each compiled decision-path module on disk",
+      "source": "sha256 of the TypeScript each was compiled from; catches a correct build of stale source",
+      "loadedSymbols": "sha256 of Function.prototype.toString of the functions actually imported into the verifier process; catches a resolution that found a different copy"
+    },
+    "built": {
+      "dist/authorization/canonical.js": "28da2d906a617c031446698a89ee189b32c4648f7e3e4279ff4fd8b7064ef749",
+      "dist/authorization/intent.js": "64af3983e9a4b5da7cfee99cd4fc9e6e800c26f293bd16e023efff977b9ae4cd",
+      "dist/authorization/receipt.js": "f0d4b325996c0754b8ed16538008f2ec43b9d555055a1c07eada5ac54ae96ec6",
+      "dist/broker/bypass/guard.js": "9d843651997f3ed5e3cec0753c208d9d2d8fa15cdf4b194affb395d567b5f2af",
+      "dist/broker/idempotency/ledger.js": "e99753c8644ad192aa27109e0cf32430f479d62e1761951128470dada679a846",
+      "dist/broker/pairing/arbitrate.js": "5381186530f1a1fd9aa70169b47f48d919d29f14d19c086521f6aadc2dce5543",
+      "dist/broker/pairing/store.js": "111fef45e5a3ffcbbb82b1cc64676e4d6e3b877815595c7e3ff27f39b929ade4",
+      "dist/broker/revision/revision.js": "47cd670cf66ba17a78337d24250501c43c562e793367bda19607b270308eadca",
+      "dist/correlation.js": "83e6a62ece9a8815947f4d00545ec6a8e9611fe5b4b25a16d1ac93472308bb77",
+      "dist/proxy/http.js": "7759265719d09581a758fd1c3d46da39db22e9a43b5f9a7f889bc4368218e8d9",
+      "dist/proxy/service.js": "a593308b25704a8608ca4a214bfc3a6beb07271eb8c444593e4ff97a7ebb9e4a",
+      "dist/proxy/target-port.js": "8f72ade87e6069ce6cdb6013fac6667af15e5a8875c77da6c48318dcf73dd561",
+      "dist/target/http.js": "50f8cd285af7df3e8fb6424d49d84ee080d03f6b6f11d3c3e74092acfe85e479",
+      "dist/target/service.js": "652e1777e3f93f6060d7ba2b0b20d6f2c7e61bd58b43a6b585c5afe07b42ec34",
+      "dist/target/state.js": "afb9a78d8b8f0f804aef8e5999679407c5e1a03a122de671b5ed0b86b752ffac"
+    },
+    "source": {
+      "src/authorization/canonical.ts": "2ca8d86b3bf11dd3d4cdfa28b7871a840b4b621459ca0286b0fbe04ce0e51433",
+      "src/authorization/intent.ts": "b62d7fbacfddd7c4825756d6eaa2459e766eee31f552508da98063c078fb8786",
+      "src/authorization/receipt.ts": "111d43c1477e743d2fdacf5fb2ed4af8b6c93a617c6e60e20ec404d5bededd1e",
+      "src/broker/bypass/guard.ts": "e2be895703b429f1228b006761e44b541171a5b3590c44d9c02b7fbb78b4ee55",
+      "src/broker/idempotency/ledger.ts": "df757beba35b81edae3a4fd16af23dd53f6b5428ee5cf24654f1ace01bcb5f3f",
+      "src/broker/pairing/arbitrate.ts": "245b07031facc2c5ca9b875a8c8a3ce3218899454385870731ec508e87eedf91",
+      "src/broker/pairing/store.ts": "93bcb2f25be961afba55a07ffbb081cdefd52b55159418a68ecfb32ebf8f1530",
+      "src/broker/revision/revision.ts": "bd6ce0d8ca8ed57825a7bf169b79294f6160e06dfc206f26bfa9e4668715b7c4",
+      "src/correlation.ts": "15069c77cece418057473705ccb6a788069baf4a2d155d39c012b9cf63755841",
+      "src/proxy/http.ts": "dd9f9babde52567f432bcde0bc5e1a332fe680186f8779fdfff13d3cddd29f09",
+      "src/proxy/service.ts": "3e463d34abb61ffb046dcf6b3e1f60d94307d80278ad53e0f27431b80cc97dce",
+      "src/proxy/target-port.ts": "e2eda4dfafe62b64a1acf7083b2d1bf13cb6aeda3585d77b6997acc92e2a8564",
+      "src/target/http.ts": "206ff4d1ae9c0bd853279b6b1331ac28fbbbd8bab83296d59ab6c18d1d480d08",
+      "src/target/service.ts": "e949a8faaf9fd003b33eb7600aee7df79d19802e728610bdefcc0077b8fb1066",
+      "src/target/state.ts": "347c62f48db59d14997cec9ccedf9ad9b9f199b3a4d9960cfb388d0abcbf872f"
+    },
+    "loadedSymbols": {
+      "arbitrate": "26eaf5a1edef71cd1c530cb2a84b26c52413f50393be663940efebc61f967550",
+      "asCanonical": "1d5032325b06f94053e49718c3f83f67afeb117f580989ca59733b8ab3ca04d1",
+      "genesisRevision": "50a2184a531e9812f86edf1a75e4e4a46e5bf6a4773313c55df26bf4f1f212d8",
+      "intentDigest": "9a3c8b642ce5b02dcc523262bc1795599eb37d2b209f0d7b017b6ee66a63663c"
+    },
+    "digest": "93d318931ad3ba1ba71f4b7fe8a5d2a1742a2aa9843655e9a02875dd7a9936d9"
+  }
 }
