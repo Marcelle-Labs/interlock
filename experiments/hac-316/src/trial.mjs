@@ -85,6 +85,27 @@ export const Deviation = Object.freeze({
 /** What a classified trial can be. */
 export const TrialVerdict = Object.freeze({ VALID: 'VALID', INVALID_TRIAL: 'INVALID_TRIAL' });
 
+/**
+ * The session-state key `agents/_proposals.py` writes its record trail under.
+ *
+ * Spelled here as well as there because this is the seam between a Python
+ * process and a Node one: nothing type-checks across it, and the harness reading
+ * a key the agent does not write would look exactly like a model that proposed
+ * nothing.
+ */
+export const PROPOSED_TOOL_CALLS_KEY = 'hac316.proposed_tool_calls';
+
+/**
+ * The two phases of one logical proposal.
+ *
+ * One successful tool call writes both. It is still one proposal. The agent
+ * recorded both and returned both, so `classifyInvocation` counted two and every
+ * valid trial came out `MULTIPLE_TOOL_CALLS` — a criterion that could not be
+ * satisfied by any well-behaved model. The filter below is the harness half of
+ * that fix; `proposals()` in `_proposals.py` is the agent half.
+ */
+export const ProposalPhase = Object.freeze({ PROPOSED: 'proposed', RESPONDED: 'responded' });
+
 /** The one classification an invalid trial ever gets. */
 export const MODEL_FAILURE = 'MODEL_FAILURE';
 
@@ -170,11 +191,37 @@ export function toolCallDigest(normalized) {
 }
 
 /**
+ * One invocation record, read out of the session state the agent left behind.
+ *
+ * This is the capture end of the path the classifier judges. The agent writes a
+ * flat trail of `proposed` and `responded` records under one key; exactly the
+ * `proposed` ones are proposals, and the response is not a second one. Reading
+ * the raw session state here — rather than being handed a pre-filtered list —
+ * is deliberate: on Agent Runtime what comes back *is* the session state, and a
+ * harness that could only consume an already-tidied shape would be tested
+ * against a shape that never arrives.
+ *
+ * An absent or empty state is `NO_TOOL_CALL`, not an error: a model that
+ * finished without calling anything left exactly this behind.
+ *
+ * @param sessionState  the agent's session state, or `undefined`
+ * @param error         a message if the invocation raised before recording
+ */
+export function invocationFromSessionState(sessionState, error) {
+  const trail = sessionState?.[PROPOSED_TOOL_CALLS_KEY] ?? [];
+  const proposals = (Array.isArray(trail) ? trail : []).filter(
+    (record) => record?.phase === ProposalPhase.PROPOSED,
+  );
+  return error === undefined ? { proposals } : { proposals, error };
+}
+
+/**
  * Classify one agent's invocation in one arm.
  *
  * `record` is what the agent recorded for that invocation:
  *   `{ proposals: [...], error?: string }`
- * where `proposals` are the `phase: "proposed"` entries, in order.
+ * where `proposals` are the `phase: "proposed"` entries, in order —
+ * `invocationFromSessionState` is what produces that shape from raw state.
  */
 export function classifyInvocation(record) {
   if (record === undefined || record === null) {
