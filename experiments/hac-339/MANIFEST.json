@@ -1,0 +1,18 @@
+{
+  "artifact": "hac-339-manifest",
+  "lane": "HAC-339",
+  "generated": "2026-08-14",
+  "baseSha": "efea48013de626d5714c8c2c146c0e1b683cc615",
+  "branch": "hac/339-agent-gateway-forensics",
+  "sha256": {
+    "README.md": "365bbdb5c4f6b6cc0f138f3d89d46378c46b14d2e7680cf54ad37ea9d3ffd656",
+    "sources.md": "aadaa35ac0f2043bdd919dbdc14d7fc041973b1dafd4ac85d76c64a0b2e99a08",
+    "google-support-matrix.md": "7b11f780a7827e277540c5441a4613852cc449820fd6b9bbb765e7ee4c99367b",
+    "hac-325-participation-matrix.md": "6cef8aa0045493f53331fef5642c5f898a36ea1152c7881a59875d256e0b8494",
+    "participation-matrix.json": "f6de733c998192694a89d361b7f8589403cccca90d585bdc60c768ad0143bf58",
+    "hypothesis-matrix.md": "ddb2333c900c00d61d8aee30497eba297c70a8f0ca3225c1ed9e2a1184569abc",
+    "hypothesis-matrix.json": "369ace77fbc96ffd52288bfd3c8167e67d796438070ac97f693ce822008356ef",
+    "one-shot-probe.md": "227c327e24d545a945c755516cd8284b6f3c89fccf49d89a2ed867fb787b64cc",
+    "REPORT.md": "c0206917e931e155ab0887a6d271605ab349e7bda6c64344bb22363d7f917964"
+  }
+}

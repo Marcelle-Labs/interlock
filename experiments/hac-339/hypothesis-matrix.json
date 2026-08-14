@@ -1,0 +1,84 @@
+{
+  "artifact": "hypothesis-matrix",
+  "lane": "HAC-339",
+  "baseSha": "efea48013de626d5714c8c2c146c0e1b683cc615",
+  "confidenceScale": ["HIGH", "MEDIUM", "LOW", "UNRESOLVED"],
+  "layers": {
+    "T": "trust: TLS interception of platform traffic without trusted gateway CA (observed failure)",
+    "P": "policy: default-deny egress, missing Agent Registry registration / roles/iap.egressor (unconfigured in the run; produces 403s per current docs)"
+  },
+  "hypotheses": {
+    "H1": {
+      "name": "platform CA-injection defect",
+      "supporting": [
+        "Container-wide trust absence after binding: both aiohttp and gRPC failed verification (BLK)",
+        "Failure persisted after the 04:33:36 engine update asserted by the receipt to be a post-binding source redeploy",
+        "Current docs promise CA injection for source-based deployments (S1)"
+      ],
+      "contradicting": [
+        "No artifact proves the 04:33:36 update rebuilt the image (hop 4 ASSUMED)",
+        "Initial image (03:55:10) necessarily predates the gateway (04:05:51); if reused, no injection was owed",
+        "Run was simultaneously Layer-P-defective; not a clean injection test"
+      ],
+      "missingDiscriminator": "post-binding image build provenance + in-image trust-store listing vs preserved gateway root SHA-256 9A:9A:3A:F8:76:93:42:86:2F:A4:98:D9:15:3C:D8:D5:3D:53:35:88:83:C2:1B:81:A4:BE:EA:F0:26:45:31:20",
+      "confidence": "LOW",
+      "cheapestNextDiscriminator": "one-shot trust self-audit probe with binding at creation time (one-shot-probe.md)"
+    },
+    "H2": {
+      "name": "client-consumption defect",
+      "supporting": [
+        "BYOC contract shows consumption is not automatic: GRPC_DEFAULT_SSL_ROOTS_FILE_PATH / SSL_CERT_FILE / REQUESTS_CA_BUNDLE must be set (S1)",
+        "aiohttp's default TLS context uses certifi's bundled roots and gRPC bundles its own roots, so system-store-only injection fails both client families — exactly the observed pattern"
+      ],
+      "contradicting": [
+        "No evidence places the CA anywhere in the container; the premise 'CA present' is unevidenced (hops 5-9 UNRESOLVED)",
+        "Indistinguishable from H1/H3 on preserved evidence alone"
+      ],
+      "missingDiscriminator": "trust-store listing (system store and certifi bundle path) + env capture inside the running container",
+      "confidence": "LOW (consistent with all observations; premise unevidenced)",
+      "cheapestNextDiscriminator": "same probe; env + store dump decides presence-vs-consumption"
+    },
+    "H3": {
+      "name": "experiment/deployment sequencing-config defect",
+      "supporting": [
+        "OBSERVED: engine created before the gateway existed; first image built unbound",
+        "Injection-eligible redeploy is narrative-only; docs describe injection at image creation and do not promise re-injection on PATCH-bind (S1)",
+        "OBSERVED + documented: registry held only interlock-s0-mcp; no Sessions/CRM/Logging registration, no egressor grants (REG; S1/S2/S5); codelab grants egressor before deploying (S6)",
+        "Trust state never captured, so a sequencing defect would be invisible — and stayed invisible"
+      ],
+      "contradicting": [
+        "Ordering arm falsified if the post-binding redeploy did rebuild the image",
+        "Registry arm (Layer P) is certain but produces 403s, not the observed TLS failure"
+      ],
+      "missingDiscriminator": "verified post-binding rebuild + trust-store inspection",
+      "confidence": "MEDIUM (Layer T cause) / HIGH (independent Layer P misconfiguration)",
+      "cheapestNextDiscriminator": "probe with binding at creation time; if CA still absent, H3-ordering is falsified and H1 confirmed"
+    },
+    "H4": {
+      "name": "deeper platform defect",
+      "supporting": [
+        "CAA design implies a second identity-layer failure mode past TLS (mTLS terminates at gateway, DPoP beyond) — never reached",
+        "Asymmetric steering in preserved logs (intercepted vs direct-IPv6-unreachable) exceeds the docs' diagram"
+      ],
+      "contradicting": [
+        "Premise unmet: trust was demonstrably not effective",
+        "No post-trust failure observed"
+      ],
+      "missingDiscriminator": "a run in which trust is verified first, then one session creation attempt",
+      "confidence": "UNRESOLVED",
+      "cheapestNextDiscriminator": "probe stage 2: after trust confirmed, one session attempt with Layer P configured away"
+    },
+    "H5": {
+      "name": "unresolved — preserved evidence cannot distinguish",
+      "supporting": [
+        "Hops 5–9 all UNRESOLVED; discriminator set (image provenance, trust store, env, presented-chain fingerprint) never captured"
+      ],
+      "contradicting": [
+        "Evidence positively establishes the Layer P defect and presence-without-participation of the extension (hops 13–15)"
+      ],
+      "missingDiscriminator": "n/a",
+      "confidence": "HIGH (for Layer T discrimination)",
+      "cheapestNextDiscriminator": "the one-shot probe; all discriminators above are the same single deployment"
+    }
+  }
+}

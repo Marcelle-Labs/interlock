@@ -1,0 +1,57 @@
+{
+  "artifact": "hac-325-participation-matrix",
+  "lane": "HAC-339",
+  "baseSha": "efea48013de626d5714c8c2c146c0e1b683cc615",
+  "runWindowUtc": "2026-08-13T03:22:00Z/2026-08-13T04:35:00Z",
+  "classifications": ["OBSERVED", "DERIVED", "ASSUMED", "UNRESOLVED"],
+  "evidenceKey": {
+    "RE": "experiments/hac-325/evidence/reasoning-engine.json",
+    "GWE": "experiments/hac-325/evidence/agent-gateway-egress.json",
+    "REG": "experiments/hac-325/evidence/registry-mcp-servers.json",
+    "POL": "experiments/hac-325/evidence/authz-policy-egress.json",
+    "EXT": "experiments/hac-325/evidence/authz-extension.json",
+    "BLK": "experiments/hac-325/evidence/blocker-tls-interception.json",
+    "XLOG": "experiments/hac-325/evidence/extension-logs.json",
+    "CMD": "experiments/hac-325/evidence/commands.log (gitignored; original working copy only)",
+    "RCPT": "docs/receipts/HAC-325-s0-receipt.md"
+  },
+  "timeline": [
+    {"ts": "2026-08-13T03:40:40Z", "event": "ext_proc extension Cloud Run starts; only server.start events ever recorded", "source": "XLOG"},
+    {"ts": "2026-08-13T03:41:17Z", "event": "AuthzExtension interlock-s0-authz-ext imported (EXT_PROC_GRPC, timeout 1s, FQDN service)", "source": "EXT"},
+    {"ts": "2026-08-13T03:43:46Z", "event": "MCP server interlock-s0-mcp registered in Agent Registry (only registration)", "source": "REG"},
+    {"ts": "2026-08-13T03:55:10Z", "event": "Reasoning engine 6822295377757077504 created (before gateway existed)", "source": "RE.createTime"},
+    {"ts": "2026-08-13T04:02:02Z", "event": "Pre-binding: CRM get_project 403 (API not yet enabled)", "source": "BLK"},
+    {"ts": "2026-08-13T04:02:24Z", "event": "Pre-binding: agent body executes; model predict 403 PERMISSION_DENIED; session creation worked", "source": "BLK"},
+    {"ts": "2026-08-13T04:05:51Z", "event": "Egress gateway interlock-s0-gw-egress created", "source": "GWE.createTime"},
+    {"ts": "2026-08-13T04:09:55Z", "event": "Gateway updated (registries + PSC/DNS network config)", "source": "GWE.updateTime"},
+    {"ts": "2026-08-13T04:12:56Z", "event": "CONTENT_AUTHZ egress policy created, targeting the gateway, action CUSTOM", "source": "POL"},
+    {"ts": "2026-08-13T04:22:42Z", "event": "CRM gRPC to real Google IPv6: Network is unreachable 503", "source": "BLK"},
+    {"ts": "2026-08-13T04:23:22Z", "event": "First session failure: aiohttp CERTIFICATE_VERIFY_FAILED self-signed in chain to us-central1-aiplatform.mtls.googleapis.com:443; RuntimeError: Failed to create session at 04:23:32", "source": "BLK"},
+    {"ts": "2026-08-13T04:28:26Z", "event": "CRM gRPC to ipv4:240.0.0.2:443: TLS handshake CERTIFICATE_VERIFY_FAILED self-signed in chain", "source": "BLK"},
+    {"ts": "2026-08-13T04:33:36Z", "event": "Engine final updateTime; receipt asserts source redeploy after binding", "source": "RE.updateTime + RCPT"},
+    {"ts": "2026-08-13T04:34:03Z", "event": "Session TLS failure persists after the 04:33:36 update", "source": "BLK"},
+    {"ts": "2026-08-13T04:41:00Z", "event": "Project interlock-s0-gate deleted", "source": "RCPT"}
+  ],
+  "hops": [
+    {"n": 1, "hop": "Gateway resource existed", "class": "OBSERVED", "evidence": ["GWE"], "note": "Full resource incl. agentGatewayCard.rootCertificates, mtlsEndpoint, AGENT_TO_ANYWHERE, MCP, registry, PSC/DNS."},
+    {"n": 2, "hop": "Agent Runtime bound to gateway", "class": "OBSERVED", "evidence": ["RE", "BLK"], "note": "spec.deploymentSpec.agentGatewayConfig.agentToAnywhereConfig set; identityType AGENT_IDENTITY; corroborated by hop 11."},
+    {"n": 3, "hop": "Source-based (non-BYOC) mode", "class": "OBSERVED", "evidence": ["RE", "BLK", "CMD", "RCPT"], "note": "sourceCodeSpec present; managed image python3.11; Cloud Build only for extension/target."},
+    {"n": 4, "hop": "Binding existed before final image/build", "class": "ASSUMED", "evidence": ["RE", "RCPT", "BLK"], "note": "Initial image (03:55:10) necessarily predates gateway (04:05:51). Receipt asserts a post-binding source redeploy; RE updateTime 04:33:36 and service.version=6 are consistent, but no artifact records whether that update rebuilt the image."},
+    {"n": 5, "hop": "CA material injected into image", "class": "UNRESOLVED", "evidence": [], "note": "No trust-store/image/build-log evidence. Docs (S1) describe injection at image creation for source-based deploys; expectation not observation."},
+    {"n": 6, "hop": "CA fingerprint matched Gateway root", "class": "UNRESOLVED", "evidence": ["GWE"], "note": "No runtime chain captured. Reference root preserved: CN=Agent Gateway TLS Inspection CA (us-central1), self-signed, SHA-256 9A:9A:3A:F8:76:93:42:86:2F:A4:98:D9:15:3C:D8:D5:3D:53:35:88:83:C2:1B:81:A4:BE:EA:F0:26:45:31:20 (computed offline 2026-08-14)."},
+    {"n": 7, "hop": "System trust store contained the CA", "class": "UNRESOLVED", "evidence": [], "note": "Never inspected."},
+    {"n": 8, "hop": "SSL_CERT_FILE / REQUESTS_CA_BUNDLE effective", "class": "UNRESOLVED", "evidence": [], "note": "No env capture; aiohttp verified against a bundle lacking the gateway CA."},
+    {"n": 9, "hop": "gRPC root bundle effective", "class": "UNRESOLVED", "evidence": ["BLK"], "note": "gRPC TLS verification ran and failed; GRPC_DEFAULT_SSL_ROOTS_FILE_PATH state never captured."},
+    {"n": 10, "hop": "aiohttp / Google Auth consumed the trust path", "class": "DERIVED", "polarity": "negative", "evidence": ["BLK"], "note": "aiohttp ssl.py verification failed with self-signed-in-chain on the sessions URL; google.auth raised TransportError. A trust path was consumed and it lacked the gateway CA."},
+    {"n": 11, "hop": "Managed session traffic traversed Gateway", "class": "DERIVED", "polarity": "strong", "evidence": ["BLK", "RE"], "note": "Sessions succeeded pre-binding (04:02) and failed post-binding with in-path TLS interception signatures; independent gRPC call dialed non-GFE 240.0.0.2:443 with the same self-signed-in-chain failure."},
+    {"n": 12, "hop": "Agent body began execution", "class": "OBSERVED", "polarity": "pre-binding yes / post-binding no", "evidence": ["BLK", "RE"], "note": "Pre-binding body ran (model predict 403). Post-binding every entry point dies at session creation first."},
+    {"n": 13, "hop": "MCP request was emitted", "class": "OBSERVED", "polarity": "negative", "evidence": ["BLK", "agent/s0_agent/agent.py"], "note": "MCP call lives in the agent body, which never ran post-binding; no MCP attempt in logs."},
+    {"n": 14, "hop": "Gateway observed MCP request", "class": "UNRESOLVED", "polarity": "vacuous", "evidence": [], "note": "No MCP request existed; no gateway-side logs captured."},
+    {"n": 15, "hop": "CONTENT_AUTHZ / ext_proc participated", "class": "OBSERVED", "polarity": "negative", "evidence": ["XLOG", "POL", "EXT"], "note": "Zero ext_proc events across the run; policy and extension existed and were targeted. Presence without participation."}
+  ],
+  "undecidableFromPreservedEvidence": [
+    "Whether the 04:33:36 engine update rebuilt the image (injection opportunity)",
+    "Whether the gateway CA was present anywhere in the container",
+    "Whether the chain presented to clients was signed by the preserved gateway root"
+  ]
+}
