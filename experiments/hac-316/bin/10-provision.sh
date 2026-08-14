@@ -76,6 +76,47 @@
 # provisioningState=declared is a half-provisioned phase and REQ-069 should fail
 # on it.
 #
+# What this script does do for R-09 and R-10 is create the two identities they
+# must run as (R-14, R-15) and grant them, so that the ADK deploy has a custom
+# service account to pass and is not left defaulting to the shared one.
+#
+# ## Two identities, and the gate that proves they are two
+#
+# Agent Runtime accepts a custom service_account per deployed instance, and a
+# runtime not configured with Agent Identity reports its associated service
+# account as its effectiveIdentity. So:
+#
+#     reasoningEngine interlock-s1-agent-a  ->  SA-A   (R-14)
+#     reasoningEngine interlock-s1-agent-b  ->  SA-B   (R-15)
+#
+# and SA-A != SA-B by construction. Construction is not evidence, which is why
+# nothing here treats it as evidence. If both runtimes came up as the same
+# principal - the project default compute account is the obvious way that
+# happens, and it happens silently - every arrival at the ingress would carry
+# one identity, R5 overlap pairing would be pairing arrivals it cannot tell
+# apart, and the experiment would produce a confident number about nothing.
+#
+# The order below is therefore fixed, and step 5 is not reachable except through
+# steps 1-4:
+#
+#   1. provision A and B with distinct custom service accounts        (P-11, P-12)
+#   2. read back the actual effectiveIdentity of each deployed runtime
+#   3. fail closed unless the two are distinct AND exactly the expected two
+#   4. prove those two identities reach the ingress over the actual experiment
+#      transport, as identity the platform verified rather than identity the
+#      caller asserted
+#   5. only then is attempt 1 of at most 3 eligible
+#
+# Steps 2-4 are bin/identity-preflight.mjs. They cannot run from here: R-09 and
+# R-10 do not exist until the ADK deploy runs, and this script finishes before
+# that. So this script does the part it can do - it creates the identities, it
+# records them, and it writes the eligibility gate into topology.json in the
+# blocked state. Nothing flips that to eligible except a passing identity
+# preflight, and there is no fallback: if the two runtimes report one identity,
+# or the ingress cannot tell them apart over the real transport, HAC-316 is
+# FAIL/PIVOT. A caller-supplied header naming the agent would make the gate pass
+# and the experiment meaningless, so no such header exists and none may be added.
+#
 # ## Environment
 #
 # Required:
@@ -118,6 +159,13 @@ TEARDOWN_CMD="node experiments/hac-316/bin/teardown.mjs"
 
 REGION="us-central1"
 REPO="interlock-s1"
+
+# The two agent identities (R-14, R-15). Named here as bare account ids because
+# that is what `iam service-accounts create` takes; the full email is derived
+# once the project id is known, and derived rather than retyped so the two
+# spellings cannot drift.
+SA_A_ID="interlock-s1-agent-a"
+SA_B_ID="interlock-s1-agent-b"
 
 # The shape teardown's G-4 fence enforces. Declared here as well so preflight can
 # refuse to create a project whose id teardown would later be unable to accept.
@@ -356,6 +404,16 @@ preflight() {
     fail "generated project id ${PROJECT_ID} does not match ${DISPOSABLE_ID_PATTERN}; teardown would refuse it"
   fi
 
+  # Two identities that are actually one identity is the single failure mode that
+  # would make the whole experiment unfalsifiable while looking entirely healthy,
+  # so it is refused here, locally, before either is created. This is a cheap
+  # check for a typo; bin/identity-preflight.mjs is the expensive check for the
+  # real thing, made against what the platform reports rather than against what
+  # these two variables say.
+  if [ "${SA_A}" = "${SA_B}" ]; then
+    fail "SA_A and SA_B are the same identity (${SA_A}). Two runtimes sharing one identity cannot be told apart at the ingress and HAC-316 would be unfalsifiable."
+  fi
+
   [ -d "${EVIDENCE_DIR}" ] || fail "${EVIDENCE_DIR} does not exist"
   [ -w "${EVIDENCE_DIR}" ] || fail "${EVIDENCE_DIR} is not writable; the declaration could not be recorded"
   if [ -e "${TOPOLOGY}" ]; then
@@ -386,14 +444,21 @@ preflight() {
   # establish - that the renderer works and that every locally-sourced value is
   # present - it establishes now, with a throwaway file that is deleted again so
   # no sentinel value can ever be deployed.
+  #
+  # The two principal names are locally knowable and are therefore rendered here
+  # too, with their real values rather than sentinels: they are derived from
+  # PROJECT_ID at P-00 and do not depend on anything the cloud assigns.
   (
     export INTERLOCK_TARGET_URL_ALPHA="https://render-self-test.invalid"
     export INTERLOCK_TARGET_URL_BETA="https://render-self-test.invalid"
     export INTERLOCK_TARGET_AUDIENCE="https://render-self-test.invalid"
+    export HAC316_AGENT_A_PRINCIPAL="${SA_A}"
+    export HAC316_AGENT_B_PRINCIPAL="${SA_B}"
     render_env_file "${WORK_DIR}/.proxy.env.selftest.json" \
       INTERLOCK_TARGET_URL_ALPHA INTERLOCK_TARGET_URL_BETA INTERLOCK_TARGET_AUDIENCE \
       INTERLOCK_EVIDENCE_PATH INTERLOCK_SOURCE_REVISION \
-      INTERLOCK_SIGNING_KEY_ID INTERLOCK_SIGNING_KEY_PEM INTERLOCK_ENFORCE_CALLER_IDENTITY
+      INTERLOCK_SIGNING_KEY_ID INTERLOCK_SIGNING_KEY_PEM INTERLOCK_ENFORCE_CALLER_IDENTITY \
+      HAC316_AGENT_A_PRINCIPAL HAC316_AGENT_B_PRINCIPAL
   )
   rm -f "${WORK_DIR}/.proxy.env.selftest.json"
 
@@ -409,6 +474,8 @@ preflight() {
 # and the teardown fence while there is still nothing to strand.
 PROJECT_ID="interlock-s1-$(openssl rand -hex 4)"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/interlock-s1:latest"
+SA_A="${SA_A_ID}@${PROJECT_ID}.iam.gserviceaccount.com"
+SA_B="${SA_B_ID}@${PROJECT_ID}.iam.gserviceaccount.com"
 INTERLOCK_EVIDENCE_PATH="${INTERLOCK_EVIDENCE_PATH:-/tmp/interlock-evidence.ndjson}"
 INTERLOCK_SOURCE_REVISION="${INTERLOCK_SOURCE_REVISION:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}"
 export INTERLOCK_EVIDENCE_PATH INTERLOCK_SOURCE_REVISION
@@ -435,7 +502,7 @@ cat > "${TOPOLOGY}" <<DECLARATION
   "projectId": "${PROJECT_ID}",
   "projectNumber": null,
   "region": "${REGION}",
-  "pendingActuals": ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07", "R-08", "R-09", "R-10", "R-11", "R-12", "R-13"],
+  "pendingActuals": ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07", "R-08", "R-09", "R-10", "R-11", "R-12", "R-13", "R-14", "R-15"],
   "actuals": []
 }
 DECLARATION
@@ -453,10 +520,13 @@ say "provisioning ${PROJECT_ID} in ${REGION}"
 gcloud projects create "${PROJECT_ID}" --name="HAC-316 S1 disposable" --quiet
 gcloud billing projects link "${PROJECT_ID}" --billing-account="${BILLING_ACCOUNT}" --quiet
 
-# P-02  R-03  APIs - the five the topology needs, and only those
+# P-02  R-03  APIs - the six the topology needs, and only those. iam is here
+# because P-11 creates two service accounts, and an API enabled at the point of
+# first use would be enabled after the image was built and three services were
+# deployed.
 gcloud services enable --project="${PROJECT_ID}" --quiet \
   run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com \
-  aiplatform.googleapis.com storage.googleapis.com
+  aiplatform.googleapis.com storage.googleapis.com iam.googleapis.com
 
 PROJECT_NUMBER="$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')"
 PROXY_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
@@ -497,24 +567,47 @@ BETA_URL="$(gcloud run services describe interlock-s1-target-beta --project="${P
 # The routing surface fronts two targets, so its environment carries two target
 # URLs. INTERLOCK_TARGET_URL_ALPHA and INTERLOCK_TARGET_URL_BETA are the
 # provisioning-side half of that contract, recorded here so the deployment and
-# the entry point cannot drift apart silently. Every other name is the one
-# src/config.ts already defines.
+# the entry point cannot drift apart silently. Every other INTERLOCK_* name is
+# the one src/config.ts already defines.
+#
+# HAC316_AGENT_A_PRINCIPAL and HAC316_AGENT_B_PRINCIPAL are the other half of
+# that contract, and without them the service does not start at all.
+# src/agent-identity.mjs takes the caller from the platform and never from the
+# request, so it needs to be told which service account is A and which is B -
+# that mapping is a fact about this deployment, and there is nowhere else it
+# could come from. readAgentPrincipals throws before the socket is opened when
+# either is absent, which is correct behaviour and a fatal deployment: Cloud Run
+# would report a container that never listened, and the two agent runtimes would
+# have had nothing to arrive at. The values are P-11's, spelled from the same
+# SA_A and SA_B the ADK deploy passes as service_account, so the ingress and the
+# runtimes cannot disagree about who A and B are.
 (
   export INTERLOCK_TARGET_URL_ALPHA="${ALPHA_URL}"
   export INTERLOCK_TARGET_URL_BETA="${BETA_URL}"
   export INTERLOCK_TARGET_AUDIENCE="${INTERLOCK_TARGET_AUDIENCE:-${ALPHA_URL}}"
+  export HAC316_AGENT_A_PRINCIPAL="${SA_A}"
+  export HAC316_AGENT_B_PRINCIPAL="${SA_B}"
   render_env_file "${WORK_DIR}/proxy.env.json" \
     INTERLOCK_TARGET_URL_ALPHA INTERLOCK_TARGET_URL_BETA INTERLOCK_TARGET_AUDIENCE \
     INTERLOCK_EVIDENCE_PATH INTERLOCK_SOURCE_REVISION \
-    INTERLOCK_SIGNING_KEY_ID INTERLOCK_SIGNING_KEY_PEM INTERLOCK_ENFORCE_CALLER_IDENTITY
+    INTERLOCK_SIGNING_KEY_ID INTERLOCK_SIGNING_KEY_PEM INTERLOCK_ENFORCE_CALLER_IDENTITY \
+    HAC316_AGENT_A_PRINCIPAL HAC316_AGENT_B_PRINCIPAL
 )
 
 # P-08  R-08  routing surface - ONE process, ONE PendingIntentStore (REQ-028).
 # --max-instances=1 is load-bearing: a second instance is a second store, and
 # the coupling would go unobserved without anything looking wrong.
+#
+# The entry point is bin/ingress-service.mjs, which is the process that listens.
+# It used to be src/routing.mjs, and that was not a server: routing.mjs exports
+# createRoutingSurface, serviceOf, route and dispatch and calls none of them, so
+# `node experiments/hac-316/src/routing.mjs` evaluates the module, binds nothing,
+# and exits 0. Cloud Run would have reported a container that failed to listen on
+# $PORT, and the two agent runtimes would have had nothing to arrive at.
+# ingress-service.mjs is what serves MCP over that surface.
 gcloud run deploy interlock-s1-proxy --project="${PROJECT_ID}" --quiet \
   --image="${IMAGE}" --region="${REGION}" --no-allow-unauthenticated \
-  --command=node --args=experiments/hac-316/src/routing.mjs \
+  --command=node --args=experiments/hac-316/bin/ingress-service.mjs \
   --env-vars-file="${WORK_DIR}/proxy.env.json" --max-instances=1
 
 # P-09  R-11  Agent Engine staging bucket
@@ -532,6 +625,49 @@ gcloud run services add-iam-policy-binding interlock-s1-proxy --project="${PROJE
   --region="${REGION}" --quiet \
   --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com" \
   --role=roles/run.invoker
+
+# P-11  R-14 + R-15  the two agent identities.
+#
+# One service account per reasoning engine. This is the resource that makes the
+# two runtimes distinguishable: without it both deploy under the project default
+# compute account, both arrive at the ingress as that account, and there is no
+# reading of the arrivals that recovers which agent sent which.
+gcloud iam service-accounts create "${SA_A_ID}" --project="${PROJECT_ID}" --quiet \
+  --display-name="HAC-316 agent A (alpha mutation)"
+gcloud iam service-accounts create "${SA_B_ID}" --project="${PROJECT_ID}" --quiet \
+  --display-name="HAC-316 agent B (beta mutation)"
+
+# P-12  R-12  what each agent identity may do, and nothing else.
+#
+# Each may invoke the ingress. Each may write to the staging bucket the Agent
+# Engine deploy stages through. Neither is granted anything at project scope,
+# and neither may invoke either target directly - the whole experiment is about
+# what happens when they go through the ingress, so a path around it would be a
+# hole in the design rather than a convenience.
+gcloud run services add-iam-policy-binding interlock-s1-proxy --project="${PROJECT_ID}" \
+  --region="${REGION}" --quiet \
+  --member="serviceAccount:${SA_A}" --role=roles/run.invoker
+gcloud run services add-iam-policy-binding interlock-s1-proxy --project="${PROJECT_ID}" \
+  --region="${REGION}" --quiet \
+  --member="serviceAccount:${SA_B}" --role=roles/run.invoker
+
+gcloud storage buckets add-iam-policy-binding "gs://${PROJECT_ID}-agent-staging" \
+  --project="${PROJECT_ID}" --quiet \
+  --member="serviceAccount:${SA_A}" --role=roles/storage.objectAdmin
+gcloud storage buckets add-iam-policy-binding "gs://${PROJECT_ID}-agent-staging" \
+  --project="${PROJECT_ID}" --quiet \
+  --member="serviceAccount:${SA_B}" --role=roles/storage.objectAdmin
+
+# Agent Engine cannot deploy a reasoning engine under a service account it is not
+# permitted to act as. Absent this, the ADK deploy fails at R-09 with a message
+# about permissions that reads like a quota problem - the same class of mistake
+# as HAC-325 finding 1, so it is granted here rather than diagnosed later.
+gcloud iam service-accounts add-iam-policy-binding "${SA_A}" --project="${PROJECT_ID}" --quiet \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com" \
+  --role=roles/iam.serviceAccountUser
+gcloud iam service-accounts add-iam-policy-binding "${SA_B}" --project="${PROJECT_ID}" --quiet \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com" \
+  --role=roles/iam.serviceAccountUser
 
 PROXY_URL="$(gcloud run services describe interlock-s1-proxy --project="${PROJECT_ID}" \
   --region="${REGION}" --format='value(status.url)')"
@@ -552,6 +688,26 @@ cat > "${TOPOLOGY}" <<ACTUALS
   "region": "${REGION}",
   "pendingActuals": ["R-09", "R-10"],
   "pendingActualsNote": "Agent Engine reasoning engines, appended by the ADK deploy entry point. REQ-069 fails until they are, and that is the correct reading of a half-provisioned phase.",
+  "agentIdentities": {
+    "A": { "serviceAccount": "${SA_A}", "runtime": "interlock-s1-agent-a", "resource": "R-14" },
+    "B": { "serviceAccount": "${SA_B}", "runtime": "interlock-s1-agent-b", "resource": "R-15" },
+    "note": "The identities the ADK deploy must pass as service_account for R-09 and R-10 respectively. Declared, not proved: what the platform actually reports is read back by bin/identity-preflight.mjs, and these two values are what it checks that reading against."
+  },
+  "experimentEligibility": {
+    "state": "blocked",
+    "blockedBy": "identity-preflight",
+    "gate": "experiments/hac-316/evidence/identity-preflight.json",
+    "order": [
+      "1. provision A and B with distinct custom service accounts (P-11, P-12, done by this script)",
+      "2. read back the actual effectiveIdentity of each deployed reasoning engine",
+      "3. fail closed unless the two are distinct AND exactly the expected two",
+      "4. prove those identities reach the ingress over the actual experiment transport, platform-verified",
+      "5. only then is attempt 1 of at most 3 eligible"
+    ],
+    "maxAttempts": 3,
+    "attemptsEligible": 0,
+    "note": "Steps 2-4 are bin/identity-preflight.mjs and cannot run from this script: R-09 and R-10 do not exist until the ADK deploy runs. Nothing but a passing identity preflight may raise attemptsEligible. If the two runtimes report one effectiveIdentity, or the ingress cannot distinguish them over the real transport, HAC-316 is FAIL/PIVOT - there is no caller-asserted-identity fallback and none may be added, because a header the caller controls would make this gate pass without the property it exists to check being true."
+  },
   "actuals": [
     { "id": "R-01", "name": "${PROJECT_ID}" },
     { "id": "R-02", "name": "billingAccounts/${BILLING_ACCOUNT}" },
@@ -563,7 +719,9 @@ cat > "${TOPOLOGY}" <<ACTUALS
     { "id": "R-08", "name": "interlock-s1-proxy", "url": "${PROXY_URL}" },
     { "id": "R-11", "name": "gs://${PROJECT_ID}-agent-staging" },
     { "id": "R-12", "name": "iam bindings per resources.json R-12" },
-    { "id": "R-13", "name": "cloudbuild builds (transient)" }
+    { "id": "R-13", "name": "cloudbuild builds (transient)" },
+    { "id": "R-14", "name": "${SA_A}" },
+    { "id": "R-15", "name": "${SA_B}" }
   ]
 }
 ACTUALS
@@ -571,5 +729,18 @@ validate_json_file "${TOPOLOGY}"
 
 say "wrote ${TOPOLOGY}"
 say "provisioned project=${PROJECT_ID} region=${REGION}"
-say "next: deploy the ADK agents (R-09, R-10) and append their resource names to topology.json"
+say "agent A identity: ${SA_A}"
+say "agent B identity: ${SA_B}"
+say ''
+say 'next, in this order, and no step may be skipped:'
+say "  1. deploy the ADK agents, R-09 as ${SA_A} and R-10 as ${SA_B},"
+say '     passing each as the reasoning engine service_account, and append their'
+say '     resource names to topology.json'
+say '  2. node experiments/hac-316/bin/identity-preflight.mjs'
+say '     - it reads back what the platform reports and proves the two runtimes'
+say '       are two identities, at the ingress, over the real transport'
+say '  3. only if step 2 exits 0 is attempt 1 of at most 3 eligible.'
+say '     If it exits non-zero, HAC-316 is FAIL/PIVOT. Do not run an arm; do not'
+say '     add a caller-supplied identity header to make it pass.'
+say ''
 say "teardown: ${TEARDOWN_CMD} --project=${PROJECT_ID} --execute --confirm --verify"

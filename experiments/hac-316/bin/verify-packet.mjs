@@ -106,6 +106,16 @@ import {
   runComposition,
 } from './run-arm.mjs';
 import {
+  ATTEMPTS_WHEN_QUALIFIED,
+  CALLER_ASSERTED_SOURCES,
+  EXPERIMENT_TRANSPORT,
+  IdentityFailure,
+  PLATFORM_VERIFIED_SOURCES,
+  attemptsEligibleFor,
+  isPlatformVerified,
+  judgeIdentityPreflight,
+} from './identity-preflight.mjs';
+import {
   GCLOUD_LOG_VARIABLE,
   GCLOUD_SHIM_SCRIPT,
   judgeRemoval,
@@ -113,6 +123,13 @@ import {
   Refusal,
   REREAD_PROBES,
 } from './teardown.mjs';
+import {
+  AGENT_IDENTITY_ENV,
+  IDENTITY_FAIL_CLOSED,
+  readAgentPrincipals,
+  resolveExpectedAgent,
+} from '../src/agent-identity.mjs';
+import { createArrivalRecorder } from '../src/arrivals.mjs';
 import { ARRIVAL_RECORD_FIELDS, classifyArrivals, TrialVerdict } from '../src/trial.mjs';
 import { measureBuildProvenance, verifyDistProvenance } from '../src/dist-provenance.mjs';
 import { isDirectInvocation } from '../src/entrypoint.mjs';
@@ -290,6 +307,101 @@ export const FALSIFIED_RESOURCE_PATTERN = new RegExp(
   [...FALSIFIED_RESOURCE_SHAPES, 'gateways?'].join('|'),
   'i',
 );
+
+/**
+ * What a file must contain to be something Cloud Run can run as a service.
+ *
+ * ## The defect this exists for
+ *
+ * R-08's declared entry point was `experiments/hac-316/src/routing.mjs`. That
+ * file exports `createRoutingSurface`, `serviceOf`, `route` and `dispatch`, and
+ * calls none of them: `node experiments/hac-316/src/routing.mjs` evaluates the
+ * module, binds no socket, and exits 0. Cloud Run would have reported a container
+ * that never listened on `$PORT`, and the two agent runtimes would have had
+ * nothing to arrive at. Every component of the topology existed and the topology
+ * did not.
+ *
+ * Nothing in the packet could see it. REQ-028 checked that the surface builds two
+ * proxies over one store — true of a library. REQ-069 checked that R-08 was
+ * declared and provisioned — true of a service that crash-loops. The `--args=`
+ * value was a string nobody executed.
+ *
+ * ## Why these three markers
+ *
+ * They are the three separate things a deployed entry point has to do, and the
+ * defect passed each of the checks that existed because it failed all three at
+ * once in a way no single check looked at:
+ *
+ *   - `createsAServer` — there is an HTTP server, not just a factory for objects;
+ *   - `bindsAPort`     — it is told to listen, rather than returned to a caller;
+ *   - `runsWhenExecuted` — that happens when Node runs the file, not only when a
+ *     test imports it. A module that builds and binds a server *inside an
+ *     exported function nobody calls* is exactly as dead as `routing.mjs`.
+ *
+ * This is text matching, and it is honest about being a floor rather than a
+ * proof: it cannot establish that the process stays up. That is what
+ * `test/ingress-service.test.mjs` does, by starting the real entry point over
+ * real sockets and driving MCP through it. What this adds is the half a test
+ * cannot: it reads the file *the provisioning script actually names*, so an
+ * entry point that is changed in the script and not in the topology can no
+ * longer pass because the tests still exercise the old one.
+ */
+export const SERVER_ENTRY_POINT_MARKERS = Object.freeze({
+  createsAServer: /\bcreateServer\s*\(/,
+  bindsAPort: /\.listen\s*\(/,
+  runsWhenExecuted: /isDirectInvocation\s*\(\s*import\.meta\.url\s*\)/,
+});
+
+/**
+ * The markers a candidate entry point is missing; `[]` means it can serve.
+ *
+ * Pure and exported so both directions can be driven directly: the deployed
+ * entry point must return `[]`, and `src/routing.mjs` must not — a predicate
+ * that passed the library it was written to catch would be worth nothing.
+ */
+export function serverEntryPointGaps(source) {
+  return Object.entries(SERVER_ENTRY_POINT_MARKERS)
+    .filter(([, pattern]) => !pattern.test(typeof source === 'string' ? source : ''))
+    .map(([marker]) => marker);
+}
+
+/**
+ * A module's code with its comment-only lines removed.
+ *
+ * The E-01 problem, one file down. REQ-081 forbids the ingress from reading the
+ * caller's own claim about itself — `params.agent`, `body.agent`, an
+ * `x-agent-id` header — and `bin/ingress-service.mjs` says so, in a comment,
+ * naming each one. A scan of the raw text therefore matched the prohibition's own
+ * words and reported a violation on a file that commits none.
+ *
+ * The correction is the one §0.0 applies everywhere else: narrow the *scope*, not
+ * the pattern. Every pattern REQ-081 uses is unchanged; what changes is that
+ * prose about the rule is no longer read as an instance of breaking it.
+ *
+ * Only whole-line comments are dropped — a line whose first non-space character
+ * begins a comment or continues a block one. A trailing comment on a line of code
+ * is left in place, so this can over-report and never under-report: the direction
+ * that matters is that nothing which executes can hide from the scan, and a line
+ * that executes always has code before its comment.
+ */
+export function codeWithoutCommentLines(source) {
+  let inBlock = false;
+  const kept = [];
+  for (const line of String(source ?? '').split('\n')) {
+    const trimmed = line.trim();
+    if (inBlock) {
+      if (trimmed.includes('*/')) inBlock = false;
+      continue;
+    }
+    if (trimmed.startsWith('/*')) {
+      if (!trimmed.includes('*/')) inBlock = true;
+      continue;
+    }
+    if (trimmed.startsWith('//') || trimmed.startsWith('*')) continue;
+    kept.push(line);
+  }
+  return kept.join('\n');
+}
 
 // ---------------------------------------------------------------------------
 // The deliberately broken verifiers
@@ -789,6 +901,14 @@ for (const [key, path] of Object.entries({
   globalVerifier: 'experiments/hac-316/src/global-verifier.mjs',
   routing: 'experiments/hac-316/src/routing.mjs',
   baselineIssuer: 'experiments/hac-316/src/baseline-issuer.mjs',
+  // The deployed topology (REQ-080 - REQ-085). `routing` above is read by both:
+  // it is the routing surface REQ-028 checks, and it is the file R-08 used to
+  // name as an entry point, which is what REQ-080's control turns on.
+  ingressService: 'experiments/hac-316/bin/ingress-service.mjs',
+  identityPreflight: 'experiments/hac-316/bin/identity-preflight.mjs',
+  agentIdentity: 'experiments/hac-316/src/agent-identity.mjs',
+  arrivals: 'experiments/hac-316/src/arrivals.mjs',
+  runArm: 'experiments/hac-316/bin/run-arm.mjs',
   preflightV2Producer: 'experiments/hac-316/bin/preflight-v2.mjs',
   verifyPacket: 'experiments/hac-316/bin/verify-packet.mjs',
   teardown: 'experiments/hac-316/bin/teardown.mjs',
@@ -2396,6 +2516,444 @@ function phase7() {
       minimum: 20,
       titles: ['R5: overlap pairs agents, not positions'],
     });
+  });
+
+  // --- the deployed topology and the identity gate (REQ-080 - REQ-085) --------
+  //
+  // Added by §0.13, under erratum E-08 (§0.12). The frozen contract acquired
+  // machinery that no requirement checked: a deployable entry point, an identity
+  // derived from the platform, a fail-closed A/B map, and a preflight that
+  // qualifies a deployment before an attempt may be spent. Each of the six below
+  // is written so that it goes red against the state of the tree *before* the
+  // thing it checks existed — a requirement that could only ever pass would be
+  // the vacuity the ledger already refuses, in a form the counter cannot see.
+
+  /** The file `bin/10-provision.sh` tells Cloud Run to run as R-08. */
+  const deployedProxyEntryPoint = () => {
+    const deploy = /gcloud run deploy interlock-s1-proxy[\s\S]*?--args=(\S+)/.exec(
+      sources.provision,
+    );
+    must(deploy !== null, 'bin/10-provision.sh no longer deploys interlock-s1-proxy with --args=');
+    return deploy[1];
+  };
+
+  check('REQ-080', 7, () => {
+    // 1. The script names an entry point, and it is a file that exists.
+    const named = deployedProxyEntryPoint();
+    must(
+      exists(named),
+      `R-08 is deployed with --args=${named}, which is not a file in this repository`,
+    );
+
+    // 2. That file is a process that listens, not a module that exports things.
+    const gaps = serverEntryPointGaps(readText(named));
+    must(
+      gaps.length === 0,
+      `R-08's entry point ${named} is not a runnable server: it is missing ${gaps.join(', ')}. ` +
+        'Deploying it starts a container that never binds $PORT, and the agent runtimes have ' +
+        'nothing to arrive at',
+    );
+
+    // 3. The control, and the whole reason this requirement exists. The entry
+    // point R-08 declared until erratum E-08 was `src/routing.mjs`, and it must
+    // still fail the same predicate — a check that passed the library it was
+    // written to catch would be worth nothing.
+    const libraryGaps = serverEntryPointGaps(sources.routing);
+    must(
+      libraryGaps.length === Object.keys(SERVER_ENTRY_POINT_MARKERS).length,
+      'src/routing.mjs now satisfies part of the server-entry-point predicate, so this check can ' +
+        `no longer distinguish the library from the service it was mistaken for (missing only ${libraryGaps.join(', ')})`,
+    );
+    must(
+      named !== 'experiments/hac-316/src/routing.mjs',
+      'R-08 is once again deployed with the routing library as its entry point (B6)',
+    );
+
+    // 4. And the entry point is the one the end-to-end gate actually drives.
+    must(
+      /export\s+(?:async\s+)?function\s+startIngressService\b/.test(readText(named)),
+      `${named} does not export startIngressService, so the entry point the cloud runs is not ` +
+        'the one test/ingress-service.test.mjs starts over real sockets',
+    );
+
+    return suiteCheck({
+      file: 'ingress-service.test.mjs',
+      minimum: 18,
+      titles: ['is the entry point a deployment runs, not a harness helper'],
+    });
+  });
+
+  check('REQ-081', 7, () => {
+    // Identity comes from the platform. Every source the gate accepts says so in
+    // the source string itself, and every source that is the caller's own account
+    // of itself is refused by name rather than merely failing to match.
+    for (const source of PLATFORM_VERIFIED_SOURCES) {
+      must(isPlatformVerified(source), `${source} is not recognised as platform-verified`);
+    }
+    for (const source of CALLER_ASSERTED_SOURCES) {
+      must(!isPlatformVerified(source), `${source} was accepted as platform-verified`);
+    }
+    must(CALLER_ASSERTED_SOURCES.length > 0, 'no caller-asserted source is named at all');
+    must(
+      isPlatformVerified(undefined) === false && isPlatformVerified('') === false,
+      'an absent identity source was treated as platform-verified',
+    );
+
+    // A caller-asserted source is refused with its own code, not folded into the
+    // generic one: a typo and a substituted caller-controlled header want
+    // different messages, because one is a mistake and the other is the gate
+    // being defeated.
+    const asserted = judgeIdentityPreflight({
+      expected: {
+        transport: EXPERIMENT_TRANSPORT,
+        A: { serviceAccount: 'a@p.iam.gserviceaccount.com' },
+        B: { serviceAccount: 'b@p.iam.gserviceaccount.com' },
+      },
+      readings: {
+        runtimes: {
+          A: { effectiveIdentity: 'a@p.iam.gserviceaccount.com' },
+          B: { effectiveIdentity: 'b@p.iam.gserviceaccount.com' },
+        },
+        ingressObservations: [
+          {
+            agent: 'A',
+            observedPrincipal: 'a@p.iam.gserviceaccount.com',
+            verifiedBy: CALLER_ASSERTED_SOURCES[0],
+            transport: EXPERIMENT_TRANSPORT,
+          },
+          {
+            agent: 'B',
+            observedPrincipal: 'b@p.iam.gserviceaccount.com',
+            verifiedBy: 'oidc-id-token/platform-verified:email',
+            transport: EXPERIMENT_TRANSPORT,
+          },
+        ],
+      },
+    });
+    must(asserted.qualified === false, 'a caller-asserted identity qualified the deployment');
+    must(
+      asserted.failures.some(
+        (failure) => failure.code === IdentityFailure.IDENTITY_CALLER_ASSERTED,
+      ),
+      'a caller-asserted identity was not refused under its own code',
+    );
+
+    // And the ingress consults the platform observer and nothing else. The
+    // specific substitution this forbids is the one the local harness does
+    // legitimately and the deployed service may never do: reading the agent out
+    // of the request the agent sent.
+    //
+    // Scanned over code, not prose. `bin/ingress-service.mjs` names each of these
+    // four in a comment explaining why it does not do them, and a scan of the raw
+    // text matched the prohibition's own words — the E-01 defect, one file down.
+    // The patterns are unchanged; only comment-only lines are out of scope.
+    const ingressCode = codeWithoutCommentLines(sources.ingressService);
+    must(
+      /observeIdentity\(request\.headers\)/.test(ingressCode),
+      'the ingress no longer derives identity from observeIdentity over the request headers',
+    );
+    for (const claim of [
+      /params\s*\.\s*agent\b/,
+      /body\s*\.\s*agent\b/,
+      /arguments\s*\.\s*agent\b/,
+      /headers\s*\[\s*['"]x-agent-id/i,
+    ]) {
+      must(
+        !claim.test(ingressCode),
+        `the ingress reads the caller's own claim about itself (${claim}); identity would then ` +
+          'rest on self-declaration and A/B would be distinct only because the callers said so',
+      );
+    }
+    return `${PLATFORM_VERIFIED_SOURCES.length} verified, ${CALLER_ASSERTED_SOURCES.length} asserted sources refused`;
+  });
+
+  check('REQ-082', 7, () => {
+    // At startup: a deployment that did not name both principals does not start.
+    for (const [label, env] of [
+      ['neither principal', {}],
+      ['only A', { [AGENT_IDENTITY_ENV.A]: 'a@p.iam.gserviceaccount.com' }],
+      ['only B', { [AGENT_IDENTITY_ENV.B]: 'b@p.iam.gserviceaccount.com' }],
+      // Empty is absent. A rendered `HAC316_AGENT_A_PRINCIPAL=` is a variable
+      // nobody set, and reading it as a value maps every unauthenticated arrival
+      // onto agent A.
+      ['an empty value', { [AGENT_IDENTITY_ENV.A]: '   ', [AGENT_IDENTITY_ENV.B]: 'b@p' }],
+      // And two agents sharing one principal are one agent to everything
+      // downstream, so that does not start either.
+      ['one principal twice', { [AGENT_IDENTITY_ENV.A]: 'same@p', [AGENT_IDENTITY_ENV.B]: 'same@p' }],
+    ]) {
+      let threw = false;
+      try {
+        readAgentPrincipals(env);
+      } catch {
+        threw = true;
+      }
+      must(threw, `the ingress would have started with ${label}`);
+    }
+
+    const principals = readAgentPrincipals({
+      [AGENT_IDENTITY_ENV.A]: 'a@p.iam.gserviceaccount.com',
+      [AGENT_IDENTITY_ENV.B]: 'b@p.iam.gserviceaccount.com',
+    });
+    must(
+      resolveExpectedAgent(principals, {
+        identity: 'a@p.iam.gserviceaccount.com',
+        identitySource: 'oidc-id-token/platform-verified:email',
+      }).expectedAgent === 'A',
+      'a correctly configured principal did not resolve to its agent; the rule refuses everything ' +
+        'and proves nothing',
+    );
+
+    // At request time: an arrival that is neither agent is refused, not guessed
+    // at. `constructor` is in the list because an allow-list that inherits
+    // property names from Object.prototype is not an allow-list.
+    for (const identity of ['stranger@p.iam.gserviceaccount.com', 'constructor', 'toString', '']) {
+      const answer = resolveExpectedAgent(principals, {
+        identity,
+        identitySource: 'oidc-id-token/platform-verified:email',
+      });
+      must(answer.ok === false, `the ingress attributed an arrival from ${identity || '(none)'}`);
+      must(answer.failClosed === true, `refusing ${identity || '(none)'} was not fail-closed`);
+      must(
+        answer.code === IDENTITY_FAIL_CLOSED,
+        `refusing ${identity || '(none)'} used code ${answer.code}`,
+      );
+      must(answer.expectedAgent === null, `${identity || '(none)'} was mapped to an agent anyway`);
+    }
+    // No identity observed at all is the same refusal, not a pass-through.
+    must(
+      resolveExpectedAgent(principals, undefined).ok === false,
+      'an arrival with no observed identity was dispatched',
+    );
+
+    return suiteCheck({
+      file: 'ingress-service.test.mjs',
+      minimum: 18,
+      titles: ['refuses to start when the deployment did not say who A and B are'],
+    });
+  });
+
+  check('REQ-083', 7, () => {
+    const SA = { A: 'a@p.iam.gserviceaccount.com', B: 'b@p.iam.gserviceaccount.com' };
+    const expectation = {
+      transport: EXPERIMENT_TRANSPORT,
+      A: { serviceAccount: SA.A },
+      B: { serviceAccount: SA.B },
+    };
+    const observation = (agent, principal) => ({
+      agent,
+      observedPrincipal: principal,
+      verifiedBy: 'oidc-id-token/platform-verified:email',
+      transport: EXPERIMENT_TRANSPORT,
+    });
+    const healthy = () => ({
+      runtimes: { A: { effectiveIdentity: SA.A }, B: { effectiveIdentity: SA.B } },
+      ingressObservations: [observation('A', SA.A), observation('B', SA.B)],
+    });
+
+    // The deployment the gate is supposed to admit. Without this the five
+    // refusals below would be satisfied by a gate that refuses everything.
+    const admitted = judgeIdentityPreflight({ expected: expectation, readings: healthy() });
+    must(
+      admitted.qualified === true,
+      `a correct deployment was refused: ${admitted.failures.map((f) => f.code).join(', ')}`,
+    );
+
+    // The four conditions, each broken on its own.
+    const cases = [
+      [
+        'a runtime does not run as what was declared',
+        () => {
+          const r = healthy();
+          r.runtimes.B.effectiveIdentity = 'someone-else@p.iam.gserviceaccount.com';
+          return r;
+        },
+        IdentityFailure.EFFECTIVE_IDENTITY_MISMATCH,
+      ],
+      [
+        'both runtimes are one runtime',
+        () => {
+          const r = healthy();
+          r.runtimes.B.effectiveIdentity = SA.A;
+          r.ingressObservations = [observation('A', SA.A), observation('B', SA.A)];
+          return r;
+        },
+        IdentityFailure.EFFECTIVE_IDENTITY_NOT_DISTINCT,
+      ],
+      [
+        'a runtime identity cannot be read at all',
+        () => {
+          const r = healthy();
+          r.runtimes.A = {};
+          return r;
+        },
+        IdentityFailure.MISSING_READING,
+      ],
+      [
+        'the ingress did not see one of them',
+        () => {
+          const r = healthy();
+          r.ingressObservations = [observation('A', SA.A)];
+          return r;
+        },
+        IdentityFailure.INGRESS_OBSERVATION_MISSING,
+      ],
+      [
+        'the observation did not travel the real transport',
+        () => {
+          const r = healthy();
+          r.ingressObservations = [
+            { ...observation('A', SA.A), transport: 'debug-port' },
+            observation('B', SA.B),
+          ];
+          return r;
+        },
+        IdentityFailure.INGRESS_TRANSPORT_MISMATCH,
+      ],
+    ];
+    for (const [label, build, code] of cases) {
+      const verdict = judgeIdentityPreflight({ expected: expectation, readings: build() });
+      must(verdict.qualified === false, `${label}: the gate qualified it anyway`);
+      must(
+        verdict.failures.some((failure) => failure.code === code),
+        `${label}: refused, but not under ${code} (got ${verdict.failures.map((f) => f.code).join(', ')})`,
+      );
+    }
+
+    // Every refusal is a reason rather than a category of one, and the gate
+    // reports all of them at once: an operator who has to redeploy wants every
+    // reason in one round trip.
+    must(
+      Object.keys(IdentityFailure).length >= 12,
+      `the gate has collapsed to ${Object.keys(IdentityFailure).length} refusal codes`,
+    );
+    const collapsed = judgeIdentityPreflight({ expected: {}, readings: {} });
+    must(collapsed.qualified === false, 'a deployment with no readings at all was qualified');
+    must(collapsed.failures.length > 1, 'the gate stops at the first refusal');
+    must(
+      collapsed.checks.length > 0,
+      'the gate records no checks, so its verdict cannot be audited after the project is deleted',
+    );
+
+    return suiteCheck({ file: 'identity-preflight.test.mjs', minimum: 35 });
+  });
+
+  check('REQ-084', 7, () => {
+    // Step 5 of the provisioning ordering: nothing but a passing gate makes an
+    // attempt eligible, and the blocked state is written before either runtime
+    // exists rather than inferred afterwards.
+    must(
+      attemptsEligibleFor({ qualified: true }) === ATTEMPTS_WHEN_QUALIFIED,
+      'a qualified deployment is eligible for no attempts, so the gate refuses everything',
+    );
+    must(ATTEMPTS_WHEN_QUALIFIED > 0, 'no attempt is ever eligible');
+    for (const verdict of [undefined, null, {}, { qualified: false }, { qualified: 'yes' }, { qualified: 1 }]) {
+      must(
+        attemptsEligibleFor(verdict) === 0,
+        `${JSON.stringify(verdict) ?? 'undefined'} bought ${attemptsEligibleFor(verdict)} attempts ` +
+          'without qualifying; this is the one gate in the experiment that may never fail open',
+      );
+    }
+
+    // A genuinely failing judgement, not just a hand-made object: the fatal case
+    // is both runtimes coming up as the project default account.
+    const collapsed = judgeIdentityPreflight({
+      expected: {
+        transport: EXPERIMENT_TRANSPORT,
+        A: { serviceAccount: 'a@p.iam.gserviceaccount.com' },
+        B: { serviceAccount: 'b@p.iam.gserviceaccount.com' },
+      },
+      readings: {
+        runtimes: {
+          A: { effectiveIdentity: 'default@p.iam.gserviceaccount.com' },
+          B: { effectiveIdentity: 'default@p.iam.gserviceaccount.com' },
+        },
+        ingressObservations: [],
+      },
+    });
+    must(collapsed.qualified === false, 'two runtimes with one identity qualified');
+    must(attemptsEligibleFor(collapsed) === 0, 'a FAIL/PIVOT deployment was still given attempts');
+
+    // And the declaration provisioning writes, which is what an operator reads.
+    must(
+      sources.provision.includes('"attemptsEligible": 0'),
+      'provisioning no longer declares the eligibility gate in the blocked state',
+    );
+    must(
+      sources.provision.includes('"blockedBy": "identity-preflight"'),
+      'the eligibility gate no longer names what unblocks it',
+    );
+    must(
+      sources.identityPreflight.includes('attemptsEligible: attemptsEligibleFor(verdict)'),
+      'the verdict artifact restates its eligibility rather than deriving it',
+    );
+
+    return suiteCheck({
+      file: 'identity-preflight.test.mjs',
+      minimum: 35,
+      titles: ['fails closed on anything that is not exactly a qualified verdict'],
+    });
+  });
+
+  check('REQ-085', 7, () => {
+    // One implementation, two callers. The local harness and the deployed
+    // ingress must record arrivals the same way, because every judgement the
+    // packet makes about a runtime retry is made over that record: a second
+    // implementation that drifted by one field would produce a Phase 7 number
+    // the local run could not be compared to, and nothing would look wrong.
+    const SHARED = 'src/arrivals.mjs';
+    for (const [label, source] of [
+      ['the local harness (bin/run-arm.mjs)', sources.runArm],
+      ['the deployed ingress (bin/ingress-service.mjs)', sources.ingressService],
+    ]) {
+      must(
+        new RegExp(`createArrivalRecorder[\\s\\S]{0,400}?from '\\.\\./${SHARED}'`).test(source),
+        `${label} does not import createArrivalRecorder from ${SHARED}`,
+      );
+      must(
+        !/function\s+createArrivalRecorder\b/.test(source),
+        `${label} defines its own createArrivalRecorder; there are now two answers to what an ` +
+          'arrival is and the packet cannot say which one produced its numbers',
+      );
+    }
+
+    // Not merely imported from the same place: the same function object, and it
+    // behaves the same way for both callers. Two arrivals of one logical
+    // invocation are recorded, and the second is marked as repeating the first.
+    const arrivalsOf = (arm) => {
+      const observations = [];
+      const recorder = createArrivalRecorder({ observations, arm, runId: `hac316-${arm}-shared` });
+      const one = {
+        agentId: 'capacity-planner',
+        expectedAgent: 'A',
+        identitySource: 'oidc-id-token/platform-verified:email',
+        correlationId: `ilk-${arm}-1`,
+        intent: { operation: 'set_reservation', arguments: { service: 'alpha', count: 60 } },
+        toolInvocationId: 'tool-call-shared',
+        startedAtMs: 1000,
+      };
+      recorder.record(one);
+      const repeat = recorder.record({ ...one, correlationId: `ilk-${arm}-2`, startedAtMs: 1001 });
+      return { observations, repeat };
+    };
+    const local = arrivalsOf('local');
+    const deployed = arrivalsOf('phase-7');
+    must(
+      local.repeat.duplicateOfOrdinal === 1 && deployed.repeat.duplicateOfOrdinal === 1,
+      'the shared recorder did not attribute a repeated logical invocation to the arrival it ' +
+        'repeats on both paths',
+    );
+    must(
+      JSON.stringify(Object.keys(local.observations[0]).sort()) ===
+        JSON.stringify(Object.keys(deployed.observations[0]).sort()),
+      'the two paths record different arrival fields',
+    );
+    must(
+      local.observations[0].logicalInvocationKey === deployed.observations[0].logicalInvocationKey,
+      'the two paths compute different logical invocation keys, so a retry detected on one would ' +
+        'not be detected on the other',
+    );
+
+    return suiteCheck({ file: 'ingress-arrivals.test.mjs', minimum: 20 });
   });
 }
 

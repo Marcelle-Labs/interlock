@@ -129,7 +129,11 @@ describe('R1: the ingress retains every arrival, in every arm identically', () =
     expect(record.agentId).toBe(EXPECTED_AGENT_IDENTITIES.A);
     expect(record.expectedAgent).toBe('A');
     expect(record.toolInvocationId).toBe('ti-1');
-    expect(record.logicalInvocationKey).toBe('tool-invocation:ti-1');
+    // Bound to the caller, not to the caller-supplied id alone. See the
+    // "does not collapse two distinct agents that share a tool id" case below.
+    expect(record.logicalInvocationKey).toBe(
+      `agent-tool-invocation:${EXPECTED_AGENT_IDENTITIES.A}:ti-1`,
+    );
     expect(typeof record.timestamp).toBe('string');
     expect(record.dispatched).toBe(true);
   });
@@ -572,7 +576,7 @@ describe('R5: overlap pairs agents, not positions', () => {
 describe('the logical invocation key', () => {
   it('prefers the tool invocation identity when the transport carries one', () => {
     expect(logicalInvocationKey({ toolInvocationId: 'ti-9', agentId: 'a', logicalIntentDigest: 'd' })).toBe(
-      'tool-invocation:ti-9',
+      'agent-tool-invocation:a:ti-9',
     );
   });
 
@@ -587,6 +591,67 @@ describe('the logical invocation key', () => {
     const other = logicalInvocationKey({ agentId: 'traffic-shaper', logicalIntentDigest: 'd' });
 
     expect(one).not.toBe(other);
+  });
+
+  it('does not collapse two distinct agents that share a tool invocation id', () => {
+    // The B2 collision. The tool invocation id is caller-supplied, so two
+    // genuinely distinct invocations — A writing alpha and B writing beta, with
+    // different intent digests, which is the exact pair this experiment exists
+    // to observe — used to produce one key the moment they shared a header
+    // value. Against the unbound key this whole block fails.
+    const shared = 'ti-shared';
+    const a = arrival({ agent: 'A', ordinal: 1, toolInvocationId: shared });
+    const b = arrival({ agent: 'B', ordinal: 2, toolInvocationId: shared });
+
+    expect(a.logicalIntentDigest).not.toBe(b.logicalIntentDigest);
+    expect(a.logicalInvocationKey).not.toBe(b.logicalInvocationKey);
+
+    const record = classifyArrivals([a, b]);
+    expect(record.retryObserved).toBe(false);
+    expect(record.duplicates).toEqual([]);
+    expect(record.arrivalsByExpectedAgent).toEqual({ A: 1, B: 1 });
+    expect(record.acceptable).toBe(true);
+    expect(record.verdict).toBeNull();
+
+    // And the disposition that follows: a clean A/B pair, not a runtime retry.
+    expect(dispositionOf('treatment', attemptWith([a, b])).code).toBe(
+      AttemptDisposition.SATISFIED,
+    );
+  });
+
+  it('still catches one agent re-sending its own tool invocation id', () => {
+    // Binding the caller must not blind the detector to the thing it is for.
+    const shared = 'ti-retried';
+    const first = arrival({ agent: 'A', ordinal: 1, toolInvocationId: shared });
+    const again = arrival({ agent: 'A', ordinal: 2, toolInvocationId: shared });
+
+    expect(first.logicalInvocationKey).toBe(again.logicalInvocationKey);
+    const record = classifyArrivals([first, again, arrival({ agent: 'B', ordinal: 3 })]);
+    expect(record.retryObserved).toBe(true);
+    expect(record.verdict).toBe(TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY);
+  });
+
+  it('is agent-bound end to end, through the running ingress', async () => {
+    // Not just the pure function: two live arrivals over HTTP, sharing a tool
+    // invocation id, must both be dispatched.
+    const dispatched = [];
+    const observations = [];
+    const server = createIngress({
+      handle: (request) => {
+        dispatched.push(request.correlationId);
+        return { authorized: true };
+      },
+      observations,
+      arm: 'treatment',
+    });
+    const url = await listen(server);
+    await post(url, { agent: 'A', service: 'alpha', reserved: 60, toolInvocationId: 'ti-shared' });
+    await post(url, { agent: 'B', service: 'beta', reserved: 60, toolInvocationId: 'ti-shared' });
+    await close(server);
+
+    expect(dispatched).toHaveLength(2);
+    expect(observations.every((entry) => entry.dispatched)).toBe(true);
+    expect(ingressRecordFor(observations).acceptable).toBe(true);
   });
 });
 

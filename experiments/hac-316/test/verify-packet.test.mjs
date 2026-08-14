@@ -23,11 +23,14 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import {
+  codeWithoutCommentLines,
   EXECUTABLE_SURFACE,
   EXECUTABLE_SURFACE_EXTENSIONS,
   FALSIFIED_RESOURCE_PATTERN,
   FALSIFIED_RESOURCE_SHAPES,
   implementationFreshness,
+  SERVER_ENTRY_POINT_MARKERS,
+  serverEntryPointGaps,
   isVacuousPass,
   judgeRefusalProbe,
   MODES,
@@ -97,6 +100,14 @@ describe('the selector is parsed, never guessed', () => {
     expect(() => parseMode(['--req', 'REQ-071', '--all'])).toThrow(/one selector at a time/);
   });
 
+  // 60_000, matching its neighbours, and for the same reason. Each of the four
+  // selectors is refused in about 100ms, so the budget is not about this test's
+  // own work: it is about what else the runner is doing while it runs. The suite
+  // spawns vitest-in-vitest and teardown subprocesses in parallel, a full sweep
+  // takes ~14s, and four sequential `spawnSync` calls contending with that came
+  // in at 4858ms against the 5000ms default — a pass by 3%, which is a fail on a
+  // slower machine. Nothing here is timing-sensitive by design, so the budget is
+  // set well clear of the contention rather than tuned to it.
   it('exits 2 on every unknown or missing selector, and never sweeps', () => {
     for (const argv of [['--counterfactuel'], ['--req'], ['--req', 'REQ-999'], ['--req', 'REQ-71']]) {
       const run = runVerifier(...argv);
@@ -105,7 +116,7 @@ describe('the selector is parsed, never guessed', () => {
       expect(run.stdout).not.toMatch(/REQ \d+\/\d+ PASS/);
       expect(run.stdout).not.toMatch(/PACKET/);
     }
-  });
+  }, 60_000);
 
   it('evaluates exactly the requirements named, and no others', () => {
     const run = runVerifier('--req', 'REQ-071,REQ-072');
@@ -128,10 +139,13 @@ describe('the ledger is the spec\'s requirement set, exactly', () => {
     expect([...ids].sort()).toEqual(['REQ-001', 'REQ-074']);
   });
 
-  it('finds all 79 declared requirements in SPEC.md, including REQ-075 … REQ-079', () => {
+  it('finds all 85 declared requirements in SPEC.md, including REQ-080 … REQ-085', () => {
     const ids = parseSpecRequirementIds(readFileSync(join(experimentDir, 'SPEC.md'), 'utf8'));
-    expect(ids.size).toBe(79);
-    for (const id of ['REQ-069', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-078', 'REQ-079']) {
+    expect(ids.size).toBe(85);
+    for (const id of [
+      'REQ-069', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-078', 'REQ-079',
+      'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085',
+    ]) {
       expect(ids.has(id), id).toBe(true);
     }
   });
@@ -155,7 +169,7 @@ describe('the ledger is the spec\'s requirement set, exactly', () => {
     // requirement is added to SPEC.md that the verifier does not evaluate — which
     // is exactly how REQ-069 … REQ-074 went uncounted.
     const run = runVerifier('--req', 'REQ-001');
-    expect(run.stdout).toMatch(/^REQ-SET {2}spec=79 verifier=79 missing=0 extra=0$/m);
+    expect(run.stdout).toMatch(/^REQ-SET {2}spec=85 verifier=85 missing=0 extra=0$/m);
   }, 60_000);
 });
 
@@ -638,7 +652,7 @@ describe('the ingress retry rulings are checked, not merely written down', () =>
     // the real judgement over an input that must be refused, so a green line
     // here is a statement about the detector and not only about a clean run.
     expect(run.stdout).not.toMatch(/^FAIL/m);
-    expect(run.stdout).toMatch(/^REQ-SET {2}spec=79 verifier=79 missing=0 extra=0$/m);
+    expect(run.stdout).toMatch(/^REQ-SET {2}spec=85 verifier=85 missing=0 extra=0$/m);
 
     // Three of the five end by requiring the ingress suite, which cannot be
     // collected from inside a vitest run — that is the pre-existing
@@ -703,4 +717,67 @@ describe('the teardown probe refuses for the reason it claims', () => {
     const refused = refuse('hac316-s1-not-declared');
     expect(refused.status).toBe(4);
   }, 30_000);
+});
+
+// ---------------------------------------------------------------------------
+// The two predicates REQ-080 and REQ-081 are built on (erratum E-08)
+// ---------------------------------------------------------------------------
+
+describe('a deployable entry point is told apart from a library', () => {
+  it('accepts the real ingress and rejects the library it was mistaken for', () => {
+    const read = (relative) => readFileSync(join(experimentDir, relative), 'utf8');
+    expect(serverEntryPointGaps(read('bin/ingress-service.mjs'))).toEqual([]);
+    // B6, as a predicate. `src/routing.mjs` was R-08's declared entry point and
+    // fails all three markers: it builds objects and never serves.
+    expect(serverEntryPointGaps(read('src/routing.mjs')).sort()).toEqual(
+      Object.keys(SERVER_ENTRY_POINT_MARKERS).sort(),
+    );
+  });
+
+  it('names each missing marker separately, so a partial entry point is legible', () => {
+    // A module that builds and binds a server inside a function nobody calls is
+    // exactly as dead as a library, and has to be reported as such.
+    const neverRun = 'const s = createServer(handler); export const go = () => s.listen(8080);';
+    expect(serverEntryPointGaps(neverRun)).toEqual(['runsWhenExecuted']);
+    expect(serverEntryPointGaps('export const x = 1;').sort()).toEqual(
+      Object.keys(SERVER_ENTRY_POINT_MARKERS).sort(),
+    );
+    expect(serverEntryPointGaps(undefined).length).toBe(3);
+  });
+});
+
+describe('a prohibition scan reads code, not prose about the prohibition', () => {
+  it('drops whole-line comments and keeps everything that executes', () => {
+    // The E-01 defect, one file down: bin/ingress-service.mjs names `params.agent`
+    // in a comment explaining why it never reads one, and the raw text therefore
+    // matched the rule's own words.
+    const source = [
+      '// identity is never taken from params.agent',
+      '/* nor from',
+      '   body.agent */',
+      ' * arguments.agent',
+      'const identity = observeIdentity(request.headers);',
+      'const kept = 1; // trailing params.agent stays in scope',
+    ].join('\n');
+    const code = codeWithoutCommentLines(source);
+    expect(code).toContain('observeIdentity(request.headers)');
+    expect(code).not.toContain('// identity is never taken');
+    expect(/params\s*\.\s*agent\b/.test(code.split('\n')[0] ?? '')).toBe(false);
+    // Over-reports rather than under-reports: a trailing comment on a line of
+    // code is kept, because a line that executes always has code before it.
+    expect(code).toContain('trailing params.agent stays in scope');
+  });
+
+  it('does not let a violation hide behind a comment marker', () => {
+    // The direction that matters. Anything that executes stays in scope.
+    const sneaky = 'const agent = params.agent; // looks innocent';
+    expect(/params\s*\.\s*agent\b/.test(codeWithoutCommentLines(sneaky))).toBe(true);
+  });
+
+  it('is what keeps REQ-081 green on a file that names what it refuses to do', () => {
+    const ingress = readFileSync(join(experimentDir, 'bin', 'ingress-service.mjs'), 'utf8');
+    // Red on the raw text, green on the code: the whole reason the helper exists.
+    expect(/params\s*\.\s*agent\b/.test(ingress)).toBe(true);
+    expect(/params\s*\.\s*agent\b/.test(codeWithoutCommentLines(ingress))).toBe(false);
+  });
 });

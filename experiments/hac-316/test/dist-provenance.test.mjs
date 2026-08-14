@@ -129,10 +129,21 @@ describe('the build the verifier re-derives through is pinned', () => {
 
   it('reaches modules no experiment file imports directly', () => {
     const direct = directDistImports();
-    // The exact two E1 escaped through: imported by pinned decision-path
-    // modules, imported by nothing in the experiment, unpinned until now.
+    // `http/json` is still exactly the E1 case, and it is the live demonstration
+    // that the closure walk reaches further than a hand-written list would:
+    // imported by pinned decision-path modules, imported by nothing in the
+    // experiment, and unpinned until the walk found it.
+    expect(direct.has('http/json')).toBe(false);
+
+    // `proxy/identity` was the second such module until the deployed ingress
+    // (`bin/ingress-service.mjs`) began taking caller identity from the platform
+    // through `observeIdentity` rather than from a request body, which makes it a
+    // direct import. Nothing about the pin weakens: it is bound as a file, as a
+    // source, and as a set of loaded symbols either way, and the walk would still
+    // reach it if every direct import went away. The claim that had to survive is
+    // that the *pin* covers a module a maintainer would not have written down,
+    // and `http/json` above holds it.
     for (const stem of ['proxy/identity', 'http/json']) {
-      expect(direct.has(stem)).toBe(false);
       expect(DECISION_PATH_MODULES).toContain(stem);
       expect(pins.dist.built).toHaveProperty(`dist/${stem}.js`);
       expect(pins.dist.source).toHaveProperty(`src/${stem}.ts`);

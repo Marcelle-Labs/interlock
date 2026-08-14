@@ -60,12 +60,16 @@ the check that is wrong.
 | E-05 | §0.8 | G-8 (REQ-073) | G-8 admits `PERMISSION_DENIED` as a way a deleted project fails; the owner directive makes it a must-FAIL |
 | E-06 | §0.9 | X-05 (REQ-050, REQ-051) | the packet asserted no retry pool exists at any layer; ADK 2.6.3 retries the MCP tool method once, so the claim is narrowed to the one that is checkable |
 | E-07 | §0.10 | REQ-058 (X-01) | the frozen `--include` list omits `*.sh`, so the only file that creates cloud resources was outside the scan forbidding the falsified topology |
+| E-08 | §0.12 | R-08 (§4.4 deployment block) | R-08's declared entry point is `src/routing.mjs`, which is a library with no server; the deployed topology was never assembled and could not have started |
 
-E-06 and E-07 are later than E-01 – E-05 and are of two further kinds. E-06 is a
-**false claim**, not an unsatisfiable command: the check passed, and what it
-attested was untrue of a layer nobody had looked at. E-07 is a **scan-scope
-widening**: the command was satisfiable and passed, and it passed partly because
-it never read the file most able to violate the rule.
+E-06, E-07 and E-08 are later than E-01 – E-05 and are of three further kinds.
+E-06 is a **false claim**, not an unsatisfiable command: the check passed, and
+what it attested was untrue of a layer nobody had looked at. E-07 is a
+**scan-scope widening**: the command was satisfiable and passed, and it passed
+partly because it never read the file most able to violate the rule. E-08 is a
+**corrected artifact**, and the first erratum against something other than a
+verification command: the deployment block named an entry point that cannot
+serve, every component of the topology existed, and the topology did not.
 
 **Owner ruling, applied here verbatim:**
 
@@ -723,6 +727,133 @@ accepted trial" is the claim that has to remain checkable.
 
 ---
 
+### 0.12 ERRATUM E-08 — R-08's entry point is a library, not a server
+
+**Original** (frozen at `SPEC.md:2443`, in the §4.4 deployment block):
+
+```sh
+# P-08  R-08  routing surface — ONE process, ONE PendingIntentStore (REQ-028)
+gcloud run deploy interlock-s1-proxy --image="${IMAGE}" --region="${REGION}" \
+  --project="${PROJECT_ID}" --no-allow-unauthenticated \
+  --command=node --args=experiments/hac-316/src/routing.mjs \
+  --env-vars-file="${WORK_DIR}/proxy.env.json" --max-instances=1 --quiet
+```
+
+**The defect.** `experiments/hac-316/src/routing.mjs` exports
+`createRoutingSurface`, `serviceOf`, `route` and `dispatch`, and calls none of
+them. It has no `createServer` and no `listen`. `node
+experiments/hac-316/src/routing.mjs` evaluates the module, binds nothing, and
+exits 0 — so R-08 would have deployed a container that never listened on `$PORT`,
+Cloud Run would have reported a failed revision, and the two agent runtimes would
+have had nothing to arrive at.
+
+This is not a command that could not pass. It is an artifact that could not run,
+and the difference matters for what the packet was entitled to claim. Meanwhile
+the neutral ingress that records arrivals, derives identity and detects a runtime
+retry existed **only inside `bin/run-arm.mjs`**: it was no service's entry point,
+it spoke bare JSON rather than the MCP StreamableHTTP the agents speak, and it
+read the caller's identity out of `body.agent`.
+
+**Why nothing caught it.** Every check that existed was true of a library.
+REQ-028 asserts the surface builds two proxies over one `PendingIntentStore` —
+true. REQ-069 asserts R-08 is declared in the manifest and provisioned — true of
+a service that crash-loops. The `--args=` value was a string the packet compared
+to another string and nobody executed. Each component had unit tests; no request
+had ever traversed all of them.
+
+> A topology does not exist because its components exist. It exists when a
+> representative request can traverse the deployed path end-to-end.
+
+**Corrected** (the operative deployment; `bin/10-provision.sh` is the executable
+form and this block is the spec's record of it):
+
+```sh
+# P-08  R-08  routing surface — ONE process, ONE PendingIntentStore (REQ-028)
+gcloud run deploy interlock-s1-proxy --project="${PROJECT_ID}" --quiet \
+  --image="${IMAGE}" --region="${REGION}" --no-allow-unauthenticated \
+  --command=node --args=experiments/hac-316/bin/ingress-service.mjs \
+  --env-vars-file="${WORK_DIR}/proxy.env.json" --max-instances=1
+```
+
+**The components this adds.** All experiment-local; no `src/` or `dist/` module
+is altered, and X-10 and X-15 are untouched.
+
+| Component | What it is |
+| -- | -- |
+| `bin/ingress-service.mjs` | The runnable entry point. Speaks MCP StreamableHTTP (`initialize`, `notifications/initialized`, `tools/list`, `tools/call`) and `GET /healthz`, builds the routing surface **once** at startup, and hands each request to it unaltered. Inspects no evidence, authorizes nothing, mints no receipt. |
+| `src/arrivals.mjs` | The arrival recorder, extracted from `bin/run-arm.mjs`. One implementation, two callers — the local harness and the deployed ingress (REQ-085). |
+| `src/agent-identity.mjs` | Identity from `observeIdentity` only. `HAC316_AGENT_A_PRINCIPAL` / `HAC316_AGENT_B_PRINCIPAL` map an observed service account to A or B; absent, empty or duplicated, the service does not start (REQ-082). |
+| `bin/identity-preflight.mjs` | The gate that proves the two runtimes are two, against what the platform reports rather than what the manifest declares. Four conditions, twelve refusal codes, caller-asserted sources refused by name (REQ-083, REQ-084). |
+
+**`--env-vars-file` grew two names with it.** `HAC316_AGENT_A_PRINCIPAL` and
+`HAC316_AGENT_B_PRINCIPAL` are rendered into `proxy.env.json` from the same
+`SA_A` and `SA_B` that P-11 creates and the ADK deploy passes as
+`service_account`. Without them `readAgentPrincipals` throws before the socket is
+opened — correct behaviour, and a container that never listens. The first
+revision of this correction changed the entry point and not the environment, so
+the topology would have been assembled and still not started.
+
+**What this erratum does not change.**
+
+- REQ-028 is **not** edited or relaxed. One process, one `PendingIntentStore` is
+  exactly as strict as it was frozen, and `--max-instances=1` remains
+  load-bearing for the same reason: a second instance is a second store.
+- `src/routing.mjs` is **unchanged**. It was never wrong as a library; it was
+  wrong as an entry point. The ingress imports it and builds through it.
+- No frozen S2 semantics move. The tool definition the agents see is
+  `TOOL_DEFINITION` from `dist/proxy/http.js`, the identity observer is
+  `dist/proxy/identity.js`, and arbitration, receipts and evidence are the
+  pinned build's throughout.
+- It adds obligations rather than removing any: REQ-080 – REQ-085 (§0.13)
+  require the entry point to be runnable and the identity path to fail closed.
+
+**Proved still load-bearing.** `REQ-080` reads the entry point
+`bin/10-provision.sh` actually names and applies the same predicate to
+`src/routing.mjs` as a control. Against the tree as it stood before this
+correction:
+
+| Probe | Result |
+| -- | -- |
+| R-08 deployed with `--args=…/src/routing.mjs` | `FAIL` (REQ-080: missing `createsAServer`, `bindsAPort`, `runsWhenExecuted`) |
+| `proxy.env.json` rendered without the two principal names | `FAIL` (`test/ingress-service.test.mjs`: required by the entry point, never rendered by provisioning) |
+| both corrected | `PASS` |
+
+---
+
+### 0.13 Addition — the deployed topology and the identity gate (REQ-080 - REQ-085)
+
+E-08 corrects an artifact. This is the other half: six requirements that make the
+corrected artifact checkable. They are additions in the sense §0.5, §0.6 and
+§0.11 are — no existing REQ id is changed, renumbered or relaxed — and they raise
+the requirement count from 79 to 85 (§7.4).
+
+| REQ | Ruling |
+| -- | -- |
+| REQ-080 | R-08's entry point is a process that listens, not a module that exports |
+| REQ-081 | the ingress derives identity from platform-verified sources only, and refuses caller-asserted ones by name |
+| REQ-082 | the A/B principal map fails closed at startup and at request time |
+| REQ-083 | the identity preflight checks four conditions and refuses on each of them |
+| REQ-084 | a failing identity preflight makes no attempt eligible |
+| REQ-085 | one arrival recorder serves both the local harness and the deployed ingress |
+
+Each is written to go red against the tree **before** the thing it checks
+existed. That is not a stylistic preference: a requirement added alongside the
+code that satisfies it can be green from birth without ever having been able to
+fail, which is the vacuity §7.4's assertion counter exists to catch and which the
+counter cannot see when the body does assert — it just asserts something that was
+never in doubt. REQ-080 carries its control inside the check: the predicate that
+admits `bin/ingress-service.mjs` must still reject `src/routing.mjs`, and the
+requirement fails if the two ever become indistinguishable.
+
+REQ-084 is the one with a cost attached. It is the gate between a provisioned
+project and a spent attempt, and it is the only gate in the experiment where
+failing open buys three runs against a deployment that was never shown to have
+two distinguishable agents. `attemptsEligibleFor` therefore requires
+`qualified === true` exactly, and REQ-084 drives it with `undefined`, `{}`,
+`{qualified: 'yes'}` and `{qualified: 1}` to prove that it does.
+
+---
+
 ## 1. Scope Declaration
 
 ### 1.1 In scope
@@ -1151,14 +1282,16 @@ Phases are ordered so that **cloud spend happens as late as possible**. Phases
 Each REQ carries a bash verification command and its expected output.
 
 > **On REQ numbering.** REQ ids are stable unique identifiers, not an ordering.
-> The set REQ-001 … REQ-079 is complete with no gaps; a few higher-numbered
+> The set REQ-001 … REQ-085 is complete with no gaps; a few higher-numbered
 > requirements appear in earlier phases because they were added after the
 > initial numbering. Execute by phase, verify by id.
 >
-> REQ-069 … REQ-074 were added after the freeze by §0.5 and §0.6, and
-> REQ-075 … REQ-079 by §0.11. No existing id was renumbered, reworded or relaxed.
-> Four commands were corrected in scope only, each recorded in §0 and flagged
-> inline: REQ-027, REQ-058 (twice — E-02 and E-07), REQ-064, and REQ-009.
+> REQ-069 … REQ-074 were added after the freeze by §0.5 and §0.6,
+> REQ-075 … REQ-079 by §0.11, and REQ-080 … REQ-085 by §0.13. No existing id was
+> renumbered, reworded or relaxed. Four commands were corrected in scope only,
+> each recorded in §0 and flagged inline: REQ-027, REQ-058 (twice — E-02 and
+> E-07), REQ-064, and REQ-009. One artifact was corrected: R-08's entry point,
+> by E-08, flagged inline at the §4.4 deployment block.
 
 ### Phase 0 — Governance, pinning, and Preflight V2 (no cloud spend)
 
@@ -2460,6 +2593,17 @@ gcloud run services add-iam-policy-binding interlock-s1-proxy \
   --role=roles/run.invoker --quiet
 ```
 
+> **ERRATUM E-08 (§0.12).** P-08's `--args=experiments/hac-316/src/routing.mjs`
+> above names a **library**, not a server. `routing.mjs` exports
+> `createRoutingSurface`, `serviceOf`, `route` and `dispatch` and calls none of
+> them; it has no `createServer` and no `listen`, so that revision deploys a
+> container that exits immediately and never binds `$PORT`. The operative entry
+> point is `experiments/hac-316/bin/ingress-service.mjs`, and `proxy.env.json`
+> additionally carries `HAC316_AGENT_A_PRINCIPAL` and
+> `HAC316_AGENT_B_PRINCIPAL` without which it refuses to start. The corrected
+> block is in §0.12; `bin/10-provision.sh` is the executable form, and REQ-080
+> checks the entry point that script actually names.
+
 `R-09` and `R-10` are created by the Vertex AI Agent Engine SDK
 (`vertexai.agent_engines.create`) from an ADK deploy entry point under
 `experiments/hac-316/agents/`, not by `gcloud` — there is no `gcloud` create verb
@@ -3039,6 +3183,244 @@ PASS pairedBy=expected-agent-identity
 
 ---
 
+#### The deployed topology and the identity gate (REQ-080 - REQ-085)
+
+Added by §0.13, under erratum E-08 (§0.12). R-08's declared entry point was
+`src/routing.mjs`, which is a library with no server, so the deployed topology
+was never assembled and could not have started; and the identity path that makes
+A and B two agents rather than one had no requirement checking it at all. These
+six are the mechanical form of that correction.
+
+Each is written to go red against the tree as it stood before the thing it
+checks existed. A requirement added alongside the code that satisfies it can be
+green from birth without ever having been able to fail, and REQ-080 carries its
+own control for exactly that reason: the predicate that admits the entry point
+must still reject the library it was mistaken for.
+
+---
+
+**REQ-080 — R-08's entry point is a process that listens, not a module that
+exports (E-08).**
+
+A topology does not exist because its components exist. The check reads the file
+`bin/10-provision.sh` actually names in `--args=` — not a path restated here — so
+an entry point changed in the script and not in the tests can no longer pass
+because the tests still exercise the old one.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { serverEntryPointGaps, SERVER_ENTRY_POINT_MARKERS } = await import("./experiments/hac-316/bin/verify-packet.mjs");
+const { readFileSync, existsSync } = await import("node:fs");
+const script = readFileSync("experiments/hac-316/bin/10-provision.sh","utf8");
+const m = /gcloud run deploy interlock-s1-proxy[\s\S]*?--args=(\S+)/.exec(script);
+if(m===null) throw new Error("10-provision.sh no longer deploys interlock-s1-proxy with --args=");
+const named = m[1];
+if(!existsSync(named)) throw new Error("R-08 is deployed with --args="+named+", which is not a file");
+const gaps = serverEntryPointGaps(readFileSync(named,"utf8"));
+if(gaps.length) throw new Error(named+" is not a runnable server: missing "+gaps.join(", "));
+if(!/export\s+(?:async\s+)?function\s+startIngressService\b/.test(readFileSync(named,"utf8"))) throw new Error(named+" is not the entry point the end-to-end gate drives");
+const library = serverEntryPointGaps(readFileSync("experiments/hac-316/src/routing.mjs","utf8"));
+if(library.length!==Object.keys(SERVER_ENTRY_POINT_MARKERS).length) throw new Error("the predicate no longer distinguishes the library from the service");
+if(named==="experiments/hac-316/src/routing.mjs") throw new Error("R-08 is once again deployed with the routing library as its entry point");
+console.log("PASS entry="+named);'
+```
+
+Expected output:
+```
+PASS entry=experiments/hac-316/bin/ingress-service.mjs
+```
+
+---
+
+**REQ-081 — The ingress derives identity from platform-verified sources only,
+and refuses caller-asserted ones by name (E-08).**
+
+Cloud Run verifies the caller's token before the container is invoked, so the
+email claim on it is a fact about who called established by something other than
+the caller. A body field naming the agent is not. A caller-asserted source gets
+its own refusal code rather than being folded into the generic one: a typo and a
+substituted caller-controlled header want different messages, because one is a
+mistake and the other is the gate being defeated.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { CALLER_ASSERTED_SOURCES, EXPERIMENT_TRANSPORT, IdentityFailure, PLATFORM_VERIFIED_SOURCES, isPlatformVerified, judgeIdentityPreflight } = await import("./experiments/hac-316/bin/identity-preflight.mjs");
+const { codeWithoutCommentLines } = await import("./experiments/hac-316/bin/verify-packet.mjs");
+const { readFileSync } = await import("node:fs");
+for(const s of PLATFORM_VERIFIED_SOURCES) if(!isPlatformVerified(s)) throw new Error(s+" is not recognised as platform-verified");
+for(const s of CALLER_ASSERTED_SOURCES) if(isPlatformVerified(s)) throw new Error(s+" was accepted as platform-verified");
+if(isPlatformVerified(undefined)||isPlatformVerified("")) throw new Error("an absent identity source was treated as platform-verified");
+const sa={A:"a@p.iam.gserviceaccount.com",B:"b@p.iam.gserviceaccount.com"};
+const obs=(agent,verifiedBy)=>({agent,observedPrincipal:sa[agent],verifiedBy,transport:EXPERIMENT_TRANSPORT});
+const v=judgeIdentityPreflight({expected:{transport:EXPERIMENT_TRANSPORT,A:{serviceAccount:sa.A},B:{serviceAccount:sa.B}},readings:{runtimes:{A:{effectiveIdentity:sa.A},B:{effectiveIdentity:sa.B}},ingressObservations:[obs("A",CALLER_ASSERTED_SOURCES[0]),obs("B","oidc-id-token/platform-verified:email")]}});
+if(v.qualified) throw new Error("a caller-asserted identity qualified the deployment");
+if(!v.failures.some((f)=>f.code===IdentityFailure.IDENTITY_CALLER_ASSERTED)) throw new Error("a caller-asserted identity was not refused under its own code");
+const code = codeWithoutCommentLines(readFileSync("experiments/hac-316/bin/ingress-service.mjs","utf8"));
+if(!/observeIdentity\(request\.headers\)/.test(code)) throw new Error("the ingress no longer derives identity from observeIdentity");
+for(const claim of [/params\s*\.\s*agent\b/,/body\s*\.\s*agent\b/,/arguments\s*\.\s*agent\b/,/headers\s*\[\s*.x-agent-id/i])
+  if(claim.test(code)) throw new Error("the ingress reads the caller own claim about itself: "+claim);
+console.log("PASS verified="+PLATFORM_VERIFIED_SOURCES.length+" asserted="+CALLER_ASSERTED_SOURCES.length);'
+```
+
+Expected output:
+```
+PASS verified=3 asserted=5
+```
+
+---
+
+**REQ-082 — The A/B principal map fails closed at startup and at request time
+(E-08).**
+
+At startup, because an ingress that discovered at request time that it could not
+say who A and B are would already have recorded arrivals it could not attribute.
+At request time, because an arrival matching neither principal is refused rather
+than guessed at — it is still retained, since an unattributable arrival is
+exactly what X-05 forbids hiding, but it is never dispatched and so mints no
+receipt and causes no mutation.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { AGENT_IDENTITY_ENV, IDENTITY_FAIL_CLOSED, readAgentPrincipals, resolveExpectedAgent } = await import("./experiments/hac-316/src/agent-identity.mjs");
+const A=AGENT_IDENTITY_ENV.A, B=AGENT_IDENTITY_ENV.B;
+for(const [label,env] of [["neither",{}],["only A",{[A]:"a@p"}],["only B",{[B]:"b@p"}],["an empty value",{[A]:"   ",[B]:"b@p"}],["one principal twice",{[A]:"same@p",[B]:"same@p"}]]){
+  let threw=false; try{ readAgentPrincipals(env); }catch{ threw=true; }
+  if(!threw) throw new Error("the ingress would have started with "+label);
+}
+const p=readAgentPrincipals({[A]:"a@p.iam.gserviceaccount.com",[B]:"b@p.iam.gserviceaccount.com"});
+const src="oidc-id-token/platform-verified:email";
+if(resolveExpectedAgent(p,{identity:"a@p.iam.gserviceaccount.com",identitySource:src}).expectedAgent!=="A") throw new Error("a configured principal did not resolve to its agent");
+for(const identity of ["stranger@p.iam.gserviceaccount.com","constructor","toString",""]){
+  const r=resolveExpectedAgent(p,{identity,identitySource:src});
+  if(r.ok||!r.failClosed||r.code!==IDENTITY_FAIL_CLOSED||r.expectedAgent!==null) throw new Error("the ingress attributed an arrival from "+(identity||"(none)"));
+}
+if(resolveExpectedAgent(p,undefined).ok) throw new Error("an arrival with no observed identity was dispatched");
+console.log("PASS fail-closed="+IDENTITY_FAIL_CLOSED);'
+```
+
+Expected output:
+```
+PASS fail-closed=INGRESS_IDENTITY_FAIL_CLOSED
+```
+
+---
+
+**REQ-083 — The identity preflight checks four conditions and refuses on each
+(E-08).**
+
+Two runtimes configured with the same service account are one runtime, and the
+project default compute account is the way that happens silently. Construction is
+not evidence, so the gate reads what the platform reports: each runtime runs as
+what was declared, the two are not each other, the ingress sees exactly those two
+on the wire, and the observation travelled the transport the experiment actually
+uses. The happy case is checked alongside them, because a gate that refuses
+everything would satisfy the four refusals and admit nothing.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { EXPERIMENT_TRANSPORT, IdentityFailure, judgeIdentityPreflight } = await import("./experiments/hac-316/bin/identity-preflight.mjs");
+const sa={A:"a@p.iam.gserviceaccount.com",B:"b@p.iam.gserviceaccount.com"};
+const expected={transport:EXPERIMENT_TRANSPORT,A:{serviceAccount:sa.A},B:{serviceAccount:sa.B}};
+const obs=(agent,principal)=>({agent,observedPrincipal:principal,verifiedBy:"oidc-id-token/platform-verified:email",transport:EXPERIMENT_TRANSPORT});
+const healthy=()=>({runtimes:{A:{effectiveIdentity:sa.A},B:{effectiveIdentity:sa.B}},ingressObservations:[obs("A",sa.A),obs("B",sa.B)]});
+const ok=judgeIdentityPreflight({expected,readings:healthy()});
+if(!ok.qualified) throw new Error("a correct deployment was refused: "+ok.failures.map((f)=>f.code).join(","));
+const cases=[
+  ["mismatch",()=>{const r=healthy(); r.runtimes.B.effectiveIdentity="other@p"; return r;},IdentityFailure.EFFECTIVE_IDENTITY_MISMATCH],
+  ["not distinct",()=>{const r=healthy(); r.runtimes.B.effectiveIdentity=sa.A; r.ingressObservations=[obs("A",sa.A),obs("B",sa.A)]; return r;},IdentityFailure.EFFECTIVE_IDENTITY_NOT_DISTINCT],
+  ["unreadable",()=>{const r=healthy(); r.runtimes.A={}; return r;},IdentityFailure.MISSING_READING],
+  ["unseen",()=>{const r=healthy(); r.ingressObservations=[obs("A",sa.A)]; return r;},IdentityFailure.INGRESS_OBSERVATION_MISSING],
+  ["wrong transport",()=>{const r=healthy(); r.ingressObservations=[{...obs("A",sa.A),transport:"debug-port"},obs("B",sa.B)]; return r;},IdentityFailure.INGRESS_TRANSPORT_MISMATCH]];
+for(const [label,build,code] of cases){
+  const v=judgeIdentityPreflight({expected,readings:build()});
+  if(v.qualified) throw new Error(label+": the gate qualified it anyway");
+  if(!v.failures.some((f)=>f.code===code)) throw new Error(label+": refused, but not under "+code);
+}
+if(Object.keys(IdentityFailure).length<12) throw new Error("the gate has collapsed to "+Object.keys(IdentityFailure).length+" refusal codes");
+const none=judgeIdentityPreflight({expected:{},readings:{}});
+if(none.qualified||none.failures.length<2||!none.checks.length) throw new Error("the gate stops at the first refusal or records no checks");
+console.log("PASS conditions="+cases.length+" codes="+Object.keys(IdentityFailure).length);'
+```
+
+Expected output:
+```
+PASS conditions=5 codes=12
+```
+
+---
+
+**REQ-084 — A failing identity preflight makes no attempt eligible (E-08).**
+
+Step 5 of the provisioning ordering, and the only gate in the experiment where
+failing open spends money on a run that could not have been falsifiable.
+`bin/10-provision.sh` writes the gate into `topology.json` in the blocked state
+before either runtime exists; nothing but a passing preflight raises it, and
+there is no caller-asserted fallback.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { ATTEMPTS_WHEN_QUALIFIED, EXPERIMENT_TRANSPORT, attemptsEligibleFor, judgeIdentityPreflight } = await import("./experiments/hac-316/bin/identity-preflight.mjs");
+const { readFileSync } = await import("node:fs");
+if(attemptsEligibleFor({qualified:true})!==ATTEMPTS_WHEN_QUALIFIED||ATTEMPTS_WHEN_QUALIFIED<1) throw new Error("a qualified deployment is eligible for no attempts");
+for(const v of [undefined,null,{},{qualified:false},{qualified:"yes"},{qualified:1}])
+  if(attemptsEligibleFor(v)!==0) throw new Error(JSON.stringify(v)+" bought attempts without qualifying");
+const collapsed=judgeIdentityPreflight({expected:{transport:EXPERIMENT_TRANSPORT,A:{serviceAccount:"a@p"},B:{serviceAccount:"b@p"}},readings:{runtimes:{A:{effectiveIdentity:"default@p"},B:{effectiveIdentity:"default@p"}},ingressObservations:[]}});
+if(collapsed.qualified) throw new Error("two runtimes with one identity qualified");
+if(attemptsEligibleFor(collapsed)!==0) throw new Error("a FAIL/PIVOT deployment was still given attempts");
+const script=readFileSync("experiments/hac-316/bin/10-provision.sh","utf8");
+if(!script.includes(String.raw`"attemptsEligible": 0`)) throw new Error("provisioning no longer declares the gate blocked");
+if(!script.includes(String.raw`"blockedBy": "identity-preflight"`)) throw new Error("the gate no longer names what unblocks it");
+if(!readFileSync("experiments/hac-316/bin/identity-preflight.mjs","utf8").includes("attemptsEligible: attemptsEligibleFor(verdict)")) throw new Error("the verdict artifact restates its eligibility rather than deriving it");
+console.log("PASS qualified="+ATTEMPTS_WHEN_QUALIFIED+" refused=0");'
+```
+
+Expected output:
+```
+PASS qualified=3 refused=0
+```
+
+---
+
+**REQ-085 — One arrival recorder serves both the local harness and the deployed
+ingress (E-08).**
+
+The recorder used to live inside `bin/run-arm.mjs`, so assembling the deployed
+ingress meant either importing the harness or writing a second one. Every
+judgement the packet makes about a runtime retry is made over the arrival record,
+so a second implementation that drifted by one field would produce a Phase 7
+number the local run could not be compared to, with nothing looking wrong.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { createArrivalRecorder } = await import("./experiments/hac-316/src/arrivals.mjs");
+const { readFileSync } = await import("node:fs");
+for(const [label,path] of [["bin/run-arm.mjs","experiments/hac-316/bin/run-arm.mjs"],["bin/ingress-service.mjs","experiments/hac-316/bin/ingress-service.mjs"]]){
+  const s=readFileSync(path,"utf8");
+  if(!new RegExp("createArrivalRecorder[\\s\\S]{0,400}?from .\\.\\./src/arrivals\\.mjs.").test(s)) throw new Error(label+" does not import createArrivalRecorder from src/arrivals.mjs");
+  if(/function\s+createArrivalRecorder\b/.test(s)) throw new Error(label+" defines its own createArrivalRecorder");
+}
+const arrivalsOf=(arm)=>{
+  const observations=[];
+  const rec=createArrivalRecorder({observations,arm,runId:"hac316-"+arm+"-shared"});
+  const one={agentId:"capacity-planner",expectedAgent:"A",identitySource:"oidc-id-token/platform-verified:email",correlationId:"ilk-"+arm+"-1",intent:{operation:"set_reservation",arguments:{service:"alpha",count:60}},toolInvocationId:"tool-call-shared",startedAtMs:1000};
+  rec.record(one);
+  const repeat=rec.record({...one,correlationId:"ilk-"+arm+"-2",startedAtMs:1001});
+  return {observations,repeat};
+};
+const local=arrivalsOf("local"), deployed=arrivalsOf("phase-7");
+if(local.repeat.duplicateOfOrdinal!==1||deployed.repeat.duplicateOfOrdinal!==1) throw new Error("the shared recorder did not attribute a repeat on both paths");
+if(JSON.stringify(Object.keys(local.observations[0]).sort())!==JSON.stringify(Object.keys(deployed.observations[0]).sort())) throw new Error("the two paths record different arrival fields");
+if(local.observations[0].logicalInvocationKey!==deployed.observations[0].logicalInvocationKey) throw new Error("the two paths compute different logical invocation keys");
+console.log("PASS shared-recorder fields="+Object.keys(local.observations[0]).length);'
+```
+
+Expected output:
+```
+PASS shared-recorder fields=16
+```
+
+---
+
 ### Phase 8 — Teardown, hygiene, and packet
 
 ---
@@ -3518,27 +3900,30 @@ PACKET_316_OK
 
 ### 7.4 Requirement gate
 
-Every REQ-001 … REQ-079 verification command produces its expected output.
+Every REQ-001 … REQ-085 verification command produces its expected output.
 The packet verifier `experiments/hac-316/bin/verify-packet.mjs` must execute
 **all** of them and enumerate any failure by REQ id.
 
 The command below is unchanged; only its expected count moves. It went from 68 to
-74 when §0.5 and §0.6 added REQ-069 … REQ-074, and from 74 to 79 when §0.11 added
-REQ-075 … REQ-079 (the ingress retry contract). No existing id has ever been
-renumbered, so the count is the only thing that changes. **E-04 (§0.7), E-06
-(§0.9) and E-07 (§0.10) do not move the count** — E-04 corrects REQ-009's
-cross-check, E-06 narrows a claim REQ-050 and REQ-051 relied on, and E-07 widens
-REQ-058's scan scope; none of the three adds a requirement. REQ-009, REQ-027,
-REQ-058 and REQ-064 must be executed in their **corrected** form (§0) — a verifier
-that still runs the frozen form of any of the four will report a failure that no
-implementation can clear.
+74 when §0.5 and §0.6 added REQ-069 … REQ-074, from 74 to 79 when §0.11 added
+REQ-075 … REQ-079 (the ingress retry contract), and from 79 to 85 when §0.13
+added REQ-080 … REQ-085 (the deployed topology and the identity gate). No
+existing id has ever been renumbered, so the count is the only thing that
+changes. **E-04 (§0.7), E-06 (§0.9), E-07 (§0.10) and E-08 (§0.12) do not move
+the count** — E-04 corrects REQ-009's cross-check, E-06 narrows a claim REQ-050
+and REQ-051 relied on, E-07 widens REQ-058's scan scope, and E-08 corrects R-08's
+entry point; none of the four adds a requirement, and the six that check E-08's
+correction are added by §0.13 rather than by the erratum itself. REQ-009,
+REQ-027, REQ-058 and REQ-064 must be executed in their **corrected** form (§0) —
+a verifier that still runs the frozen form of any of the four will report a
+failure that no implementation can clear.
 
 ```sh
 cd "$REPO" && node experiments/hac-316/bin/verify-packet.mjs --all 2>&1 | tail -2
 ```
 Expected:
 ```
-REQ 79/79 PASS
+REQ 85/85 PASS
 PACKET OK
 ```
 
@@ -3555,7 +3940,7 @@ ids out of this document and compares them to the ids it evaluates, printing the
 result on the line above the count in every sweeping mode:
 
 ```
-REQ-SET  spec=79 verifier=79 missing=0 extra=0
+REQ-SET  spec=85 verifier=85 missing=0 extra=0
 ```
 
 `missing` is a requirement this document declares that the verifier never
@@ -3592,7 +3977,7 @@ to run checks, which is the failure this whole document is organised against.
 **On the four corrected requirements.** REQ-009, REQ-027, REQ-058 and REQ-064
 report `PASS`, not `SPEC_DEFECT`. Their frozen commands are unsatisfiable and
 their corrected commands under §0 are the operative ones; those pass, this gate
-demands `REQ 79/79 PASS`, and the paragraph above requires the corrected form to
+demands `REQ 85/85 PASS`, and the paragraph above requires the corrected form to
 be the one executed. Reporting a defect against a command this document has
 already superseded would put four permanently un-clearable entries in the ledger
 and contradict the gate. Each of the four names its governing erratum in its

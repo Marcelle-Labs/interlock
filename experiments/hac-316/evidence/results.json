@@ -1,13 +1,13 @@
 {
   "experiment": "HAC-316",
   "mode": "local",
-  "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+  "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
   "agentRuntime": {
     "executed": false,
     "note": "This packet was produced by the local dry run (SPEC Phase 6). No Google Cloud project, Agent Runtime resource or other billable resource was created, and no Agent Runtime API was called. The Phase 7 arms are not represented here."
   },
   "cloudResourcesCreated": 0,
-  "producedAt": "2026-08-14T11:20:29.039Z",
+  "producedAt": "2026-08-14T13:04:33.817Z",
   "fixtureDigest": "sha256:7e5fb4253787d6688ed00f21562dd7bf7bd313f97dfba74a923bd439df9ebba1",
   "observationScope": {
     "independentlyReread": {
@@ -304,98 +304,63 @@
           },
           "arbitrationInputs": [
             {
-              "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+              "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
               "candidate": {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                 "agent": "capacity-planner",
                 "operation": "set_reservation",
                 "targets": [
                   "services/alpha/reservation.json"
                 ],
                 "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                "recordedAt": "2026-08-14T11:20:29.019Z",
-                "expiresAt": "2026-08-14T11:21:29.019Z"
+                "recordedAt": "2026-08-14T13:04:33.791Z",
+                "expiresAt": "2026-08-14T13:05:33.791Z"
               },
               "storeAnswered": true,
               "others": [
                 {
-                  "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                  "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                   "agent": "traffic-shaper",
                   "operation": "set_reservation",
                   "targets": [
                     "services/beta/reservation.json"
                   ],
                   "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                  "recordedAt": "2026-08-14T11:20:29.020Z",
-                  "expiresAt": "2026-08-14T11:21:29.020Z"
+                  "recordedAt": "2026-08-14T13:04:33.791Z",
+                  "expiresAt": "2026-08-14T13:05:33.791Z"
                 }
               ]
             },
             {
-              "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+              "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
               "candidate": {
-                "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                 "agent": "traffic-shaper",
                 "operation": "set_reservation",
                 "targets": [
                   "services/beta/reservation.json"
                 ],
                 "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                "recordedAt": "2026-08-14T11:20:29.020Z",
-                "expiresAt": "2026-08-14T11:21:29.020Z"
+                "recordedAt": "2026-08-14T13:04:33.791Z",
+                "expiresAt": "2026-08-14T13:05:33.791Z"
               },
               "storeAnswered": true,
-              "others": [
-                {
-                  "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                  "agent": "capacity-planner",
-                  "operation": "set_reservation",
-                  "targets": [
-                    "services/alpha/reservation.json"
-                  ],
-                  "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                  "recordedAt": "2026-08-14T11:20:29.019Z",
-                  "expiresAt": "2026-08-14T11:21:29.019Z"
-                }
-              ]
+              "others": []
             }
           ],
           "decisions": [
             {
-              "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+              "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
               "service": "alpha",
-              "decision": "ALLOW_SERIALIZED",
-              "reasonCode": "SERIALIZED_PRECEDENCE",
-              "decidedAt": "2026-08-14T11:20:29.020Z",
-              "decidedAtMs": 1786706429020.344,
-              "couplings": [
-                {
-                  "correlationIds": [
-                    "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                    "ilk-5a63158d36e8494e8193eceaf9dc0109"
-                  ],
-                  "files": [
-                    "services/alpha/reservation.json",
-                    "services/beta/reservation.json"
-                  ],
-                  "support": 8,
-                  "occurrences": 10
-                }
-              ],
-              "callerDecision": "ALLOW"
-            },
-            {
-              "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
-              "service": "beta",
               "decision": "WITHHOLD_SERIALIZE",
               "reasonCode": "COUPLING_OBSERVED",
-              "decidedAt": "2026-08-14T11:20:29.021Z",
-              "decidedAtMs": 1786706429021.757,
+              "decidedAt": "2026-08-14T13:04:33.792Z",
+              "decidedAtMs": 1786712673792.3572,
               "couplings": [
                 {
                   "correlationIds": [
-                    "ilk-5a63158d36e8494e8193eceaf9dc0109",
-                    "ilk-dcce1a5dd20343c09f040a18e4d826cf"
+                    "ilk-eb0d422be6a14c6bb42e286c51337c3d",
+                    "ilk-6a519978dcb243aba34a6e27799eb471"
                   ],
                   "files": [
                     "services/alpha/reservation.json",
@@ -406,27 +371,37 @@
                 }
               ],
               "callerDecision": "DENY"
+            },
+            {
+              "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+              "service": "beta",
+              "decision": "ALLOW_PARALLEL",
+              "reasonCode": "NO_QUALIFYING_COUPLING",
+              "decidedAt": "2026-08-14T13:04:33.793Z",
+              "decidedAtMs": 1786712673793.201,
+              "couplings": [],
+              "callerDecision": "ALLOW"
             }
           ],
           "executed": [
             {
-              "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-              "service": "alpha",
+              "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+              "service": "beta",
               "status": "EXECUTED",
-              "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
-              "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+              "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
             }
           ],
           "withheldBeforeTargetMutation": true,
           "commits": [
             {
-              "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-              "at": "2026-08-14T11:20:29.022Z",
-              "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+              "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+              "at": "2026-08-14T13:04:33.795Z",
+              "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
             }
           ],
-          "firstProtectedCommitAt": "2026-08-14T11:20:29.022Z",
-          "firstProtectedCommitAtMs": 1786706429022.2866,
+          "firstProtectedCommitAt": "2026-08-14T13:04:33.795Z",
+          "firstProtectedCommitAtMs": 1786712673795.5269,
           "globalVerification": {
             "source": "independent-reread",
             "total": 120,
@@ -436,22 +411,22 @@
             "composedState": {
               "totalReservable": 130,
               "services": {
-                "alpha": 60,
-                "beta": 40,
+                "alpha": 40,
+                "beta": 60,
                 "gamma": 20
               }
             },
             "reads": {
               "alpha": {
-                "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+                "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
                 "services": {
-                  "alpha": 60
+                  "alpha": 40
                 }
               },
               "beta": {
-                "revision": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
                 "services": {
-                  "beta": 40
+                  "beta": 60
                 }
               }
             },
@@ -466,38 +441,40 @@
           },
           "overlap": [
             {
-              "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+              "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
               "arm": "treatment",
               "arrivalOrdinal": 1,
-              "timestamp": "2026-08-14T11:20:29.019Z",
+              "timestamp": "2026-08-14T13:04:33.791Z",
               "agentId": "capacity-planner",
               "expectedAgent": "A",
-              "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+              "identitySource": "experiment-harness",
+              "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
               "service": "alpha",
               "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-              "toolInvocationId": "tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab",
-              "startMs": 1786706429019.356,
-              "endMs": 1786706429022.5693,
+              "toolInvocationId": "tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57",
+              "startMs": 1786712673791.3586,
+              "endMs": 1786712673792.7263,
               "dispatched": true,
               "duplicateOfOrdinal": null,
-              "logicalInvocationKey": "tool-invocation:tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab"
+              "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57"
             },
             {
-              "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+              "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
               "arm": "treatment",
               "arrivalOrdinal": 2,
-              "timestamp": "2026-08-14T11:20:29.019Z",
+              "timestamp": "2026-08-14T13:04:33.791Z",
               "agentId": "traffic-shaper",
               "expectedAgent": "B",
-              "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+              "identitySource": "experiment-harness",
+              "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
               "service": "beta",
               "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-              "toolInvocationId": "tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced",
-              "startMs": 1786706429019.9658,
-              "endMs": 1786706429021.8213,
+              "toolInvocationId": "tool-call-964df6dc-1929-4257-a872-3ecfae2d3663",
+              "startMs": 1786712673791.8518,
+              "endMs": 1786712673795.8994,
               "dispatched": true,
               "duplicateOfOrdinal": null,
-              "logicalInvocationKey": "tool-invocation:tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced"
+              "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-964df6dc-1929-4257-a872-3ecfae2d3663"
             }
           ],
           "callerIdentityBinding": {
@@ -540,7 +517,7 @@
             }
           },
           "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
-          "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+          "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
           "ingressRetry": {
             "supplied": true,
             "detectedAt": "ingress",
@@ -605,14 +582,14 @@
             "decisions": [],
             "executed": [
               {
-                "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+                "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
                 "service": "alpha",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+                "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
                 "service": "beta",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -621,13 +598,13 @@
             ],
             "commits": [
               {
-                "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
-                "at": "2026-08-14T11:20:29.002Z",
+                "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
+                "at": "2026-08-14T13:04:33.772Z",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
-                "at": "2026-08-14T11:20:29.003Z",
+                "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
+                "at": "2026-08-14T13:04:33.774Z",
                 "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
@@ -670,38 +647,40 @@
             },
             "overlap": [
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "baseline",
                 "arrivalOrdinal": 1,
-                "timestamp": "2026-08-14T11:20:28.996Z",
+                "timestamp": "2026-08-14T13:04:33.767Z",
                 "agentId": "capacity-planner",
                 "expectedAgent": "A",
-                "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
                 "service": "alpha",
                 "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                "toolInvocationId": "tool-call-9052a692-e5f5-4388-9691-380e30064de0",
-                "startMs": 1786706428996.3608,
-                "endMs": 1786706429003.1838,
+                "toolInvocationId": "tool-call-fea4f409-61a7-46ea-bfdb-0dc94b13bfd3",
+                "startMs": 1786712673767.729,
+                "endMs": 1786712673773.6543,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-9052a692-e5f5-4388-9691-380e30064de0"
+                "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-fea4f409-61a7-46ea-bfdb-0dc94b13bfd3"
               },
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "baseline",
                 "arrivalOrdinal": 2,
-                "timestamp": "2026-08-14T11:20:28.997Z",
+                "timestamp": "2026-08-14T13:04:33.768Z",
                 "agentId": "traffic-shaper",
                 "expectedAgent": "B",
-                "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
                 "service": "beta",
                 "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                "toolInvocationId": "tool-call-986c44ca-d94c-477b-bf99-c399f7cffca6",
-                "startMs": 1786706428997.379,
-                "endMs": 1786706429004.5076,
+                "toolInvocationId": "tool-call-49c0223d-2a8e-43d5-8716-77bce363004a",
+                "startMs": 1786712673768.7615,
+                "endMs": 1786712673775.416,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-986c44ca-d94c-477b-bf99-c399f7cffca6"
+                "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-49c0223d-2a8e-43d5-8716-77bce363004a"
               }
             ],
             "callerIdentityBinding": {
@@ -744,7 +723,7 @@
               }
             },
             "deploymentDigest": "bde8044e7634c6c343d824d6669e46c7ba14af8e415c21002d989b3d0fa36c86",
-            "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+            "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
             "ingressRetry": {
               "supplied": true,
               "detectedAt": "ingress",
@@ -808,98 +787,63 @@
             },
             "arbitrationInputs": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                 "candidate": {
-                  "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                  "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                   "agent": "capacity-planner",
                   "operation": "set_reservation",
                   "targets": [
                     "services/alpha/reservation.json"
                   ],
                   "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                  "recordedAt": "2026-08-14T11:20:29.019Z",
-                  "expiresAt": "2026-08-14T11:21:29.019Z"
+                  "recordedAt": "2026-08-14T13:04:33.791Z",
+                  "expiresAt": "2026-08-14T13:05:33.791Z"
                 },
                 "storeAnswered": true,
                 "others": [
                   {
-                    "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                    "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                     "agent": "traffic-shaper",
                     "operation": "set_reservation",
                     "targets": [
                       "services/beta/reservation.json"
                     ],
                     "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                    "recordedAt": "2026-08-14T11:20:29.020Z",
-                    "expiresAt": "2026-08-14T11:21:29.020Z"
+                    "recordedAt": "2026-08-14T13:04:33.791Z",
+                    "expiresAt": "2026-08-14T13:05:33.791Z"
                   }
                 ]
               },
               {
-                "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                 "candidate": {
-                  "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                  "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                   "agent": "traffic-shaper",
                   "operation": "set_reservation",
                   "targets": [
                     "services/beta/reservation.json"
                   ],
                   "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                  "recordedAt": "2026-08-14T11:20:29.020Z",
-                  "expiresAt": "2026-08-14T11:21:29.020Z"
+                  "recordedAt": "2026-08-14T13:04:33.791Z",
+                  "expiresAt": "2026-08-14T13:05:33.791Z"
                 },
                 "storeAnswered": true,
-                "others": [
-                  {
-                    "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                    "agent": "capacity-planner",
-                    "operation": "set_reservation",
-                    "targets": [
-                      "services/alpha/reservation.json"
-                    ],
-                    "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                    "recordedAt": "2026-08-14T11:20:29.019Z",
-                    "expiresAt": "2026-08-14T11:21:29.019Z"
-                  }
-                ]
+                "others": []
               }
             ],
             "decisions": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                 "service": "alpha",
-                "decision": "ALLOW_SERIALIZED",
-                "reasonCode": "SERIALIZED_PRECEDENCE",
-                "decidedAt": "2026-08-14T11:20:29.020Z",
-                "decidedAtMs": 1786706429020.344,
-                "couplings": [
-                  {
-                    "correlationIds": [
-                      "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                      "ilk-5a63158d36e8494e8193eceaf9dc0109"
-                    ],
-                    "files": [
-                      "services/alpha/reservation.json",
-                      "services/beta/reservation.json"
-                    ],
-                    "support": 8,
-                    "occurrences": 10
-                  }
-                ],
-                "callerDecision": "ALLOW"
-              },
-              {
-                "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
-                "service": "beta",
                 "decision": "WITHHOLD_SERIALIZE",
                 "reasonCode": "COUPLING_OBSERVED",
-                "decidedAt": "2026-08-14T11:20:29.021Z",
-                "decidedAtMs": 1786706429021.757,
+                "decidedAt": "2026-08-14T13:04:33.792Z",
+                "decidedAtMs": 1786712673792.3572,
                 "couplings": [
                   {
                     "correlationIds": [
-                      "ilk-5a63158d36e8494e8193eceaf9dc0109",
-                      "ilk-dcce1a5dd20343c09f040a18e4d826cf"
+                      "ilk-eb0d422be6a14c6bb42e286c51337c3d",
+                      "ilk-6a519978dcb243aba34a6e27799eb471"
                     ],
                     "files": [
                       "services/alpha/reservation.json",
@@ -910,27 +854,37 @@
                   }
                 ],
                 "callerDecision": "DENY"
+              },
+              {
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+                "service": "beta",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-14T13:04:33.793Z",
+                "decidedAtMs": 1786712673793.201,
+                "couplings": [],
+                "callerDecision": "ALLOW"
               }
             ],
             "executed": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                "service": "alpha",
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+                "service": "beta",
                 "status": "EXECUTED",
-                "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
-                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
             "withheldBeforeTargetMutation": true,
             "commits": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                "at": "2026-08-14T11:20:29.022Z",
-                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+                "at": "2026-08-14T13:04:33.795Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
-            "firstProtectedCommitAt": "2026-08-14T11:20:29.022Z",
-            "firstProtectedCommitAtMs": 1786706429022.2866,
+            "firstProtectedCommitAt": "2026-08-14T13:04:33.795Z",
+            "firstProtectedCommitAtMs": 1786712673795.5269,
             "globalVerification": {
               "source": "independent-reread",
               "total": 120,
@@ -940,22 +894,22 @@
               "composedState": {
                 "totalReservable": 130,
                 "services": {
-                  "alpha": 60,
-                  "beta": 40,
+                  "alpha": 40,
+                  "beta": 60,
                   "gamma": 20
                 }
               },
               "reads": {
                 "alpha": {
-                  "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+                  "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
                   "services": {
-                    "alpha": 60
+                    "alpha": 40
                   }
                 },
                 "beta": {
-                  "revision": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
                   "services": {
-                    "beta": 40
+                    "beta": 60
                   }
                 }
               },
@@ -970,38 +924,40 @@
             },
             "overlap": [
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "treatment",
                 "arrivalOrdinal": 1,
-                "timestamp": "2026-08-14T11:20:29.019Z",
+                "timestamp": "2026-08-14T13:04:33.791Z",
                 "agentId": "capacity-planner",
                 "expectedAgent": "A",
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                 "service": "alpha",
                 "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                "toolInvocationId": "tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab",
-                "startMs": 1786706429019.356,
-                "endMs": 1786706429022.5693,
+                "toolInvocationId": "tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57",
+                "startMs": 1786712673791.3586,
+                "endMs": 1786712673792.7263,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab"
+                "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57"
               },
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "treatment",
                 "arrivalOrdinal": 2,
-                "timestamp": "2026-08-14T11:20:29.019Z",
+                "timestamp": "2026-08-14T13:04:33.791Z",
                 "agentId": "traffic-shaper",
                 "expectedAgent": "B",
-                "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                 "service": "beta",
                 "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                "toolInvocationId": "tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced",
-                "startMs": 1786706429019.9658,
-                "endMs": 1786706429021.8213,
+                "toolInvocationId": "tool-call-964df6dc-1929-4257-a872-3ecfae2d3663",
+                "startMs": 1786712673791.8518,
+                "endMs": 1786712673795.8994,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced"
+                "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-964df6dc-1929-4257-a872-3ecfae2d3663"
               }
             ],
             "callerIdentityBinding": {
@@ -1044,7 +1000,7 @@
               }
             },
             "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
-            "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+            "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
             "ingressRetry": {
               "supplied": true,
               "detectedAt": "ingress",
@@ -1108,94 +1064,94 @@
             },
             "arbitrationInputs": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "candidate": {
-                  "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                  "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                   "agent": "capacity-planner",
                   "operation": "set_reservation",
                   "targets": [
                     "services/alpha/reservation.json"
                   ],
                   "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                  "recordedAt": "2026-08-14T11:20:29.030Z",
-                  "expiresAt": "2026-08-14T11:21:29.030Z"
+                  "recordedAt": "2026-08-14T13:04:33.808Z",
+                  "expiresAt": "2026-08-14T13:05:33.808Z"
                 },
                 "storeAnswered": true,
                 "others": [
                   {
-                    "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                    "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                     "agent": "traffic-shaper",
                     "operation": "set_reservation",
                     "targets": [
                       "services/beta/reservation.json"
                     ],
                     "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                    "recordedAt": "2026-08-14T11:20:29.030Z",
-                    "expiresAt": "2026-08-14T11:21:29.030Z"
+                    "recordedAt": "2026-08-14T13:04:33.808Z",
+                    "expiresAt": "2026-08-14T13:05:33.808Z"
                   }
                 ]
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "candidate": {
-                  "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                  "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                   "agent": "traffic-shaper",
                   "operation": "set_reservation",
                   "targets": [
                     "services/beta/reservation.json"
                   ],
                   "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                  "recordedAt": "2026-08-14T11:20:29.030Z",
-                  "expiresAt": "2026-08-14T11:21:29.030Z"
+                  "recordedAt": "2026-08-14T13:04:33.808Z",
+                  "expiresAt": "2026-08-14T13:05:33.808Z"
                 },
                 "storeAnswered": true,
                 "others": [
                   {
-                    "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                    "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                     "agent": "capacity-planner",
                     "operation": "set_reservation",
                     "targets": [
                       "services/alpha/reservation.json"
                     ],
                     "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                    "recordedAt": "2026-08-14T11:20:29.030Z",
-                    "expiresAt": "2026-08-14T11:21:29.030Z"
+                    "recordedAt": "2026-08-14T13:04:33.808Z",
+                    "expiresAt": "2026-08-14T13:05:33.808Z"
                   }
                 ]
               }
             ],
             "decisions": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "service": "alpha",
                 "decision": "ALLOW_PARALLEL",
                 "reasonCode": "NO_QUALIFYING_COUPLING",
-                "decidedAt": "2026-08-14T11:20:29.031Z",
-                "decidedAtMs": 1786706429031.282,
+                "decidedAt": "2026-08-14T13:04:33.808Z",
+                "decidedAtMs": 1786712673808.6892,
                 "couplings": [],
                 "callerDecision": "ALLOW"
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "service": "beta",
                 "decision": "ALLOW_PARALLEL",
                 "reasonCode": "NO_QUALIFYING_COUPLING",
-                "decidedAt": "2026-08-14T11:20:29.031Z",
-                "decidedAtMs": 1786706429031.8152,
+                "decidedAt": "2026-08-14T13:04:33.809Z",
+                "decidedAtMs": 1786712673809.156,
                 "couplings": [],
                 "callerDecision": "ALLOW"
               }
             ],
             "executed": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "service": "alpha",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "service": "beta",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -1205,18 +1161,18 @@
             "withheldBeforeTargetMutation": false,
             "commits": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
-                "at": "2026-08-14T11:20:29.032Z",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
+                "at": "2026-08-14T13:04:33.809Z",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
-                "at": "2026-08-14T11:20:29.033Z",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
+                "at": "2026-08-14T13:04:33.810Z",
                 "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
-            "firstProtectedCommitAt": "2026-08-14T11:20:29.032Z",
-            "firstProtectedCommitAtMs": 1786706429032.5562,
+            "firstProtectedCommitAt": "2026-08-14T13:04:33.809Z",
+            "firstProtectedCommitAtMs": 1786712673809.9841,
             "globalVerification": {
               "source": "independent-reread",
               "total": 140,
@@ -1256,38 +1212,40 @@
             },
             "overlap": [
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "perturbation",
                 "arrivalOrdinal": 1,
-                "timestamp": "2026-08-14T11:20:29.030Z",
+                "timestamp": "2026-08-14T13:04:33.808Z",
                 "agentId": "capacity-planner",
                 "expectedAgent": "A",
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "service": "alpha",
                 "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                "toolInvocationId": "tool-call-18b96026-ec3b-42f3-96af-d6e75e108692",
-                "startMs": 1786706429030.6592,
-                "endMs": 1786706429033.329,
+                "toolInvocationId": "tool-call-bfadbfe9-5e28-4719-a2bc-80d3861d86ce",
+                "startMs": 1786712673808.0923,
+                "endMs": 1786712673810.8442,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-18b96026-ec3b-42f3-96af-d6e75e108692"
+                "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-bfadbfe9-5e28-4719-a2bc-80d3861d86ce"
               },
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "perturbation",
                 "arrivalOrdinal": 2,
-                "timestamp": "2026-08-14T11:20:29.030Z",
+                "timestamp": "2026-08-14T13:04:33.808Z",
                 "agentId": "traffic-shaper",
                 "expectedAgent": "B",
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "service": "beta",
                 "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                "toolInvocationId": "tool-call-89489b61-4a09-45f2-a522-97bade90ec3b",
-                "startMs": 1786706429030.8428,
-                "endMs": 1786706429033.5105,
+                "toolInvocationId": "tool-call-8b08ad95-99dd-4989-8a4a-5744650c87e6",
+                "startMs": 1786712673808.2812,
+                "endMs": 1786712673811.0247,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-89489b61-4a09-45f2-a522-97bade90ec3b"
+                "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-8b08ad95-99dd-4989-8a4a-5744650c87e6"
               }
             ],
             "callerIdentityBinding": {
@@ -1330,7 +1288,7 @@
               }
             },
             "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
-            "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+            "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
             "ingressRetry": {
               "supplied": true,
               "detectedAt": "ingress",
@@ -1402,10 +1360,10 @@
         "B": 1
       },
       "formula": "max(tool_start_A, tool_start_B) < min(tool_end_A, tool_end_B)",
-      "startA": 1786706429019.356,
-      "endA": 1786706429022.5693,
-      "startB": 1786706429019.9658,
-      "endB": 1786706429021.8213,
+      "startA": 1786712673791.3586,
+      "endA": 1786712673792.7263,
+      "startB": 1786712673791.8518,
+      "endB": 1786712673795.8994,
       "overlapped": true
     },
     "ingressRetryDetection": {
@@ -1430,7 +1388,7 @@
         "dispatched",
         "duplicateOfOrdinal"
       ],
-      "logicalInvocationKey": "the tool invocation id when the transport carries one, otherwise caller identity plus the intent digest the ingress computed off the wire",
+      "logicalInvocationKey": "always bound to the caller: agent identity plus the tool invocation id when the transport carries one, otherwise agent identity plus the intent digest the ingress computed off the wire. The bound branch used to be the bare tool invocation id, so two distinct invocations sharing one caller-supplied header — A on alpha and B on beta, different digests — collided, and the second was refused and reported as a runtime retry that never happened",
       "duplicateArrivalIsDispatched": false,
       "perArm": {
         "baseline": [
@@ -1509,142 +1467,142 @@
     },
     "events": [
       {
-        "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+        "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
         "state": "REQUESTED",
-        "at": "2026-08-14T11:20:29.005Z",
+        "at": "2026-08-14T13:04:33.776Z",
         "producedBy": "ingress",
         "detail": "A arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+        "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
         "state": "AUTHORIZED",
-        "at": "2026-08-14T11:20:29.005Z",
+        "at": "2026-08-14T13:04:33.776Z",
         "producedBy": "baseline-issuer",
-        "detail": "receipt rcpt-b0219c19-8ee4-4af2-b9c4-86185ce7c446 minted without consulting anything else in flight"
+        "detail": "receipt rcpt-c238d38f-6850-44b1-8326-858da3e387ad minted without consulting anything else in flight"
       },
       {
-        "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+        "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
         "state": "EXECUTED",
-        "at": "2026-08-14T11:20:29.005Z",
+        "at": "2026-08-14T13:04:33.776Z",
         "producedBy": "protected-target",
         "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
       },
       {
-        "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+        "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
         "state": "REQUESTED",
-        "at": "2026-08-14T11:20:29.005Z",
+        "at": "2026-08-14T13:04:33.776Z",
         "producedBy": "ingress",
         "detail": "B arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+        "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
         "state": "AUTHORIZED",
-        "at": "2026-08-14T11:20:29.005Z",
+        "at": "2026-08-14T13:04:33.776Z",
         "producedBy": "baseline-issuer",
-        "detail": "receipt rcpt-a4bdcf5c-5ad0-471f-8d35-338eaab86e23 minted without consulting anything else in flight"
+        "detail": "receipt rcpt-60a3a761-eadd-405a-863c-94404a805ac8 minted without consulting anything else in flight"
       },
       {
-        "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+        "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
         "state": "EXECUTED",
-        "at": "2026-08-14T11:20:29.005Z",
+        "at": "2026-08-14T13:04:33.776Z",
         "producedBy": "protected-target",
         "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
       },
       {
-        "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+        "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
         "state": "OBSERVED",
-        "at": "2026-08-14T11:20:29.010Z",
+        "at": "2026-08-14T13:04:33.780Z",
         "producedBy": "independent-reread",
         "detail": "total 140 exceeds the pool of 130"
       },
       {
-        "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+        "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
         "state": "REQUESTED",
-        "at": "2026-08-14T11:20:29.022Z",
+        "at": "2026-08-14T13:04:33.796Z",
         "producedBy": "ingress",
         "detail": "A arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-        "state": "AUTHORIZED",
-        "at": "2026-08-14T11:20:29.022Z",
-        "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-29b8e73c-e5b0-4caa-94b5-9a3fd52a2806 issued after arbitration"
-      },
-      {
-        "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-        "state": "EXECUTED",
-        "at": "2026-08-14T11:20:29.022Z",
-        "producedBy": "protected-target",
-        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
-      },
-      {
-        "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
-        "state": "REQUESTED",
-        "at": "2026-08-14T11:20:29.022Z",
-        "producedBy": "ingress",
-        "detail": "B arrived at the neutral ingress"
-      },
-      {
-        "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+        "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
         "state": "WITHHELD",
-        "at": "2026-08-14T11:20:29.022Z",
+        "at": "2026-08-14T13:04:33.796Z",
         "producedBy": "interlock-proxy",
         "detail": "1 qualifying co-change coupling(s) between this intent and 1 intent(s) already in flight at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; this intent does not hold precedence, so the composition is withheld and it must be resubmitted once the leading intent settles"
       },
       {
-        "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-        "state": "OBSERVED",
-        "at": "2026-08-14T11:20:29.023Z",
-        "producedBy": "independent-reread",
-        "detail": "total 120 <= 130"
-      },
-      {
-        "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+        "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
         "state": "REQUESTED",
-        "at": "2026-08-14T11:20:29.033Z",
-        "producedBy": "ingress",
-        "detail": "A arrived at the neutral ingress"
-      },
-      {
-        "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
-        "state": "AUTHORIZED",
-        "at": "2026-08-14T11:20:29.033Z",
-        "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-951db045-1507-4aee-bcdf-398a6dbc3ed9 issued after arbitration"
-      },
-      {
-        "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
-        "state": "EXECUTED",
-        "at": "2026-08-14T11:20:29.033Z",
-        "producedBy": "protected-target",
-        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
-      },
-      {
-        "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
-        "state": "REQUESTED",
-        "at": "2026-08-14T11:20:29.033Z",
+        "at": "2026-08-14T13:04:33.796Z",
         "producedBy": "ingress",
         "detail": "B arrived at the neutral ingress"
       },
       {
-        "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+        "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
         "state": "AUTHORIZED",
-        "at": "2026-08-14T11:20:29.033Z",
+        "at": "2026-08-14T13:04:33.796Z",
         "producedBy": "interlock-proxy",
-        "detail": "receipt rcpt-bbf60a67-3b7a-4b89-8ac1-66715a36b933 issued after arbitration"
+        "detail": "receipt rcpt-27467c49-faaa-4307-b123-50001b04730b issued after arbitration"
       },
       {
-        "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+        "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
         "state": "EXECUTED",
-        "at": "2026-08-14T11:20:29.033Z",
+        "at": "2026-08-14T13:04:33.796Z",
         "producedBy": "protected-target",
         "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
       },
       {
-        "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+        "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
         "state": "OBSERVED",
-        "at": "2026-08-14T11:20:29.034Z",
+        "at": "2026-08-14T13:04:33.797Z",
+        "producedBy": "independent-reread",
+        "detail": "total 120 <= 130"
+      },
+      {
+        "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
+        "state": "REQUESTED",
+        "at": "2026-08-14T13:04:33.811Z",
+        "producedBy": "ingress",
+        "detail": "A arrived at the neutral ingress"
+      },
+      {
+        "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
+        "state": "AUTHORIZED",
+        "at": "2026-08-14T13:04:33.811Z",
+        "producedBy": "interlock-proxy",
+        "detail": "receipt rcpt-e6cb4baa-fae3-4f12-9f37-3d9e2def2bd0 issued after arbitration"
+      },
+      {
+        "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
+        "state": "EXECUTED",
+        "at": "2026-08-14T13:04:33.811Z",
+        "producedBy": "protected-target",
+        "detail": "alpha committed at sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+      },
+      {
+        "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
+        "state": "REQUESTED",
+        "at": "2026-08-14T13:04:33.811Z",
+        "producedBy": "ingress",
+        "detail": "B arrived at the neutral ingress"
+      },
+      {
+        "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
+        "state": "AUTHORIZED",
+        "at": "2026-08-14T13:04:33.811Z",
+        "producedBy": "interlock-proxy",
+        "detail": "receipt rcpt-0980bc67-c64f-42f6-8a0a-a9703d59bcac issued after arbitration"
+      },
+      {
+        "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
+        "state": "EXECUTED",
+        "at": "2026-08-14T13:04:33.811Z",
+        "producedBy": "protected-target",
+        "detail": "beta committed at sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
+      },
+      {
+        "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
+        "state": "OBSERVED",
+        "at": "2026-08-14T13:04:33.812Z",
         "producedBy": "independent-reread",
         "detail": "total 140 exceeds the pool of 130"
       }
@@ -1671,14 +1629,14 @@
       "decisions": [],
       "executed": [
         {
-          "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+          "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
           "service": "alpha",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+          "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
           "service": "beta",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -1687,13 +1645,13 @@
       ],
       "commits": [
         {
-          "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
-          "at": "2026-08-14T11:20:29.002Z",
+          "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
+          "at": "2026-08-14T13:04:33.772Z",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
-          "at": "2026-08-14T11:20:29.003Z",
+          "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
+          "at": "2026-08-14T13:04:33.774Z",
           "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
@@ -1736,38 +1694,40 @@
       },
       "overlap": [
         {
-          "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+          "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
           "arm": "baseline",
           "arrivalOrdinal": 1,
-          "timestamp": "2026-08-14T11:20:28.996Z",
+          "timestamp": "2026-08-14T13:04:33.767Z",
           "agentId": "capacity-planner",
           "expectedAgent": "A",
-          "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+          "identitySource": "experiment-harness",
+          "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
           "service": "alpha",
           "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "toolInvocationId": "tool-call-9052a692-e5f5-4388-9691-380e30064de0",
-          "startMs": 1786706428996.3608,
-          "endMs": 1786706429003.1838,
+          "toolInvocationId": "tool-call-fea4f409-61a7-46ea-bfdb-0dc94b13bfd3",
+          "startMs": 1786712673767.729,
+          "endMs": 1786712673773.6543,
           "dispatched": true,
           "duplicateOfOrdinal": null,
-          "logicalInvocationKey": "tool-invocation:tool-call-9052a692-e5f5-4388-9691-380e30064de0"
+          "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-fea4f409-61a7-46ea-bfdb-0dc94b13bfd3"
         },
         {
-          "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+          "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
           "arm": "baseline",
           "arrivalOrdinal": 2,
-          "timestamp": "2026-08-14T11:20:28.997Z",
+          "timestamp": "2026-08-14T13:04:33.768Z",
           "agentId": "traffic-shaper",
           "expectedAgent": "B",
-          "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+          "identitySource": "experiment-harness",
+          "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
           "service": "beta",
           "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "toolInvocationId": "tool-call-986c44ca-d94c-477b-bf99-c399f7cffca6",
-          "startMs": 1786706428997.379,
-          "endMs": 1786706429004.5076,
+          "toolInvocationId": "tool-call-49c0223d-2a8e-43d5-8716-77bce363004a",
+          "startMs": 1786712673768.7615,
+          "endMs": 1786712673775.416,
           "dispatched": true,
           "duplicateOfOrdinal": null,
-          "logicalInvocationKey": "tool-invocation:tool-call-986c44ca-d94c-477b-bf99-c399f7cffca6"
+          "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-49c0223d-2a8e-43d5-8716-77bce363004a"
         }
       ],
       "callerIdentityBinding": {
@@ -1810,7 +1770,7 @@
         }
       },
       "deploymentDigest": "bde8044e7634c6c343d824d6669e46c7ba14af8e415c21002d989b3d0fa36c86",
-      "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+      "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
       "ingressRetry": {
         "supplied": true,
         "detectedAt": "ingress",
@@ -1871,14 +1831,14 @@
             "decisions": [],
             "executed": [
               {
-                "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+                "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
                 "service": "alpha",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+                "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
                 "service": "beta",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -1887,13 +1847,13 @@
             ],
             "commits": [
               {
-                "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
-                "at": "2026-08-14T11:20:29.002Z",
+                "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
+                "at": "2026-08-14T13:04:33.772Z",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
-                "at": "2026-08-14T11:20:29.003Z",
+                "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
+                "at": "2026-08-14T13:04:33.774Z",
                 "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
@@ -1936,38 +1896,40 @@
             },
             "overlap": [
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "baseline",
                 "arrivalOrdinal": 1,
-                "timestamp": "2026-08-14T11:20:28.996Z",
+                "timestamp": "2026-08-14T13:04:33.767Z",
                 "agentId": "capacity-planner",
                 "expectedAgent": "A",
-                "correlationId": "ilk-edd756be3ccb40c59232d998d8b07349",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-1ce1a26757d045bd9d8630479969876f",
                 "service": "alpha",
                 "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                "toolInvocationId": "tool-call-9052a692-e5f5-4388-9691-380e30064de0",
-                "startMs": 1786706428996.3608,
-                "endMs": 1786706429003.1838,
+                "toolInvocationId": "tool-call-fea4f409-61a7-46ea-bfdb-0dc94b13bfd3",
+                "startMs": 1786712673767.729,
+                "endMs": 1786712673773.6543,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-9052a692-e5f5-4388-9691-380e30064de0"
+                "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-fea4f409-61a7-46ea-bfdb-0dc94b13bfd3"
               },
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "baseline",
                 "arrivalOrdinal": 2,
-                "timestamp": "2026-08-14T11:20:28.997Z",
+                "timestamp": "2026-08-14T13:04:33.768Z",
                 "agentId": "traffic-shaper",
                 "expectedAgent": "B",
-                "correlationId": "ilk-fb8179b0b75245f1b649c1c327fa7642",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-60d3faf19f4f476787a2d50aa855b502",
                 "service": "beta",
                 "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                "toolInvocationId": "tool-call-986c44ca-d94c-477b-bf99-c399f7cffca6",
-                "startMs": 1786706428997.379,
-                "endMs": 1786706429004.5076,
+                "toolInvocationId": "tool-call-49c0223d-2a8e-43d5-8716-77bce363004a",
+                "startMs": 1786712673768.7615,
+                "endMs": 1786712673775.416,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-986c44ca-d94c-477b-bf99-c399f7cffca6"
+                "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-49c0223d-2a8e-43d5-8716-77bce363004a"
               }
             ],
             "callerIdentityBinding": {
@@ -2010,7 +1972,7 @@
               }
             },
             "deploymentDigest": "bde8044e7634c6c343d824d6669e46c7ba14af8e415c21002d989b3d0fa36c86",
-            "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+            "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
             "ingressRetry": {
               "supplied": true,
               "detectedAt": "ingress",
@@ -2060,98 +2022,63 @@
       },
       "arbitrationInputs": [
         {
-          "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+          "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
           "candidate": {
-            "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+            "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
             "agent": "capacity-planner",
             "operation": "set_reservation",
             "targets": [
               "services/alpha/reservation.json"
             ],
             "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-            "recordedAt": "2026-08-14T11:20:29.019Z",
-            "expiresAt": "2026-08-14T11:21:29.019Z"
+            "recordedAt": "2026-08-14T13:04:33.791Z",
+            "expiresAt": "2026-08-14T13:05:33.791Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+              "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
               "agent": "traffic-shaper",
               "operation": "set_reservation",
               "targets": [
                 "services/beta/reservation.json"
               ],
               "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-              "recordedAt": "2026-08-14T11:20:29.020Z",
-              "expiresAt": "2026-08-14T11:21:29.020Z"
+              "recordedAt": "2026-08-14T13:04:33.791Z",
+              "expiresAt": "2026-08-14T13:05:33.791Z"
             }
           ]
         },
         {
-          "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+          "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
           "candidate": {
-            "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+            "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
             "agent": "traffic-shaper",
             "operation": "set_reservation",
             "targets": [
               "services/beta/reservation.json"
             ],
             "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-            "recordedAt": "2026-08-14T11:20:29.020Z",
-            "expiresAt": "2026-08-14T11:21:29.020Z"
+            "recordedAt": "2026-08-14T13:04:33.791Z",
+            "expiresAt": "2026-08-14T13:05:33.791Z"
           },
           "storeAnswered": true,
-          "others": [
-            {
-              "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-              "agent": "capacity-planner",
-              "operation": "set_reservation",
-              "targets": [
-                "services/alpha/reservation.json"
-              ],
-              "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-              "recordedAt": "2026-08-14T11:20:29.019Z",
-              "expiresAt": "2026-08-14T11:21:29.019Z"
-            }
-          ]
+          "others": []
         }
       ],
       "decisions": [
         {
-          "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+          "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
           "service": "alpha",
-          "decision": "ALLOW_SERIALIZED",
-          "reasonCode": "SERIALIZED_PRECEDENCE",
-          "decidedAt": "2026-08-14T11:20:29.020Z",
-          "decidedAtMs": 1786706429020.344,
-          "couplings": [
-            {
-              "correlationIds": [
-                "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                "ilk-5a63158d36e8494e8193eceaf9dc0109"
-              ],
-              "files": [
-                "services/alpha/reservation.json",
-                "services/beta/reservation.json"
-              ],
-              "support": 8,
-              "occurrences": 10
-            }
-          ],
-          "callerDecision": "ALLOW"
-        },
-        {
-          "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
-          "service": "beta",
           "decision": "WITHHOLD_SERIALIZE",
           "reasonCode": "COUPLING_OBSERVED",
-          "decidedAt": "2026-08-14T11:20:29.021Z",
-          "decidedAtMs": 1786706429021.757,
+          "decidedAt": "2026-08-14T13:04:33.792Z",
+          "decidedAtMs": 1786712673792.3572,
           "couplings": [
             {
               "correlationIds": [
-                "ilk-5a63158d36e8494e8193eceaf9dc0109",
-                "ilk-dcce1a5dd20343c09f040a18e4d826cf"
+                "ilk-eb0d422be6a14c6bb42e286c51337c3d",
+                "ilk-6a519978dcb243aba34a6e27799eb471"
               ],
               "files": [
                 "services/alpha/reservation.json",
@@ -2162,27 +2089,37 @@
             }
           ],
           "callerDecision": "DENY"
+        },
+        {
+          "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+          "service": "beta",
+          "decision": "ALLOW_PARALLEL",
+          "reasonCode": "NO_QUALIFYING_COUPLING",
+          "decidedAt": "2026-08-14T13:04:33.793Z",
+          "decidedAtMs": 1786712673793.201,
+          "couplings": [],
+          "callerDecision": "ALLOW"
         }
       ],
       "executed": [
         {
-          "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-          "service": "alpha",
+          "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+          "service": "beta",
           "status": "EXECUTED",
-          "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
-          "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+          "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+          "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
       "withheldBeforeTargetMutation": true,
       "commits": [
         {
-          "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-          "at": "2026-08-14T11:20:29.022Z",
-          "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+          "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+          "at": "2026-08-14T13:04:33.795Z",
+          "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
-      "firstProtectedCommitAt": "2026-08-14T11:20:29.022Z",
-      "firstProtectedCommitAtMs": 1786706429022.2866,
+      "firstProtectedCommitAt": "2026-08-14T13:04:33.795Z",
+      "firstProtectedCommitAtMs": 1786712673795.5269,
       "globalVerification": {
         "source": "independent-reread",
         "total": 120,
@@ -2192,22 +2129,22 @@
         "composedState": {
           "totalReservable": 130,
           "services": {
-            "alpha": 60,
-            "beta": 40,
+            "alpha": 40,
+            "beta": 60,
             "gamma": 20
           }
         },
         "reads": {
           "alpha": {
-            "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+            "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
             "services": {
-              "alpha": 60
+              "alpha": 40
             }
           },
           "beta": {
-            "revision": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+            "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
             "services": {
-              "beta": 40
+              "beta": 60
             }
           }
         },
@@ -2222,38 +2159,40 @@
       },
       "overlap": [
         {
-          "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+          "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
           "arm": "treatment",
           "arrivalOrdinal": 1,
-          "timestamp": "2026-08-14T11:20:29.019Z",
+          "timestamp": "2026-08-14T13:04:33.791Z",
           "agentId": "capacity-planner",
           "expectedAgent": "A",
-          "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+          "identitySource": "experiment-harness",
+          "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
           "service": "alpha",
           "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "toolInvocationId": "tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab",
-          "startMs": 1786706429019.356,
-          "endMs": 1786706429022.5693,
+          "toolInvocationId": "tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57",
+          "startMs": 1786712673791.3586,
+          "endMs": 1786712673792.7263,
           "dispatched": true,
           "duplicateOfOrdinal": null,
-          "logicalInvocationKey": "tool-invocation:tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab"
+          "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57"
         },
         {
-          "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+          "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
           "arm": "treatment",
           "arrivalOrdinal": 2,
-          "timestamp": "2026-08-14T11:20:29.019Z",
+          "timestamp": "2026-08-14T13:04:33.791Z",
           "agentId": "traffic-shaper",
           "expectedAgent": "B",
-          "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+          "identitySource": "experiment-harness",
+          "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
           "service": "beta",
           "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "toolInvocationId": "tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced",
-          "startMs": 1786706429019.9658,
-          "endMs": 1786706429021.8213,
+          "toolInvocationId": "tool-call-964df6dc-1929-4257-a872-3ecfae2d3663",
+          "startMs": 1786712673791.8518,
+          "endMs": 1786712673795.8994,
           "dispatched": true,
           "duplicateOfOrdinal": null,
-          "logicalInvocationKey": "tool-invocation:tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced"
+          "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-964df6dc-1929-4257-a872-3ecfae2d3663"
         }
       ],
       "callerIdentityBinding": {
@@ -2296,7 +2235,7 @@
         }
       },
       "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
-      "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+      "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
       "ingressRetry": {
         "supplied": true,
         "detectedAt": "ingress",
@@ -2357,98 +2296,63 @@
             },
             "arbitrationInputs": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                 "candidate": {
-                  "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                  "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                   "agent": "capacity-planner",
                   "operation": "set_reservation",
                   "targets": [
                     "services/alpha/reservation.json"
                   ],
                   "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                  "recordedAt": "2026-08-14T11:20:29.019Z",
-                  "expiresAt": "2026-08-14T11:21:29.019Z"
+                  "recordedAt": "2026-08-14T13:04:33.791Z",
+                  "expiresAt": "2026-08-14T13:05:33.791Z"
                 },
                 "storeAnswered": true,
                 "others": [
                   {
-                    "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                    "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                     "agent": "traffic-shaper",
                     "operation": "set_reservation",
                     "targets": [
                       "services/beta/reservation.json"
                     ],
                     "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                    "recordedAt": "2026-08-14T11:20:29.020Z",
-                    "expiresAt": "2026-08-14T11:21:29.020Z"
+                    "recordedAt": "2026-08-14T13:04:33.791Z",
+                    "expiresAt": "2026-08-14T13:05:33.791Z"
                   }
                 ]
               },
               {
-                "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                 "candidate": {
-                  "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                  "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                   "agent": "traffic-shaper",
                   "operation": "set_reservation",
                   "targets": [
                     "services/beta/reservation.json"
                   ],
                   "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                  "recordedAt": "2026-08-14T11:20:29.020Z",
-                  "expiresAt": "2026-08-14T11:21:29.020Z"
+                  "recordedAt": "2026-08-14T13:04:33.791Z",
+                  "expiresAt": "2026-08-14T13:05:33.791Z"
                 },
                 "storeAnswered": true,
-                "others": [
-                  {
-                    "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                    "agent": "capacity-planner",
-                    "operation": "set_reservation",
-                    "targets": [
-                      "services/alpha/reservation.json"
-                    ],
-                    "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                    "recordedAt": "2026-08-14T11:20:29.019Z",
-                    "expiresAt": "2026-08-14T11:21:29.019Z"
-                  }
-                ]
+                "others": []
               }
             ],
             "decisions": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                 "service": "alpha",
-                "decision": "ALLOW_SERIALIZED",
-                "reasonCode": "SERIALIZED_PRECEDENCE",
-                "decidedAt": "2026-08-14T11:20:29.020Z",
-                "decidedAtMs": 1786706429020.344,
-                "couplings": [
-                  {
-                    "correlationIds": [
-                      "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                      "ilk-5a63158d36e8494e8193eceaf9dc0109"
-                    ],
-                    "files": [
-                      "services/alpha/reservation.json",
-                      "services/beta/reservation.json"
-                    ],
-                    "support": 8,
-                    "occurrences": 10
-                  }
-                ],
-                "callerDecision": "ALLOW"
-              },
-              {
-                "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
-                "service": "beta",
                 "decision": "WITHHOLD_SERIALIZE",
                 "reasonCode": "COUPLING_OBSERVED",
-                "decidedAt": "2026-08-14T11:20:29.021Z",
-                "decidedAtMs": 1786706429021.757,
+                "decidedAt": "2026-08-14T13:04:33.792Z",
+                "decidedAtMs": 1786712673792.3572,
                 "couplings": [
                   {
                     "correlationIds": [
-                      "ilk-5a63158d36e8494e8193eceaf9dc0109",
-                      "ilk-dcce1a5dd20343c09f040a18e4d826cf"
+                      "ilk-eb0d422be6a14c6bb42e286c51337c3d",
+                      "ilk-6a519978dcb243aba34a6e27799eb471"
                     ],
                     "files": [
                       "services/alpha/reservation.json",
@@ -2459,27 +2363,37 @@
                   }
                 ],
                 "callerDecision": "DENY"
+              },
+              {
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+                "service": "beta",
+                "decision": "ALLOW_PARALLEL",
+                "reasonCode": "NO_QUALIFYING_COUPLING",
+                "decidedAt": "2026-08-14T13:04:33.793Z",
+                "decidedAtMs": 1786712673793.201,
+                "couplings": [],
+                "callerDecision": "ALLOW"
               }
             ],
             "executed": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                "service": "alpha",
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+                "service": "beta",
                 "status": "EXECUTED",
-                "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
-                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+                "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
             "withheldBeforeTargetMutation": true,
             "commits": [
               {
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
-                "at": "2026-08-14T11:20:29.022Z",
-                "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
+                "at": "2026-08-14T13:04:33.795Z",
+                "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
-            "firstProtectedCommitAt": "2026-08-14T11:20:29.022Z",
-            "firstProtectedCommitAtMs": 1786706429022.2866,
+            "firstProtectedCommitAt": "2026-08-14T13:04:33.795Z",
+            "firstProtectedCommitAtMs": 1786712673795.5269,
             "globalVerification": {
               "source": "independent-reread",
               "total": 120,
@@ -2489,22 +2403,22 @@
               "composedState": {
                 "totalReservable": 130,
                 "services": {
-                  "alpha": 60,
-                  "beta": 40,
+                  "alpha": 40,
+                  "beta": 60,
                   "gamma": 20
                 }
               },
               "reads": {
                 "alpha": {
-                  "revision": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de",
+                  "revision": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
                   "services": {
-                    "alpha": 60
+                    "alpha": 40
                   }
                 },
                 "beta": {
-                  "revision": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
+                  "revision": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39",
                   "services": {
-                    "beta": 40
+                    "beta": 60
                   }
                 }
               },
@@ -2519,38 +2433,40 @@
             },
             "overlap": [
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "treatment",
                 "arrivalOrdinal": 1,
-                "timestamp": "2026-08-14T11:20:29.019Z",
+                "timestamp": "2026-08-14T13:04:33.791Z",
                 "agentId": "capacity-planner",
                 "expectedAgent": "A",
-                "correlationId": "ilk-dcce1a5dd20343c09f040a18e4d826cf",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-eb0d422be6a14c6bb42e286c51337c3d",
                 "service": "alpha",
                 "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                "toolInvocationId": "tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab",
-                "startMs": 1786706429019.356,
-                "endMs": 1786706429022.5693,
+                "toolInvocationId": "tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57",
+                "startMs": 1786712673791.3586,
+                "endMs": 1786712673792.7263,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-ad093408-a1e7-4fa3-863c-c3713c2fc3ab"
+                "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-39f1f17b-ac48-40d9-a2b6-ced91c0a7d57"
               },
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "treatment",
                 "arrivalOrdinal": 2,
-                "timestamp": "2026-08-14T11:20:29.019Z",
+                "timestamp": "2026-08-14T13:04:33.791Z",
                 "agentId": "traffic-shaper",
                 "expectedAgent": "B",
-                "correlationId": "ilk-5a63158d36e8494e8193eceaf9dc0109",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-6a519978dcb243aba34a6e27799eb471",
                 "service": "beta",
                 "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                "toolInvocationId": "tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced",
-                "startMs": 1786706429019.9658,
-                "endMs": 1786706429021.8213,
+                "toolInvocationId": "tool-call-964df6dc-1929-4257-a872-3ecfae2d3663",
+                "startMs": 1786712673791.8518,
+                "endMs": 1786712673795.8994,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-adff9d4a-1dfe-4659-90c5-be15ec1e4ced"
+                "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-964df6dc-1929-4257-a872-3ecfae2d3663"
               }
             ],
             "callerIdentityBinding": {
@@ -2593,7 +2509,7 @@
               }
             },
             "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
-            "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+            "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
             "ingressRetry": {
               "supplied": true,
               "detectedAt": "ingress",
@@ -2643,94 +2559,94 @@
       },
       "arbitrationInputs": [
         {
-          "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+          "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
           "candidate": {
-            "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+            "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
             "agent": "capacity-planner",
             "operation": "set_reservation",
             "targets": [
               "services/alpha/reservation.json"
             ],
             "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-            "recordedAt": "2026-08-14T11:20:29.030Z",
-            "expiresAt": "2026-08-14T11:21:29.030Z"
+            "recordedAt": "2026-08-14T13:04:33.808Z",
+            "expiresAt": "2026-08-14T13:05:33.808Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+              "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
               "agent": "traffic-shaper",
               "operation": "set_reservation",
               "targets": [
                 "services/beta/reservation.json"
               ],
               "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-              "recordedAt": "2026-08-14T11:20:29.030Z",
-              "expiresAt": "2026-08-14T11:21:29.030Z"
+              "recordedAt": "2026-08-14T13:04:33.808Z",
+              "expiresAt": "2026-08-14T13:05:33.808Z"
             }
           ]
         },
         {
-          "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+          "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
           "candidate": {
-            "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+            "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
             "agent": "traffic-shaper",
             "operation": "set_reservation",
             "targets": [
               "services/beta/reservation.json"
             ],
             "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-            "recordedAt": "2026-08-14T11:20:29.030Z",
-            "expiresAt": "2026-08-14T11:21:29.030Z"
+            "recordedAt": "2026-08-14T13:04:33.808Z",
+            "expiresAt": "2026-08-14T13:05:33.808Z"
           },
           "storeAnswered": true,
           "others": [
             {
-              "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+              "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
               "agent": "capacity-planner",
               "operation": "set_reservation",
               "targets": [
                 "services/alpha/reservation.json"
               ],
               "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-              "recordedAt": "2026-08-14T11:20:29.030Z",
-              "expiresAt": "2026-08-14T11:21:29.030Z"
+              "recordedAt": "2026-08-14T13:04:33.808Z",
+              "expiresAt": "2026-08-14T13:05:33.808Z"
             }
           ]
         }
       ],
       "decisions": [
         {
-          "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+          "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
           "service": "alpha",
           "decision": "ALLOW_PARALLEL",
           "reasonCode": "NO_QUALIFYING_COUPLING",
-          "decidedAt": "2026-08-14T11:20:29.031Z",
-          "decidedAtMs": 1786706429031.282,
+          "decidedAt": "2026-08-14T13:04:33.808Z",
+          "decidedAtMs": 1786712673808.6892,
           "couplings": [],
           "callerDecision": "ALLOW"
         },
         {
-          "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+          "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
           "service": "beta",
           "decision": "ALLOW_PARALLEL",
           "reasonCode": "NO_QUALIFYING_COUPLING",
-          "decidedAt": "2026-08-14T11:20:29.031Z",
-          "decidedAtMs": 1786706429031.8152,
+          "decidedAt": "2026-08-14T13:04:33.809Z",
+          "decidedAtMs": 1786712673809.156,
           "couplings": [],
           "callerDecision": "ALLOW"
         }
       ],
       "executed": [
         {
-          "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+          "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
           "service": "alpha",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+          "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
           "service": "beta",
           "status": "EXECUTED",
           "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -2740,18 +2656,18 @@
       "withheldBeforeTargetMutation": false,
       "commits": [
         {
-          "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
-          "at": "2026-08-14T11:20:29.032Z",
+          "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
+          "at": "2026-08-14T13:04:33.809Z",
           "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
         },
         {
-          "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
-          "at": "2026-08-14T11:20:29.033Z",
+          "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
+          "at": "2026-08-14T13:04:33.810Z",
           "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
         }
       ],
-      "firstProtectedCommitAt": "2026-08-14T11:20:29.032Z",
-      "firstProtectedCommitAtMs": 1786706429032.5562,
+      "firstProtectedCommitAt": "2026-08-14T13:04:33.809Z",
+      "firstProtectedCommitAtMs": 1786712673809.9841,
       "globalVerification": {
         "source": "independent-reread",
         "total": 140,
@@ -2791,38 +2707,40 @@
       },
       "overlap": [
         {
-          "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+          "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
           "arm": "perturbation",
           "arrivalOrdinal": 1,
-          "timestamp": "2026-08-14T11:20:29.030Z",
+          "timestamp": "2026-08-14T13:04:33.808Z",
           "agentId": "capacity-planner",
           "expectedAgent": "A",
-          "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+          "identitySource": "experiment-harness",
+          "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
           "service": "alpha",
           "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-          "toolInvocationId": "tool-call-18b96026-ec3b-42f3-96af-d6e75e108692",
-          "startMs": 1786706429030.6592,
-          "endMs": 1786706429033.329,
+          "toolInvocationId": "tool-call-bfadbfe9-5e28-4719-a2bc-80d3861d86ce",
+          "startMs": 1786712673808.0923,
+          "endMs": 1786712673810.8442,
           "dispatched": true,
           "duplicateOfOrdinal": null,
-          "logicalInvocationKey": "tool-invocation:tool-call-18b96026-ec3b-42f3-96af-d6e75e108692"
+          "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-bfadbfe9-5e28-4719-a2bc-80d3861d86ce"
         },
         {
-          "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+          "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
           "arm": "perturbation",
           "arrivalOrdinal": 2,
-          "timestamp": "2026-08-14T11:20:29.030Z",
+          "timestamp": "2026-08-14T13:04:33.808Z",
           "agentId": "traffic-shaper",
           "expectedAgent": "B",
-          "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+          "identitySource": "experiment-harness",
+          "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
           "service": "beta",
           "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-          "toolInvocationId": "tool-call-89489b61-4a09-45f2-a522-97bade90ec3b",
-          "startMs": 1786706429030.8428,
-          "endMs": 1786706429033.5105,
+          "toolInvocationId": "tool-call-8b08ad95-99dd-4989-8a4a-5744650c87e6",
+          "startMs": 1786712673808.2812,
+          "endMs": 1786712673811.0247,
           "dispatched": true,
           "duplicateOfOrdinal": null,
-          "logicalInvocationKey": "tool-invocation:tool-call-89489b61-4a09-45f2-a522-97bade90ec3b"
+          "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-8b08ad95-99dd-4989-8a4a-5744650c87e6"
         }
       ],
       "callerIdentityBinding": {
@@ -2865,7 +2783,7 @@
         }
       },
       "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
-      "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+      "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
       "ingressRetry": {
         "supplied": true,
         "detectedAt": "ingress",
@@ -2926,94 +2844,94 @@
             },
             "arbitrationInputs": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "candidate": {
-                  "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                  "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                   "agent": "capacity-planner",
                   "operation": "set_reservation",
                   "targets": [
                     "services/alpha/reservation.json"
                   ],
                   "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                  "recordedAt": "2026-08-14T11:20:29.030Z",
-                  "expiresAt": "2026-08-14T11:21:29.030Z"
+                  "recordedAt": "2026-08-14T13:04:33.808Z",
+                  "expiresAt": "2026-08-14T13:05:33.808Z"
                 },
                 "storeAnswered": true,
                 "others": [
                   {
-                    "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                    "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                     "agent": "traffic-shaper",
                     "operation": "set_reservation",
                     "targets": [
                       "services/beta/reservation.json"
                     ],
                     "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                    "recordedAt": "2026-08-14T11:20:29.030Z",
-                    "expiresAt": "2026-08-14T11:21:29.030Z"
+                    "recordedAt": "2026-08-14T13:04:33.808Z",
+                    "expiresAt": "2026-08-14T13:05:33.808Z"
                   }
                 ]
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "candidate": {
-                  "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                  "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                   "agent": "traffic-shaper",
                   "operation": "set_reservation",
                   "targets": [
                     "services/beta/reservation.json"
                   ],
                   "intentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                  "recordedAt": "2026-08-14T11:20:29.030Z",
-                  "expiresAt": "2026-08-14T11:21:29.030Z"
+                  "recordedAt": "2026-08-14T13:04:33.808Z",
+                  "expiresAt": "2026-08-14T13:05:33.808Z"
                 },
                 "storeAnswered": true,
                 "others": [
                   {
-                    "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                    "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                     "agent": "capacity-planner",
                     "operation": "set_reservation",
                     "targets": [
                       "services/alpha/reservation.json"
                     ],
                     "intentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                    "recordedAt": "2026-08-14T11:20:29.030Z",
-                    "expiresAt": "2026-08-14T11:21:29.030Z"
+                    "recordedAt": "2026-08-14T13:04:33.808Z",
+                    "expiresAt": "2026-08-14T13:05:33.808Z"
                   }
                 ]
               }
             ],
             "decisions": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "service": "alpha",
                 "decision": "ALLOW_PARALLEL",
                 "reasonCode": "NO_QUALIFYING_COUPLING",
-                "decidedAt": "2026-08-14T11:20:29.031Z",
-                "decidedAtMs": 1786706429031.282,
+                "decidedAt": "2026-08-14T13:04:33.808Z",
+                "decidedAtMs": 1786712673808.6892,
                 "couplings": [],
                 "callerDecision": "ALLOW"
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "service": "beta",
                 "decision": "ALLOW_PARALLEL",
                 "reasonCode": "NO_QUALIFYING_COUPLING",
-                "decidedAt": "2026-08-14T11:20:29.031Z",
-                "decidedAtMs": 1786706429031.8152,
+                "decidedAt": "2026-08-14T13:04:33.809Z",
+                "decidedAtMs": 1786712673809.156,
                 "couplings": [],
                 "callerDecision": "ALLOW"
               }
             ],
             "executed": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "service": "alpha",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ce1363933c497d97f78effee62f3417e687498c41f7074d1be5b0787185f1d9b",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "service": "beta",
                 "status": "EXECUTED",
                 "revisionBefore": "sha256:ae4826bf0f45e100015bed7eb3786dc591e6a5f3aed052f3753efbd7cf065174",
@@ -3023,18 +2941,18 @@
             "withheldBeforeTargetMutation": false,
             "commits": [
               {
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
-                "at": "2026-08-14T11:20:29.032Z",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
+                "at": "2026-08-14T13:04:33.809Z",
                 "revisionAfter": "sha256:f9737cd0c94e2550e4f267502a0f79bfb138448e813fc147fe03ec27515978de"
               },
               {
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
-                "at": "2026-08-14T11:20:29.033Z",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
+                "at": "2026-08-14T13:04:33.810Z",
                 "revisionAfter": "sha256:1098d2986c8efc02fe9abf5414f2c8d1f4b08a2082f5a7c21655753d5ef95f39"
               }
             ],
-            "firstProtectedCommitAt": "2026-08-14T11:20:29.032Z",
-            "firstProtectedCommitAtMs": 1786706429032.5562,
+            "firstProtectedCommitAt": "2026-08-14T13:04:33.809Z",
+            "firstProtectedCommitAtMs": 1786712673809.9841,
             "globalVerification": {
               "source": "independent-reread",
               "total": 140,
@@ -3074,38 +2992,40 @@
             },
             "overlap": [
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "perturbation",
                 "arrivalOrdinal": 1,
-                "timestamp": "2026-08-14T11:20:29.030Z",
+                "timestamp": "2026-08-14T13:04:33.808Z",
                 "agentId": "capacity-planner",
                 "expectedAgent": "A",
-                "correlationId": "ilk-76baf6da78644c488a1e2cbfb239f90b",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-53ca6cd9e4bb479d979c6591cd12dd3b",
                 "service": "alpha",
                 "logicalIntentDigest": "sha256:c5064be737d5990a03ba1f3c58917ed0970a5fd0cd153afd2431f1739b7d8bb2",
-                "toolInvocationId": "tool-call-18b96026-ec3b-42f3-96af-d6e75e108692",
-                "startMs": 1786706429030.6592,
-                "endMs": 1786706429033.329,
+                "toolInvocationId": "tool-call-bfadbfe9-5e28-4719-a2bc-80d3861d86ce",
+                "startMs": 1786712673808.0923,
+                "endMs": 1786712673810.8442,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-18b96026-ec3b-42f3-96af-d6e75e108692"
+                "logicalInvocationKey": "agent-tool-invocation:capacity-planner:tool-call-bfadbfe9-5e28-4719-a2bc-80d3861d86ce"
               },
               {
-                "runId": "hac316-run-8cf26aec-51a6-4573-9847-cb98db2685db",
+                "runId": "hac316-run-f494d05b-ca7f-40ed-943b-37b6eb9c5705",
                 "arm": "perturbation",
                 "arrivalOrdinal": 2,
-                "timestamp": "2026-08-14T11:20:29.030Z",
+                "timestamp": "2026-08-14T13:04:33.808Z",
                 "agentId": "traffic-shaper",
                 "expectedAgent": "B",
-                "correlationId": "ilk-111eae77c0774ff7ba7e9c709da6dfaf",
+                "identitySource": "experiment-harness",
+                "correlationId": "ilk-87bfd4ef8c904e1fbcc6145f285864b1",
                 "service": "beta",
                 "logicalIntentDigest": "sha256:f2d7e96f5d60474429ec6e263127a7ebc181f6e639d1c7695b5077342ee1711f",
-                "toolInvocationId": "tool-call-89489b61-4a09-45f2-a522-97bade90ec3b",
-                "startMs": 1786706429030.8428,
-                "endMs": 1786706429033.5105,
+                "toolInvocationId": "tool-call-8b08ad95-99dd-4989-8a4a-5744650c87e6",
+                "startMs": 1786712673808.2812,
+                "endMs": 1786712673811.0247,
                 "dispatched": true,
                 "duplicateOfOrdinal": null,
-                "logicalInvocationKey": "tool-invocation:tool-call-89489b61-4a09-45f2-a522-97bade90ec3b"
+                "logicalInvocationKey": "agent-tool-invocation:traffic-shaper:tool-call-8b08ad95-99dd-4989-8a4a-5744650c87e6"
               }
             ],
             "callerIdentityBinding": {
@@ -3148,7 +3068,7 @@
               }
             },
             "deploymentDigest": "604347a6f4cf05e1d8c997f12ea9b66b027509667065cd4e55ffd895fd60f8e5",
-            "implementationDigest": "0c43b1a6f2291352b5c57508c1fe8d3847c6ce68895cf32a7e2c907f124d8f4c",
+            "implementationDigest": "70d544cbb4ce06c2c090d601a09931256b2e8e1daaa4d0636a2bb18571ccbc22",
             "ingressRetry": {
               "supplied": true,
               "detectedAt": "ingress",

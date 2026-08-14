@@ -69,6 +69,14 @@ import { HttpTargetPort } from '../../../dist/proxy/target-port.js';
 import { createTargetServer, encodeReceiptHeader } from '../../../dist/target/http.js';
 import { OPERATION_SET_RESERVATION } from '../../../dist/target/state.js';
 
+import {
+  TOOL_INVOCATION_HEADER,
+  createArrivalRecorder,
+  duplicateArrivalRefusal,
+  headerValue,
+  isRefusedDuplicate,
+  nowMs,
+} from '../src/arrivals.mjs';
 import { CompositionUnawareIssuer } from '../src/baseline-issuer.mjs';
 import { isDirectInvocation } from '../src/entrypoint.mjs';
 import { readBooleanEnv } from '../src/env.mjs';
@@ -101,7 +109,6 @@ import {
   classifyTrial,
   expectedAgentFor,
   invocationFromSessionState,
-  logicalInvocationKey,
   runtimeRetryTrial,
 } from '../src/trial.mjs';
 import { ExperimentState, INDEPENDENT_REREAD, Timeline, acceptedAvailability } from '../src/timeline.mjs';
@@ -152,9 +159,6 @@ const listen = (server) =>
 
 const close = (server) => new Promise((resolve) => server.close(resolve));
 
-/** A wall-clock instant with sub-millisecond resolution. */
-const nowMs = () => performance.timeOrigin + performance.now();
-
 /**
  * A timestamping delegate in front of an unchanged `ProtectedTarget`.
  *
@@ -199,18 +203,6 @@ function stampingTarget(target, commits) {
 export const RUN_ID = `hac316-run-${randomUUID()}`;
 
 /**
- * The header a caller may use to name the tool invocation an arrival belongs to.
- *
- * Optional, because the transport this experiment measures does not always carry
- * one: ADK's retry happens *below* the tool boundary, inside
- * `McpTool._run_async_impl`, and MCP itself carries no stable tool-call id
- * across a fresh session. When it is absent, `logicalInvocationKey` falls back
- * to the caller identity and the intent digest, which the ingress can always
- * see.
- */
-export const TOOL_INVOCATION_HEADER = 'x-hac316-tool-invocation-id';
-
-/**
  * The neutral ingress.
  *
  * Identical in every arm, which is what makes the overlap measurement
@@ -240,7 +232,11 @@ export const TOOL_INVOCATION_HEADER = 'x-hac316-tool-invocation-id';
  * experiment has to be able to check.
  */
 export function createIngress({ handle, observations, arm = 'unknown', runId = RUN_ID }) {
-  const seen = new Map();
+  // The same recorder the deployed ingress uses. Two copies of this judgement
+  // could agree the day they were written and disagree the day the packet was
+  // produced, and nothing in the packet would say which one recorded what.
+  const recorder = createArrivalRecorder({ observations, arm, runId });
+
   return createServer((request, response) => {
     const startedAtMs = nowMs();
     const chunks = [];
@@ -250,58 +246,39 @@ export function createIngress({ handle, observations, arm = 'unknown', runId = R
         const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
         const supplied = request.headers[CORRELATION_HEADER];
         const correlationId = typeof supplied === 'string' ? supplied : newCorrelationId();
-        const toolInvocationHeader = request.headers[TOOL_INVOCATION_HEADER];
         const intent = { operation: body.operation, arguments: body.arguments };
 
         // Stamped and retained *before* anything is dispatched, so an arrival
         // that fails, hangs or is refused is still in the record. A detector
         // that only recorded what it forwarded could not report the arrival it
         // declined to forward, which is the one that matters most.
-        const arrival = {
-          runId,
-          arm,
-          arrivalOrdinal: observations.length + 1,
-          timestamp: new Date().toISOString(),
+        //
+        // The identity here is `body.agent`, which is a self-declared field. That
+        // is legitimate only because the harness is also the caller in this local
+        // path; the deployed ingress takes identity from the platform and never
+        // from the request, which is why it is a different entry point and not
+        // this one with a flag.
+        const { arrival, duplicateOfOrdinal } = recorder.record({
           agentId: body.agent,
           expectedAgent: expectedAgentFor(body.agent),
+          identitySource: CALLER_IDENTITY_SOURCE,
           correlationId,
-          service: intent.arguments?.service,
-          // The digest of what the ingress actually received, not of what the
-          // harness meant to send. This is the value the trial-validity rule is
-          // about, and it has to be taken from the wire or it proves nothing.
-          logicalIntentDigest: intentDigest(intent),
-          toolInvocationId:
-            typeof toolInvocationHeader === 'string' && toolInvocationHeader !== ''
-              ? toolInvocationHeader
-              : null,
-          startMs: startedAtMs,
-          endMs: null,
-          dispatched: false,
-          duplicateOfOrdinal: null,
-        };
-        arrival.logicalInvocationKey = logicalInvocationKey(arrival);
-        observations.push(arrival);
+          intent,
+          toolInvocationId: headerValue(request.headers, TOOL_INVOCATION_HEADER) ?? null,
+          startedAtMs,
+        });
 
-        const firstOrdinal = seen.get(arrival.logicalInvocationKey);
-        if (firstOrdinal !== undefined) {
-          arrival.duplicateOfOrdinal = firstOrdinal;
-          arrival.endMs = nowMs();
+        const answer = (payload) => {
+          recorder.finish(arrival);
           response.writeHead(200, { 'content-type': 'application/json' });
-          response.end(
-            JSON.stringify({
-              correlationId,
-              duplicateArrival: true,
-              duplicateOfOrdinal: firstOrdinal,
-              detail:
-                'this logical invocation already arrived at the ingress; it was not dispatched, ' +
-                'so no receipt was minted and no mutation was attempted. The trial it belongs to ' +
-                `is ${TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY}.`,
-            }),
-          );
+          response.end(JSON.stringify(payload));
+        };
+
+        if (duplicateOfOrdinal !== null) {
+          answer(duplicateArrivalRefusal({ correlationId, duplicateOfOrdinal }));
           return;
         }
-        seen.set(arrival.logicalInvocationKey, arrival.arrivalOrdinal);
-        arrival.dispatched = true;
+        recorder.markDispatched(arrival);
 
         let outcome;
         try {
@@ -315,14 +292,13 @@ export function createIngress({ handle, observations, arm = 'unknown', runId = R
         } catch (error) {
           outcome = { failed: true, detail: error.message };
         }
-        arrival.endMs = nowMs();
-        const payload = JSON.stringify({ correlationId, outcome });
-        response.writeHead(200, { 'content-type': 'application/json' });
-        response.end(payload);
+        answer({ correlationId, outcome });
       })();
     });
   });
 }
+
+export { TOOL_INVOCATION_HEADER };
 
 /**
  * Two identities that are deliberately not each other.
@@ -524,6 +500,50 @@ async function call(ingressUrl, id, { toolInvocationId = `tool-call-${randomUUID
 }
 
 /**
+ * Dispatch the predeclared pair concurrently, optionally re-sending one of them.
+ *
+ * ## Why a driver needs to be able to make its own detector fire
+ *
+ * `dispositionOf`'s `RUNTIME_RETRY` branch was unreachable on the real driver.
+ * Nothing in a normal run ever sends one logical invocation twice — `call` mints
+ * a fresh tool-invocation id per request — so the only exercise the branch had
+ * was over hand-built arrival fixtures, and the arm loops that would have had to
+ * survive it had never seen a refused duplicate. They did not: both dereferenced
+ * `result.outcome` unconditionally and threw on the first one.
+ *
+ * `duplicateArrivalFrom` re-sends one agent's invocation **under the same tool
+ * invocation id**, which is precisely what a platform retry looks like on the
+ * wire. It is off in every arm of `runAll` and is never reachable from the CLI:
+ * it exists so `test/driver-duplicate.test.mjs` can drive the real arms, over
+ * real sockets, against real targets, through the branch that a real ADK retry
+ * would take. Injecting a duplicate is not manufacturing concurrency (X-04) —
+ * nothing is delayed, widened or serialized, and every attempt it produces is
+ * retained and disqualifying exactly as an unforced one would be.
+ */
+async function dispatchPair(ingressUrl, { duplicateArrivalFrom = null } = {}) {
+  if (duplicateArrivalFrom !== null && !Object.hasOwn(INTENTS, duplicateArrivalFrom)) {
+    throw new Error(
+      `cannot duplicate the arrival of ${duplicateArrivalFrom}; the predeclared agents are ` +
+        `${Object.keys(INTENTS).join(' and ')}`,
+    );
+  }
+  const toolInvocationIds = Object.fromEntries(
+    Object.keys(INTENTS).map((id) => [id, `tool-call-${randomUUID()}`]),
+  );
+  const calls = Object.keys(INTENTS)
+    .sort()
+    .map((id) => call(ingressUrl, id, { toolInvocationId: toolInvocationIds[id] }));
+  if (duplicateArrivalFrom !== null) {
+    calls.push(
+      call(ingressUrl, duplicateArrivalFrom, {
+        toolInvocationId: toolInvocationIds[duplicateArrivalFrom],
+      }),
+    );
+  }
+  return Promise.all(calls);
+}
+
+/**
  * The ingress's own judgement of what arrived, checked for shape first.
  *
  * The shape check is not defensive noise: `classifyArrivals` decides whether two
@@ -645,7 +665,7 @@ export function treatmentOutcome({ withheld, overlapped }) {
  *
  * The issuer is right about each request and wrong about the pair. Both execute.
  */
-async function attemptBaseline(timeline) {
+export async function attemptBaseline(timeline, { duplicateArrivalFrom = null } = {}) {
   const topology = await startTargets();
   const observations = [];
   try {
@@ -669,16 +689,13 @@ async function attemptBaseline(timeline) {
     });
     const ingressUrl = await listen(ingress);
 
-    const results = await Promise.all([call(ingressUrl, 'A'), call(ingressUrl, 'B')]);
+    const results = await dispatchPair(ingressUrl, { duplicateArrivalFrom });
     await close(ingress);
     const ingressRetry = ingressRecordFor(observations);
 
     const executed = [];
     const intents = {};
     for (const result of results) {
-      const { outcome } = result;
-      const seen = observations.find((entry) => entry.correlationId === result.correlationId);
-      intents[result.id] = { digest: seen.logicalIntentDigest, service: seen.service };
       timeline.record({
         correlationId: result.correlationId,
         state: ExperimentState.REQUESTED,
@@ -686,6 +703,25 @@ async function attemptBaseline(timeline) {
         producedBy: 'ingress',
         detail: `${result.id} arrived at the neutral ingress`,
       });
+
+      // A refused duplicate carries no outcome, because nothing was dispatched
+      // and there is no outcome to report. Reading `outcome.authorized` off it
+      // is what used to throw before `results.json` was ever written, which made
+      // the RUNTIME_RETRY disposition dead code and lost the whole attempt.
+      if (isRefusedDuplicate(result)) {
+        timeline.record({
+          correlationId: result.correlationId,
+          state: ExperimentState.FAILED,
+          at: new Date().toISOString(),
+          producedBy: 'ingress',
+          detail: result.detail,
+        });
+        continue;
+      }
+
+      const { outcome } = result;
+      const seen = observations.find((entry) => entry.correlationId === result.correlationId);
+      intents[result.id] = { digest: seen.logicalIntentDigest, service: seen.service };
       if (outcome.authorized) {
         timeline.record({
           correlationId: result.correlationId,
@@ -777,7 +813,7 @@ async function attemptBaseline(timeline) {
 }
 
 /** One Interlock attempt — treatment or perturbation, identical but for input. */
-async function attemptInterlock(armName, timeline) {
+export async function attemptInterlock(armName, timeline, { duplicateArrivalFrom = null } = {}) {
   const declared = ARMS[armName];
   const evidence = readJson(join(repoRoot, declared.evidencePath));
   const sourceRevision = declared.sourceRevision;
@@ -837,7 +873,7 @@ async function attemptInterlock(armName, timeline) {
     });
     const ingressUrl = await listen(ingress);
 
-    const results = await Promise.all([call(ingressUrl, 'A'), call(ingressUrl, 'B')]);
+    const results = await dispatchPair(ingressUrl, { duplicateArrivalFrom });
     await close(ingress);
     const ingressRetry = ingressRecordFor(observations);
 
@@ -847,10 +883,6 @@ async function attemptInterlock(armName, timeline) {
     let withheldBeforeTargetMutation = false;
 
     for (const result of results) {
-      const response = result.outcome.response;
-      const service = result.outcome.service;
-      const seen = observations.find((entry) => entry.correlationId === result.correlationId);
-      intents[result.id] = { digest: seen.logicalIntentDigest, service: seen.service };
       timeline.record({
         correlationId: result.correlationId,
         state: ExperimentState.REQUESTED,
@@ -858,6 +890,26 @@ async function attemptInterlock(armName, timeline) {
         producedBy: 'ingress',
         detail: `${result.id} arrived at the neutral ingress`,
       });
+
+      // Refused before dispatch, so there is no proxy answer to read and no
+      // arbitration to attribute it to. `result.outcome.response` used to throw
+      // here — the ingress's own retry detector firing killed the driver that
+      // owned it, so the attempt it disqualified was never retained (X-05).
+      if (isRefusedDuplicate(result)) {
+        timeline.record({
+          correlationId: result.correlationId,
+          state: ExperimentState.FAILED,
+          at: new Date().toISOString(),
+          producedBy: 'ingress',
+          detail: result.detail,
+        });
+        continue;
+      }
+
+      const response = result.outcome.response;
+      const service = result.outcome.service;
+      const seen = observations.find((entry) => entry.correlationId === result.correlationId);
+      intents[result.id] = { digest: seen.logicalIntentDigest, service: seen.service };
 
       const withheld = response.reasonCode === Reason.COUPLING_OBSERVED;
       const arbitratedAt = activeReads.find(
@@ -1506,7 +1558,13 @@ export function implementationDigest() {
   for (const name of readdirSync(join(experimentDir, 'src')).sort()) {
     files.push(readFileSync(join(experimentDir, 'src', name)));
   }
-  files.push(readFileSync(join(here, 'run-arm.mjs')));
+  // Both executable surfaces, not just the local one. `bin/ingress-service.mjs`
+  // is what R-08 runs, so an edit to it changes what a Phase 7 arm would do; a
+  // freshness check that could not see that edit would certify a packet against
+  // an entry point it never measured.
+  for (const name of ['run-arm.mjs', 'ingress-service.mjs']) {
+    files.push(readFileSync(join(here, name)));
+  }
   return sha256Hex(Buffer.concat(files));
 }
 
@@ -2035,8 +2093,11 @@ export async function runAll() {
     armsCovered: Object.keys(attemptsByArm),
     arrivalRecordFields: [...ARRIVAL_RECORD_FIELDS],
     logicalInvocationKey:
-      'the tool invocation id when the transport carries one, otherwise caller identity plus the ' +
-      'intent digest the ingress computed off the wire',
+      'always bound to the caller: agent identity plus the tool invocation id when the transport ' +
+      'carries one, otherwise agent identity plus the intent digest the ingress computed off the ' +
+      'wire. The bound branch used to be the bare tool invocation id, so two distinct invocations ' +
+      'sharing one caller-supplied header — A on alpha and B on beta, different digests — ' +
+      'collided, and the second was refused and reported as a runtime retry that never happened',
     duplicateArrivalIsDispatched: false,
     perArm: Object.fromEntries(
       Object.entries(attemptsByArm).map(([armName, attempts]) => [

@@ -208,24 +208,47 @@ export const ARRIVAL_RECORD_FIELDS = Object.freeze([
 /**
  * The identity of the logical invocation an arrival belongs to.
  *
+ * **Always bound to the caller.** Both branches below carry the agent identity,
+ * because a logical invocation is a *pair* — who asked, and which asking — and a
+ * key that names only the asking cannot tell two agents apart.
+ *
+ * ## The collision this used to have
+ *
+ * The tool-invocation branch returned `tool-invocation:<id>` with no agent in it.
+ * The id is supplied by the caller, so two genuinely distinct invocations — A
+ * writing alpha and B writing beta, with different intent digests, which is the
+ * exact pair this experiment is built to observe — collided the moment they
+ * shared one header value. The second was recorded as a duplicate of the first,
+ * refused a dispatch, and reported as a runtime retry: B's mutation withheld, and
+ * the fault attributed to a platform retry that never happened. A caller could
+ * therefore suppress the other agent's mutation by echoing its tool id, and the
+ * packet would blame ADK.
+ *
+ * ## What each branch is for
+ *
  * The tool invocation identity is used when the transport carries one, because
- * it is the only thing that distinguishes "the runtime sent this twice" from
- * "the agent genuinely asked twice" without inference. When it is absent — and
- * on the ADK path it usually is, since the retry happens *below* the tool
- * boundary and MCP carries no tool-call id of its own — the key falls back to
- * the pair the ingress can always see: who called, and what they asked for.
+ * within one caller it is the only thing that distinguishes "the runtime sent
+ * this twice" from "the agent genuinely asked twice" without inference. When it
+ * is absent — and on the ADK path it usually is, since the retry happens *below*
+ * the tool boundary and MCP carries no tool-call id of its own — the key falls
+ * back to the other pair the ingress can always see: who called, and what they
+ * asked for.
  *
  * The fallback is deliberately coarse. Two identical mutations from one agent
  * are indistinguishable from a retry at the ingress, and this experiment treats
  * both as disqualifying rather than guessing which it was: each agent is asked
  * for exactly one mutation, so a second identical one is a fault either way.
+ * What the fallback must never do is reach *across* agents, and it does not:
+ * `agent-intent:` has carried the caller since it was written. The bound branch
+ * now does too.
  */
 export function logicalInvocationKey(arrival) {
+  const agentId = arrival?.agentId ?? '(none)';
   const toolInvocationId = arrival?.toolInvocationId;
   if (typeof toolInvocationId === 'string' && toolInvocationId !== '') {
-    return `tool-invocation:${toolInvocationId}`;
+    return `agent-tool-invocation:${agentId}:${toolInvocationId}`;
   }
-  return `agent-intent:${arrival?.agentId ?? '(none)'}:${arrival?.logicalIntentDigest ?? '(none)'}`;
+  return `agent-intent:${agentId}:${arrival?.logicalIntentDigest ?? '(none)'}`;
 }
 
 /** The ingress record for an attempt whose arrivals were never captured. */

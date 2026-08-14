@@ -22,7 +22,25 @@
       "DNS peering",
       "authorization policy",
       "service extension"
-    ]
+    ],
+    "commandShapes": [
+      "network-services",
+      "network-security",
+      "service-extensions",
+      "service-attachments",
+      "network-attachments",
+      "network-endpoint-groups",
+      "forwarding-rules",
+      "backend-services",
+      "target-http-proxies",
+      "target-https-proxies",
+      "url-maps",
+      "managed-zones",
+      "peering",
+      "authz-polic"
+    ],
+    "commandShapesNote": "The CLI surface of the shapes above, as substrings that may not appear in bin/10-provision.sh. This list exists because the prose in `shapes` is not checkable and the shared FALSIFIED_RESOURCE_SHAPES predicate in bin/verify-packet.mjs covers the gateway family but not the other three limbs of the falsified topology: a Private Service Connect endpoint is a `forwarding-rules` plus a `service-attachments`, an internal load balancer is a `forwarding-rules` plus a `backend-services` plus a proxy and a `url-maps`, and DNS peering is a `managed-zones` carrying `peering`. None of those contains the noun 'gateway', so a scan written around that noun reports X-01 clean while the topology is rebuilt limb by limb. test/provision-ordering.test.mjs reads this list rather than keeping a copy of it; the copy is what went stale last time.",
+    "declaredHere": "One list, one place. bin/verify-packet.mjs owns the gateway-family predicate and this file owns the rest of the X-01 command surface; the ordering test imports the first and reads the second, and holds neither of its own."
   },
   "resources": [
     {
@@ -44,9 +62,9 @@
     {
       "id": "R-03",
       "type": "serviceusage.services",
-      "name": "run, cloudbuild, artifactregistry, aiplatform, storage",
+      "name": "run, cloudbuild, artifactregistry, aiplatform, storage, iam",
       "location": "global",
-      "purpose": "The five APIs the topology needs, and only those.",
+      "purpose": "The six APIs the topology needs, and only those. iam.googleapis.com is required to create the two distinct agent service accounts (R-14, R-15); without it P-11 fails after the image has already been built and three services deployed.",
       "provisionedBy": "P-02"
     },
     {
@@ -86,7 +104,7 @@
       "type": "run.services",
       "name": "interlock-s1-proxy",
       "location": "us-central1",
-      "purpose": "The routing surface: one process, two InterlockProxy instances, one PendingIntentStore. --max-instances=1 is load-bearing for REQ-028 - a second instance would be a second store and would silently break the coupling.",
+      "purpose": "The routing surface, served by bin/ingress-service.mjs: one process, two InterlockProxy instances, one PendingIntentStore, and the MCP ingress the two agent runtimes call. --max-instances=1 is load-bearing for REQ-028 - a second instance would be a second store and would silently break the coupling. src/routing.mjs is a module of exported functions and starts no server, so deploying it as the entry point produced a container that exited 0 and served nothing.",
       "provisionedBy": "P-08"
     },
     {
@@ -94,7 +112,8 @@
       "type": "aiplatform.reasoningEngines",
       "name": "interlock-s1-agent-a",
       "location": "us-central1",
-      "purpose": "Agent Engine resource hosting ADK agent A (alpha mutation). Created by vertexai.agent_engines.create from the ADK deploy entry point, not by gcloud - there is no gcloud create verb for a reasoningEngine.",
+      "purpose": "Agent Engine resource hosting ADK agent A (alpha mutation), deployed under R-14 as its custom service account so that its effectiveIdentity is SA-A and not the shared default. Created by vertexai.agent_engines.create from the ADK deploy entry point, not by gcloud - there is no gcloud create verb for a reasoningEngine.",
+      "runsAs": "interlock-s1-agent-a@${PROJECT_ID}.iam.gserviceaccount.com",
       "provisionedBy": "ADK deploy entry point"
     },
     {
@@ -102,7 +121,8 @@
       "type": "aiplatform.reasoningEngines",
       "name": "interlock-s1-agent-b",
       "location": "us-central1",
-      "purpose": "Agent Engine resource hosting ADK agent B (beta mutation). Created the same way as R-09.",
+      "purpose": "Agent Engine resource hosting ADK agent B (beta mutation), deployed under R-15 as its custom service account. Created the same way as R-09. R-09 and R-10 running as the same identity is the failure this manifest exists to make visible: attribution at the ingress would be undecidable and HAC-316 would be FAIL/PIVOT, not a weaker pass.",
+      "runsAs": "interlock-s1-agent-b@${PROJECT_ID}.iam.gserviceaccount.com",
       "provisionedBy": "ADK deploy entry point"
     },
     {
@@ -116,34 +136,73 @@
     {
       "id": "R-12",
       "type": "iam.policyBindings",
-      "purpose": "Least privilege. No allUsers anywhere (HAC-325 finding 9). Enumerated in full under bindings below.",
-      "provisionedBy": "P-03 and P-10",
+      "purpose": "Least privilege. No allUsers anywhere (HAC-325 finding 9). Enumerated in full under bindings below, one row per gcloud call, because a row that summarises two calls cannot be counted against the script. The previous revision declared five rows against three calls: two of the five - an operator invoker grant and a storage grant to an unnamed 'Agent Engine runtime service account' - were never issued by anything, and the mismatch was invisible because nothing compared the two.",
+      "provisionedBy": "P-03, P-10 and P-12",
       "bindings": [
         {
           "principal": "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com",
           "role": "roles/cloudbuild.builds.builder",
           "scope": "project",
+          "provisionedBy": "P-03",
           "note": "HAC-325 finding 1 - absent on a fresh project, and its absence reads like a bucket fault."
         },
         {
-          "principal": "proxy runtime service account",
+          "principal": "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com",
           "role": "roles/run.invoker",
-          "scope": "interlock-s1-target-alpha, interlock-s1-target-beta"
+          "scope": "interlock-s1-target-alpha",
+          "provisionedBy": "P-10"
+        },
+        {
+          "principal": "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com",
+          "role": "roles/run.invoker",
+          "scope": "interlock-s1-target-beta",
+          "provisionedBy": "P-10"
         },
         {
           "principal": "service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com",
           "role": "roles/run.invoker",
-          "scope": "interlock-s1-proxy"
+          "scope": "interlock-s1-proxy",
+          "provisionedBy": "P-10"
         },
         {
-          "principal": "operator account",
+          "principal": "interlock-s1-agent-a@${PROJECT_ID}.iam.gserviceaccount.com",
           "role": "roles/run.invoker",
-          "scope": "all three Cloud Run services"
+          "scope": "interlock-s1-proxy",
+          "provisionedBy": "P-12",
+          "note": "SA-A calls the ingress and nothing else. This is the only grant agent A needs to run the experiment, and the identity the ingress must observe on its arrivals."
         },
         {
-          "principal": "Agent Engine runtime service account",
+          "principal": "interlock-s1-agent-b@${PROJECT_ID}.iam.gserviceaccount.com",
+          "role": "roles/run.invoker",
+          "scope": "interlock-s1-proxy",
+          "provisionedBy": "P-12",
+          "note": "SA-B, same grant, different principal. Same grant is not the same identity: that distinction is the whole of R5."
+        },
+        {
+          "principal": "interlock-s1-agent-a@${PROJECT_ID}.iam.gserviceaccount.com",
           "role": "roles/storage.objectAdmin",
-          "scope": "gs://${PROJECT_ID}-agent-staging"
+          "scope": "gs://${PROJECT_ID}-agent-staging",
+          "provisionedBy": "P-12",
+          "note": "Scoped to the staging bucket, not granted at project level."
+        },
+        {
+          "principal": "interlock-s1-agent-b@${PROJECT_ID}.iam.gserviceaccount.com",
+          "role": "roles/storage.objectAdmin",
+          "scope": "gs://${PROJECT_ID}-agent-staging",
+          "provisionedBy": "P-12"
+        },
+        {
+          "principal": "service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com",
+          "role": "roles/iam.serviceAccountUser",
+          "scope": "interlock-s1-agent-a@${PROJECT_ID}.iam.gserviceaccount.com",
+          "provisionedBy": "P-12",
+          "note": "Agent Engine cannot deploy a reasoning engine under a custom service account it is not permitted to act as. Without this the ADK deploy fails at R-09 with a permission error that reads like a quota problem."
+        },
+        {
+          "principal": "service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com",
+          "role": "roles/iam.serviceAccountUser",
+          "scope": "interlock-s1-agent-b@${PROJECT_ID}.iam.gserviceaccount.com",
+          "provisionedBy": "P-12"
         }
       ]
     },
@@ -154,6 +213,22 @@
       "location": "us-central1",
       "purpose": "Image builds. Leaves build logs and the R-05 image; no standing resource of its own.",
       "provisionedBy": "P-05"
+    },
+    {
+      "id": "R-14",
+      "type": "iam.serviceAccounts",
+      "name": "interlock-s1-agent-a@${PROJECT_ID}.iam.gserviceaccount.com",
+      "location": "global",
+      "purpose": "SA-A. The identity R-09 runs as, and therefore the identity the ingress must observe on agent A's arrivals. A runtime not configured with Agent Identity reports its associated service account as its effectiveIdentity, so giving each runtime its own service account is what makes the two runtimes distinguishable at all. Deployed without this, both would run as the project default compute account, both would arrive as the same principal, and R5 overlap pairing would be attributing arrivals to agents it cannot actually tell apart.",
+      "provisionedBy": "P-11"
+    },
+    {
+      "id": "R-15",
+      "type": "iam.serviceAccounts",
+      "name": "interlock-s1-agent-b@${PROJECT_ID}.iam.gserviceaccount.com",
+      "location": "global",
+      "purpose": "SA-B. The identity R-10 runs as. Distinct from R-14 by construction, and proved distinct by bin/identity-preflight.mjs against what the platform actually reports rather than against what this file declares - a manifest asserting two names is not evidence that two identities were created.",
+      "provisionedBy": "P-11"
     }
   ]
 }

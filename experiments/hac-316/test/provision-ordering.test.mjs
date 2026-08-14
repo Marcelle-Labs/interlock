@@ -34,10 +34,50 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
+/**
+ * The X-01 predicate, imported rather than restated.
+ *
+ * This file used to carry its own copy of the forbidden-shape list, and the copy
+ * went stale exactly as copies do: erratum E-07 added `network-services`,
+ * `networkServices` and the `gateways?` noun to the real predicate — because
+ * `gcloud network-services gateways create` is the command that actually creates
+ * the falsified topology and the old list did not match it — and this file kept
+ * the pre-E-07 list. The test named "creates no gateway-shaped resource of any
+ * kind (X-01)" would therefore have passed, 20 tests green, on a script that
+ * created a gateway.
+ *
+ * That mattered more here than anywhere else in the packet. CI runs `typecheck`,
+ * `build`, `test:coverage`, `check:packet` and `check:packet:s2`; it does not run
+ * the HAC-316 verifier, because `check:packet:s1` stays unwired until Phase 8. So
+ * for the one file in this repository that spends money, this test file is the
+ * only automated guard there is.
+ *
+ * `bin/verify-packet.mjs` does its work inside `main()` behind `invokedDirectly`,
+ * so importing these two is free of side effects — `test/verify-packet.test.mjs`
+ * already does it.
+ */
+import { FALSIFIED_RESOURCE_PATTERN, FALSIFIED_RESOURCE_SHAPES } from '../bin/verify-packet.mjs';
+
 const experimentDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SCRIPT_PATH = join(experimentDir, 'bin', '10-provision.sh');
 const script = readFileSync(SCRIPT_PATH, 'utf8');
 const lines = script.split('\n');
+
+/**
+ * The frozen manifest, read for the half of X-01 the shared predicate omits.
+ *
+ * `FALSIFIED_RESOURCE_SHAPES` covers the gateway family thoroughly and the other
+ * three limbs of the falsified topology not at all: a Private Service Connect
+ * endpoint, an internal load balancer and DNS peering are each assembled from
+ * commands with no `gateway` noun anywhere in them. The adversarial review found
+ * the same hole in REQ-058's own scan, which matches only the *names* of the S0
+ * topology.
+ *
+ * Those command shapes are declared in `evidence/resources.json` under
+ * `notCreated.commandShapes` and read from there. Declared once and read, not
+ * copied — copying is what produced the defect this file is fixing.
+ */
+const manifest = JSON.parse(readFileSync(join(experimentDir, 'evidence', 'resources.json'), 'utf8'));
 
 /** A shell comment carries no side effect, so no ordering claim rests on one. */
 const isComment = (line) => /^\s*#/.test(line);
@@ -256,17 +296,224 @@ describe('what was already correct stays correct', () => {
   });
 
   it('creates no gateway-shaped resource of any kind (X-01)', () => {
-    for (const shape of [
-      'network-security',
-      'service-extensions',
-      'networkAttachment',
-      'authz-polic',
-      'network-endpoint-groups',
-      'forwarding-rules',
-      'service-attachments',
-      'dns managed-zones',
-    ]) {
+    // The shared list, not a copy of it. If E-07 ever has a successor, this test
+    // gets the correction for free instead of quietly falling a version behind.
+    expect(FALSIFIED_RESOURCE_SHAPES.length).toBeGreaterThan(0);
+    for (const shape of FALSIFIED_RESOURCE_SHAPES) {
       expect(uncommented, shape).not.toContain(shape);
     }
+  });
+
+  it('creates nothing the shared falsified-topology pattern matches (X-01)', () => {
+    // The pattern carries `gateways?` on top of the shape list, case-insensitively,
+    // which is the level X-01 is actually written at: the prohibition is on
+    // building a gateway, not on any particular product surface's spelling of one.
+    const offending = lines
+      .filter((line) => !isComment(line) && FALSIFIED_RESOURCE_PATTERN.test(line))
+      .map((line) => line.trim());
+    expect(offending).toEqual([]);
+  });
+
+  it('issues no gcloud command carrying the gateway noun (X-01)', () => {
+    // Asserted against the command lines specifically, so the failure names the
+    // command rather than a line number. A gateway created through a group this
+    // list has never heard of still has to say `gateway` somewhere on the line.
+    for (const line of calls) {
+      expect(line.trim(), line.trim()).not.toMatch(/\bgateways?\b/i);
+    }
+  });
+
+  it('assembles no limb of the falsified topology under another name (X-01)', () => {
+    // A PSC endpoint is a forwarding rule plus a service attachment; an internal
+    // load balancer is a forwarding rule plus a backend service plus a proxy plus
+    // a URL map; DNS peering is a managed zone with peering on it. None of those
+    // words is `gateway`, and REQ-058's own scan matches only the names of the
+    // falsified topology — so a scan built around the gateway noun reports X-01
+    // clean while the topology is rebuilt limb by limb.
+    const commandShapes = manifest.notCreated?.commandShapes ?? [];
+    expect(commandShapes.length, 'the manifest declares no X-01 command shapes').toBeGreaterThan(0);
+    for (const shape of commandShapes) {
+      expect(uncommented, shape).not.toContain(shape);
+    }
+  });
+
+  it('covers every X-01 shape the manifest names in prose', () => {
+    // The prose list is what X-01 forbids; the command list is how it would be
+    // spelled. This asserts the second is not narrower than the first, so that a
+    // limb cannot be dropped from the checkable list while remaining forbidden.
+    const commandShapes = (manifest.notCreated?.commandShapes ?? []).join(' ').toLowerCase();
+    const combined = `${commandShapes} ${FALSIFIED_RESOURCE_SHAPES.join(' ').toLowerCase()}`;
+    const limbs = {
+      'egress gateway': 'network-services',
+      'network attachment': 'network-attachments',
+      'Private Service Connect endpoint': 'service-attachments',
+      'internal load balancer': 'backend-services',
+      'DNS peering': 'peering',
+      'authorization policy': 'authz-polic',
+      'service extension': 'service-extensions',
+    };
+    for (const [limb, spelling] of Object.entries(limbs)) {
+      expect(manifest.notCreated.shapes, limb).toContain(limb);
+      expect(combined, `${limb} has no checkable spelling`).toContain(spelling);
+    }
+  });
+});
+
+describe('the routing surface is deployed as something that listens', () => {
+  const deploy = lines.find(
+    (line) => !isComment(line) && /run deploy interlock-s1-proxy/.test(line),
+  );
+  const deployBlock = (() => {
+    const start = lines.findIndex((line) => line === deploy);
+    return lines.slice(start, start + 5).join('\n');
+  })();
+
+  it('deploys the ingress service as the R-08 entry point', () => {
+    // `src/routing.mjs` was the entry point and is not a program: it exports
+    // createRoutingSurface, serviceOf, route and dispatch, and calls none of
+    // them. `node experiments/hac-316/src/routing.mjs` evaluates the module,
+    // binds no port and exits 0, so Cloud Run would have reported a container
+    // that never listened and the two agent runtimes would have had nowhere to
+    // arrive. Nothing in the script could show that; only the entry point can.
+    expect(deploy, 'the routing surface is never deployed').toBeDefined();
+    expect(deployBlock).toContain('--args=experiments/hac-316/bin/ingress-service.mjs');
+    expect(deployBlock).not.toContain('src/routing.mjs');
+  });
+
+  it('keeps the routing surface to a single instance (REQ-028)', () => {
+    // One instance is one PendingIntentStore. A second instance is a second
+    // store and the coupling stops being observable with nothing looking wrong.
+    expect(deployBlock).toContain('--max-instances=1');
+  });
+});
+
+describe('the two agent runtimes are provisioned as two identities', () => {
+  const uncommented = lines.filter((line) => !isComment(line)).join('\n');
+  const calls = lines.filter((line) => !isComment(line) && /^\s*gcloud\s/.test(line));
+
+  it('creates a distinct service account for each agent', () => {
+    const creates = calls.filter((line) => /iam service-accounts create/.test(line));
+    expect(creates, 'the script creates fewer than two agent identities').toHaveLength(2);
+    expect(uncommented).toMatch(/SA_A_ID="interlock-s1-agent-a"/);
+    expect(uncommented).toMatch(/SA_B_ID="interlock-s1-agent-b"/);
+  });
+
+  it('refuses locally, before creating anything, if the two are the same', () => {
+    // The cheap check for a typo. Positioned rather than merely present: a check
+    // that runs after both accounts exist is not a preflight check.
+    const at = firstIndex(/\[ "\$\{SA_A\}" = "\$\{SA_B\}" \]/);
+    expect(at, 'the script never compares the two agent identities').toBeGreaterThan(-1);
+    expect(at).toBeLessThan(firstInvocation);
+  });
+
+  it('enables the API the identities need before it needs them', () => {
+    // iam.googleapis.com enabled at point of first use would be enabled after
+    // the image was built and three services were deployed.
+    const enable = firstIndex(/iam\.googleapis\.com/);
+    const create = firstIndex(/iam service-accounts create/);
+    expect(enable).toBeGreaterThan(-1);
+    expect(enable).toBeLessThan(create);
+  });
+
+  it('grants each agent identity the invoker role on the ingress and nothing more', () => {
+    for (const sa of ['${SA_A}', '${SA_B}']) {
+      const grants = calls.filter((line) => line.includes(sa) && /add-iam-policy-binding/.test(line));
+      const roles = grants.flatMap((line) => line.match(/--role=\S+/g) ?? []);
+      expect(grants.length, `${sa} receives no binding`).toBeGreaterThan(0);
+      for (const role of roles) {
+        expect(role, `${sa} is granted ${role}`).toMatch(
+          /roles\/(run\.invoker|storage\.objectAdmin|iam\.serviceAccountUser)/,
+        );
+      }
+    }
+  });
+
+  it('grants no agent identity anything at project scope', () => {
+    // A project-scoped grant to an agent would let it reach the targets around
+    // the ingress, which is the one path the whole design is about.
+    const projectScoped = calls.filter((line) => /projects add-iam-policy-binding/.test(line));
+    for (const line of projectScoped) {
+      expect(line, line.trim()).not.toMatch(/interlock-s1-agent-[ab]|SA_A|SA_B/);
+    }
+  });
+});
+
+describe('the manifest and the script agree about the IAM bindings', () => {
+  const calls = lines.filter((line) => !isComment(line) && /^\s*gcloud\s/.test(line));
+
+  it('issues exactly one gcloud call per declared binding', () => {
+    // The manifest declared five bindings while the script created three, and
+    // nothing compared the two, so the difference was invisible. One row per
+    // call is what makes the comparison possible at all: a row summarising two
+    // scopes cannot be counted against anything.
+    const declared = manifest.resources.find((resource) => resource.id === 'R-12').bindings;
+    const issued = calls.filter((line) => /add-iam-policy-binding/.test(line));
+    expect(issued).toHaveLength(declared.length);
+  });
+
+  it('declares every resource the script records as an actual', () => {
+    const declared = new Set(manifest.resources.map((resource) => resource.id));
+    const recorded = [...script.matchAll(/\{ "id": "(R-\d+)"/g)].map((match) => match[1]);
+    expect(recorded.length).toBeGreaterThan(0);
+    for (const id of recorded) expect(declared, id).toContain(id);
+  });
+
+  it('declares the two agent identities it creates', () => {
+    // Keeping the closed set honest: two new resources exist, so two new rows
+    // do. A resource nobody declared is a resource teardown verification cannot
+    // look for.
+    for (const id of ['R-14', 'R-15']) {
+      const resource = manifest.resources.find((entry) => entry.id === id);
+      expect(resource, `${id} is not declared`).toBeDefined();
+      expect(resource.type).toBe('iam.serviceAccounts');
+    }
+    expect(script).toContain('{ "id": "R-14", "name": "${SA_A}" }');
+    expect(script).toContain('{ "id": "R-15", "name": "${SA_B}" }');
+  });
+
+  it('declares which identity each reasoning engine runs as', () => {
+    const a = manifest.resources.find((entry) => entry.id === 'R-09');
+    const b = manifest.resources.find((entry) => entry.id === 'R-10');
+    expect(a.runsAs).toContain('interlock-s1-agent-a@');
+    expect(b.runsAs).toContain('interlock-s1-agent-b@');
+    expect(a.runsAs).not.toBe(b.runsAs);
+  });
+});
+
+describe('the identity gate stands between provisioning and the first attempt', () => {
+  it('records the eligibility gate as blocked, not as satisfied', () => {
+    expect(script).toContain('"state": "blocked"');
+    expect(script).toContain('"blockedBy": "identity-preflight"');
+    expect(script).toContain('"attemptsEligible": 0');
+    expect(script).toContain('"maxAttempts": 3');
+  });
+
+  it('records the two identities the gate checks against', () => {
+    expect(script).toContain('"agentIdentities"');
+    expect(script).toMatch(/"A": \{ "serviceAccount": "\$\{SA_A\}"/);
+    expect(script).toMatch(/"B": \{ "serviceAccount": "\$\{SA_B\}"/);
+  });
+
+  it('encodes the order with the gate before any attempt', () => {
+    const order = script.slice(script.indexOf('"order": ['), script.indexOf('"maxAttempts"'));
+    const gate = order.indexOf('effectiveIdentity');
+    const distinct = order.indexOf('fail closed unless');
+    const transport = order.indexOf('actual experiment transport');
+    const attempt = order.indexOf('attempt 1');
+    for (const [label, at] of Object.entries({ gate, distinct, transport, attempt })) {
+      expect(at, `the order does not mention ${label}`).toBeGreaterThan(-1);
+    }
+    // Read back, fail closed, prove on the wire, and only then attempt.
+    expect(gate).toBeLessThan(distinct);
+    expect(distinct).toBeLessThan(transport);
+    expect(transport).toBeLessThan(attempt);
+  });
+
+  it('offers the operator no path to an attempt that skips the gate', () => {
+    expect(script).toMatch(/identity-preflight\.mjs/);
+    expect(script).toContain('FAIL/PIVOT');
+    // The tempting repair, refused in the script's own words rather than only in
+    // the gate's code, because the operator reads this file and not that one.
+    expect(script).toMatch(/caller-supplied identity header/);
   });
 });
