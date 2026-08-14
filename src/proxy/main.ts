@@ -17,6 +17,7 @@ import { InMemoryPendingIntentStore } from '../broker/pairing/store.js';
 import type { Environment } from '../config.js';
 import { ENV, readDurationMs, readPort, optional, required } from '../config.js';
 import { createProxyServer } from './http.js';
+import { localTestToken } from './identity.js';
 import { InterlockProxy } from './service.js';
 import { HttpTargetPort } from './target-port.js';
 
@@ -76,13 +77,33 @@ export function startProxy(env: Environment): Promise<StartedProxy> {
   // has no metadata server, and reaching for one on every request would add a
   // DNS timeout to a path whose latency this issue is trying to measure.
   const audience = optional(env, ENV.TARGET_AUDIENCE, '');
+  const identityMode = optional(env, ENV.IDENTITY_MODE, 'cloud-run');
+  const identityConfiguration =
+    identityMode === 'cloud-run'
+      ? ({ mode: 'cloud-run' } as const)
+      : identityMode === 'local-test'
+        ? ({
+            mode: 'local-test' as const,
+            secret: required(env, ENV.TEST_IDENTITY_SECRET),
+            audience: required(env, ENV.PROXY_AUDIENCE),
+          } as const)
+        : (() => {
+            throw new Error(`${ENV.IDENTITY_MODE} must be cloud-run or local-test`);
+          })();
 
   const proxy = new InterlockProxy({
     targetId: required(env, ENV.TARGET_ID),
     store: new InMemoryPendingIntentStore(),
     target: new HttpTargetPort({
       baseUrl: targetUrl,
-      ...(audience === '' ? {} : { authToken: () => metadataIdToken(audience) }),
+      ...(audience === ''
+        ? {}
+        : {
+            authToken:
+              identityMode === 'local-test'
+                ? () => Promise.resolve(localTestToken(required(env, ENV.TEST_IDENTITY_SECRET), audience, 'proxy@local.test'))
+                : () => metadataIdToken(audience),
+          }),
     }),
     signingKey: signingKeyFromPem(
       required(env, ENV.SIGNING_KEY_ID),
@@ -96,6 +117,8 @@ export function startProxy(env: Environment): Promise<StartedProxy> {
 
   const server = createProxyServer({
     proxy,
+    identityConfiguration,
+    requireAuthenticatedIdentity: true,
     // One structured line per request. Cloud Logging parses JSON on stdout, and
     // a log that a verifier cannot parse is a log that will not be read.
     onEnvelope: (envelope) => {

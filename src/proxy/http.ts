@@ -28,6 +28,7 @@ import { CORRELATION_HEADER, resolveCorrelationId } from '../correlation.js';
 import { readJsonBody, sendJson } from '../http/json.js';
 import { OPERATION_SET_RESERVATION, reservationPath } from '../target/state.js';
 import { observeIdentity } from './identity.js';
+import type { IdentityConfiguration } from './identity.js';
 import type { InterlockProxy, ProxyResponse } from './service.js';
 
 /** Protocol revision this server implements. */
@@ -60,6 +61,10 @@ export function targetsForIntent(intent: Intent): readonly string[] {
 
 export interface ProxyServerOptions {
   readonly proxy: InterlockProxy;
+  /** Explicitly Cloud Run OIDC in production, verified local token in parity tests. */
+  readonly identityConfiguration?: IdentityConfiguration;
+  /** Required on the HAC-340 Cloud Run and local-parity paths. */
+  readonly requireAuthenticatedIdentity?: boolean;
   /** Records every observed request envelope, for the frozen fixtures. */
   readonly onEnvelope?: (envelope: {
     readonly transport: 'mcp' | 'http';
@@ -193,8 +198,12 @@ async function handleMcp(
   const { correlationId } = resolveCorrelationId(
     request.headers[CORRELATION_HEADER] ?? (params['_meta'] as Record<string, unknown> | undefined)?.['correlationId'],
   );
-  const identity = observeIdentity(request.headers);
+  const identity = observeIdentity(request.headers, options.identityConfiguration);
 
+  if (options.requireAuthenticatedIdentity === true && identity.identity === 'unavailable') {
+    sendJson(response, 401, { jsonrpc: '2.0', id: rpc.id ?? null, error: { code: -32001, message: 'authenticated identity required' } });
+    return;
+  }
   options.onEnvelope?.({
     transport: 'mcp',
     correlationId,
@@ -244,7 +253,14 @@ async function handleHttpIntent(
         : {},
   };
 
-  const identity = observeIdentity(request.headers);
+  const identity = observeIdentity(request.headers, options.identityConfiguration);
+  if (options.requireAuthenticatedIdentity === true && identity.identity === 'unavailable') {
+    sendJson(response, 401, {
+      decision: 'DENY', reasonCode: 'IDENTITY_UNAVAILABLE', correlationId,
+      message: 'an authenticated caller identity is required', evidenceRefs: [],
+    });
+    return;
+  }
   options.onEnvelope?.({
     transport: 'http',
     correlationId,

@@ -12,6 +12,7 @@ import { createServer } from 'node:http';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
+import { createHmac } from 'node:crypto';
 import { IDENTITY_UNAVAILABLE, observeIdentity } from '../src/proxy/identity.js';
 import { HttpTargetPort, DirectTargetPort } from '../src/proxy/target-port.js';
 import type { TargetResponse } from '../src/target/service.js';
@@ -27,13 +28,10 @@ function idToken(claims: Record<string, unknown>): string {
 }
 
 describe('observeIdentity', () => {
-  it('prefers a platform-verified end-user header', () => {
-    expect(
-      observeIdentity({ 'x-goog-authenticated-user-email': 'accounts.google.com:qwynn@example.test' }),
-    ).toEqual({
-      identity: 'qwynn@example.test',
-      identitySource: 'x-goog-authenticated-user-email/platform-verified',
-    });
+  it('does not treat a caller-set IAP-style header as Cloud Run identity', () => {
+    expect(observeIdentity({ 'x-goog-authenticated-user-email': 'accounts.google.com:spoof@example.test' })).toEqual(
+      IDENTITY_UNAVAILABLE,
+    );
   });
 
   it('reads the email claim from a bearer ID token', () => {
@@ -60,10 +58,18 @@ describe('observeIdentity', () => {
     expect(observeIdentity(headers).identity).toBe('a@b.test');
   });
 
-  it('takes the first value when a header arrives repeated', () => {
-    expect(observeIdentity({ 'x-goog-authenticated-user-email': ['first@x.test', 'second@x.test'] }).identity).toBe(
-      'first@x.test',
-    );
+  it('validates a non-empty local parity token and its audience', () => {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256' })).toString('base64url');
+    const payload = Buffer.from(
+      JSON.stringify({ iss: 'interlock-local-test', aud: 'proxy.local', email: 'agent@example.test' }),
+    ).toString('base64url');
+    const signature = createHmac('sha256', 'test-secret').update(`${header}.${payload}`).digest('base64url');
+    expect(
+      observeIdentity(
+        { authorization: `Bearer ${header}.${payload}.${signature}` },
+        { mode: 'local-test', secret: 'test-secret', audience: 'proxy.local' },
+      ),
+    ).toEqual({ identity: 'agent@example.test', identitySource: 'local-hmac-test-token/verified:email' });
   });
 
   it.each([

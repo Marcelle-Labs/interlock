@@ -26,7 +26,7 @@
  * receipt. There is no path that reaches `ALLOW` other than an arbitration that
  * returned `ALLOW_PARALLEL` within the deadline. Unavailable never means allow.
  */
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 import type { Intent } from '../authorization/intent.js';
 import { intentDigest } from '../authorization/intent.js';
@@ -73,6 +73,8 @@ export interface ProxyResponse {
   readonly execution?: TargetResponse;
   /** Present only when a receipt was issued. Never on a denial. */
   readonly receiptId?: string;
+  /** Stable evidence binding for the signed receipt; the receipt is not exposed. */
+  readonly receiptDigest?: string;
 }
 
 export interface ProxyRequest {
@@ -359,6 +361,7 @@ export class InterlockProxy {
       evidenceRefs: verdict.evidenceRefs,
       execution,
       receiptId: receipt.claims.receiptId,
+      receiptDigest: `sha256:${createHash('sha256').update(JSON.stringify(receipt)).digest('hex')}`,
       ...(verdict.couplings.length > 0 ? { couplings: verdict.couplings } : {}),
     };
   }

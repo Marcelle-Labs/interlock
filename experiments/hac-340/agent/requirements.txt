@@ -1,0 +1,2 @@
+google-adk==1.35.1
+google-auth==2.56.0

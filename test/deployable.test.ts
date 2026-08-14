@@ -27,6 +27,8 @@ const privatePem = privateKey.export({ type: 'pkcs8', format: 'pem' }).toString(
 const publicPem = publicKey.export({ type: 'spki', format: 'pem' }).toString();
 
 const TARGET_ID = 'interlock-s2-deployable';
+const cloudRunShapedToken = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString('base64url') +
+  '.' + Buffer.from(JSON.stringify({ email: 'agent@example.test' })).toString('base64url') + '.platform-verified-at-ingress';
 
 let targetServer: Server;
 let proxyServer: Server;
@@ -76,7 +78,7 @@ describe('the services as deployed', () => {
   it('carry an intent all the way through to a mutation', async () => {
     const response = await fetch(`${proxyUrl}/v1/intents`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${cloudRunShapedToken}` },
       body: JSON.stringify({ operation: 'set_reservation', arguments: { service: 'alpha', reserved: 45 } }),
     });
     const body = (await response.json()) as { decision: string };

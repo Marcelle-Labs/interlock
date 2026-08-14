@@ -23,6 +23,8 @@
  * evidence packet records the deployment flag alongside the identity fixture.
  */
 
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
 /** Identity the proxy observed, and the provenance of that observation. */
 export interface ObservedIdentity {
   readonly identity: string;
@@ -34,6 +36,15 @@ export const IDENTITY_UNAVAILABLE: ObservedIdentity = Object.freeze({
   identity: 'unavailable',
   identitySource: 'none/no-authenticated-principal-observed',
 });
+
+/**
+ * Cloud Run performs OIDC signature verification before this process receives
+ * the request.  The test mode is deliberately separate: it verifies a local
+ * HMAC token so the parity traversal never certifies an empty-auth topology.
+ */
+export type IdentityConfiguration =
+  | { readonly mode: 'cloud-run' }
+  | { readonly mode: 'local-test'; readonly secret: string; readonly audience: string };
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   const parts = token.split('.');
@@ -59,8 +70,30 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
  * Preference order reflects how specific each source is about *who* is calling:
  * a verified end-user header beats a service identity beats nothing.
  */
+function validLocalToken(token: string, secret: string, audience: string): Record<string, unknown> | null {
+  const parts = token.split('.');
+  if (parts.length !== 3 || parts[2] === undefined) return null;
+  const expected = createHmac('sha256', secret).update(`${parts[0]}.${parts[1]}`).digest('base64url');
+  const supplied = Buffer.from(parts[2]);
+  const expectedBytes = Buffer.from(expected);
+  if (supplied.length !== expectedBytes.length || !timingSafeEqual(supplied, expectedBytes)) return null;
+  const claims = decodeJwtPayload(token);
+  return claims?.['iss'] === 'interlock-local-test' && claims?.['aud'] === audience ? claims : null;
+}
+
+/** Minted only by the local parity harness; never used in a Cloud Run deployment. */
+export function localTestToken(secret: string, audience: string, email: string): string {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(
+    JSON.stringify({ iss: 'interlock-local-test', aud: audience, email }),
+  ).toString('base64url');
+  const signature = createHmac('sha256', secret).update(`${header}.${payload}`).digest('base64url');
+  return `${header}.${payload}.${signature}`;
+}
+
 export function observeIdentity(
   headers: Readonly<Record<string, string | string[] | undefined>>,
+  configuration: IdentityConfiguration = { mode: 'cloud-run' },
 ): ObservedIdentity {
   const header = (name: string): string | undefined => {
     const value = headers[name];
@@ -68,26 +101,33 @@ export function observeIdentity(
     return value;
   };
 
-  // Set by IAP / Cloud Run when an end-user identity is forwarded.
-  const authenticatedUser = header('x-goog-authenticated-user-email');
-  if (authenticatedUser !== undefined && authenticatedUser !== '') {
-    return {
-      identity: authenticatedUser.replace(/^accounts\.google\.com:/, ''),
-      identitySource: 'x-goog-authenticated-user-email/platform-verified',
-    };
-  }
-
   const authorization = header('authorization');
   if (authorization !== undefined && /^bearer /i.test(authorization)) {
-    const claims = decodeJwtPayload(authorization.slice('bearer '.length).trim());
+    const token = authorization.slice('bearer '.length).trim();
+    const claims =
+      configuration.mode === 'local-test'
+        ? validLocalToken(token, configuration.secret, configuration.audience)
+        : decodeJwtPayload(token);
     if (claims !== null) {
       const email = claims['email'];
       if (typeof email === 'string' && email !== '') {
-        return { identity: email, identitySource: 'oidc-id-token/platform-verified:email' };
+        return {
+          identity: email,
+          identitySource:
+            configuration.mode === 'cloud-run'
+              ? 'oidc-id-token/platform-verified:email'
+              : 'local-hmac-test-token/verified:email',
+        };
       }
       const subject = claims['sub'];
       if (typeof subject === 'string' && subject !== '') {
-        return { identity: subject, identitySource: 'oidc-id-token/platform-verified:sub' };
+        return {
+          identity: subject,
+          identitySource:
+            configuration.mode === 'cloud-run'
+              ? 'oidc-id-token/platform-verified:sub'
+              : 'local-hmac-test-token/verified:sub',
+        };
       }
     }
   }

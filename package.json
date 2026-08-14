@@ -20,6 +20,8 @@
     "test:coverage": "vitest run --coverage",
     "hac330": "node experiments/hac-330/bin/run-experiment.mjs",
     "hac326": "pnpm run build && node experiments/hac-326/bin/run-experiment.mjs"
+    ,"hac340:render:local": "node experiments/hac-340/bin/render-config.mjs local"
+    ,"hac340:packet": "node experiments/hac-340/bin/verify-packet.mjs"
   },
   "devDependencies": {
     "@types/node": "22.15.3",

@@ -21,6 +21,7 @@ import { readIntent } from '../authorization/intent.js';
 import { CORRELATION_HEADER, RECEIPT_HEADER, resolveCorrelationId } from '../correlation.js';
 import { readJsonBody, sendJson } from '../http/json.js';
 import { observeIdentity } from '../proxy/identity.js';
+import type { IdentityConfiguration } from '../proxy/identity.js';
 import type { ProtectedTarget } from './service.js';
 import { asCanonical } from './state.js';
 
@@ -46,6 +47,9 @@ export interface TargetServerOptions {
   readonly target: ProtectedTarget;
   /** Whether to bind the caller identity the transport reports. */
   readonly enforceCallerIdentity?: boolean;
+  /** Local parity verifies a proxy token; Cloud Run relies on its IAM ingress. */
+  readonly requireTransportIdentity?: boolean;
+  readonly identityConfiguration?: IdentityConfiguration;
 }
 
 async function handleMutate(
@@ -77,7 +81,14 @@ async function handleMutate(
     return;
   }
 
-  const observed = observeIdentity(request.headers);
+  const observed = observeIdentity(request.headers, options.identityConfiguration);
+  if (options.requireTransportIdentity === true && observed.identity === 'unavailable') {
+    sendJson(response, 401, {
+      status: 'REJECTED', correlationId, reasonCode: 'TRANSPORT_IDENTITY_UNAVAILABLE',
+      detail: 'an authenticated proxy transport identity is required',
+    });
+    return;
+  }
   const result = options.target.mutate({
     correlationId,
     presented: decodeReceiptHeader(request.headers[RECEIPT_HEADER]),
@@ -102,6 +113,14 @@ export function createTargetServer(options: TargetServerOptions): Server {
     const url = request.url ?? '/';
 
     if (request.method === 'GET' && (url === '/v1/state' || url === '/')) {
+      const observed = observeIdentity(request.headers, options.identityConfiguration);
+      if (options.requireTransportIdentity === true && observed.identity === 'unavailable') {
+        sendJson(response, 401, {
+          status: 'REJECTED', reasonCode: 'TRANSPORT_IDENTITY_UNAVAILABLE',
+          detail: 'an authenticated observer transport identity is required',
+        });
+        return;
+      }
       const read = options.target.read();
       sendJson(response, 200, {
         revision: read.revision,

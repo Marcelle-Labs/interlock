@@ -10,7 +10,7 @@ import type { Server } from 'node:http';
 import { verificationKeysFromPem } from '../authorization/receipt.js';
 import { InMemoryReplayLedger } from '../broker/idempotency/ledger.js';
 import type { Environment } from '../config.js';
-import { ENV, readFlag, readKeyMap, readPort, required } from '../config.js';
+import { ENV, optional, readFlag, readKeyMap, readPort, required } from '../config.js';
 import { createTargetServer } from './http.js';
 import { ProtectedTarget } from './service.js';
 
@@ -27,9 +27,16 @@ export function startTarget(env: Environment): Promise<StartedTarget> {
   const port = readPort(env, 8081);
 
   const target = new ProtectedTarget({ targetId, keys, ledger: new InMemoryReplayLedger() });
+  const identityMode = optional(env, ENV.IDENTITY_MODE, 'cloud-run');
+  const identityConfiguration =
+    identityMode === 'local-test'
+      ? { mode: 'local-test' as const, secret: required(env, ENV.TEST_IDENTITY_SECRET), audience: required(env, ENV.TARGET_AUDIENCE) }
+      : { mode: 'cloud-run' as const };
   const server = createTargetServer({
     target,
     enforceCallerIdentity: readFlag(env, ENV.ENFORCE_CALLER_IDENTITY),
+    requireTransportIdentity: readFlag(env, ENV.REQUIRE_TRANSPORT_IDENTITY),
+    identityConfiguration,
   });
 
   return new Promise((resolve) => {

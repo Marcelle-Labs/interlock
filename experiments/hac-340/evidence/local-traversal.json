@@ -1,0 +1,101 @@
+{
+  "kind": "local-authenticated-adk-traversal",
+  "correlationId": "ilk-hac340-local-1786728414",
+  "expectedConfiguration": {
+    "version": 1,
+    "mode": "local",
+    "cloud": {
+      "projectId": "nimble-octagon-505403-n3",
+      "region": "global"
+    },
+    "agent": {
+      "service": "interlock-hac340-agent",
+      "model": "gemini-3.5-flash",
+      "accessPath": "Vertex AI via Google ADK",
+      "vertexAi": {
+        "enabled": true,
+        "projectId": "nimble-octagon-505403-n3",
+        "location": "global"
+      },
+      "roles": [
+        "proposer",
+        "reviewer"
+      ],
+      "proxyUrl": "http://127.0.0.1:8080",
+      "proxyAudience": "interlock-proxy.local"
+    },
+    "proxy": {
+      "service": "interlock-hac340-proxy",
+      "targetUrl": "http://127.0.0.1:8081",
+      "targetAudience": "interlock-target.local",
+      "identityMode": "local-test",
+      "sourceRevision": "fixture-baseline"
+    },
+    "target": {
+      "service": "interlock-hac340-target",
+      "targetId": "interlock-hac340-target"
+    },
+    "observer": {
+      "principal": "local-observer"
+    }
+  },
+  "observedConfiguration": {
+    "proxyIdentityMode": "local-test",
+    "targetTransportIdentityRequired": true,
+    "observerIdentity": "observer@local.test"
+  },
+  "adk": {
+    "model": "gemini-3.5-flash",
+    "role": "proposer",
+    "toolResults": [
+      {
+        "decision": "ALLOW",
+        "reasonCode": "NO_QUALIFYING_COUPLING",
+        "correlationId": "ilk-hac340-local-1786728414",
+        "message": "history at eb67a6f56b3bf7e71846e7324d21af44565c0b70 was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between this intent and the 0 intent(s) in flight at support >= 3",
+        "evidenceRefs": [
+          "basis:eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+          "artifact:sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6"
+        ],
+        "execution": {
+          "status": "EXECUTED",
+          "correlationId": "ilk-hac340-local-1786728414",
+          "receiptId": "rcpt-4c72f3f1-ffba-40d7-b579-551978b87e75",
+          "revisionBefore": "sha256:c78fe996446426339788c38a6a6edaf6b1b8ab72f984c9c72786637148615a10",
+          "revisionAfter": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+          "state": {
+            "totalReservable": 130,
+            "services": {
+              "alpha": 45,
+              "beta": 40,
+              "gamma": 20
+            }
+          },
+          "invariant": {
+            "holds": true,
+            "total": 105,
+            "totalReservable": 130,
+            "detail": "total 105 <= 130"
+          }
+        },
+        "receiptId": "rcpt-4c72f3f1-ffba-40d7-b579-551978b87e75"
+      }
+    ]
+  },
+  "observation": {
+    "revision": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    }
+  },
+  "controls": {
+    "forgedIdentityHeader": 401,
+    "wrongAudience": 401,
+    "directTargetBypass": 403
+  }
+}

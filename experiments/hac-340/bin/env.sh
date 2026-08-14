@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+: "${PROJECT_ID:?set PROJECT_ID to the approved Google Cloud project}"
+export REGION="${REGION:-us-central1}"
+export VERTEX_LOCATION="${VERTEX_LOCATION:-global}"
+export REPO="${REPO:-interlock-hac340}"
+export TARGET_SERVICE="${TARGET_SERVICE:-interlock-hac340-target}"
+export PROXY_SERVICE="${PROXY_SERVICE:-interlock-hac340-proxy}"
+export AGENT_SERVICE="${AGENT_SERVICE:-interlock-hac340-agent}"
+export TARGET_SA="${TARGET_SA:-interlock-hac340-target}"
+export PROXY_SA="${PROXY_SA:-interlock-hac340-proxy}"
+export AGENT_SA="${AGENT_SA:-interlock-hac340-agent}"
+export TARGET_ID="${TARGET_ID:-interlock-hac340-target}"
+export SIGNING_KEY_ID="${SIGNING_KEY_ID:-interlock-hac340}"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export EXPERIMENT_DIR="$(cd "$HERE/.." && pwd)"
+export REPO_ROOT="$(cd "$EXPERIMENT_DIR/../.." && pwd)"
+export WORK_DIR="$EXPERIMENT_DIR/.work/cloud"
+export EVIDENCE_DIR="$EXPERIMENT_DIR/evidence"
+export GCLOUD_BIN="${GCLOUD_BIN:-/opt/homebrew/share/google-cloud-sdk/bin/gcloud}"
+mkdir -p "$WORK_DIR" "$EVIDENCE_DIR"
+gcloud() { "$GCLOUD_BIN" --project="$PROJECT_ID" "$@"; }
