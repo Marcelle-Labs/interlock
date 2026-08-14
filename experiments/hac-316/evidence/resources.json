@@ -1,0 +1,159 @@
+{
+  "experiment": "HAC-316",
+  "artifact": "Phase 7 resource manifest",
+  "purpose": "The closed set of Google Cloud resources Phase 7 may create. Frozen and hand-authored, and committed BEFORE anything is provisioned: a teardown gate that enumerates what it found cannot distinguish 'everything was removed' from 'the wrong things were counted'. This file is the denominator. bin/10-provision.sh creates one row at a time; evidence/topology.json records what it actually made; REQ-069 matches the two in both directions.",
+  "authority": "SPEC.md section 6 Phase 7 Resource Manifest (FROZEN), added post-freeze by section 0.5",
+  "closedSet": true,
+  "frozen": true,
+  "recordedBeforeProvisioning": true,
+  "identifiers": {
+    "projectIdPattern": "^interlock-s1-[0-9a-f]{8}$",
+    "projectIdNote": "Generated fresh per run and never reused. The prefix and the 8-hex suffix are not cosmetic: they are the shape the teardown guard enforces (G-4), so that a teardown command can never name a long-lived project even if someone pastes the wrong id.",
+    "region": "us-central1",
+    "regionNote": "Every regional resource, no exceptions."
+  },
+  "notCreated": {
+    "why": "X-01. HAC-325 falsified this topology (docs/architecture/enforcement-topology.md:35-56); Phase 7 does not re-provision any part of it. REQ-069 and REQ-070 each check this independently of REQ-058.",
+    "shapes": [
+      "egress gateway",
+      "network attachment",
+      "Private Service Connect endpoint",
+      "internal load balancer",
+      "DNS peering",
+      "authorization policy",
+      "service extension"
+    ]
+  },
+  "resources": [
+    {
+      "id": "R-01",
+      "type": "cloudresourcemanager.projects",
+      "name": "${PROJECT_ID}",
+      "location": "global",
+      "purpose": "Disposable project. Deleting it is the exhaustive teardown (HAC-326 precedent) - it cannot strand a resource nobody remembered to list.",
+      "provisionedBy": "P-01"
+    },
+    {
+      "id": "R-02",
+      "type": "billing.projectBillingInfo",
+      "name": "link to ${BILLING_ACCOUNT}",
+      "location": "global",
+      "purpose": "Required before Cloud Run or Agent Engine will provision. Unlinked at project deletion.",
+      "provisionedBy": "P-01"
+    },
+    {
+      "id": "R-03",
+      "type": "serviceusage.services",
+      "name": "run, cloudbuild, artifactregistry, aiplatform, storage",
+      "location": "global",
+      "purpose": "The five APIs the topology needs, and only those.",
+      "provisionedBy": "P-02"
+    },
+    {
+      "id": "R-04",
+      "type": "artifactregistry.repositories",
+      "name": "interlock-s1",
+      "location": "us-central1",
+      "purpose": "Holds the single container image. Docker format.",
+      "provisionedBy": "P-04"
+    },
+    {
+      "id": "R-05",
+      "type": "container image",
+      "name": "us-central1-docker.pkg.dev/${PROJECT_ID}/interlock-s1/interlock-s1:latest",
+      "location": "us-central1",
+      "purpose": "One image, three entry points. Identical bytes behind all three services, which is what makes the arms comparable (REQ-056 deployment digest).",
+      "provisionedBy": "P-05"
+    },
+    {
+      "id": "R-06",
+      "type": "run.services",
+      "name": "interlock-s1-target-alpha",
+      "location": "us-central1",
+      "purpose": "Unchanged ProtectedTarget, alpha partition. --no-allow-unauthenticated, --max-instances=1.",
+      "provisionedBy": "P-06"
+    },
+    {
+      "id": "R-07",
+      "type": "run.services",
+      "name": "interlock-s1-target-beta",
+      "location": "us-central1",
+      "purpose": "Unchanged ProtectedTarget, beta partition. Same flags as R-06.",
+      "provisionedBy": "P-07"
+    },
+    {
+      "id": "R-08",
+      "type": "run.services",
+      "name": "interlock-s1-proxy",
+      "location": "us-central1",
+      "purpose": "The routing surface: one process, two InterlockProxy instances, one PendingIntentStore. --max-instances=1 is load-bearing for REQ-028 - a second instance would be a second store and would silently break the coupling.",
+      "provisionedBy": "P-08"
+    },
+    {
+      "id": "R-09",
+      "type": "aiplatform.reasoningEngines",
+      "name": "interlock-s1-agent-a",
+      "location": "us-central1",
+      "purpose": "Agent Engine resource hosting ADK agent A (alpha mutation). Created by vertexai.agent_engines.create from the ADK deploy entry point, not by gcloud - there is no gcloud create verb for a reasoningEngine.",
+      "provisionedBy": "ADK deploy entry point"
+    },
+    {
+      "id": "R-10",
+      "type": "aiplatform.reasoningEngines",
+      "name": "interlock-s1-agent-b",
+      "location": "us-central1",
+      "purpose": "Agent Engine resource hosting ADK agent B (beta mutation). Created the same way as R-09.",
+      "provisionedBy": "ADK deploy entry point"
+    },
+    {
+      "id": "R-11",
+      "type": "storage.buckets",
+      "name": "gs://${PROJECT_ID}-agent-staging",
+      "location": "us-central1",
+      "purpose": "Staging bucket the Agent Engine deploy requires. Not optional; enumerate it or teardown verification cannot look for it.",
+      "provisionedBy": "P-09"
+    },
+    {
+      "id": "R-12",
+      "type": "iam.policyBindings",
+      "purpose": "Least privilege. No allUsers anywhere (HAC-325 finding 9). Enumerated in full under bindings below.",
+      "provisionedBy": "P-03 and P-10",
+      "bindings": [
+        {
+          "principal": "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com",
+          "role": "roles/cloudbuild.builds.builder",
+          "scope": "project",
+          "note": "HAC-325 finding 1 - absent on a fresh project, and its absence reads like a bucket fault."
+        },
+        {
+          "principal": "proxy runtime service account",
+          "role": "roles/run.invoker",
+          "scope": "interlock-s1-target-alpha, interlock-s1-target-beta"
+        },
+        {
+          "principal": "service-${PROJECT_NUMBER}@gcp-sa-aiplatform.iam.gserviceaccount.com",
+          "role": "roles/run.invoker",
+          "scope": "interlock-s1-proxy"
+        },
+        {
+          "principal": "operator account",
+          "role": "roles/run.invoker",
+          "scope": "all three Cloud Run services"
+        },
+        {
+          "principal": "Agent Engine runtime service account",
+          "role": "roles/storage.objectAdmin",
+          "scope": "gs://${PROJECT_ID}-agent-staging"
+        }
+      ]
+    },
+    {
+      "id": "R-13",
+      "type": "cloudbuild.builds",
+      "name": "transient",
+      "location": "us-central1",
+      "purpose": "Image builds. Leaves build logs and the R-05 image; no standing resource of its own.",
+      "provisionedBy": "P-05"
+    }
+  ]
+}

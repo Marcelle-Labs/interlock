@@ -32,7 +32,9 @@ no judgment calls.
 
 This document was frozen at commit `c2a7c5d` ("HAC-316: freeze the
 implementation spec against the two-target topology"). Four of its verification
-commands were **unsatisfiable as written**.
+commands were **unsatisfiable as written**. A fifth entry, E-05, records a
+different kind of defect: not an unsatisfiable command but a **conflict** between
+a rule added post-freeze by §0.5 and an owner directive issued after it.
 
 Three share one cause: each is a `grep` whose scan tree contains the text of its
 own prohibition. A scanner that scans the document declaring the rule will always
@@ -55,6 +57,7 @@ the check that is wrong.
 | E-02 | §0.2 | REQ-058 (X-01) | `grep` matched the frozen preflight artifacts' record of compliance |
 | E-03 | §0.3 | REQ-064 (X-09) | `grep` matched the exclusion fence entry that must name what it forbids |
 | E-04 | §0.7 | REQ-009 | counter demanded exactly one ADK import path; a post-freeze owner ruling makes the working surface two |
+| E-05 | §0.8 | G-8 (REQ-073) | G-8 admits `PERMISSION_DENIED` as a way a deleted project fails; the owner directive makes it a must-FAIL |
 
 **Owner ruling, applied here verbatim:**
 
@@ -378,7 +381,6 @@ for(const e of captured){
 const referenced=new Set();
 const walk=(d)=>{for(const n of fs.readdirSync(d)){const p=path.join(d,n);
   if(fs.statSync(p).isDirectory()){if(n!=="__pycache__")walk(p);continue;}
-  if(!n.endsWith(".py"))continue;
   for(const m of fs.readFileSync(p,"utf8").matchAll(/google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g))referenced.add(m[0]);}};
 walk("experiments/hac-316/agents");
 if(!referenced.size) fail("the agents reference no ADK mcp_tool module at all");
@@ -440,11 +442,51 @@ The first two rows are the two directions of the correspondence; the third
 confirms the mechanical-capture predicate still reaches every entry, not just the
 first. The corrected command also returns `PASS` on the unmodified worktree.
 
+**Amendment — an undisclosed scope narrowing, found and removed.** The corrected
+command as first written carried a line the frozen command did not have:
+
+```js
+if(!n.endsWith(".py"))continue;
+```
+
+Meanwhile §0.4 stated that this erratum "does not change any pattern, scan root,
+or `--include` list", and the paragraph above stated that the regex and the scan
+root are byte-identical to the frozen form. Both statements were true and both
+were silent about the filter, which is the problem: an extension filter on the
+walk is a **narrowing of scan scope** by another name, and a scope change that
+appears only inside a `continue` is a scope change nobody consented to.
+
+It was consequential rather than cosmetic. Proved in the scratch mirror, the same
+way as everything else in this section:
+
+| Probe | Content | Frozen command | Corrected command, with the filter |
+| -- | -- | -- | -- |
+| `experiments/hac-316/agents/notes.txt` | a line naming `google.adk.tools.mcp_tool.sneaky` | `FAIL` — the path is extracted and is uncaptured | `PASS` — the file is skipped and the path is invisible |
+
+A checker that a plain text file can walk past is weaker than the one it
+replaced, in precisely the direction REQ-009 exists to prevent. **The filter is
+removed** — from the corrected command above, from its inline copy at REQ-009,
+and from `bin/verify-packet.mjs` — restoring the frozen command's scope exactly.
+With the filter gone the probe above `FAIL`s as it should, and the unmodified
+worktree still returns `PASS`, because every file under `agents/` is a `.py` file
+and the filter had never excluded anything real.
+
+The `__pycache__` skip **stays**, and is disclosed here rather than left to be
+noticed. It is not a scope narrowing of the same kind: those files are gitignored
+interpreter output that can only ever echo the import strings of the `.py` file
+beside them, and the frozen `grep -rhoE` skipped them in practice too, since
+`grep -o` prints nothing for a match inside a binary file. Removing it would
+change no result and would make the check depend on whether a build cache
+happened to be warm.
+
 **What E-04 does not do.**
 
 - It does not touch the first REQ-009 command (the shape check on
   `toolchain.json.adkImport`), which is satisfiable as frozen and is unchanged.
-- It does not change the extraction pattern or the scan root.
+- It does not change the extraction pattern or the scan root. With the `.py`
+  filter removed the scan root is once again byte-identical in effect as well as
+  in text, and the one remaining departure — `__pycache__` — is disclosed above
+  rather than implied.
 - It does not add, remove or renumber any REQ. The §7.4 count stays at 74.
 - It does not touch any exclusion-fence entry. The closed exclusion set of §0.0
   is unchanged, and E-04 excludes nothing — it is a correspondence check, not a
@@ -452,6 +494,75 @@ first. The corrected command also returns `PASS` on the unmodified worktree.
 - It does not edit Preflight V1, its producer, or Preflight V2.
 - It does not permit a hand-asserted import path. `method === "executed"` is
   still required, now of every captured entry.
+
+---
+
+### 0.8 ERRATUM E-05 — G-8 and `PERMISSION_DENIED`
+
+This one is not an unsatisfiable command. It is a **conflict between two
+authorities**, and it is recorded rather than quietly resolved in code, because a
+teardown gate that behaves differently from its written rule is worse than either
+version of the rule.
+
+**The two texts.**
+
+G-8, added post-freeze by §0.5, says of the lifecycle re-read:
+
+> `gcloud projects describe "<id>" --format='value(lifecycleState)'` (must yield
+> `DELETE_REQUESTED`, or fail as `NOT_FOUND`/`PERMISSION_DENIED` for a project no
+> longer resolvable)
+
+The owner directive governing the teardown rewrite says the opposite of the last
+clause: **permission denied is a must-FAIL. An inability to verify is never a
+successful absence.**
+
+**Which governs: the directive.** The directive is later, it is specific to this
+mechanism, and — decisively — G-8's own closing sentence already agrees with it:
+
+> **Any other outcome is a FAIL, including an unrecognised error**: ambiguity
+> resolves to not-removed, never to removed.
+
+`PERMISSION_DENIED` is ambiguous in exactly the sense that sentence names. It is
+one way a project you deleted answers; it is equally how a **live** project you
+are not authorised to see answers, and how an expired credential answers on a
+workstation where nothing has been deleted at all. The two readings are
+indistinguishable from the probe, so G-8's admission of it as an absence signal
+contradicts G-8's own closing rule. The directive is not overriding G-8 so much
+as choosing which half of G-8 to keep — and it keeps the half that fails closed.
+
+The failure mode this forecloses is concrete and was live in this experiment
+before the teardown rewrite: on a workstation with no `gcloud` at all, every
+probe failed, every failure was read as absence, and the tool emitted a fully
+green verdict claiming `verifiedBy: "independent-reread"` having re-read nothing.
+`PERMISSION_DENIED` is the same shape of mistake with a more plausible-looking
+error string attached.
+
+**What the implementation does, and where.**
+`bin/teardown.mjs` classifies a failed probe by checking the ambiguous signals
+**before** the absence signals, so a message naming both cannot be resolved in
+the flattering direction:
+
+| Signal | Outcome | Reads as |
+| -- | -- | -- |
+| `NOT_FOUND`, "was not found", "does not exist", "could not be found" | `absent` | a positive observation that the thing is gone |
+| `PERMISSION_DENIED`, "not authorized", "login required", "credentials", "reauthentication" | `error` | ambiguity — never removal |
+| anything else, including a missing binary or unparseable output | `error` | ambiguity — never removal |
+
+Any `error` on any probe yields `removed = false`, `verified = false`, `FAIL`,
+and a `verifiedBy` that is **not** `independent-reread`.
+
+**Scope of this erratum.**
+
+- G-8's text above is **not edited**. It is recorded here as conflicting, with
+  the directive named as governing, so that a reader who finds the parenthesis
+  first is not misled by it and a reader who finds the code first can see it was
+  a decision rather than a divergence.
+- The directive is **not** softened. Permission denied is a FAIL.
+- No other guard rule changes. G-1 - G-7 and G-9 - G-11 stand as written.
+- REQ-073 is unchanged: it already checks that the pass condition is the re-read
+  (`passedBecause === "independent-reread"`), which is the property this
+  reconciliation protects.
+- It narrows what teardown will call a success. It widens nothing.
 
 ---
 
@@ -533,43 +644,72 @@ a new active critical-path issue**:
 
 ### 2.1 Created (owned outright)
 
+Reconciled against the tree, not against memory. This table had drifted sixteen
+files behind by the time it was next read — including `evidence/arms.json` and
+`evidence/results.json`, which around twenty §6 verification commands `require()`
+directly. A file that an owned-files table omits is a file nobody agreed to own,
+and the §6 command that reads it is loading something the scope declaration says
+does not exist.
+
+Reconcile it with:
+
+```sh
+cd "$REPO" && git ls-files experiments/hac-316 docs/receipts/HAC-316-s1-receipt.md
+```
+
+Two rows below are directories rather than file lists (`agents/`, `test/`). That
+is deliberate: those two grow with the work — `test/` went from six files to
+seventeen over three rounds — and a file-by-file enumeration of a growing
+directory is a table that is wrong again by the next commit. Rows that name
+single load-bearing artifacts stay as files, because for those the identity of
+the file *is* the commitment.
+
 | Path | Purpose |
 | -- | -- |
 | `experiments/hac-316/SPEC.md` | this document |
-| `experiments/hac-316/DEBT.md` | recorded debt (§1.4) |
+| `experiments/hac-316/DEBT.md` | recorded debt (§1.4) — written in Phase 8 |
+| `experiments/hac-316/.gitignore` | excludes `__pycache__/` and `*.pyc`; interpreter output is not evidence, and a preflight regeneration refuses to run against a tree they have dirtied |
 | `experiments/hac-316/evidence/preflight.v2.json` | Preflight V2 (immutable once committed) |
 | `experiments/hac-316/evidence/toolchain.json` | mechanically captured toolchain (§6 Phase 0) |
-| `experiments/hac-316/evidence/pins.json` | green-main SHA + artifact SHA pins |
+| `experiments/hac-316/evidence/pins.json` | green-main SHA, artifact SHA pins, and the pinned `dist/` build provenance (`dist.loadedSymbols` is the computed dependency closure, 44 qualified `module#export` keys) |
 | `experiments/hac-316/evidence/fixture.json` | canonical fixture digest + partition projection |
-| `experiments/hac-316/evidence/resources.json` | **frozen Phase 7 resource manifest** — the closed set of Google resources the phase may create (§6 Phase 7, REQ-069) |
-| `experiments/hac-316/evidence/topology.json` | recorded actuals from the provisioning run: project id, project number, service URLs, reasoning-engine resource names, staging bucket (§6 Phase 7, REQ-069) |
+| `experiments/hac-316/evidence/arms.json` | per-arm declaration: store topology, evidence artifact path, `sourceRevision`, negative control. Read by REQ-032, REQ-047 |
+| `experiments/hac-316/evidence/results.json` | the run record every arm writes into: decisions, executions, global verification and its per-quantity provenance, concurrency attempts, lifecycle events, limitations, teardown. Read by most of §6 |
+| `experiments/hac-316/evidence/resources.json` | **frozen Phase 7 resource manifest** — the closed set of Google resources the phase may create (§6 Phase 7, REQ-069). Hand-authored and committed *before* provisioning |
+| `experiments/hac-316/evidence/topology.json` | recorded actuals from the provisioning run: project id, project number, service URLs, reasoning-engine resource names, staging bucket (§6 Phase 7, REQ-069). Absent until Phase 7 runs — teardown refuses without it (G-3) |
 | `experiments/hac-316/bin/10-provision.sh` | Phase 7 provisioning, one command per manifest row (REQ-070) |
-| `experiments/hac-316/bin/preflight-v2.mjs` | produces `preflight.v2.json` (mirrors the V1 producer's derive-from-`dist/` discipline) |
+| `experiments/hac-316/bin/preflight-v2.mjs` | produces `preflight.v2.json` and `fixture.json` (mirrors the V1 producer's derive-from-`dist/` discipline) |
 | `experiments/hac-316/bin/capture-toolchain.mjs` | produces `toolchain.json` |
+| `experiments/hac-316/bin/pin-dist.mjs` | computes the `dist/` dependency closure and writes `pins.json.dist`; the build re-derivation runs through is pinned by measurement, not by a hand-written list |
 | `experiments/hac-316/bin/verify-packet.mjs` | HAC-316 packet verifier |
 | `experiments/hac-316/bin/run-arm.mjs` | arm driver (baseline / treatment / perturbation) |
-| `experiments/hac-316/bin/teardown.mjs` | disposable-resource teardown + verification |
+| `experiments/hac-316/bin/teardown.mjs` | disposable-resource teardown + verification (G-1 - G-11) |
 | `experiments/hac-316/src/partition.mjs` | fixture → two-target projection |
 | `experiments/hac-316/src/global-verifier.mjs` | **the harm oracle** |
 | `experiments/hac-316/src/routing.mjs` | experiment-local routing surface |
 | `experiments/hac-316/src/baseline-issuer.mjs` | composition-unaware issuer |
 | `experiments/hac-316/src/timeline.mjs` | experiment-local lifecycle schema |
-| `experiments/hac-316/agents/` | ADK agent implementations (A, B) |
-| `experiments/hac-316/test/global-verifier.test.mjs` | verifier tests |
-| `experiments/hac-316/test/verifier-control.test.mjs` | **packet-failure control** |
-| `experiments/hac-316/test/routing.test.mjs` | routing fail-closed tests |
-| `experiments/hac-316/test/baseline-issuer.test.mjs` | issuer tests |
-| `experiments/hac-316/test/partition.test.mjs` | partition + cross-target rejection |
-| `experiments/hac-316/test/timeline.test.mjs` | lifecycle schema tests |
-| `docs/receipts/HAC-316-s1-receipt.md` | run receipt |
+| `experiments/hac-316/src/dist-provenance.mjs` | measures and compares the `dist/` build the verifier re-derives through |
+| `experiments/hac-316/src/entrypoint.mjs` | realpath-correct direct-invocation test; a raw `import.meta.url === argv[1]` is false through a symlink, and the consequence is a verifier that exits 0 having checked nothing |
+| `experiments/hac-316/src/env.mjs` | environment reading that cannot silently disable a check: empty is absent, unrecognised is a hard error |
+| `experiments/hac-316/src/regeneration.mjs` | which of a producer's outputs a regeneration rewrote (REQ-067) |
+| `experiments/hac-316/src/trial.mjs` | model-trial semantics: an invalid trial consumes an attempt |
+| `experiments/hac-316/agents/` | ADK agent implementations (A, B), their shared toolset, mutation agent and proposal schema |
+| `experiments/hac-316/test/` | the suite, collected by `vitest.config.ts:10`'s `experiments/**/test/*.test.mjs` glob. **`verifier-control.test.mjs` is load-bearing by name** — it is the packet-failure control, and without it every other test here is consistent with a verifier that reports `PASS` unconditionally. `test_proposals.py` covers the agent-side proposal schema and is run separately from vitest |
+| `docs/receipts/HAC-316-s1-receipt.md` | run receipt — written in Phase 8, and must carry the §5.9 `gamma` limitation (REQ-074) |
 
 ### 2.2 Modified (bounded)
 
-| Path | Permitted change | Forbidden |
-| -- | -- | -- |
-| `src/target/state.ts` | **prose comment only**, lines 12-16 | any executable change; extracting `computeNext` |
-| `package.json` | add `check:packet:s1` script (and only that) | changing existing scripts |
-| `.github/workflows/ci.yml` | add `check:packet:s1` to the gate | weakening any existing gate |
+Only the first row has been exercised. `package.json` and
+`.github/workflows/ci.yml` are Phase 8 work and are still byte-identical to the
+audit SHA — which is why REQ-062, REQ-065 and REQ-068 report a Phase 8 gate
+rather than a pass.
+
+| Path | Permitted change | Status | Forbidden |
+| -- | -- | -- | -- |
+| `src/target/state.ts` | **prose comment only**, lines 12-16 | done (REQ-013, REQ-014) | any executable change; extracting `computeNext` |
+| `package.json` | add `check:packet:s1` script (and only that) | not yet made | changing existing scripts; adding a lint/format script (X-07) |
+| `.github/workflows/ci.yml` | add `check:packet:s1` to the gate | not yet made | weakening any existing gate |
 
 ### 2.3 Preserved byte-for-byte (must NOT change)
 
@@ -1119,7 +1259,6 @@ for(const e of captured){
 const referenced=new Set();
 const walk=(d)=>{for(const n of fs.readdirSync(d)){const p=path.join(d,n);
   if(fs.statSync(p).isDirectory()){if(n!=="__pycache__")walk(p);continue;}
-  if(!n.endsWith(".py"))continue;
   for(const m of fs.readFileSync(p,"utf8").matchAll(/google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g))referenced.add(m[0]);}};
 walk("experiments/hac-316/agents");
 if(!referenced.size) fail("the agents reference no ADK mcp_tool module at all");
@@ -2209,7 +2348,7 @@ specified as refusals rather than as a happy path.
 | **G-5** | **Explicit confirmation.** Without `--confirm`, teardown runs as a dry run: it prints the closed resource set it would delete, exits 0, and makes zero mutating calls. |
 | **G-6** | **Explicit project on every call.** Every spawned `gcloud` invocation carries `--project="<id>"`, or the id as its positional operand where the verb takes no `--project`. Each is spawned with `CLOUDSDK_CORE_PROJECT=<id>` and `CLOUDSDK_CORE_DISABLE_PROMPTS=1`, and with no other inherited `CLOUDSDK_*` variable. |
 | **G-7** | **The delete call's exit code is not evidence.** `gcloud projects delete` may return 0 for a request that has not taken effect, and non-zero for a project already gone. Its exit code is **recorded** as `teardown.deleteCallExitCode` and is **never** the pass condition. `\|\| true` must appear nowhere in the file. |
-| **G-8** | **Independent re-read is the only pass condition.** After deletion, in fresh processes: `gcloud projects describe "<id>" --format='value(lifecycleState)'` (must yield `DELETE_REQUESTED`, or fail as `NOT_FOUND`/`PERMISSION_DENIED` for a project no longer resolvable); then `gcloud run services list`, `gcloud artifacts repositories list`, `gcloud ai reasoning-engines list` (or the equivalent `reasoningEngines` REST GET), and `gcloud storage buckets list` — each `--project="<id>"`, each regional one `--region=us-central1`. Each must return zero rows, or fail in the way a deleted project fails. **Any other outcome is a FAIL, including an unrecognised error**: ambiguity resolves to not-removed, never to removed. |
+| **G-8** | **Independent re-read is the only pass condition.** ⚠ **Superseded in part by E-05 (§0.8): `PERMISSION_DENIED` below is a must-FAIL, not an acceptable failure.** After deletion, in fresh processes: `gcloud projects describe "<id>" --format='value(lifecycleState)'` (must yield `DELETE_REQUESTED`, or fail as `NOT_FOUND`/`PERMISSION_DENIED` for a project no longer resolvable — but see E-05: only `NOT_FOUND` establishes absence); then `gcloud run services list`, `gcloud artifacts repositories list`, `gcloud ai reasoning-engines list` (or the equivalent `reasoningEngines` REST GET), and `gcloud storage buckets list` — each `--project="<id>"`, each regional one `--region=us-central1`. Each must return zero rows, or fail in the way a deleted project fails. **Any other outcome is a FAIL, including an unrecognised error**: ambiguity resolves to not-removed, never to removed. |
 | **G-9** | **Record.** Writes `results.json.teardown = { projectId, verifiedBy: "independent-reread", passedBecause: "independent-reread", deleteCallExitCode, lifecycleState, remainingResources, probes: [{ probe, rows, raw }] }`, with one `probes` entry per G-8 probe. `remainingResources` is the sum of rows naming a live resource. |
 | **G-10** | **No cached pass.** Re-running after a successful teardown re-executes every G-8 probe. A recorded result is never reused as evidence, and G-1 - G-4 refuse again on every invocation. |
 | **G-11** | **Test shim cannot manufacture a pass.** For testability where no `gcloud` binary exists, teardown resolves the binary from `HAC316_GCLOUD_BIN` when set. When that variable is set, teardown **must not** record `verifiedBy: "independent-reread"` and **must** exit non-zero for `--verify`. The shim exercises refusal and dry-run paths only; it can never produce a green teardown. |
@@ -2998,6 +3137,60 @@ The verifier must accumulate every failure rather than stopping at the first —
 the `experiments/hac-326/bin/verify-packet.mjs:29-30,245-249` pattern — so one
 run enumerates all outstanding work.
 
+**The count is proved, not asserted.** A count is only a coverage claim if the
+denominator is the spec's. It was not: the verifier enumerated 68 ids against a
+74-requirement document, and REQ-069 … REQ-074 were absent from the ledger
+altogether — not `FAIL`, not `NOT_EXERCISED`, simply uncounted — so
+`REQ 52/68 PASS` was a percentage of the wrong set. The verifier now parses the
+ids out of this document and compares them to the ids it evaluates, printing the
+result on the line above the count in every sweeping mode:
+
+```
+REQ-SET  spec=74 verifier=74 missing=0 extra=0
+```
+
+`missing` is a requirement this document declares that the verifier never
+evaluates; `extra` is one the verifier evaluates that this document does not
+declare. Either is non-empty ⇒ the packet is `INCOMPLETE` regardless of how many
+requirements passed. Adding a requirement to this document without teaching the
+verifier to run it can no longer look like coverage.
+
+**Three terminal states.** Before Phase 7 runs, the runtime requirements are
+legitimately unexercised. That packet used to be indistinguishable from a broken
+one — both printed `PACKET INCOMPLETE` and exited 1 — so neither a reader nor CI
+could tell "waiting for the cloud" from "something is wrong":
+
+| Last line | Exit | Meaning |
+| -- | -- | -- |
+| `PACKET OK` | 0 | every requirement passed. The completion gate |
+| `PACKET PRE-CLOUD CLEAN` | 3 | nothing failed; every gap names the phase it awaits |
+| `PACKET INCOMPLETE` | 1 | something failed, or a gap names no phase |
+
+Pre-cloud clean is deliberately **non-zero**. It is not a pass, and this gate
+still demands `PACKET OK`; it is a *distinguishable* not-yet, which is all it
+claims to be. CI checks it as an exit code:
+
+```sh
+cd "$REPO" && node experiments/hac-316/bin/verify-packet.mjs --all >/dev/null 2>&1; \
+  case $? in 0) echo PACKET_OK;; 3) echo PRE_CLOUD_CLEAN;; *) echo PACKET_BROKEN;; esac
+```
+
+A gap only counts as awaiting a phase if it says which one. A `NOT_EXERCISED`
+that names no gate — the suite could not be collected, say — keeps the packet
+`INCOMPLETE`, because otherwise the middle state would be reachable by declining
+to run checks, which is the failure this whole document is organised against.
+
+**On the four corrected requirements.** REQ-009, REQ-027, REQ-058 and REQ-064
+report `PASS`, not `SPEC_DEFECT`. Their frozen commands are unsatisfiable and
+their corrected commands under §0 are the operative ones; those pass, this gate
+demands `REQ 74/74 PASS`, and the paragraph above requires the corrected form to
+be the one executed. Reporting a defect against a command this document has
+already superseded would put four permanently un-clearable entries in the ledger
+and contradict the gate. Each of the four names its governing erratum in its
+detail line (`E-01 corrected form; …`), so which command ran is still visible.
+The `SPEC_DEFECT` outcome remains, and remains fatal, for a requirement that is
+genuinely unsatisfiable and has no erratum.
+
 ### 7.5 Counterfactual gate — the claim itself
 
 ```sh
@@ -3045,7 +3238,28 @@ Expected: `REQ 3/3 PASS`
 
 Ordering note: REQ-071 and REQ-072 are refusal tests and run at any time, with or
 without cloud access. REQ-073's recorded half requires Phase 7 to have run and
-been torn down; its shim control (G-11) does not.
+been torn down; its shim control (G-11) does not. Before Phase 7 this command
+therefore prints `REQ 2/3 PASS` and exits 3 — pre-cloud clean, per §7.4's table —
+with REQ-073 enumerated above the count as `NOT_EXERCISED`. `REQ 3/3 PASS` is the
+post-teardown reading.
+
+`--req` is a real selector, not a synonym for the full sweep. It used to be the
+latter by accident: the mode was read as "the first argument beginning with
+`--`", which matched no branch and fell through to `--all`, so this command ran
+all 74 requirements and printed the `--all` summary while appearing to report on
+three. The selector is now parsed strictly, in the doctrine `src/env.mjs` applies
+to the environment — a value is understood, absent, or a refusal to continue:
+
+| Invocation | Result |
+| -- | -- |
+| `--req REQ-071,REQ-072,REQ-073` or `--req=REQ-071,…` | evaluates exactly those three |
+| `--req REQ-999` | exit 2, `no such requirement: REQ-999` |
+| `--req REQ-71` | exit 2, `not a requirement id: REQ-71` |
+| `--req` with no list | exit 2 — an empty selection is not a request to check everything |
+| `--counterfactuel` (or any unknown flag) | exit 2, `unknown selector` |
+| `--req REQ-071 --all` | exit 2 — one selector at a time |
+
+No invocation falls through to a sweep nobody asked for.
 
 ---
 

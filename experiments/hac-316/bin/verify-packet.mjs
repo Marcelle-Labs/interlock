@@ -35,23 +35,61 @@
  * run tells you all the outstanding work instead of the first item of it.
  *
  *   node experiments/hac-316/bin/verify-packet.mjs --all
+ *   node experiments/hac-316/bin/verify-packet.mjs --req REQ-071,REQ-072,REQ-073
  *   node experiments/hac-316/bin/verify-packet.mjs --selfcheck-composition
  *   node experiments/hac-316/bin/verify-packet.mjs --rederive-only
  *   node experiments/hac-316/bin/verify-packet.mjs --counterfactual
+ *
+ * ## The ledger is the spec's set, proved so
+ *
+ * A requirement that is merely *written down* is not covered. This program used
+ * to enumerate 68 ids while `SPEC.md` declared 74: REQ-069 - REQ-074 were absent
+ * from the ledger altogether — not `FAIL`, not `NOT_EXERCISED`, simply uncounted
+ * — so `REQ 52/68 PASS` was a percentage of the wrong denominator. The ids are
+ * now parsed out of `SPEC.md` and compared to the ids this file evaluates, and a
+ * difference in either direction stops the run. Coverage that is asserted by a
+ * hand-maintained count can drift; coverage that is a set equation cannot.
+ *
+ * ## Three terminal states, not two
+ *
+ * Before Phase 7 runs, the runtime requirements are legitimately unexercised —
+ * and a reader could not previously tell that packet from a broken one, because
+ * both printed `PACKET INCOMPLETE` and exited 1. There are three states now:
+ *
+ *   PACKET OK               exit 0   everything passed
+ *   PACKET PRE-CLOUD CLEAN  exit 3   nothing failed; every gap awaits a phase
+ *   PACKET INCOMPLETE       exit 1   something failed, or a gap has no gate
+ *
+ * The middle one is deliberately non-zero: it is not a pass, and §7.4 still
+ * demands `PACKET OK`. It is distinguishable, which is the whole point.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import {
+  chmodSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// The frozen decision path, imported rather than re-read. `intentDigest` has no
+// call site here — REQ-034 names it as a string and REQ-045/046 read a recorded
+// field — but the import stays deliberately: it loads `dist/authorization/intent.js`
+// into this process, and the point of `assertDistProvenance` is that everything
+// this program reasons through comes from the pinned build.
 import { intentDigest } from '../../../dist/authorization/intent.js';
 import { Decision, Reason, arbitrate } from '../../../dist/broker/pairing/arbitrate.js';
 import { asCanonical, INITIAL_STATE } from '../../../dist/target/state.js';
 import { genesisRevision } from '../../../dist/broker/revision/revision.js';
 
 import { ATTEMPT_DETAIL_FIELDS, deploymentDigestOf, runComposition } from './run-arm.mjs';
+import { judgeRemoval, REREAD_PROBES } from './teardown.mjs';
 import { measureBuildProvenance, verifyDistProvenance } from '../src/dist-provenance.mjs';
 import { isDirectInvocation } from '../src/entrypoint.mjs';
 import { insideVitest, readEnumEnv } from '../src/env.mjs';
@@ -184,27 +222,157 @@ function faultedDecisions(decisions) {
 const Outcome = {
   PASS: 'PASS',
   FAIL: 'FAIL',
-  /** The requirement's own verification command cannot be satisfied as written. */
+  /**
+   * The requirement's own verification command cannot be satisfied as written,
+   * and no ratified erratum supplies a form that can.
+   *
+   * Four requirements used to end here — REQ-009, REQ-027, REQ-058, REQ-064 —
+   * and they no longer do. Each now has a corrected command under a ratified
+   * erratum (§0.1 - §0.3, §0.7), each corrected command passes, and §7.4 states
+   * outright that those four "must be executed in their **corrected** form" and
+   * that the packet ends at `REQ 74/74 PASS`. Reporting a defect against a
+   * command the spec has already superseded would put a permanently un-clearable
+   * entry in the ledger and contradict the completion gate: the erratum *is* the
+   * operative requirement, so satisfying it is a pass and says so. Each of the
+   * four names its governing erratum in its detail, so nothing is hidden by the
+   * reclassification — a reader still sees which command was executed and why.
+   *
+   * The outcome is kept, and kept fatal, because the *category* is real: a
+   * future requirement whose command cannot be satisfied and has no erratum must
+   * still be able to say so rather than be forced into PASS or FAIL.
+   */
   SPEC_DEFECT: 'SPEC_DEFECT',
   /** Belongs to a phase this run did not enter. */
   NOT_EXERCISED: 'NOT_EXERCISED',
 };
 
+/**
+ * Which phase a gap is waiting on.
+ *
+ * A `NOT_EXERCISED` entry that carries one of these is a *gate*, and a packet
+ * whose only gaps are gates is pre-cloud clean. A `NOT_EXERCISED` entry that
+ * carries none is a hole — the suite could not be run, say — and that is a
+ * broken packet wearing the same word. Distinguishing them is the whole reason
+ * `PACKET PRE-CLOUD CLEAN` can exist without becoming a way to be green while
+ * checking nothing.
+ */
+const Gate = Object.freeze({ PHASE_7: 'phase-7', PHASE_8: 'phase-8' });
+
 const outcomes = [];
-const record = (id, phase, outcome, detail) => {
-  outcomes.push({ id, phase, outcome, detail });
+const record = (id, phase, outcome, detail, gate) => {
+  outcomes.push({ id, phase, outcome, detail, gate: gate ?? null });
 };
+
+/**
+ * Every id this file knows how to evaluate, whether or not this run selected it.
+ *
+ * Populated by `check` before any filtering, so `--req` cannot make the ledger
+ * look smaller than it is and the correspondence proof below means the same
+ * thing in every mode.
+ */
+const KNOWN_IDS = new Set();
+
+/** The ids this run will evaluate; `null` means all of them. */
+let selection = null;
 
 /** Evaluate one requirement; a throw is a failure with the message attached. */
 function check(id, phase, body) {
+  KNOWN_IDS.add(id);
+  if (selection !== null && !selection.has(id)) return undefined;
   try {
     const result = body();
     if (result === undefined || result === true) return record(id, phase, Outcome.PASS, '');
     if (typeof result === 'string') return record(id, phase, Outcome.PASS, result);
-    return record(id, phase, result.outcome, result.detail);
+    return record(id, phase, result.outcome, result.detail, result.gate);
   } catch (error) {
     return record(id, phase, Outcome.FAIL, error.message);
   }
+}
+
+/**
+ * The requirement ids `SPEC.md` declares.
+ *
+ * Parsed from the heading form every requirement uses — `**REQ-NNN — title**` at
+ * line start — rather than from any prose mention, so a citation of REQ-003 in
+ * an erratum does not become a requirement and a requirement cannot hide by
+ * being cited only in passing. Exported so a test can drive it over fixtures.
+ */
+export function parseSpecRequirementIds(specText) {
+  return new Set([...specText.matchAll(/^\*\*(REQ-\d{3})\b/gm)].map((match) => match[1]));
+}
+
+/**
+ * Prove the ledger is the spec's requirement set, exactly.
+ *
+ * Both directions. `missing` is a requirement the spec declares and this file
+ * never evaluates — the failure that produced `REQ 52/68 PASS` against a
+ * 74-requirement spec. `extra` is an id this file evaluates that the spec does
+ * not declare, which would mean the verifier had invented a requirement or that
+ * one had been renumbered out from under it.
+ */
+export function requirementSetCorrespondence({ specIds, verifierIds }) {
+  const missing = [...specIds].filter((id) => !verifierIds.has(id)).sort();
+  const extra = [...verifierIds].filter((id) => !specIds.has(id)).sort();
+  return { missing, extra, agrees: missing.length === 0 && extra.length === 0 };
+}
+
+/**
+ * Which of the three terminal states a finished ledger is in.
+ *
+ * Pure and exported so the distinction can be tested directly rather than
+ * inferred from an exit code. The middle state is the one that did not exist: a
+ * pre-cloud packet and a broken one both printed `PACKET INCOMPLETE` and exited
+ * 1, so neither a reader nor CI could tell "the runtime requirements are waiting
+ * for Phase 7" from "something is wrong".
+ *
+ * A gap only counts as waiting if it says what it waits for. `NOT_EXERCISED`
+ * with no gate — the suite could not be collected, say — keeps the packet
+ * broken, because otherwise the pre-cloud-clean state would be reachable by
+ * failing to run checks.
+ */
+export function terminalState({ outcomes: entries, setAgrees }) {
+  const tally = { PASS: 0, FAIL: 0, SPEC_DEFECT: 0, NOT_EXERCISED: 0 };
+  for (const entry of entries) tally[entry.outcome] += 1;
+  const ungated = entries.filter(
+    (entry) => entry.outcome === Outcome.NOT_EXERCISED && !entry.gate,
+  );
+  if (!setAgrees || tally.FAIL > 0 || tally.SPEC_DEFECT > 0 || ungated.length > 0) {
+    return { state: 'INCOMPLETE', exitCode: 1, tally, ungated };
+  }
+  if (tally.NOT_EXERCISED === 0) return { state: 'OK', exitCode: 0, tally, ungated };
+  return { state: 'PRE_CLOUD_CLEAN', exitCode: 3, tally, ungated };
+}
+
+/**
+ * Every `google.adk.tools.mcp_tool` path referenced under `dir`.
+ *
+ * The extraction half of REQ-009's corrected command (E-04), lifted out so the
+ * scan root can be driven over a fixture. `__pycache__` is skipped — it only
+ * echoes the import strings of the `.py` file beside it, and it is gitignored
+ * interpreter output — and *nothing else* is: an extension filter here would
+ * narrow the frozen command's scope, and §0.7 is where that would have to be
+ * disclosed rather than in a `continue`.
+ */
+export function referencedAdkModules(dir, io = {}) {
+  const readDir = io.readDir ?? readdirSync;
+  const isDirectory = io.isDirectory ?? ((path) => statSync(path).isDirectory());
+  const readFile = io.readFile ?? ((path) => readFileSync(path, 'utf8'));
+  const referenced = new Set();
+  const walk = (current) => {
+    for (const name of readDir(current)) {
+      const path = join(current, name);
+      if (isDirectory(path)) {
+        if (name === '__pycache__') continue;
+        walk(path);
+        continue;
+      }
+      for (const match of readFile(path).matchAll(/google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g)) {
+        referenced.add(match[0]);
+      }
+    }
+  };
+  walk(dir);
+  return referenced;
 }
 
 const must = (condition, message) => {
@@ -239,6 +407,12 @@ for (const [key, path] of Object.entries({
   fixture: 'experiments/hac-316/evidence/fixture.json',
   arms: 'experiments/hac-316/evidence/arms.json',
   results: 'experiments/hac-316/evidence/results.json',
+  // Phase 7. `resources.json` is the frozen declaration and exists before
+  // provisioning; `topology.json` is what provisioning actually made and is
+  // legitimately absent until it runs. Absence of the second is a gate, absence
+  // of the first is a failure — they are not the same missing file.
+  resources: 'experiments/hac-316/evidence/resources.json',
+  topology: 'experiments/hac-316/evidence/topology.json',
 })) {
   artifacts[key] = exists(path) ? readJson(path) : null;
 }
@@ -250,6 +424,9 @@ for (const [key, path] of Object.entries({
   baselineIssuer: 'experiments/hac-316/src/baseline-issuer.mjs',
   preflightV2Producer: 'experiments/hac-316/bin/preflight-v2.mjs',
   verifyPacket: 'experiments/hac-316/bin/verify-packet.mjs',
+  teardown: 'experiments/hac-316/bin/teardown.mjs',
+  provision: 'experiments/hac-316/bin/10-provision.sh',
+  spec: 'experiments/hac-316/SPEC.md',
   stateTs: 'src/target/state.ts',
   configTs: 'src/config.ts',
   proxyMainTs: 'src/proxy/main.ts',
@@ -263,23 +440,25 @@ for (const [key, path] of Object.entries({
 // ---------------------------------------------------------------------------
 
 /**
- * The functions whose loaded source text is bound to `pins.json`.
- *
- * These are the very bindings this file imported, not paths re-read from disk:
- * the point is to bind what will actually be *called*.
- */
-const PINNED_SYMBOLS = { arbitrate, asCanonical, genesisRevision, intentDigest };
-
-/**
  * Assert that `dist/` is the build the packet was pinned to.
  *
  * Re-derivation is only meaningful against the frozen decision path. A stale or
  * hand-edited `dist/` would let this program report "re-derived and it matches"
  * about a function nobody pinned, so every mode that re-derives calls this
  * first.
+ *
+ * No `symbols` argument. There used to be one — a four-entry
+ * `{ arbitrate, asCanonical, genesisRevision, intentDigest }` passed as an
+ * override — and it went dead when `pins.json.loadedSymbols` became the computed
+ * dependency closure: 44 qualified `module#export` keys, none of which those four
+ * unqualified names can name. `measureBuildProvenance` applies caller symbols as
+ * overrides *on* the load-bearing set, so four keys that match nothing overrode
+ * nothing, and the argument had been silently doing no work. The four `dist/`
+ * imports at the top of this file are a different matter and stay: they are the
+ * bindings re-derivation actually calls.
  */
 function assertDistProvenance() {
-  const measured = measureBuildProvenance({ repoRoot, symbols: PINNED_SYMBOLS });
+  const measured = measureBuildProvenance({ repoRoot });
   const problems = verifyDistProvenance(artifacts.pins?.dist, measured);
   must(
     problems.length === 0,
@@ -564,25 +743,14 @@ function phase0() {
       must(typeof entry.resolvedFile === 'string' && entry.resolvedFile.length > 0, 'no resolvedFile');
     }
 
-    const agentsDir = join(repoRoot, 'experiments/hac-316/agents');
-    const referenced = new Set();
-    const walk = (dir) => {
-      for (const name of readdirSync(dir)) {
-        const path = join(dir, name);
-        if (statSync(path).isDirectory()) {
-          if (name === '__pycache__') continue;
-          walk(path);
-          continue;
-        }
-        if (!name.endsWith('.py')) continue;
-        for (const match of readFileSync(path, 'utf8').matchAll(
-          /google\.adk\.tools\.mcp_tool[.a-zA-Z_]*/g,
-        )) {
-          referenced.add(match[0]);
-        }
-      }
-    };
-    walk(agentsDir);
+    // The extraction carried an `if (!name.endsWith('.py')) continue;` that the
+    // frozen command did not have, while §0.4 and §0.7 both said the scan root
+    // and pattern were unchanged. It was consequential — a probe
+    // `agents/notes.txt` naming a `google.adk.tools.mcp_tool` path was invisible
+    // to the corrected check and visible to the frozen one — and narrowing scope
+    // is the one thing an erratum may not do quietly. The filter is gone and
+    // §0.7 records that it was there.
+    const referenced = referencedAdkModules(join(repoRoot, 'experiments/hac-316/agents'));
 
     // The substantive requirement: nothing is imported that was not reproduced
     // in the interpreter the agents run on, and nothing was captured that the
@@ -598,23 +766,13 @@ function phase0() {
     must(unused.length === 0, `captured but never imported: ${unused.join(', ')}`);
     must(referenced.size > 0, 'the agents reference no ADK mcp_tool module at all');
 
-    if (referenced.size !== 1) {
-      return {
-        outcome: Outcome.SPEC_DEFECT,
-        detail:
-          "the requirement's cross-check counts distinct google.adk.tools.mcp_tool paths in the " +
-          'agents and expects exactly 1. On google-adk 2.6.3 the two symbols the agents construct ' +
-          'live in two modules — McpToolset is defined in mcp_toolset, ' +
-          'StreamableHTTPConnectionParams in mcp_session_manager (mcp_toolset only re-exports it) ' +
-          `— so the literal command cannot pass. Referenced: ${[...referenced].sort().join(', ')}. ` +
-          'Substantively PASS: both paths are mechanically captured in toolchain.json by ' +
-          'importing them in the interpreter the agents run on, every referenced path is ' +
-          'captured, and every captured path is referenced. Importing the connection params from ' +
-          'mcp_toolset instead would collapse the count to 1 by relying on a re-export rather ' +
-          'than on the module that defines the class.',
-      };
-    }
-    return [...capturedPaths].join(', ');
+    // Executed in its corrected form (E-04, §0.7), which is the operative
+    // command: the frozen cardinality counter demanded exactly one ADK import
+    // path, and a post-freeze owner ruling fixed a runtime whose working surface
+    // is two modules. The set correspondence above is strictly stricter than the
+    // counter it replaced — it admits no uncaptured import and no unused
+    // capture — so this is a pass, not a defect worked around.
+    return `E-04 corrected form; ${[...capturedPaths].sort().join(', ')}`;
   });
 
   check('REQ-010', 0, () => {
@@ -860,19 +1018,19 @@ function phase2() {
       }
     };
     walk(join(repoRoot, 'experiments/hac-316'));
-    const implementation = hits.filter((path) => !path.endsWith('SPEC.md') && !path.endsWith('verify-packet.mjs'));
+    // E-01's exclusion, exactly: `SPEC.md` and nothing else. The filter used to
+    // also drop `bin/verify-packet.mjs`, which is a fifth path — and §0.0
+    // declares the exclusion set closed at four. It was also unnecessary: the
+    // scan patterns in this file are assembled from fragments precisely so the
+    // scanner is not its own finding, so the file does not match. Matched on the
+    // full repository-relative path, so no same-basename file elsewhere is
+    // caught by it.
+    const EXCLUDED = new Set(['experiments/hac-316/SPEC.md']);
+    const implementation = hits.filter((path) => !EXCLUDED.has(path));
     must(implementation.length === 0, `local invariants are switched off in: ${implementation.join(', ')}`);
-    if (hits.length > 0) {
-      return {
-        outcome: Outcome.SPEC_DEFECT,
-        detail:
-          `the requirement's own grep scans experiments/hac-316/ including SPEC.md, which quotes ` +
-          `the pattern at line 1057, so the literal command cannot pass. Self-matches: ` +
-          `${hits.join(', ')}. Substantively PASS: no implementation file switches a local ` +
-          'invariant off.',
-      };
-    }
-    return undefined;
+    // E-01 corrected form (§0.1). The prohibition X-19 is untouched: every file
+    // under experiments/hac-316/ other than this document is still in scope.
+    return `E-01 corrected form; ${hits.length} self-match(es) excluded`;
   });
 }
 
@@ -1156,7 +1314,7 @@ function phase6() {
 function phase7() {
   const results = artifacts.results;
   const cloudRan = results?.agentRuntime?.executed === true;
-  const notRun = (detail) => ({ outcome: Outcome.NOT_EXERCISED, detail });
+  const notRun = (detail) => ({ outcome: Outcome.NOT_EXERCISED, detail, gate: Gate.PHASE_7 });
 
   check('REQ-049', 7, () => {
     const attempts = results.concurrency.attempts;
@@ -1399,49 +1557,184 @@ function phase7() {
     const carriedForward = new Set(['experiments/hac-316/evidence/preflight.v2.json']);
     const mine = hits.filter((path) => !frozen.has(path) && !carriedForward.has(path));
     must(mine.length === 0, `the falsified S0 topology was re-attempted in: ${mine.join(', ')}`);
-    if (hits.length > 0) {
-      return {
-        outcome: Outcome.SPEC_DEFECT,
-        detail:
-          "the requirement's grep covers experiments/hac-316/**/*.{mjs,json,py,yaml}, which " +
-          'includes Preflight V1 and its producer. Both name the falsified topology in prose and ' +
-          'both are frozen byte-for-byte, so the literal command could not pass at the audit SHA ' +
-          `either. Matches: ${hits.join(', ')}. Substantively PASS: no HAC-316 code, config or ` +
-          'agent re-attempts that topology; every match is prose recording that it was falsified.',
-      };
+    // E-02 corrected form (§0.2). X-01 is untouched: the three excluded paths
+    // are exactly the frozen preflight artifacts named in §0.0, and
+    // `bin/10-provision.sh`, `bin/run-arm.mjs`, `agents/**`, `src/**` and
+    // `evidence/resources.json` all remain in scope — a provisioning script that
+    // created a gateway-shaped resource would still be caught here, and by
+    // REQ-069 and REQ-070 independently.
+    return `E-02 corrected form; ${hits.length} frozen-artifact match(es) excluded`;
+  });
+
+  check('REQ-069', 7, () => {
+    // The manifest half is checkable now and is checked now. It has to be: the
+    // whole reason §0.5 added it is that the declaration must exist *before*
+    // provisioning, so that "zero resources remain" can be read against a closed
+    // set rather than against whatever anybody happened to remember.
+    const manifest = artifacts.resources;
+    must(
+      manifest !== null,
+      'evidence/resources.json is absent; the closed resource set must be declared before ' +
+        'Phase 7 provisions anything, not reconstructed from what it left behind',
+    );
+    must(manifest.closedSet === true, 'the manifest does not declare itself the closed set');
+    must(
+      Array.isArray(manifest.resources) && manifest.resources.length >= 11,
+      `manifest under-enumerates: ${(manifest.resources ?? []).length}`,
+    );
+    const FALSIFIED = /networkAttachment|serviceExtension|authorizationPolicy|egressGateway/i;
+    for (const resource of manifest.resources) {
+      must(
+        Boolean(resource.id && resource.type && resource.purpose),
+        `incomplete manifest entry: ${JSON.stringify(resource)}`,
+      );
+      must(
+        !resource.location || resource.location === 'global' || resource.location === 'us-central1',
+        `unexpected location ${resource.location} for ${resource.id}`,
+      );
+      must(
+        !FALSIFIED.test(`${resource.type}${resource.id}`),
+        `manifest declares a falsified-topology resource (X-01): ${resource.id}`,
+      );
     }
-    return undefined;
+    const declared = new Set(manifest.resources.map((resource) => resource.id));
+    must(declared.size === manifest.resources.length, 'the manifest repeats a resource id');
+
+    // The bidirectional half needs the provisioning run's own record, and
+    // `topology.json` is legitimately absent until Phase 7 writes it. Absent is
+    // a gate; present-and-disagreeing is a failure.
+    const topology = artifacts.topology;
+    if (topology === null) {
+      return notRun(
+        `manifest declares ${declared.size} resources as a closed set; the correspondence with ` +
+          'evidence/topology.json awaits provisioning, which has not run',
+      );
+    }
+    must(Array.isArray(topology.actuals), 'topology.json records no actuals');
+    for (const actual of topology.actuals) {
+      must(declared.has(actual.id), `provisioned resource is not in the manifest: ${actual.id}`);
+    }
+    for (const id of declared) {
+      must(
+        topology.actuals.some((actual) => actual.id === id),
+        `declared resource was never provisioned: ${id}`,
+      );
+    }
+    must(
+      /^interlock-s1-[0-9a-f]{8}$/.test(topology.projectId ?? ''),
+      `recorded project id is not a disposable id: ${topology.projectId}`,
+    );
+    return `resources=${manifest.resources.length}, matched both ways`;
+  });
+
+  check('REQ-070', 7, () => {
+    must(
+      exists('experiments/hac-316/bin/10-provision.sh'),
+      'no provisioning script exists; REQ-070 requires the phase to be scripted rather than ' +
+        'typed at a prompt, so that what ran is what was reviewed',
+    );
+    // Comment lines stripped first, per the requirement: a script that
+    // *explains* why it never touches ambient configuration must not fail a
+    // check looking for that phrase. That is the §0 defect and it is not
+    // repeated here.
+    const text = sources.provision
+      .split('\n')
+      .filter((line) => !/^\s*#/.test(line))
+      .join('\n');
+    must(
+      !/gcloud\s+config\s+(set|get-value)/.test(text),
+      'provisioning reads or mutates ambient gcloud config',
+    );
+    const calls = text.split('\n').filter((line) => /^\s*gcloud\s/.test(line));
+    must(
+      calls.length >= 8,
+      `too few gcloud invocations to provision the manifest: ${calls.length}`,
+    );
+    for (const line of calls) {
+      must(/PROJECT_ID/.test(line), `gcloud call without an explicit project: ${line.trim()}`);
+    }
+    for (const match of text.match(/--(region|location)=\S+/g) ?? []) {
+      must(/us-central1|REGION/.test(match), `location outside us-central1: ${match}`);
+    }
+    must(
+      /REGION=(\$\{REGION:-)?"?us-central1/.test(text),
+      'REGION is not pinned to the literal us-central1',
+    );
+    for (const shape of [
+      'network-security',
+      'service-extensions',
+      'networkAttachment',
+      'authz-polic',
+      'network-endpoint-groups',
+    ]) {
+      must(
+        !text.includes(shape),
+        `provisioning creates a falsified-topology resource (X-01): ${shape}`,
+      );
+    }
+    return `gcloud-calls=${calls.length}`;
   });
 }
 
 function phase8() {
-  const notRun = (detail) => ({ outcome: Outcome.NOT_EXERCISED, detail });
+  const notRun = (detail, gate = Gate.PHASE_8) => ({
+    outcome: Outcome.NOT_EXERCISED,
+    detail,
+    gate,
+  });
 
   check('REQ-059', 8, () => {
     // The tool has to exist and be closed *before* anything is provisioned. A
     // teardown guard written after the fact is a guard that was never in force
     // when it mattered.
     must(exists('experiments/hac-316/bin/teardown.mjs'), 'no teardown tool exists');
-    const refused = spawnSync(
-      process.execPath,
-      [join(here, 'teardown.mjs'), '--verify', '--project', 'hac316-s1-not-declared'],
-      {
+
+    // Two probes, because the guard now has two independent gates and the old
+    // single probe tested neither of them for the reason it claimed. It passed
+    // `hac316-s1-not-declared`, an id that predates the `^interlock-s1-[0-9a-f]{8}$`
+    // shape fence: the tool refused it at G-4 on its *shape* while the check
+    // reported that an *undeclared* project had been refused. Right exit code,
+    // wrong gate — and the declaration gate, the one this requirement is about,
+    // was never reached.
+    //
+    //   undeclared     well-formed disposable id, absent from topology.json -> G-3, exit 3
+    //   non-disposable a plausible long-lived id                            -> G-4, exit 4
+    //
+    // Both carry a hostile ambient project, which must change nothing and must
+    // certainly not become the project the tool acts on.
+    const refuse = (projectId) =>
+      spawnSync(process.execPath, [join(here, 'teardown.mjs'), '--verify', '--project', projectId], {
         cwd: repoRoot,
         encoding: 'utf8',
-        // Ambient project set on purpose: it must change nothing, and it must
-        // certainly not become the project the tool acts on.
         env: { ...process.env, CLOUDSDK_CORE_PROJECT: 'ambient-must-be-ignored' },
-      },
-    );
-    must(refused.status !== 0, 'the teardown tool did not refuse an undeclared project');
-    must(!refused.stdout.includes('PASS'), 'the teardown tool reported PASS with nothing declared');
-    must(refused.stdout.includes('REFUSED'), 'the refusal is not reported as one');
+      });
+
+    const declared = artifacts.topology?.projectId ?? null;
+    const undeclaredProbe = declared === 'interlock-s1-deadbeef'
+      ? 'interlock-s1-feedface'
+      : 'interlock-s1-deadbeef';
+
+    for (const [projectId, wantedCode, gate] of [
+      [undeclaredProbe, 3, 'G-3 (not the declared project)'],
+      ['my-production-project', 4, 'G-4 (not a disposable id)'],
+    ]) {
+      const refused = refuse(projectId);
+      must(refused.status !== 0, `the teardown tool did not refuse ${projectId}`);
+      must(
+        refused.status === wantedCode,
+        `${projectId} was refused with exit ${refused.status}, not ${wantedCode} — the refusal ` +
+          `did not come from ${gate}`,
+      );
+      must(!refused.stdout.includes('PASS'), `the teardown tool reported PASS for ${projectId}`);
+      must(refused.stdout.includes('REFUSED'), `the refusal of ${projectId} is not reported as one`);
+    }
 
     const teardown = artifacts.results.teardown;
     if (teardown.status === 'NOT_APPLICABLE_LOCAL') {
       return notRun(
-        'Phase 7 did not run, so there is nothing to tear down; the guard refuses an undeclared ' +
-          'project and never prints PASS for one',
+        'Phase 7 did not run, so there is nothing to tear down; the guard refuses both an ' +
+          'undeclared and a non-disposable project, and never prints PASS for either',
+        Gate.PHASE_7,
       );
     }
     must(teardown.verifiedBy === 'independent-reread', 'teardown not independently verified');
@@ -1504,16 +1797,10 @@ function phase8() {
     must(mine.length === 0, `sibling-repository content was vendored: ${mine.join(', ')}`);
     const provenance = spawnSync('node', ['scripts/check-provenance.mjs'], { cwd: repoRoot });
     must(provenance.status === 0, 'check:provenance failed');
-    if (hits.includes(frozenSpec)) {
-      return {
-        outcome: Outcome.SPEC_DEFECT,
-        detail:
-          "the requirement's grep scans experiments/hac-316/, which contains SPEC.md — and SPEC.md " +
-          'states the prohibition (X-09) and quotes the pattern in the command itself, so it ' +
-          'matches. Frozen at the spec commit, so the literal command could not pass there ' +
-          'either. Substantively PASS: nothing was vendored and check:provenance passes.',
-      };
-    }
+    // E-03 corrected form (§0.3). X-09 is untouched: all of `src/` and every
+    // file under experiments/hac-316/ other than this document stay in scope,
+    // and the `check:provenance` conjunct is retained exactly.
+    return `E-03 corrected form; check:provenance OK, ${hits.length} self-match(es) excluded`;
   });
 
   check('REQ-065', 8, () => {
@@ -1539,6 +1826,265 @@ function phase8() {
     must(/22\.19\.0/.test(workflow), 'Node pin lost');
     return `jobs=${jobs} explains=${explains}`;
   });
+
+  // --- the teardown guard (REQ-071 - REQ-073) --------------------------------
+  //
+  // These are refusal tests. They run at any time, with or without cloud access,
+  // which is exactly why they may not be deferred to Phase 7: a guard that is
+  // only exercised once there is something to destroy has never been a guard.
+
+  /**
+   * A `gcloud` that does nothing but record that it was asked.
+   *
+   * The load-bearing half of every refusal probe below is the *empty log*: a
+   * refusal must happen before any process is spawned, not after one has already
+   * been told to delete something. A shim that always exits 0 makes that
+   * measurable — if teardown reached it at all, the log is non-empty and the
+   * probe fails no matter what exit code came back.
+   */
+  const gcloudShim = () => {
+    const dir = mkdtempSync(join(tmpdir(), 'hac316-teardown-'));
+    const shim = join(dir, 'gcloud-shim.sh');
+    const log = join(dir, 'invocations.log');
+    writeFileSync(shim, '#!/bin/sh\necho "$@" >> "$HAC316_GCLOUD_LOG"\nexit 0\n');
+    chmodSync(shim, 0o755);
+    return { shim, log };
+  };
+
+  const runTeardown = (argv, env) =>
+    spawnSync(process.execPath, [join(here, 'teardown.mjs'), ...argv], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      env: { ...process.env, ...env },
+    });
+
+  const invocations = (log) => (existsSync(log) ? readFileSync(log, 'utf8').trim() : '');
+
+  check('REQ-071', 8, () => {
+    must(exists('experiments/hac-316/bin/teardown.mjs'), 'no teardown tool exists');
+    // Static: the ambient code path must not exist in the file. Comment lines
+    // are stripped first — a teardown that documents why it never reads ambient
+    // configuration must not be failed for saying so.
+    const text = sources.teardown
+      .split('\n')
+      .filter((line) => !/^\s*(\/\/|\*|\/\*)/.test(line))
+      .join('\n');
+    must(!/config\s+get-value/.test(text), 'teardown reads ambient gcloud config (G-2)');
+    must(
+      !/["'`]config["'`]\s*,/.test(text),
+      'teardown spawns a gcloud config subcommand (G-2)',
+    );
+    must(!/\|\|\s*true/.test(text), 'teardown swallows a failure with || true (G-7)');
+    must(/CLOUDSDK_CORE_PROJECT/.test(text), 'teardown does not pin CLOUDSDK_CORE_PROJECT (G-6)');
+    must(
+      /CLOUDSDK_CORE_DISABLE_PROMPTS/.test(text),
+      'teardown does not disable prompts (G-6)',
+    );
+    must(
+      /\^interlock-s1-\[0-9a-f\]\{8\}\$/.test(text),
+      'teardown does not carry the disposable-id shape fence (G-4)',
+    );
+
+    // Behavioural: no --project, and a hostile ambient project deliberately
+    // exported. Refuse, exit 2, and touch nothing.
+    const { shim, log } = gcloudShim();
+    const refused = runTeardown(['--confirm', '--verify'], {
+      HAC316_GCLOUD_BIN: shim,
+      HAC316_GCLOUD_LOG: log,
+      CLOUDSDK_CORE_PROJECT: 'some-live-production-project',
+    });
+    must(refused.status === 2, `expected exit 2 with no --project, got ${refused.status}`);
+    must(
+      invocations(log) === '',
+      `teardown spawned gcloud before refusing: ${invocations(log)}`,
+    );
+    return 'G-1/G-2 static and behavioural, 0 invocations';
+  });
+
+  check('REQ-072', 8, () => {
+    const { shim } = gcloudShim();
+    const declared = artifacts.topology?.projectId ?? null;
+    // The five probes the requirement names: a well-formed disposable id that is
+    // not the recorded one; the two project ids earlier experiments deleted; an
+    // ordinary long-lived-looking id; and the recorded id with a trailing
+    // character. The fifth is only constructible once something is declared —
+    // and the first probe covers the same G-3 ground until then, so this
+    // requirement is genuinely exercised before Phase 7 rather than deferred.
+    const probes = [
+      'interlock-s1-deadbeef',
+      'interlock-s0-gate',
+      'interlock-s2-gate',
+      'my-production-project',
+      ...(declared === null ? [] : [`${declared}x`]),
+    ].filter((probe) => probe !== declared);
+
+    for (const probe of probes) {
+      const log = join(mkdtempSync(join(tmpdir(), 'hac316-probe-')), 'invocations.log');
+      const refused = runTeardown([`--project=${probe}`, '--confirm', '--verify'], {
+        HAC316_GCLOUD_BIN: shim,
+        HAC316_GCLOUD_LOG: log,
+      });
+      must(
+        refused.status >= 2 && refused.status <= 4,
+        `${probe}: expected a refusal in the 2-4 band, got ${refused.status}`,
+      );
+      must(
+        invocations(log) === '',
+        `${probe}: teardown spawned gcloud before refusing: ${invocations(log)}`,
+      );
+    }
+    return `${probes.length} mismatched ids refused, 0 invocations`;
+  });
+
+  check('REQ-073', 8, () => {
+    const text = sources.teardown;
+    for (const probe of [
+      'projects describe',
+      'run services list',
+      'artifacts repositories list',
+      'storage buckets list',
+    ]) {
+      must(text.includes(probe), `teardown lacks an independent re-read probe: ${probe}`);
+    }
+    must(
+      /reasoning-engines list|reasoningEngines/.test(text),
+      'teardown lacks a reasoning-engine re-read probe',
+    );
+    must(
+      /DELETE_REQUESTED/.test(text) && /NOT_FOUND/.test(text),
+      'teardown does not interpret the re-read lifecycle state',
+    );
+    must(REREAD_PROBES.length >= 5, `teardown declares ${REREAD_PROBES.length} re-read probes, G-8 requires 5`);
+
+    // G-11, executed rather than asserted, and executed *here* rather than left
+    // to Phase 7. A shim that answers every probe perfectly must still not be
+    // able to produce a green teardown; if it could, every refusal test above
+    // would be running against a tool that can be talked into a pass.
+    const shimmedButPerfect = judgeRemoval({
+      projectId: 'interlock-s1-deadbeef',
+      probes: REREAD_PROBES.map((spec) => ({
+        probe: spec.name,
+        outcome: 'ok',
+        rows: 0,
+        verified: true,
+        live: false,
+        lifecycleState: 'DELETE_REQUESTED',
+      })),
+      deleteExitCode: 0,
+      shimmed: true,
+    });
+    must(
+      shimmedButPerfect.removed === false,
+      'a shimmed gcloud produced a green teardown; the test shim can manufacture a pass (G-11)',
+    );
+    must(
+      shimmedButPerfect.verifiedBy !== 'independent-reread',
+      `a shimmed teardown claimed verifiedBy=${shimmedButPerfect.verifiedBy}`,
+    );
+
+    const teardown = artifacts.results.teardown;
+    if (teardown.status === 'NOT_APPLICABLE_LOCAL') {
+      return notRun(
+        'the static half and the G-11 shim control pass; the recorded half needs a Phase 7 run ' +
+          'to have been torn down',
+        Gate.PHASE_7,
+      );
+    }
+    must(
+      teardown.verifiedBy === 'independent-reread',
+      `teardown not independently verified: ${teardown.verifiedBy}`,
+    );
+    must(
+      teardown.passedBecause === 'independent-reread',
+      `the pass condition was not the re-read: ${teardown.passedBecause}`,
+    );
+    must('deleteCallExitCode' in teardown, 'the delete call exit code was not recorded (G-7)');
+    must(
+      Array.isArray(teardown.probes) && teardown.probes.length >= 5,
+      'fewer than 5 re-read probes recorded',
+    );
+    for (const probe of teardown.probes) {
+      must(typeof probe.rows === 'number', `probe recorded no row count: ${probe.probe}`);
+    }
+    must(
+      teardown.remainingResources === teardown.probes.reduce((sum, probe) => sum + probe.rows, 0),
+      'remainingResources disagrees with the probe rows',
+    );
+    must(teardown.remainingResources === 0, `resources remain: ${teardown.remainingResources}`);
+    must(
+      /^interlock-s1-[0-9a-f]{8}$/.test(teardown.projectId ?? ''),
+      `teardown recorded a non-disposable project id: ${teardown.projectId}`,
+    );
+    return `probes=${teardown.probes.length}`;
+  });
+
+  check('REQ-074', 8, () => {
+    const results = artifacts.results;
+    const fixture = artifacts.fixture;
+    const gamma = fixture.canonicalFixture.services.gamma;
+    const cap = fixture.canonicalFixture.totalReservable;
+
+    for (const armName of ['baseline', 'treatment', 'perturbation']) {
+      const verification = results.arms[armName].globalVerification;
+      must(
+        verification.source === 'independent-reread',
+        `${armName}: global verification is not an independent reread`,
+      );
+      const provenance = verification.provenance;
+      must(provenance !== undefined, `${armName}: globalVerification records no per-quantity provenance`);
+      must(
+        provenance.alpha === 'observed' && provenance.beta === 'observed',
+        `${armName}: alpha and beta must be recorded as observed`,
+      );
+      must(
+        provenance.gamma === 'asserted-fixture' && provenance.cap === 'asserted-fixture',
+        `${armName}: gamma and cap must be recorded as asserted fixture inputs, got ` +
+          `${provenance.gamma}/${provenance.cap}`,
+      );
+    }
+
+    const limitation = results.limitations?.gammaAsserted;
+    must(limitation !== undefined, 'results.json records no gammaAsserted limitation');
+    must(
+      limitation.assertedGamma === gamma && limitation.assertedCap === cap,
+      'recorded assertions disagree with the canonical fixture',
+    );
+    const breach = results.arms.perturbation.globalVerification;
+    const margin = breach.total - breach.cap;
+    must(
+      limitation.breachMargin === margin,
+      `breachMargin is not derived from the measured breach: ${limitation.breachMargin} vs ${margin}`,
+    );
+    must(
+      limitation.assertedGammaExceedsMarginBy === gamma - margin,
+      'the gamma-versus-margin comparison is not recorded',
+    );
+    must(
+      limitation.observedQuantities.join(',') === 'alpha,beta',
+      'observed quantities misrecorded',
+    );
+    must(
+      /receipt/i.test(limitation.carriedInto ?? ''),
+      'the limitation is not marked as carried into the receipt',
+    );
+
+    // The receipt is a Phase 8 deliverable describing a Phase 7 run. Everything
+    // the packet can carry is checked above and has to pass now; only the
+    // carrying-into is gated.
+    const receiptPath = 'docs/receipts/HAC-316-s1-receipt.md';
+    if (!exists(receiptPath)) {
+      return notRun(
+        `the packet half passes (observed=alpha,beta asserted-gamma=${gamma} margin=${margin}); ` +
+          `${receiptPath} is written after the Agent Runtime run`,
+        Gate.PHASE_7,
+      );
+    }
+    const receipt = readText(receiptPath).toLowerCase();
+    for (const token of ['asserted', 'gamma', 'breach margin', 'independently re-read']) {
+      must(receipt.includes(token), `the receipt does not carry: ${token}`);
+    }
+    return `observed=alpha,beta asserted-gamma=${gamma} margin=${margin}`;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -1553,6 +2099,75 @@ function phase8() {
  */
 export { SCAN };
 
+/** Every selector this program implements. Anything else is a hard error. */
+export const MODES = Object.freeze([
+  '--all',
+  '--req',
+  '--selfcheck-composition',
+  '--rederive-only',
+  '--counterfactual',
+]);
+
+/**
+ * Read the selector out of argv, refusing anything unrecognised.
+ *
+ * The defect this replaces: `argv.find(a => a.startsWith('--')) ?? '--all'`
+ * took the first `--` argument and, matching no branch below, fell through to
+ * the full sweep. `--req REQ-071,REQ-072,REQ-073` therefore ran all 74
+ * requirements and printed the `--all` summary, so §7.7's teardown gate was
+ * reading a number that had nothing to do with the three requirements it named.
+ * A typo (`--counterfactuel`) did the same thing, silently.
+ *
+ * This is the argv form of the bug `src/env.mjs` was written to remove, and it
+ * gets the same doctrine: a value is understood, absent, or a refusal to
+ * continue. There is no branch here that guesses.
+ *
+ * @throws {Error} on an unknown selector, more than one selector, a `--req`
+ *         with no list, or a requirement id that is not shaped like one.
+ */
+export function parseMode(argv) {
+  const flags = argv.filter((argument) => argument.startsWith('--'));
+  if (flags.length === 0) return { mode: '--all', requirements: null };
+
+  const names = flags.map((flag) => flag.split('=')[0]);
+  const unknown = names.filter((name) => !MODES.includes(name));
+  if (unknown.length > 0) {
+    throw new Error(
+      `unknown selector ${unknown.join(', ')}. Known selectors are ${MODES.join(', ')}. ` +
+        'Refusing to continue: falling through to a full sweep would report a result nobody asked ' +
+        'for, under a heading that looks like they did.',
+    );
+  }
+  if (names.length > 1) {
+    throw new Error(
+      `${names.join(' and ')} were both given; this program runs exactly one selector at a time.`,
+    );
+  }
+
+  const [name] = names;
+  if (name !== '--req') return { mode: name, requirements: null };
+
+  const flag = flags[0];
+  const inline = flag.includes('=') ? flag.slice(flag.indexOf('=') + 1) : null;
+  const positional = inline === null ? argv[argv.indexOf(flag) + 1] : null;
+  const raw = inline ?? positional ?? '';
+  const requirements = raw
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry !== '');
+  if (requirements.length === 0) {
+    throw new Error(
+      '--req needs a comma-separated list of requirement ids, as in ' +
+        '--req REQ-071,REQ-072,REQ-073. An empty selection is not a request to check everything.',
+    );
+  }
+  const malformed = requirements.filter((id) => !/^REQ-\d{3}$/.test(id));
+  if (malformed.length > 0) {
+    throw new Error(`not a requirement id: ${malformed.join(', ')}`);
+  }
+  return { mode: '--req', requirements };
+}
+
 // Realpath-correct on both sides. A raw `fileURLToPath(import.meta.url) ===
 // process.argv[1]` is false whenever this file is reached through a symlink,
 // and the consequence is a verifier that exits 0 having checked nothing. See
@@ -1560,7 +2175,14 @@ export { SCAN };
 const invokedDirectly = isDirectInvocation(import.meta.url);
 
 async function main() {
-const mode = process.argv.slice(2).find((argument) => argument.startsWith('--')) ?? '--all';
+let mode;
+let requested;
+try {
+  ({ mode, requirements: requested } = parseMode(process.argv.slice(2)));
+} catch (error) {
+  process.stderr.write(`verify-packet: ${error.message}\n`);
+  process.exit(2);
+}
 
 if (mode === '--selfcheck-composition') {
   const { lines, problems } = await selfcheckComposition();
@@ -1712,7 +2334,9 @@ if (mode === '--counterfactual') {
   process.exit(0);
 }
 
-// --- --all ------------------------------------------------------------------
+// --- --all and --req --------------------------------------------------------
+
+if (mode === '--req') selection = new Set(requested);
 
 phase0();
 phase1();
@@ -1724,17 +2348,34 @@ phase6();
 phase7();
 phase8();
 
-const composition = await selfcheckComposition();
-outcomes.splice(
-  outcomes.findIndex((entry) => entry.id === 'REQ-023'),
-  1,
-  {
+// Fail closed on the selection itself. `--req REQ-999` must stop rather than
+// quietly report `REQ 0/0 PASS`, which is a green line about nothing.
+if (mode === '--req') {
+  const unrecognised = requested.filter((id) => !KNOWN_IDS.has(id));
+  if (unrecognised.length > 0) {
+    process.stderr.write(
+      `verify-packet: no such requirement: ${unrecognised.join(', ')}. ` +
+        `This packet covers ${[...KNOWN_IDS].sort()[0]} … ${[...KNOWN_IDS].sort().at(-1)}.\n`,
+    );
+    process.exit(2);
+  }
+}
+
+// REQ-023 is the one requirement whose body is asynchronous, so the placeholder
+// its `check` recorded is replaced once the composition self-check has run.
+// Driven off the ledger rather than off the mode, so `--req REQ-023` evaluates
+// it too instead of reporting the placeholder.
+const placeholder = outcomes.findIndex((entry) => entry.id === 'REQ-023');
+if (placeholder !== -1) {
+  const composition = await selfcheckComposition();
+  outcomes.splice(placeholder, 1, {
     id: 'REQ-023',
     phase: 2,
     outcome: composition.problems.length === 0 ? Outcome.PASS : Outcome.FAIL,
     detail: composition.problems.join('; ') || composition.lines.join(' | '),
-  },
-);
+    gate: null,
+  });
+}
 
 outcomes.sort((left, right) => left.id.localeCompare(right.id));
 
@@ -1746,16 +2387,61 @@ for (const entry of outcomes) {
   process.stdout.write(`${entry.outcome.padEnd(14)} ${entry.id} (phase ${entry.phase})  ${entry.detail}\n`);
 }
 
+// The correspondence proof. Not a requirement itself — it is the statement that
+// the requirements are all here, and it is checked in every sweeping mode
+// because `--req` narrows what is *evaluated*, never what is *known*.
+const specIds = parseSpecRequirementIds(sources.spec);
+const correspondence = requirementSetCorrespondence({ specIds, verifierIds: KNOWN_IDS });
+if (sources.spec === '') {
+  process.stdout.write('REQ-SET  SPEC.md could not be read; coverage cannot be proved\n');
+} else if (correspondence.agrees) {
+  process.stdout.write(
+    `REQ-SET  spec=${specIds.size} verifier=${KNOWN_IDS.size} missing=0 extra=0\n`,
+  );
+} else {
+  process.stdout.write(
+    `REQ-SET MISMATCH  spec=${specIds.size} verifier=${KNOWN_IDS.size} ` +
+      `missing=[${correspondence.missing.join(',')}] extra=[${correspondence.extra.join(',')}]\n`,
+  );
+}
+const setAgrees = sources.spec !== '' && correspondence.agrees;
+
 process.stdout.write(`REQ ${tally.PASS}/${outcomes.length} PASS\n`);
-if (tally.FAIL === 0 && tally.SPEC_DEFECT === 0 && tally.NOT_EXERCISED === 0) {
+
+const verdict = terminalState({ outcomes, setAgrees });
+
+if (mode === '--req') {
+  // §7.7 reads this mode with `tail -1`, so the count stays the final line and
+  // the verdict is carried by the exit code alone.
+  process.exit(verdict.exitCode);
+}
+
+if (verdict.state === 'INCOMPLETE') {
+  process.stdout.write(
+    `PACKET INCOMPLETE — ${tally.FAIL} failed, ${tally.SPEC_DEFECT} spec defect(s), ` +
+      `${verdict.ungated.length} ungated gap(s)` +
+      `${setAgrees ? '' : ', requirement set does not match SPEC.md'}\n`,
+  );
+  process.exit(1);
+}
+if (verdict.state === 'OK') {
   process.stdout.write('PACKET OK\n');
   process.exit(0);
 }
+const byGate = {};
+for (const entry of outcomes) {
+  if (entry.outcome !== Outcome.NOT_EXERCISED) continue;
+  byGate[entry.gate] = (byGate[entry.gate] ?? 0) + 1;
+}
 process.stdout.write(
-  `PACKET INCOMPLETE — ${tally.FAIL} failed, ${tally.SPEC_DEFECT} spec defect(s), ` +
-    `${tally.NOT_EXERCISED} not yet exercised\n`,
+  `PACKET PRE-CLOUD CLEAN — nothing failed; ${tally.NOT_EXERCISED} requirement(s) await ` +
+    `${Object.entries(byGate).map(([gate, count]) => `${gate}:${count}`).join(' ')}\n`,
 );
-process.exit(1);
+// Deliberately non-zero. This is not a pass — §7.4 still demands PACKET OK — it
+// is a *distinguishable* not-yet, so CI can tell `exit 3` (pre-cloud, all local
+// work green) from `exit 1` (something is actually wrong) instead of reading the
+// same failure for both.
+process.exit(verdict.exitCode);
 }
 
 if (invokedDirectly) await main();
