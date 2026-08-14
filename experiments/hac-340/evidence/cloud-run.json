@@ -1,0 +1,111 @@
+{
+  "commitSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+  "model": "gemini-3.5-flash",
+  "adkPath": "Google ADK 1.35.1 / Vertex AI",
+  "resources": {
+    "projectId": "nimble-octagon-505403-n3",
+    "region": "us-central1",
+    "vertexLocation": "global",
+    "agentUrl": "https://interlock-hac340-agent-nb3orxqeuq-uc.a.run.app",
+    "proxyUrl": "https://interlock-hac340-proxy-nb3orxqeuq-uc.a.run.app",
+    "targetUrl": "https://interlock-hac340-target-nb3orxqeuq-uc.a.run.app",
+    "agentServiceAccount": "serviceAccount:interlock-hac340-agent@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+    "proxyServiceAccount": "serviceAccount:interlock-hac340-proxy@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+    "targetServiceAccount": "serviceAccount:interlock-hac340-target@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+    "observerPrincipal": "user:qwynn@marcellelabs.io",
+    "nodeImage": "us-central1-docker.pkg.dev/nimble-octagon-505403-n3/interlock-hac340/interlock-node:ae6d0d3",
+    "agentImage": "us-central1-docker.pkg.dev/nimble-octagon-505403-n3/interlock-hac340/interlock-adk:ae6d0d3"
+  },
+  "correlationId": "ilk-hac340-cloud-1786730369123",
+  "decision": "ALLOW",
+  "receiptId": "rcpt-023dbf13-54d7-4a89-8c54-9a79953bb567",
+  "receiptDigest": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234",
+  "protectedMutation": {
+    "status": "EXECUTED",
+    "correlationId": "ilk-hac340-cloud-1786730369123",
+    "receiptId": "rcpt-023dbf13-54d7-4a89-8c54-9a79953bb567",
+    "revisionBefore": "sha256:c78fe996446426339788c38a6a6edaf6b1b8ab72f984c9c72786637148615a10",
+    "revisionAfter": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    },
+    "invariant": {
+      "holds": true,
+      "total": 105,
+      "totalReservable": 130,
+      "detail": "total 105 <= 130"
+    }
+  },
+  "observation": {
+    "revision": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    }
+  },
+  "runtimeProof": {
+    "proxyLogEntries": [
+      {
+        "insertId": "6a7f5784000e89ca1d56aee1",
+        "jsonPayload": {
+          "correlationId": "ilk-hac340-cloud-1786730369123",
+          "event": "proxy.request",
+          "identity": "interlock-hac340-agent@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+          "identitySource": "oidc-id-token/platform-verified:email",
+          "transport": "mcp"
+        },
+        "labels": {
+          "instanceId": "001548f729b20eecf0eb2242822aa0ebc4cf5903dedffcebc815046b55fbde2fc70bd23b30287ea0f87804394652af9baff3ca872ad533950b82e83bf87c206196fb2f480ee573fd280f9d618839"
+        },
+        "logName": "projects/nimble-octagon-505403-n3/logs/run.googleapis.com%2Fstdout",
+        "receiveTimestamp": "2026-08-14T17:59:32.961344960Z",
+        "resource": {
+          "labels": {
+            "configuration_name": "interlock-hac340-proxy",
+            "location": "us-central1",
+            "project_id": "nimble-octagon-505403-n3",
+            "revision_name": "interlock-hac340-proxy-00002-wzf",
+            "service_name": "interlock-hac340-proxy"
+          },
+          "type": "cloud_run_revision"
+        },
+        "timestamp": "2026-08-14T17:59:32.952778Z"
+      }
+    ],
+    "agentHttpStatus": 200
+  },
+  "expectedConfiguration": {
+    "projectId": "nimble-octagon-505403-n3",
+    "region": "us-central1",
+    "vertexLocation": "global",
+    "agentUrl": "https://interlock-hac340-agent-nb3orxqeuq-uc.a.run.app",
+    "proxyUrl": "https://interlock-hac340-proxy-nb3orxqeuq-uc.a.run.app",
+    "targetUrl": "https://interlock-hac340-target-nb3orxqeuq-uc.a.run.app",
+    "agentServiceAccount": "serviceAccount:interlock-hac340-agent@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+    "proxyServiceAccount": "serviceAccount:interlock-hac340-proxy@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+    "targetServiceAccount": "serviceAccount:interlock-hac340-target@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+    "observerPrincipal": "user:qwynn@marcellelabs.io",
+    "nodeImage": "us-central1-docker.pkg.dev/nimble-octagon-505403-n3/interlock-hac340/interlock-node:ae6d0d3",
+    "agentImage": "us-central1-docker.pkg.dev/nimble-octagon-505403-n3/interlock-hac340/interlock-adk:ae6d0d3"
+  },
+  "observedConfiguration": {
+    "agentRevision": "https://interlock-hac340-agent-nb3orxqeuq-uc.a.run.app",
+    "proxyRevision": "https://interlock-hac340-proxy-nb3orxqeuq-uc.a.run.app",
+    "targetRevision": "https://interlock-hac340-target-nb3orxqeuq-uc.a.run.app"
+  },
+  "controls": {
+    "forgedHeaderStatus": 403,
+    "wrongAudienceStatus": 401,
+    "directBypassStatus": 403
+  },
+  "teardown": "pending"
+}
