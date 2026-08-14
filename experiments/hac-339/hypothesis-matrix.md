@@ -17,10 +17,14 @@ first and the current docs prove the second was also present:
 The preserved registry contained exactly one entry (`interlock-s0-mcp`); no
 `aiplatform` / Sessions / CRM / Logging endpoints were registered and no
 egressor grants to the agent identity on platform endpoints are preserved.
-**Layer P was therefore unconfigured (OBSERVED from REG + current docs), and
-the run could not have passed even with perfect Layer T trust.** H1–H4 below
-are scored primarily as explanations of the Layer T failure, since that is
-what the run actually observed.
+**The registry/policy configuration was therefore incomplete under the
+currently documented ENFORCE contract (OBSERVED from REG + current docs).
+Whether it independently blocked this exact historical run remains
+UNRESOLVED**, because the run's IAP enforcement mode (ENFORCE vs DRY_RUN) is
+not preserved anywhere (hop 16); under DRY_RUN the same gaps would have been
+logged, not blocked. H1–H4 below are scored primarily as explanations of the
+Layer T failure, since that is what the run actually observed (TLS failures
+precede and are independent of any authorization decision).
 
 ## H1 — Platform CA-injection defect
 
@@ -92,9 +96,11 @@ CA present; the relevant HTTP/gRPC clients did not consume it.
 - **Missing discriminator:** same as H1 — verified post-binding rebuild +
   trust-store inspection.
 - **Confidence:** **MEDIUM** as the Layer T explanation (most parsimonious
-  given the proven unbound initial image and the unverified redeploy);
-  **HIGH** that the run was independently misconfigured at Layer P
-  regardless of Layer T.
+  given the proven unbound initial image and the unverified redeploy). On
+  Layer P: **HIGH** that the registry/policy configuration was incomplete
+  under the documented ENFORCE contract; **UNRESOLVED** whether it
+  independently blocked this exact run (enforcement mode not preserved —
+  hop 16).
 - **Cheapest next discriminator:** the one-shot probe with **binding at
   creation time** removes the ordering ambiguity entirely: if the CA is still
   absent then, H3-ordering is falsified and H1 is confirmed.
@@ -140,15 +146,17 @@ Preserved evidence cannot distinguish.
 | -- | -- | -- |
 | H1 platform injection defect | LOW | needs verified post-binding rebuild evidence |
 | H2 client-consumption defect | LOW | consistent with observations (aiohttp/certifi + gRPC both use bundled roots, so system-store-only injection fails both); premise "CA present" unevidenced |
-| H3 experiment/deployment defect | **MEDIUM** (Layer T) / **HIGH** (Layer P, independent) | most parsimonious on preserved evidence |
+| H3 experiment/deployment defect | **MEDIUM** (Layer T); Layer P: **HIGH** config-incomplete under ENFORCE contract, **UNRESOLVED** whether it blocked this run | most parsimonious on preserved evidence |
 | H4 deeper platform defect | UNRESOLVED | premise untestable in this run |
 | H5 unresolved | HIGH | for TLS-layer discrimination: hops 5–9 all UNRESOLVED by preservation gaps |
 
 Note: the HAC-325 receipt characterized the blocker as "a platform
 interaction, not a configuration defect in this experiment." Under the
 current documentation, that characterization is **not supported** for the
-run as a whole: the policy-layer defect (unregistered platform endpoints, no
-egressor grants) was a configuration defect, and the trust-layer ordering
-defect (initial image provably built before the gateway existed) is at
-minimum unexcluded. The receipt itself is preserved unmodified per the lane
-boundary; this note is the reinterpretation, kept separate.
+run as a whole: the registry/policy configuration was incomplete under the
+currently documented ENFORCE contract (whether it independently blocked this
+exact historical run remains unresolved — enforcement mode not preserved,
+hop 16), and the trust-layer ordering defect (initial image provably built
+before the gateway existed) is at minimum unexcluded. The receipt itself is
+preserved unmodified per the lane boundary; this note is the
+reinterpretation, kept separate.

@@ -5,7 +5,7 @@
   "confidenceScale": ["HIGH", "MEDIUM", "LOW", "UNRESOLVED"],
   "layers": {
     "T": "trust: TLS interception of platform traffic without trusted gateway CA (observed failure)",
-    "P": "policy: default-deny egress, missing Agent Registry registration / roles/iap.egressor (unconfigured in the run; produces 403s per current docs)"
+    "P": "policy: default-deny egress, missing Agent Registry registration / roles/iap.egressor. Registry/policy configuration was incomplete under the documented ENFORCE contract (OBSERVED); whether it independently blocked this exact run is UNRESOLVED because the run's IAP enforcement mode is not preserved (hop 16; under DRY_RUN gaps are logged, not blocked)."
   },
   "hypotheses": {
     "H1": {
@@ -51,7 +51,7 @@
         "Registry arm (Layer P) is certain but produces 403s, not the observed TLS failure"
       ],
       "missingDiscriminator": "verified post-binding rebuild + trust-store inspection",
-      "confidence": "MEDIUM (Layer T cause) / HIGH (independent Layer P misconfiguration)",
+      "confidence": "MEDIUM (Layer T cause); Layer P: HIGH that the configuration was incomplete under the ENFORCE contract, UNRESOLVED whether it independently blocked this run (hop 16)",
       "cheapestNextDiscriminator": "probe with binding at creation time; if CA still absent, H3-ordering is falsified and H1 confirmed"
     },
     "H4": {

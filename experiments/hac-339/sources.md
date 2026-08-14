@@ -57,12 +57,23 @@ documentation under the current **Gemini Enterprise Agent Platform** doc set
     policy explicitly targeting the gateway, (c) delegated authorization
     outcome, (d) agent identity holds `roles/iap.egressor` on the
     destination.
-  - "Errors during Agent Runtime startup": when IAP is in enforcement mode
-    the gateway "blocks calls even to internal services (such as aiplatform
+  - "Errors during Agent Runtime startup": "when IAP is in enforcement mode,
+    [the gateway] blocks calls even to internal services (such as aiplatform
     or logging) unless they are registered and the agent has the required
     IAM permissions." Symptom: **403 Forbidden** during startup. Fix:
-    register hostnames, grant `roles/iap.egressor` (or temporarily dry-run
-    IAP to discover failing hostnames).
+    "Temporarily switch IAP to dry-run mode to see which connections are
+    failing without blocking startup," then register hostnames and grant
+    `roles/iap.egressor`.
+  - **DRY_RUN semantics (verified by full fetch 2026-08-14):** filter IAP
+    egress-decision logs with
+    `protoPayload.metadata.iamEnforcementMode="DRY_RUN"`; "In DRY_RUN mode,
+    IAP logs denials but does not enforce them. So if the agent fails with a
+    403 error in dry-run mode, the denial likely comes from either the
+    gateway's egress proxy or the destination resource." IAP egress-decision
+    query: `protoPayload.serviceName="iap.googleapis.com"
+    protoPayload.authorizationInfo.permission="iap.webServiceVersions.egressViaIAP"`;
+    `labels."iap.googleapis.com/audited_resource_name"=unregisteredResource`
+    marks an unregistered destination.
   - Documented 403 signature: `Egress request is not authorized`.
   - "Agent deployed with custom container (BYOC) fails to connect": symptom
     "TLS handshake or certificate verification errors"; cause "the agent's
@@ -129,6 +140,20 @@ documentation under the current **Gemini Enterprise Agent Platform** doc set
   - Troubleshooting: 403 PermissionDenied on tool calls is cured by
     re-granting egressor; agent discovers MCP tools by listing `mcpServers`
     in the Agent Registry.
+
+### S7 — REST reference: `reasoningEngines.query` and engine methods
+
+- URL: <https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.reasoningEngines/query>
+- Contracts relied on:
+  - `POST /v1/{name}:query` is a distinct operation on a ReasoningEngine;
+    request body takes `input` (Struct) and **`classMethod`** ("Class method
+    to be used for the query. It is optional and defaults to `query` if
+    unspecified.").
+  - Session creation is the separate
+    `projects.locations.reasoningEngines.sessions.create` operation (methods
+    index at
+    <https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.reasoningEngines>,
+    sessions resource at `.../reasoningEngines/sessions`).
 
 ## Secondary search-result context (snippet-level, not fetched in full)
 

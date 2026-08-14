@@ -5,14 +5,15 @@
   "baseSha": "efea48013de626d5714c8c2c146c0e1b683cc615",
   "branch": "hac/339-agent-gateway-forensics",
   "sha256": {
-    "README.md": "365bbdb5c4f6b6cc0f138f3d89d46378c46b14d2e7680cf54ad37ea9d3ffd656",
-    "sources.md": "aadaa35ac0f2043bdd919dbdc14d7fc041973b1dafd4ac85d76c64a0b2e99a08",
+    "README.md": "ca7181caf0f4daa6e93f584417c2c4d17335cfc4dbcbf3732b1cef78f4943474",
+    "sources.md": "5bf1bc74d42d2b8aa0cff7f1f4788e72b5e700b96ed792433a96f114c8572217",
     "google-support-matrix.md": "7b11f780a7827e277540c5441a4613852cc449820fd6b9bbb765e7ee4c99367b",
-    "hac-325-participation-matrix.md": "6cef8aa0045493f53331fef5642c5f898a36ea1152c7881a59875d256e0b8494",
-    "participation-matrix.json": "f6de733c998192694a89d361b7f8589403cccca90d585bdc60c768ad0143bf58",
-    "hypothesis-matrix.md": "ddb2333c900c00d61d8aee30497eba297c70a8f0ca3225c1ed9e2a1184569abc",
-    "hypothesis-matrix.json": "369ace77fbc96ffd52288bfd3c8167e67d796438070ac97f693ce822008356ef",
-    "one-shot-probe.md": "227c327e24d545a945c755516cd8284b6f3c89fccf49d89a2ed867fb787b64cc",
-    "REPORT.md": "c0206917e931e155ab0887a6d271605ab349e7bda6c64344bb22363d7f917964"
+    "hac-325-participation-matrix.md": "432cf872b9cd9d82c6e823b62a2b1009fb05fa0cc3443e015a47693900996a6f",
+    "participation-matrix.json": "1015edcde6342babe57b0637e87c23682d6a17d782e04399cd71b1b58e84106d",
+    "commands-log-extract.md": "c1f9cee65b89f62e64357ff7e1974900cf7de925c50c2360aba5227901d25b8d",
+    "hypothesis-matrix.md": "b45f4c89ee95a17b2ecbfe5c84a04eefac9fdf2e4b75fcf6dc6533a6d4005624",
+    "hypothesis-matrix.json": "969ff8a2d890fc2d87f072b077502a57196cdf2e4f62c61a1851d60df28bbea0",
+    "one-shot-probe.md": "fc56574dc89194f512ff8de13d10cbed0dce6e9253677f6291b8b5caba5cbd6e",
+    "REPORT.md": "e89b874631b02935e80ff96542e8870c570d1b85813715ad6bfeeaf19165c279"
   }
 }

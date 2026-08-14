@@ -27,66 +27,90 @@ preserved (`experiments/hac-325/evidence/agent-gateway-egress.json` →
    disposable project).
 2. One `AGENT_TO_ANYWHERE` Agent Gateway with an Agent Registry reference
    (S5 YAML shape). No authorization policies.
-3. Register in Agent Registry, **before** deploying the agent (S1 "Allowlist
-   essential APIs", S6 codelab ordering): the Sessions endpoint hostnames in
-   all documented variants (`us-central1-aiplatform.googleapis.com`,
-   `us-central1-aiplatform.mtls.googleapis.com`,
-   `aiplatform.us-central1.rep.googleapis.com`), plus
-   `cloudresourcemanager(.mtls).googleapis.com` and
-   `logging.googleapis.com`. Grant the agent identity `roles/iap.egressor`
-   on each, plus the documented basic roles (S2). This keeps Layer P out of
-   the trust measurement.
-4. Deploy **one** source-based ADK agent with `agent_gateway_config` and
+3. **IAP in dry-run mode.** Switch the gateway's IAP authorization layer to
+   dry-run before any agent traffic, per S2: "Temporarily switch IAP to
+   dry-run mode to see which connections are failing without blocking
+   startup." In DRY_RUN, IAP "logs denials but does not enforce them" (S2),
+   so a known registry/policy gap cannot confound the trust measurement.
+   Verify the mode from the IAP egress-decision logs via
+   `protoPayload.metadata.iamEnforcementMode="DRY_RUN"` (S2). The exact
+   toggle surface (gcloud/API field) is confirmed against then-current docs
+   when the gate opens — a docs lookup, not a design decision.
+4. **No endpoint registrations, no egressor grants** beyond what platform
+   deployment itself requires. Under DRY_RUN, unregistered destinations are
+   logged-not-blocked, which lets one run capture both the trust measurement
+   and the complete would-be-denied destination map from the IAP DRY_RUN
+   logs (S2 query: `protoPayload.serviceName="iap.googleapis.com"`
+   `protoPayload.authorizationInfo.permission="iap.webServiceVersions.egressViaIAP"`).
+5. Deploy **one** source-based ADK agent with `agent_gateway_config` and
    `identity_type=AGENT_IDENTITY` **in the create call** (S1). Binding at
    creation removes the HAC-325 hop-4 ambiguity by construction: the first
    image is built already bound, which is the strongest injection-eligible
    configuration the docs describe.
 
-## The probe itself
+## The probe itself (frozen execution path — no execution-time decisions)
 
-The agent package runs a trust self-audit at module import (or as a
-registered custom class method invoked once via `:query` — either bypasses
-the managed session path that failed in HAC-325; decide at execution, record
-which was used) and writes one structured JSON result to stderr
-(`reasoning_engine_stderr`):
+The agent package registers a dedicated custom class method `trust_audit()`
+on the engine. Execution is exactly:
+
+```text
+deploy → reasoningEngines:query(classMethod="trust_audit")
+       → capture in-container trust evidence
+       → exactly one sessions.create
+       → stop
+```
+
+`reasoningEngines:query` is a distinct API operation whose request body
+takes `classMethod` ("Class method to be used for the query", S7) — it
+invokes the audit method directly, without touching the managed session path
+that failed in HAC-325 (session creation is the separate
+`reasoningEngines.sessions.create` operation, S7). There is **no**
+module-import timing dependency and no alternative path.
+
+`trust_audit()` returns (and logs to `reasoning_engine_stderr`) one
+structured JSON document:
 
 1. `env`: values of `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`,
    `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH` (present/absent/value).
-2. `store`: whether `/etc/ssl/certs` (and the certifi bundle) contain a
-   certificate whose SHA-256 fingerprint equals the preserved gateway root
-   fingerprint above.
+2. `store`: whether `/etc/ssl/certs` **and** the certifi bundle
+   (`certifi.where()`) each contain a certificate whose SHA-256 fingerprint
+   equals the preserved gateway root fingerprint above.
 3. `presented_chain`: live TLS handshake to
    `us-central1-aiplatform.mtls.googleapis.com:443` (and one gRPC channel to
-   `cloudresourcemanager.mtls.googleapis.com:443`) — capture the presented
-   chain, record each cert's fingerprint, note whether the chain terminates
-   in the preserved gateway root.
-4. `session_probe`: exactly one managed session creation attempt; record
-   success or the exact exception.
+   `cloudresourcemanager.mtls.googleapis.com:443`) — record each presented
+   certificate's fingerprint and whether the chain terminates in the
+   preserved gateway root.
+4. `session_probe`: exactly one managed session creation attempt
+   (`sessions.create`); record success or the exact exception.
 
-Then: one `gcloud logging read` of `reasoning_engine_stderr`, capture the
-gateway's `agentGatewayCard.rootCertificates` again (rotation check against
-the preserved fingerprint), teardown. No invocation beyond the one probe, no
+Then: one `gcloud logging read` of `reasoning_engine_stderr` **and** one IAP
+DRY_RUN decision-log read (query in step 4), capture the gateway's
+`agentGatewayCard.rootCertificates` again (rotation check against the
+preserved fingerprint), teardown. No invocation beyond the one probe, no
 model dependency, no MCP traffic.
 
 ## Decision table (predeclared)
 
 | Observed | Conclusion |
 | -- | -- |
-| CA absent from image/store after binding-at-creation source deploy | **H1 confirmed** (platform injection defect); H3-ordering falsified |
-| CA present in system store; env vars unset; both bundled-root clients (aiohttp/certifi, gRPC) still fail | **H2 confirmed** (consumption/env gap: injection without client-visible trust path) |
-| CA present; env set; both clients verify; session succeeds | H1/H2/H3 all falsified for trust; HAC-325 failure attributed to the unverified redeploy (H3) — topology rehabilitated |
-| CA present; both clients verify; session still fails | **H4 territory** — deeper platform/identity-layer (CAA/DPoP) defect; capture exact error and stop |
-| Session fails with 403 `Egress request is not authorized` after trust verified | Layer P misconfigured despite step 3; fix registration/grants once, repeat session probe only |
+| CA absent from image/store after binding-at-creation source deploy | **H1 confirmed for the current platform version** (injection defect); H3-ordering falsified for this deployment |
+| CA present in system store; env vars unset; both bundled-root clients (aiohttp/certifi, gRPC) still fail | **H2 confirmed for this deployment** (consumption/env gap: injection without client-visible trust path) |
+| CA present; env set; both clients verify; `sessions.create` succeeds | H1/H2/H4 **falsified for this deployment**; the current supported topology works under a verified binding-at-creation deployment. **Historical wording stays narrow:** HAC-325's root cause remains incompletely attributable — H3 becomes more plausible but is **not historically proven** (the old build/trust state was never captured and the platform itself may have changed). Topology rehabilitated today ≠ historical root cause proven |
+| CA present; both clients verify; `sessions.create` still fails (non-403) | **H4 territory** — deeper platform/identity-layer (CAA/DPoP) defect; capture exact error and stop |
+| Any request fails with 403 **under DRY_RUN** | Record and stop. Per S2, a 403 in dry-run mode points away from IAP policy enforcement toward the gateway's egress proxy or the destination — **no** registration/grant fixing and no repeat; tuning after observation is out of scope for a one-shot probe |
 
 ## Cost and gain (both estimates, not measurements)
 
 - **Estimated engineering effort:** ~1–2 hours including teardown; the agent
   package is ~100 lines.
 - **Estimated cloud cost:** one reasoning engine deployed for minutes, one
-  gateway, registry operations, log reads. No standing Cloud Run pair, no
-  internal load balancer — the HAC-325 cost drivers are absent. Order of
-  magnitude: low; bounded by same-day project teardown.
-- **Information gain:** converts hops 4–9 from UNRESOLVED to OBSERVED;
-  decides H1/H2/H3; screens H4; either rehabilitates the preferred
-  `CONTENT_AUTHZ` enforcement topology for HAC-338/Vreko with a working
-  recipe, or yields a verified, fingerprinted platform-defect report.
+  gateway, log reads. No standing Cloud Run pair, no internal load balancer,
+  no endpoint-registration fleet — the HAC-325 cost drivers are absent.
+  Order of magnitude: low; bounded by same-day project teardown.
+- **Information gain:** converts hops 4–9 from UNRESOLVED to OBSERVED for
+  the current platform; decides H1/H2/H3 for a verified injection-eligible
+  deployment; screens H4; produces the would-be-denied destination map as a
+  byproduct (input to any later ENFORCE-mode work); either rehabilitates the
+  preferred `CONTENT_AUTHZ` enforcement topology for HAC-338/Vreko with a
+  working recipe, or yields a verified, fingerprinted platform-defect
+  report.

@@ -29,7 +29,8 @@ root-cause hypotheses enough to justify at most one later controlled rerun?
 | -- | -- |
 | `sources.md` | every source relied on: URL, retrieval date, exact contract |
 | `google-support-matrix.md` | Phase A — current Google support check, 7 contract items |
-| `hac-325-participation-matrix.md` / `participation-matrix.json` | Phase B — 15-hop OBSERVED/DERIVED/ASSUMED/UNRESOLVED audit of the preserved HAC-325 evidence |
+| `hac-325-participation-matrix.md` / `participation-matrix.json` | Phase B — 16-hop OBSERVED/DERIVED/ASSUMED/UNRESOLVED audit of the preserved HAC-325 evidence |
+| `commands-log-extract.md` | durable, hash-locked extract of the gitignored HAC-325 `commands.log`; anchors every claim that depends on it |
 | `hypothesis-matrix.md` / `hypothesis-matrix.json` | Phase C — H1–H5 attribution |
 | `one-shot-probe.md` | minimum one-shot participation probe (present only if the disposition is `RERUN_JUSTIFIED_AFTER_HAC316`) |
 | `REPORT.md` | the assembled forensic report and disposition |
@@ -42,7 +43,9 @@ root-cause hypotheses enough to justify at most one later controlled rerun?
    leaving unchanged the HAC-325 assumptions.
 2. Phase B reconstructed the original run hop-by-hop exclusively from the
    preserved artifacts under `experiments/hac-325/` and
-   `docs/receipts/HAC-325-s0-receipt.md` at the base SHA above.
+   `docs/receipts/HAC-325-s0-receipt.md` at the base SHA above; claims
+   depending on the gitignored `commands.log` are anchored by
+   `commands-log-extract.md` (whole-file SHA-256 + cited excerpts).
 3. Phase C scored H1–H5 against the matrices.
 4. Phase D emitted exactly one disposition.
 

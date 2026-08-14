@@ -12,7 +12,7 @@
     "EXT": "experiments/hac-325/evidence/authz-extension.json",
     "BLK": "experiments/hac-325/evidence/blocker-tls-interception.json",
     "XLOG": "experiments/hac-325/evidence/extension-logs.json",
-    "CMD": "experiments/hac-325/evidence/commands.log (gitignored; original working copy only)",
+    "CMD": "experiments/hac-325/evidence/commands.log (gitignored; original working copy only; durable extract + SHA-256 in experiments/hac-339/commands-log-extract.md)",
     "RCPT": "docs/receipts/HAC-325-s0-receipt.md"
   },
   "timeline": [
@@ -47,11 +47,13 @@
     {"n": 12, "hop": "Agent body began execution", "class": "OBSERVED", "polarity": "pre-binding yes / post-binding no", "evidence": ["BLK", "RE"], "note": "Pre-binding body ran (model predict 403). Post-binding every entry point dies at session creation first."},
     {"n": 13, "hop": "MCP request was emitted", "class": "OBSERVED", "polarity": "negative", "evidence": ["BLK", "agent/s0_agent/agent.py"], "note": "MCP call lives in the agent body, which never ran post-binding; no MCP attempt in logs."},
     {"n": 14, "hop": "Gateway observed MCP request", "class": "UNRESOLVED", "polarity": "vacuous", "evidence": [], "note": "No MCP request existed; no gateway-side logs captured."},
-    {"n": 15, "hop": "CONTENT_AUTHZ / ext_proc participated", "class": "OBSERVED", "polarity": "negative", "evidence": ["XLOG", "POL", "EXT"], "note": "Zero ext_proc events across the run; policy and extension existed and were targeted. Presence without participation."}
+    {"n": 15, "hop": "CONTENT_AUTHZ / ext_proc participated", "class": "OBSERVED", "polarity": "negative", "evidence": ["XLOG", "POL", "EXT"], "note": "Zero ext_proc events across the run; policy and extension existed and were targeted. Presence without participation."},
+    {"n": 16, "hop": "IAP enforcement mode at run time (ENFORCE vs DRY_RUN)", "class": "UNRESOLVED", "evidence": ["POL", "EXT", "GWE", "CMD"], "note": "No preserved artifact records an enforcement-mode field or setting; zero IAP-settings/mode commands in commands.log (extract E4). Docs make the mode consequential (S2), but the active mode on 2026-08-13 is not preserved; not inferred from resource existence."}
   ],
   "undecidableFromPreservedEvidence": [
     "Whether the 04:33:36 engine update rebuilt the image (injection opportunity)",
     "Whether the gateway CA was present anywhere in the container",
-    "Whether the chain presented to clients was signed by the preserved gateway root"
+    "Whether the chain presented to clients was signed by the preserved gateway root",
+    "Whether the IAP layer was in ENFORCE or DRY_RUN during the run (hence whether the incomplete registry/egressor configuration independently blocked this exact run)"
   ]
 }

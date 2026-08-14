@@ -66,6 +66,7 @@ endpoints **before** deploying the agent.
 | MCP request emitted | OBSERVED (negative) |
 | Gateway observed MCP request | UNRESOLVED (vacuous — no request existed; no gateway-side logs) |
 | `CONTENT_AUTHZ` / ext_proc participated | OBSERVED (negative — zero ext_proc events; presence without participation) |
+| IAP enforcement mode (ENFORCE vs DRY_RUN) at run time | **UNRESOLVED** — no preserved artifact or command records the mode; not inferred from resource existence |
 
 ## 4. H1–H5 attribution (summary of `hypothesis-matrix.md`)
 
@@ -73,17 +74,19 @@ endpoints **before** deploying the agent.
 | -- | -- | -- | -- |
 | H1 | platform CA-injection defect | LOW | rests solely on the unverified "redeployed after binding" narrative |
 | H2 | client-consumption defect | LOW | consistent with observations (aiohttp/certifi + gRPC both use bundled roots; system-store-only injection fails both); premise "CA present" unevidenced |
-| H3 | experiment/deployment defect | **MEDIUM** for the TLS layer; **HIGH** that the run was independently misconfigured at the policy layer | initial image provably unbound; registry held only the MCP server — no Sessions/CRM/Logging endpoints, no egressor grants |
+| H3 | experiment/deployment defect | **MEDIUM** for the TLS layer; policy layer: **HIGH** the configuration was incomplete under the documented ENFORCE contract, **UNRESOLVED** whether it independently blocked this run | initial image provably unbound; registry held only the MCP server — no Sessions/CRM/Logging endpoints, no egressor grants; enforcement mode not preserved (hop 16) |
 | H4 | deeper platform defect | UNRESOLVED | premise (working trust) was never met in this run |
 | H5 | unresolved | HIGH | for TLS-layer discrimination: hops 5–9 all UNRESOLVED by preservation gaps |
 
 Note on the HAC-325 receipt's characterization: it calls the blocker "a
 platform interaction, not a configuration defect in this experiment." Under
 current documentation that is not supported for the run as a whole — the
-missing registry/egressor configuration is a documented configuration
-defect, and the trust-layer ordering defect (initial image provably predates
-the gateway) is unexcluded. The receipt is preserved unmodified per the lane
-boundary; this reinterpretation lives here only.
+registry/policy configuration was incomplete under the currently documented
+ENFORCE contract (whether it independently blocked this exact historical run
+remains unresolved; enforcement mode is not preserved, hop 16), and the
+trust-layer ordering defect (initial image provably predates the gateway) is
+unexcluded. The receipt is preserved unmodified per the lane boundary; this
+reinterpretation lives here only.
 
 ## 5. Disposition
 
@@ -99,11 +102,13 @@ boundary; this reinterpretation lives here only.
   fallback work is correct regardless of this outcome.
 
 The minimum probe (`one-shot-probe.md`): one source-based agent deployed with
-**binding at creation time**, Layer P pre-configured per current docs
-(registry + egressor for platform endpoints), a container-side trust
-self-audit (env, trust store, presented-chain fingerprints vs the preserved
-gateway root), and exactly one session creation attempt. No extension, no
-policy, no model calls.
+**binding at creation time**, the IAP layer in documented **dry-run mode**
+(so registry/policy gaps cannot confound the trust measurement and would-be
+denials are captured from audit logs), a frozen execution path —
+`reasoningEngines:query(classMethod="trust_audit")` for the in-container
+trust self-audit (env, trust store, presented-chain fingerprints vs the
+preserved gateway root), then exactly one `sessions.create`, then stop. No
+extension, no policy, no model calls, no execution-time decisions.
 
 ## 6. Exact evidence still missing
 
@@ -117,15 +122,19 @@ policy, no model calls.
 4. Gateway-side request/observation logs. Never captured.
 5. The hand-run deploy/patch/registry commands — absent from
    `commands.log`, which itself is gitignored and exists only in the
-   original working copy (`/Users/user1/dev/interlock`); a preservation gap
-   in its own right.
+   original working copy (`/Users/user1/dev/interlock`). Every conclusion
+   that depends on it is now anchored by the durable hash-locked extract
+   `commands-log-extract.md`; the underlying file remains a preservation
+   gap.
+6. The run's IAP enforcement mode (ENFORCE vs DRY_RUN) — recorded in no
+   artifact and no command; unrecoverable after teardown (hop 16).
 
 ## 7. Information gain vs cost (estimates, not measurements)
 
 - **Estimated cost:** ~1–2 engineering hours; one disposable reasoning
-  engine for minutes, one gateway, registry operations, log reads; no Cloud
-  Run pair or internal load balancer (the HAC-325 spend drivers); same-day
-  project teardown. Low.
+  engine for minutes, one gateway, log reads; no Cloud Run pair, internal
+  load balancer, or endpoint-registration fleet (the HAC-325 spend drivers);
+  same-day project teardown. Low.
 - **Information gain:** hops 4–9 move from UNRESOLVED/ASSUMED to OBSERVED;
   H1/H2/H3 decided by a predeclared table; H4 screened; outcome is either a
   rehabilitated preferred enforcement topology with a working recipe (feeds

@@ -17,7 +17,9 @@ Evidence key (all under `experiments/hac-325/` unless noted):
 - `BLK` = `evidence/blocker-tls-interception.json` (40 `reasoning_engine_stderr` entries, 04:02–04:34)
 - `XLOG` = `evidence/extension-logs.json` (50 entries)
 - `CMD` = `evidence/commands.log` (**gitignored**; present only in the original
-  working copy at `/Users/user1/dev/interlock`; read-only inspected there)
+  working copy at `/Users/user1/dev/interlock`; read-only inspected there).
+  Every CMD-dependent claim is anchored by the durable extract with whole-file
+  SHA-256 in `experiments/hac-339/commands-log-extract.md`.
 - `RCPT` = `docs/receipts/HAC-325-s0-receipt.md`
 
 ## Preserved timeline (all UTC 2026-08-13, all from structured evidence)
@@ -61,6 +63,7 @@ Evidence key (all under `experiments/hac-325/` unless noted):
 | 13 | MCP request was emitted | **OBSERVED (negative)** | The agent's MCP call (`_mcp_call` in `agent/s0_agent/agent.py`) lives in the agent body, which never ran post-binding (hop 12). No MCP outbound attempt appears anywhere in BLK. (Pre-binding runs at 04:02 show an earlier agent revision attempting a model call instead; no MCP emission is recorded there either.) |
 | 14 | Gateway observed MCP request | **UNRESOLVED (vacuous)** | No MCP request existed to observe (hop 13). No gateway-side logs were captured in the preserved evidence, so even incidental observation cannot be checked. |
 | 15 | `CONTENT_AUTHZ` / ext_proc participated | **OBSERVED (negative)** | XLOG: 50 entries, all `server.start`/startup probes/shutdowns; **zero** `ext_proc` streams across the whole run. POL+EXT prove the policy and extension existed and were correctly targeted — presence without participation. |
+| 16 | IAP enforcement mode at run time (ENFORCE vs DRY_RUN) | **UNRESOLVED** | No preserved artifact records an enforcement-mode field or setting: POL, EXT, GWE, `agent-gateway.json`, `backend-service.json`, `iam-policy-before.json` contain no such field; CMD contains zero IAP-settings or mode commands (`commands-log-extract.md` E4). Current docs make the mode consequential — "when IAP is in enforcement mode, [the gateway] blocks calls even to internal services"; DRY_RUN "logs denials but does not enforce them" (S2) — but which mode was active on 2026-08-13 is not preserved. Not inferred from resource existence. |
 
 ## Asymmetry worth recording
 
@@ -80,3 +83,7 @@ healthy source-based CA-injected deployment.
   store, env-pointed bundles) — hops 5–9.
 - Whether the chain presented to clients was signed by the preserved gateway
   root — hop 6 (no runtime chain capture exists to compare).
+- Whether the IAP layer was in ENFORCE or DRY_RUN during the run — hop 16.
+  Consequently, whether the incomplete registry/egressor configuration
+  independently *blocked* this exact run (versus merely violating the
+  documented ENFORCE contract) cannot be asserted from preserved evidence.
