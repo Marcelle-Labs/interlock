@@ -34,20 +34,21 @@ import {
   runAttempts,
   treatmentOutcome,
 } from '../bin/run-arm.mjs';
-import { MODEL_FAILURE, TrialVerdict } from '../src/trial.mjs';
+import { MODEL_FAILURE, TrialVerdict, classifyArrivals } from '../src/trial.mjs';
+import { disjointPair, overlappingPair } from './_arrivals.mjs';
 
 const experimentDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const results = JSON.parse(readFileSync(join(experimentDir, 'evidence', 'results.json'), 'utf8'));
 
-/** An attempt result carrying everything `retainAttempt` insists on. */
-function attemptResult({ outcome, executedCount = 0, overlapped = true, trial = null }) {
-  const startMs = 1_000;
-  const overlap = [
-    { correlationId: 'c-a', startMs, endMs: startMs + 100 },
-    overlapped
-      ? { correlationId: 'c-b', startMs: startMs + 10, endMs: startMs + 110 }
-      : { correlationId: 'c-b', startMs: startMs + 500, endMs: startMs + 600 },
-  ];
+/**
+ * An attempt result carrying everything `retainAttempt` insists on.
+ *
+ * The arrivals are the ingress records, not a stripped pair of timestamps: the
+ * disposition is decided partly on who arrived and how often, so a fixture that
+ * left that out would be exercising a different function from the real one.
+ */
+function attemptResult({ outcome, executedCount = 0, overlapped = true, trial = null, overlap }) {
+  const arrivals = overlap ?? (overlapped ? overlappingPair() : disjointPair());
   return {
     arm: 'treatment',
     outcome,
@@ -56,7 +57,8 @@ function attemptResult({ outcome, executedCount = 0, overlapped = true, trial = 
     decisions: [],
     executed: Array.from({ length: executedCount }, (_, index) => ({ correlationId: `e-${index}` })),
     commits: [],
-    overlap,
+    overlap: arrivals,
+    ingressRetry: classifyArrivals(arrivals),
     globalVerification: { total: 120, cap: 130, holds: true },
   };
 }

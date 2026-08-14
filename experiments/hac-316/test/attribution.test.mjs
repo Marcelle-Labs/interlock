@@ -32,6 +32,8 @@ import {
   deploymentDigestOf,
   retainAttempt,
 } from '../bin/run-arm.mjs';
+import { classifyArrivals } from '../src/trial.mjs';
+import { overlappingPair } from './_arrivals.mjs';
 
 const experimentDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const results = JSON.parse(
@@ -178,6 +180,7 @@ describe('every attempt of every arm is retained in full', () => {
 
 /** An attempt result shaped like the real one, for the multi-attempt cases. */
 function fabricatedAttempt(outcome, executedCount) {
+  const arrivals = overlappingPair();
   return {
     arm: 'treatment',
     outcome,
@@ -185,10 +188,10 @@ function fabricatedAttempt(outcome, executedCount) {
     decisions: [{ correlationId: 'ilk-1', decision: 'ALLOW_PARALLEL' }],
     executed: Array.from({ length: executedCount }, (_, index) => ({ correlationId: `ilk-${index}` })),
     commits: [],
-    overlap: [
-      { correlationId: 'ilk-1', startMs: 1, endMs: 3 },
-      { correlationId: 'ilk-2', startMs: 2, endMs: 4 },
-    ],
+    overlap: arrivals,
+    // Retained as completely as everything else. An attempt whose arrival record
+    // was dropped is one nobody can check for a duplicated mutation.
+    ingressRetry: classifyArrivals(arrivals),
     globalVerification: { source: 'independent-reread', total: 120, cap: 130, holds: true },
   };
 }

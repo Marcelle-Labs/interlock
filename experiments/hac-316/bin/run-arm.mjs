@@ -88,14 +88,21 @@ import {
 } from '../src/partition.mjs';
 import { createRoutingSurface, dispatch } from '../src/routing.mjs';
 import {
+  ARRIVAL_RECORD_FIELDS,
   Deviation,
   EXPECTED_DIGESTS,
   MODEL_FAILURE,
   PROPOSED_TOOL_CALLS_KEY,
   ProposalPhase,
+  RUNTIME_RETRY,
   TRIAL_VALIDITY_RULE,
+  TrialVerdict,
+  classifyArrivals,
   classifyTrial,
+  expectedAgentFor,
   invocationFromSessionState,
+  logicalInvocationKey,
+  runtimeRetryTrial,
 } from '../src/trial.mjs';
 import { ExperimentState, INDEPENDENT_REREAD, Timeline, acceptedAvailability } from '../src/timeline.mjs';
 
@@ -183,13 +190,57 @@ function stampingTarget(target, commits) {
 }
 
 /**
+ * The identifier for this whole run, stamped on every arrival.
+ *
+ * One value per process, so arrivals recorded by three separate ingresses in
+ * three arms can be told apart from arrivals of a different run that happened to
+ * land in the same file.
+ */
+export const RUN_ID = `hac316-run-${randomUUID()}`;
+
+/**
+ * The header a caller may use to name the tool invocation an arrival belongs to.
+ *
+ * Optional, because the transport this experiment measures does not always carry
+ * one: ADK's retry happens *below* the tool boundary, inside
+ * `McpTool._run_async_impl`, and MCP itself carries no stable tool-call id
+ * across a fresh session. When it is absent, `logicalInvocationKey` falls back
+ * to the caller identity and the intent digest, which the ingress can always
+ * see.
+ */
+export const TOOL_INVOCATION_HEADER = 'x-hac316-tool-invocation-id';
+
+/**
  * The neutral ingress.
  *
  * Identical in every arm, which is what makes the overlap measurement
  * comparable. It holds no arm binding, makes no decision, and does not touch the
  * intent — it stamps, forwards, and stamps again.
+ *
+ * ## It also detects a duplicate arrival, in every arm identically
+ *
+ * ADK 2.6.3 decorates `McpTool._run_async_impl` with `@retry_on_errors`
+ * (`mcp_tool.py:395`, decorator at `mcp_session_manager.py:335-369`), and its own
+ * comment at `mcp_tool.py:452` says it retries once with a fresh session. The
+ * tool callbacks that record a proposal fire **outside** that retry, so one
+ * recorded proposal can put two mutations on the wire. Nothing on the agent side
+ * can see it. The ingress can, because the ingress is what the second one hits.
+ *
+ * Two rules, and they are the whole mechanism:
+ *
+ *   1. every arrival is retained, dispatched or not, with the identity of the
+ *      logical invocation it belongs to;
+ *   2. a second arrival for a logical invocation already seen is **not
+ *      forwarded**, so it mints no receipt and causes no second mutation.
+ *
+ * Rule 2 is not idempotency. The protected target is untouched and would still
+ * apply a second mutation if one reached it; the ingress refuses to send one,
+ * and records loudly that it refused. Making the retry harmless at the target
+ * would make it invisible, and "no runtime retry occurred" is the claim this
+ * experiment has to be able to check.
  */
-function createIngress({ handle, observations }) {
+export function createIngress({ handle, observations, arm = 'unknown', runId = RUN_ID }) {
+  const seen = new Map();
   return createServer((request, response) => {
     const startedAtMs = nowMs();
     const chunks = [];
@@ -199,7 +250,59 @@ function createIngress({ handle, observations }) {
         const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
         const supplied = request.headers[CORRELATION_HEADER];
         const correlationId = typeof supplied === 'string' ? supplied : newCorrelationId();
+        const toolInvocationHeader = request.headers[TOOL_INVOCATION_HEADER];
         const intent = { operation: body.operation, arguments: body.arguments };
+
+        // Stamped and retained *before* anything is dispatched, so an arrival
+        // that fails, hangs or is refused is still in the record. A detector
+        // that only recorded what it forwarded could not report the arrival it
+        // declined to forward, which is the one that matters most.
+        const arrival = {
+          runId,
+          arm,
+          arrivalOrdinal: observations.length + 1,
+          timestamp: new Date().toISOString(),
+          agentId: body.agent,
+          expectedAgent: expectedAgentFor(body.agent),
+          correlationId,
+          service: intent.arguments?.service,
+          // The digest of what the ingress actually received, not of what the
+          // harness meant to send. This is the value the trial-validity rule is
+          // about, and it has to be taken from the wire or it proves nothing.
+          logicalIntentDigest: intentDigest(intent),
+          toolInvocationId:
+            typeof toolInvocationHeader === 'string' && toolInvocationHeader !== ''
+              ? toolInvocationHeader
+              : null,
+          startMs: startedAtMs,
+          endMs: null,
+          dispatched: false,
+          duplicateOfOrdinal: null,
+        };
+        arrival.logicalInvocationKey = logicalInvocationKey(arrival);
+        observations.push(arrival);
+
+        const firstOrdinal = seen.get(arrival.logicalInvocationKey);
+        if (firstOrdinal !== undefined) {
+          arrival.duplicateOfOrdinal = firstOrdinal;
+          arrival.endMs = nowMs();
+          response.writeHead(200, { 'content-type': 'application/json' });
+          response.end(
+            JSON.stringify({
+              correlationId,
+              duplicateArrival: true,
+              duplicateOfOrdinal: firstOrdinal,
+              detail:
+                'this logical invocation already arrived at the ingress; it was not dispatched, ' +
+                'so no receipt was minted and no mutation was attempted. The trial it belongs to ' +
+                `is ${TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY}.`,
+            }),
+          );
+          return;
+        }
+        seen.set(arrival.logicalInvocationKey, arrival.arrivalOrdinal);
+        arrival.dispatched = true;
+
         let outcome;
         try {
           outcome = await handle({
@@ -212,18 +315,7 @@ function createIngress({ handle, observations }) {
         } catch (error) {
           outcome = { failed: true, detail: error.message };
         }
-        const endedAtMs = nowMs();
-        observations.push({
-          correlationId,
-          agent: body.agent,
-          service: intent.arguments.service,
-          // The digest of what the ingress actually received, not of what the
-          // harness meant to send. This is the value the trial-validity rule is
-          // about, and it has to be taken from the wire or it proves nothing.
-          intentDigest: intentDigest(intent),
-          startMs: startedAtMs,
-          endMs: endedAtMs,
-        });
+        arrival.endMs = nowMs();
         const payload = JSON.stringify({ correlationId, outcome });
         response.writeHead(200, { 'content-type': 'application/json' });
         response.end(payload);
@@ -409,15 +501,46 @@ function receiptProvenanceFrom(evidence, sourceRevision) {
 // Arms
 // ---------------------------------------------------------------------------
 
-/** Post one intent at the arm's ingress. */
-async function call(ingressUrl, id) {
+/**
+ * Post one intent at the arm's ingress.
+ *
+ * The tool invocation id names the *logical* invocation, so a caller that sends
+ * the same one twice is declaring a retry rather than a second request. Locally
+ * the harness is the tool invoker, so it can supply one; on the ADK path it
+ * cannot, and the ingress falls back to caller identity plus intent digest.
+ */
+async function call(ingressUrl, id, { toolInvocationId = `tool-call-${randomUUID()}` } = {}) {
   const { agent, intent } = INTENTS[id];
   const response = await fetch(ingressUrl, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', [CORRELATION_HEADER]: newCorrelationId() },
+    headers: {
+      'content-type': 'application/json',
+      [CORRELATION_HEADER]: newCorrelationId(),
+      [TOOL_INVOCATION_HEADER]: toolInvocationId,
+    },
     body: JSON.stringify({ agent, operation: intent.operation, arguments: intent.arguments }),
   });
   return { id, ...(await response.json()) };
+}
+
+/**
+ * The ingress's own judgement of what arrived, checked for shape first.
+ *
+ * The shape check is not defensive noise: `classifyArrivals` decides whether two
+ * arrivals were the same logical invocation, and an arrival that lost its
+ * identity fields would silently become "not a duplicate of anything".
+ */
+export function ingressRecordFor(observations) {
+  for (const arrival of observations) {
+    const missing = ARRIVAL_RECORD_FIELDS.filter((field) => arrival?.[field] === undefined);
+    if (missing.length > 0) {
+      throw new Error(
+        `an ingress arrival is missing ${missing.join(', ')}; a retry detector that cannot ` +
+          'identify the logical invocation an arrival belongs to detects nothing',
+      );
+    }
+  }
+  return classifyArrivals(observations);
 }
 
 // ---------------------------------------------------------------------------
@@ -542,18 +665,20 @@ async function attemptBaseline(timeline) {
     const ingress = createIngress({
       handle: (request) => issuer.issue(request),
       observations,
+      arm: 'baseline',
     });
     const ingressUrl = await listen(ingress);
 
     const results = await Promise.all([call(ingressUrl, 'A'), call(ingressUrl, 'B')]);
     await close(ingress);
+    const ingressRetry = ingressRecordFor(observations);
 
     const executed = [];
     const intents = {};
     for (const result of results) {
       const { outcome } = result;
       const seen = observations.find((entry) => entry.correlationId === result.correlationId);
-      intents[result.id] = { digest: seen.intentDigest, service: seen.service };
+      intents[result.id] = { digest: seen.logicalIntentDigest, service: seen.service };
       timeline.record({
         correlationId: result.correlationId,
         state: ExperimentState.REQUESTED,
@@ -635,12 +760,15 @@ async function attemptBaseline(timeline) {
       deploymentComponents: components,
       deploymentDigest: deploymentDigestOf(components),
       implementationDigest: implementationDigest(),
-      // No model was in the loop for this attempt, so there is no trial to
-      // classify. `null` is not "valid": `dispositionOf` treats a missing trial
-      // as "the validity question does not arise here", and Phase 7 supplies a
-      // real classification in this field.
-      trial: null,
-      trialSource: NO_MODEL_IN_THE_LOOP,
+      // What the ingress saw, judged by the same arm-neutral function in all
+      // three arms. Present whether or not a model was in the loop: a duplicate
+      // mutation is a fact about the wire, and an HTTP client or a runtime can
+      // produce one with no model involved at all.
+      ingressRetry,
+      // No model was in the loop for this attempt, so the *model*-validity
+      // question does not arise — unless the ingress saw the same logical
+      // invocation twice, which disqualifies the trial on its own.
+      ...trialFromIngress(ingressRetry),
       outcome: executed.length === 2 ? Outcome.BOTH_EXECUTED : Outcome.INCOMPLETE,
     };
   } finally {
@@ -705,11 +833,13 @@ async function attemptInterlock(armName, timeline) {
     const ingress = createIngress({
       handle: (request) => dispatch(surface, request),
       observations,
+      arm: armName,
     });
     const ingressUrl = await listen(ingress);
 
     const results = await Promise.all([call(ingressUrl, 'A'), call(ingressUrl, 'B')]);
     await close(ingress);
+    const ingressRetry = ingressRecordFor(observations);
 
     const decisions = [];
     const executed = [];
@@ -720,7 +850,7 @@ async function attemptInterlock(armName, timeline) {
       const response = result.outcome.response;
       const service = result.outcome.service;
       const seen = observations.find((entry) => entry.correlationId === result.correlationId);
-      intents[result.id] = { digest: seen.intentDigest, service: seen.service };
+      intents[result.id] = { digest: seen.logicalIntentDigest, service: seen.service };
       timeline.record({
         correlationId: result.correlationId,
         state: ExperimentState.REQUESTED,
@@ -857,8 +987,8 @@ async function attemptInterlock(armName, timeline) {
       deploymentComponents: components,
       deploymentDigest: deploymentDigestOf(components),
       implementationDigest: implementationDigest(),
-      trial: null,
-      trialSource: NO_MODEL_IN_THE_LOOP,
+      ingressRetry,
+      ...trialFromIngress(ingressRetry),
       outcome:
         armName === 'treatment'
           ? treatmentOutcome({
@@ -891,6 +1021,10 @@ export const ATTEMPT_DETAIL_FIELDS = Object.freeze([
   'executed',
   'commits',
   'overlap',
+  // The ingress's arrival judgement. Retaining the arrivals without the verdict
+  // over them would leave a reader to notice a duplicate by eye, and retaining
+  // the verdict without the arrivals would leave them unable to check it.
+  'ingressRetry',
   'globalVerification',
 ]);
 
@@ -960,8 +1094,30 @@ export const AttemptDisposition = Object.freeze({
 
 /** `trial: null` means no model was in the loop for this attempt at all. */
 export const NO_MODEL_IN_THE_LOOP =
-  'no model was invoked for this attempt; the intents are the predeclared ones, so trial ' +
-  'validity does not arise (Phase 7 fills this field with a real classification)';
+  'no model was invoked for this attempt; the intents are the predeclared ones, so model-trial ' +
+  'validity does not arise (Phase 7 fills this field with a real classification). The ingress ' +
+  'retry check under `ingressRetry` ran regardless, because a duplicate mutation is a fact about ' +
+  'the wire rather than about a model';
+
+/** Where the trial verdict came from when the runtime, not a model, produced it. */
+export const RUNTIME_RETRY_TRIAL_SOURCE =
+  'the ingress observed the same logical invocation arriving more than once. No model verdict ' +
+  'was needed: a duplicated mutation disqualifies the trial whether or not a model was in the ' +
+  'loop, and it consumes one of the permitted attempts';
+
+/**
+ * The `trial` and `trialSource` fields an attempt gets from its ingress record.
+ *
+ * An attempt with no model still has a trial verdict to report if the runtime
+ * duplicated a mutation, and `trial: null` would say the opposite — that the
+ * validity question does not arise. It arises exactly then.
+ */
+export function trialFromIngress(ingressRetry, modelTrial = null) {
+  if (ingressRetry?.retryObserved === true) {
+    return { trial: runtimeRetryTrial(ingressRetry), trialSource: RUNTIME_RETRY_TRIAL_SOURCE };
+  }
+  return { trial: modelTrial, trialSource: modelTrial === null ? NO_MODEL_IN_THE_LOOP : null };
+}
 
 /**
  * What happens after one attempt. The whole retry policy, in one pure function.
@@ -1001,6 +1157,52 @@ export const NO_MODEL_IN_THE_LOOP =
  */
 export function dispositionOf(armName, attempt) {
   const outcome = attempt?.outcome;
+
+  // The ingress question is asked first, and it is asked whether or not a model
+  // was in the loop. A duplicated mutation makes the measured pair possibly one
+  // agent's two sends rather than A and B, so nothing downstream of it means
+  // what it appears to mean — including a withhold, which might have been
+  // Interlock refusing an agent's own second send.
+  const ingress = attempt?.ingressRetry;
+  if (ingress === undefined || ingress === null || ingress.supplied !== true) {
+    return {
+      code: AttemptDisposition.RETRY_INVALID_TRIAL,
+      retry: true,
+      consumesAttempt: true,
+      classification: Deviation.INGRESS_ARRIVALS_UNAVAILABLE,
+      why:
+        'no ingress arrival record was retained for this attempt, so it is not decidable whether ' +
+        'a runtime retry duplicated a mutation or whether exactly one arrival came from each ' +
+        'agent. An attempt that cannot be checked for that cannot support a PASS',
+    };
+  }
+  if (ingress.retryObserved === true) {
+    return {
+      code: AttemptDisposition.RETRY_INVALID_TRIAL,
+      retry: true,
+      consumesAttempt: true,
+      classification: RUNTIME_RETRY,
+      trialVerdict: TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY,
+      why:
+        'the same logical invocation arrived at the ingress more than once. ADK 2.6.3 retries ' +
+        'McpTool._run_async_impl once with a fresh session (@retry_on_errors, mcp_tool.py:395), ' +
+        'and its tool callbacks fire outside that retry, so one recorded proposal can put two ' +
+        'mutations on the wire. This attempt is INVALID_TRIAL:RUNTIME_RETRY_OBSERVED, it consumes ' +
+        'one of the permitted attempts, and it can never support a PASS',
+    };
+  }
+  if (ingress.exactlyOncePerExpectedAgent !== true) {
+    return {
+      code: AttemptDisposition.RETRY_INVALID_TRIAL,
+      retry: true,
+      consumesAttempt: true,
+      classification: Deviation.INGRESS_ARRIVAL_CARDINALITY,
+      why:
+        'an accepted trial requires exactly one A arrival and exactly one B arrival at the ' +
+        `ingress; this attempt saw ${JSON.stringify(ingress.arrivalsByExpectedAgent)}. Multiple ` +
+        'arrivals from one agent can never constitute a measured A/B overlap',
+    };
+  }
 
   if (attempt?.trial != null && attempt.trial.valid !== true) {
     return {
@@ -1072,7 +1274,26 @@ export function dispositionOf(armName, attempt) {
   };
 }
 
-/** The policy, as data, so the packet states it rather than implying it. */
+/**
+ * The policy, as data, so the packet states it rather than implying it.
+ *
+ * ## The claim that had to be narrowed
+ *
+ * `note` used to end: *"There is no retry pool at the harness, ADK, HTTP or
+ * model layer."* That was false at the ADK layer and we could not have known it
+ * from anything the packet contained. ADK 2.6.3 decorates
+ * `McpTool._run_async_impl` — the method that performs the `set_reservation`
+ * write — with `@retry_on_errors` (`mcp_tool.py:395`; decorator at
+ * `mcp_session_manager.py:335-369`), and ADK's own comment at `mcp_tool.py:452`
+ * confirms it retries once with a fresh session. The tool callbacks that record
+ * a proposal fire once, outside that retry, so the proposal trail cannot show
+ * it: one proposal recorded, two mutations on the wire.
+ *
+ * X-05 stands as the prohibition on hidden retries. What we may claim is
+ * narrower and is what `note` now says: no runtime retry occurred in an accepted
+ * trial, and any platform-native retry is detected at the ingress, retained, and
+ * disqualifying.
+ */
 export function retryPolicy(maxAttempts) {
   return {
     maxAttempts,
@@ -1086,13 +1307,42 @@ export function retryPolicy(maxAttempts) {
     invalidTrialConsumesAnAttempt: true,
     compositionFailureIsTerminal: true,
     relabelsFalsificationAsMissedWindow: false,
+    runtimeRetryDetectedAtIngress: true,
+    runtimeRetryIsDisqualifying: true,
+    runtimeRetryVerdict: TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY,
+    platformRetryKnownToExist: {
+      layer: 'ADK 2.6.3',
+      what: 'McpTool._run_async_impl is decorated with @retry_on_errors and retries once with a fresh session',
+      citations: [
+        'google/adk/tools/mcp_tool/mcp_tool.py:395',
+        'google/adk/tools/mcp_tool/mcp_session_manager.py:335-369',
+        'google/adk/tools/mcp_tool/mcp_tool.py:452',
+      ],
+      whyTheProposalTrailCannotSeeIt:
+        'before_tool_callback and after_tool_callback fire once, outside the retried method, so ' +
+        'one recorded proposal can correspond to two mutations reaching the ingress',
+      whatWeDoAboutIt:
+        'the ingress retains every arrival with the identity of the logical invocation it belongs ' +
+        'to, refuses to dispatch a second arrival for an invocation already seen — so no second ' +
+        'receipt is minted and no second mutation is attempted — and disqualifies the trial',
+      whatWeDoNotDo:
+        'the protected target is not made idempotent. Absorbing a retry at the target would make ' +
+        'it invisible, and the claim that has to be checkable is that none occurred',
+    },
     note:
       'A treatment attempt in which the requests overlapped and Interlock did not withhold is ' +
       `${Outcome.COMPOSITION_NOT_WITHHELD} and ends the run. It is never recorded as ` +
       `${Outcome.NO_OVERLAP_OBSERVED} and never retried. Retries exist only for an attempt that ` +
-      'observed nothing about composition — a missed concurrency window, or a model that deviated ' +
-      'from the predeclared intent. There is no retry pool at the harness, ADK, HTTP or model ' +
-      'layer, and every attempt is retained in full whatever it did.',
+      'observed nothing about composition — a missed concurrency window, a model that deviated ' +
+      'from the predeclared intent, or an arrival pattern the ingress refused to accept. The ' +
+      'harness adds no retry pool of its own. It does NOT follow that no retry exists beneath it: ' +
+      'ADK 2.6.3 retries McpTool._run_async_impl once with a fresh session (@retry_on_errors, ' +
+      'mcp_tool.py:395, decorator at mcp_session_manager.py:335-369, confirmed by ADK\'s own ' +
+      'comment at mcp_tool.py:452), and the tool callbacks that record a proposal fire outside it. ' +
+      'The claim this packet makes is therefore the narrower one: no runtime retry occurred in an ' +
+      'accepted trial, and any platform-native retry is detected at the ingress, retained, and ' +
+      'disqualifying — INVALID_TRIAL:RUNTIME_RETRY_OBSERVED, consuming one of the permitted ' +
+      'attempts and never supporting a PASS. Every attempt is retained in full whatever it did.',
   };
 }
 
@@ -1133,25 +1383,112 @@ function runArm(armName, timeline) {
   });
 }
 
-/** Overlap, computed from the ingress stamps of the two requests. */
-function overlapOf(observations) {
-  const [first, second] = observations;
-  if (first === undefined || second === undefined) {
-    return { measuredAt: 'server', usesClientLaunchTime: false, overlapped: false };
+/**
+ * Everything about a run that forbids it from printing PASS, whatever the
+ * numbers came out as.
+ *
+ * Separate from the arm expectations because it is a different kind of
+ * statement: the arms can produce exactly the predicted counts and totals in a
+ * run whose measurements are worthless. An attempt in which the same logical
+ * invocation arrived twice is one of those — the pair the ingress measured may
+ * be one agent's two sends rather than A and B, so the withhold that satisfied
+ * the treatment arm may have been Interlock refusing an agent its own retry.
+ *
+ * Exported so the question can be asked of a packet without re-running the arms.
+ */
+export function disqualifications(results) {
+  const detection = results?.concurrency?.ingressRetryDetection;
+  if (detection === undefined) {
+    return ['no ingress retry detection was recorded; the run cannot be checked for one'];
   }
-  const startA = first.startMs;
-  const endA = first.endMs;
-  const startB = second.startMs;
-  const endB = second.endMs;
-  return {
+
+  const problems = [];
+  for (const [armName, attempts] of Object.entries(detection.perArm)) {
+    for (const attempt of attempts) {
+      if (attempt.retryObserved) {
+        problems.push(
+          `${armName} attempt ${attempt.index}: the same logical invocation arrived more than ` +
+            `once (${attempt.duplicates} duplicate arrival(s)). That attempt is ` +
+            `${TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY} and can never support a PASS`,
+        );
+      } else if (!attempt.acceptable) {
+        problems.push(
+          `${armName} attempt ${attempt.index}: the ingress did not see exactly one arrival from ` +
+            `each expected agent (${JSON.stringify(attempt.arrivalsByExpectedAgent)})`,
+        );
+      }
+    }
+  }
+  return problems;
+}
+
+/**
+ * Overlap, computed from the ingress stamps of the two *distinct expected*
+ * agents.
+ *
+ * ## What was wrong
+ *
+ * This destructured `const [first, second] = observations` and called the pair
+ * A and B. Whatever arrived first was "A" and whatever arrived second was "B",
+ * so a duplicate arrival — an ADK retry, an HTTP retry, anything that put the
+ * same logical invocation on the wire twice — could make the measured pair one
+ * agent's two sends. That reads as a perfect collision and is not one: an agent
+ * overlapping itself says nothing whatever about composition, and Interlock
+ * withholding the second of them would look exactly like the result the
+ * experiment predicts.
+ *
+ * So the pairing is by identity, not by position. A and B are the two
+ * predeclared agents; if either did not arrive exactly once, there is no
+ * measured A/B pair and the answer is `overlapped: false` with the reason
+ * attached. Nothing here tries to pick "the best" arrival out of several —
+ * choosing would make the harness the author of the measurement.
+ */
+export function overlapOf(observations) {
+  const arrivals = Array.isArray(observations) ? observations : [];
+  const forAgent = (agent) =>
+    arrivals.filter(
+      (arrival) => (arrival?.expectedAgent ?? expectedAgentFor(arrival?.agentId)) === agent,
+    );
+  const [a] = forAgent('A');
+  const [b] = forAgent('B');
+  const counts = { A: forAgent('A').length, B: forAgent('B').length };
+  const base = {
     measuredAt: 'server',
     usesClientLaunchTime: false,
+    pairedBy: 'expected-agent-identity',
+    arrivalsByExpectedAgent: counts,
     formula: PREFLIGHT_V1.predeclared.runtimeOverlap.formula,
-    startA,
-    endA,
-    startB,
-    endB,
-    overlapped: Math.max(startA, startB) < Math.min(endA, endB),
+  };
+
+  if (counts.A !== 1 || counts.B !== 1) {
+    return {
+      ...base,
+      overlapped: false,
+      why:
+        `overlap is measured between the two distinct expected agents; this attempt saw ` +
+        `${JSON.stringify(counts)}. Two arrivals from one agent are not an A/B pair, and the ` +
+        'earlier positional pairing would have reported them as one',
+    };
+  }
+
+  const stamps = { startA: a.startMs, endA: a.endMs, startB: b.startMs, endB: b.endMs };
+  const unstamped = Object.entries(stamps)
+    .filter(([, value]) => typeof value !== 'number')
+    .map(([key]) => key);
+  if (unstamped.length > 0) {
+    // An arrival the ingress never finished handling has no end stamp. Treating
+    // a missing stamp as zero would make every such pair "overlap".
+    return {
+      ...base,
+      overlapped: false,
+      why: `the ingress did not stamp ${unstamped.join(', ')}; the window was not measured`,
+    };
+  }
+
+  return {
+    ...base,
+    ...stamps,
+    overlapped: Math.max(stamps.startA, stamps.startB) < Math.min(stamps.endA, stamps.endB),
   };
 }
 
@@ -1440,6 +1777,13 @@ export function modelTrialRecord({ origin, captures }) {
         'a successful tool call writes a "proposed" and a "responded" record; exactly the ' +
         '"proposed" ones are proposals. Returning both made one well-behaved call classify ' +
         'MULTIPLE_TOOL_CALLS, which no model could have satisfied.',
+      runtimeRetryBlindSpot:
+        'the proposal trail cannot count mutations. ADK fires before_tool_callback and ' +
+        'after_tool_callback once each, around McpTool._run_async_impl, and that method is itself ' +
+        'decorated with @retry_on_errors (mcp_tool.py:395) and retries once with a fresh session ' +
+        '(ADK\'s own comment, mcp_tool.py:452). One recorded proposal can therefore correspond to ' +
+        'two arrivals. That is why trial acceptance also requires the ingress arrival record: see ' +
+        'concurrency.ingressRetryDetection and each attempt\'s ingressRetry.',
       note: fromRuntime
         ? 'read back from the deployed agents; this is what the models proposed'
         : 'written by the harness so the capture and classification path is exercised with no ' +
@@ -1455,10 +1799,17 @@ export function modelTrialRecord({ origin, captures }) {
         'experiments/hac-316/test/model-trial.test.mjs',
       ],
       deviationsClassified: Object.values(Deviation),
+      acceptanceRequires:
+        'the predeclared digest rule AND an ingress arrival record showing exactly one A arrival ' +
+        'and exactly one B arrival, with no logical invocation arriving twice. `valid` reports the ' +
+        'first; `accepted` reports both. A trial classified without an arrival record is never ' +
+        'accepted, because "we did not look" is not evidence that nothing happened.',
       note:
-        'Every deviation above is MODEL_FAILURE / INVALID_TRIAL and never a composition verdict. ' +
-        'Each invocation pair consumes one of the three permitted attempts and is retained in ' +
-        'full, valid or not; there is no separate pool of retries for invalid trials.',
+        'A model deviation is MODEL_FAILURE / INVALID_TRIAL and never a composition verdict; a ' +
+        'duplicated arrival is RUNTIME_RETRY_OBSERVED / INVALID_TRIAL:RUNTIME_RETRY_OBSERVED, ' +
+        'which is a fault of the runtime rather than the model and is also never a composition ' +
+        'verdict. Each invocation pair consumes one of the three permitted attempts and is ' +
+        'retained in full, valid or not; there is no separate pool of retries for invalid trials.',
     },
     /** What the classifier actually returned. Null only if it never ran. */
     trial,
@@ -1675,9 +2026,46 @@ export async function runAll() {
   // Derived from the arm that actually breached, not from a constant.
   const gammaAsserted = gammaAssertedLimitation(arms.perturbation.globalVerification);
 
+  // One line per arm, so "was a runtime retry seen anywhere in this run" is a
+  // question the packet answers rather than one a reader has to assemble by
+  // walking every attempt of every arm.
+  const ingressRetryDetection = {
+    detectedAt: 'ingress',
+    armNeutral: true,
+    armsCovered: Object.keys(attemptsByArm),
+    arrivalRecordFields: [...ARRIVAL_RECORD_FIELDS],
+    logicalInvocationKey:
+      'the tool invocation id when the transport carries one, otherwise caller identity plus the ' +
+      'intent digest the ingress computed off the wire',
+    duplicateArrivalIsDispatched: false,
+    perArm: Object.fromEntries(
+      Object.entries(attemptsByArm).map(([armName, attempts]) => [
+        armName,
+        attempts.map((attempt) => ({
+          index: attempt.index,
+          arrivalCount: attempt.detail.ingressRetry.arrivalCount,
+          arrivalsByExpectedAgent: attempt.detail.ingressRetry.arrivalsByExpectedAgent,
+          duplicates: attempt.detail.ingressRetry.duplicates.length,
+          retryObserved: attempt.detail.ingressRetry.retryObserved,
+          acceptable: attempt.detail.ingressRetry.acceptable,
+        })),
+      ]),
+    ),
+    retryObserved: Object.values(attemptsByArm).some((attempts) =>
+      attempts.some((attempt) => attempt.detail.ingressRetry.retryObserved),
+    ),
+    note:
+      'Detection is identical in baseline, treatment and perturbation: the same createIngress and ' +
+      'the same classifyArrivals, so a difference between arms can never be an artefact of a ' +
+      'detector that only ran in one of them. A duplicate arrival is retained and refused a ' +
+      'second dispatch; it mints no receipt and attempts no mutation, and the trial it appears in ' +
+      `is ${TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY}.`,
+  };
+
   const results = {
     experiment: 'HAC-316',
     mode: 'local',
+    runId: RUN_ID,
     agentRuntime: {
       executed: false,
       note:
@@ -1699,11 +2087,14 @@ export async function runAll() {
       discardedAttempts: 0,
       retryPolicy: retryPolicy(PREFLIGHT_V1.predeclared.concurrencyAttempts.maximum),
       runtimeOverlap: overlapOf(arms.treatment.overlap),
+      ingressRetryDetection,
       note:
         'Overlap is stamped by the neutral ingress on receipt and on response. The harness never ' +
-        'contributes a timestamp to this measurement. Every attempt of every arm is retained in ' +
-        'full under attemptsByArm, including any that were superseded; `attempts` is the ' +
-        'treatment arm, which is where the bounded budget applies.',
+        'contributes a timestamp to this measurement, and the pair it measures is the two ' +
+        'distinct expected agents rather than the first two arrivals — two sends from one agent ' +
+        'are not an A/B overlap. Every attempt of every arm is retained in full under ' +
+        'attemptsByArm, including any that were superseded; `attempts` is the treatment arm, ' +
+        'which is where the bounded budget applies.',
     },
     forbiddenTechniques: {
       artificialDelay: false,
@@ -1717,6 +2108,13 @@ export async function runAll() {
       // the run. See concurrency.retryPolicy.
       falsificationRelabelledAsMissedWindow: false,
       retriedAfterCompositionFailure: false,
+      // `hiddenRetry: false` is a claim about the harness, and on its own it was
+      // being read as a claim about every layer beneath it. It is not: ADK
+      // retries the MCP tool method once. What is true is that no such retry is
+      // hidden — every arrival is detected at the ingress, retained, and
+      // disqualifying. See concurrency.retryPolicy.platformRetryKnownToExist.
+      platformRetryIsDetectedNotAssumedAbsent: true,
+      runtimeRetryObservedInThisRun: ingressRetryDetection.retryObserved,
     },
     lifecycle: {
       states: Object.keys(ExperimentState),
@@ -1779,6 +2177,9 @@ if (invokedDirectly) {
     }
   }
   if (results.cloudResourcesCreated !== 0) problems.push('a cloud resource was created');
+  // Checked separately from the arm expectations and after them, because these
+  // hold even when every arm produced exactly the predicted numbers.
+  problems.push(...disqualifications(results));
 
   if (problems.length > 0) {
     for (const problem of problems) process.stderr.write(`run-arm: ${problem}\n`);

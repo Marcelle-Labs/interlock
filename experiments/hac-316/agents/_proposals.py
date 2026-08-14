@@ -104,10 +104,11 @@ def _append(tool_context: Any, record: dict[str, Any]) -> None:
     invalid trial indistinguishable from a valid one, so the exception is left to
     propagate rather than being swallowed into a partial record.
 
-    The list is rebuilt rather than appended to in place, because ADK's `State`
-    only registers a delta on `__setitem__`. Mutating the existing list would
-    update the in-memory value and leave the session's pending delta empty, so a
-    committed session would carry no proposal at all.
+    The assignment through `__setitem__` is how ADK's `State` registers a delta,
+    and this has always been written that way. It is not a repair of an earlier
+    defect: no revision of this file appended in place. `git show
+    b43d363^:experiments/hac-316/agents/_proposals.py` line 51 is the same
+    `state[KEY] = [*existing, record]`.
     """
     state = tool_context.state
     existing = state.get(PROPOSED_TOOL_CALLS_KEY) or []

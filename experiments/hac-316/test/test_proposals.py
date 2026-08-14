@@ -270,15 +270,26 @@ class CallbacksAsAdkCallsThem(unittest.TestCase):
         self.assertEqual(proposals(state)[0]["arguments"], drifted)
 
     def test_the_write_registers_a_session_delta(self) -> None:
-        """A record that never leaves the process is a record the harness cannot read."""
+        """The harness reads proposals out of a *committed* session, not out of memory.
+
+        This is a forward guard on the contract between the callback and the
+        session, not a regression guard: `_append` has always assigned through
+        `State.__setitem__`, and no revision of it appended in place. It would
+        not have failed on a revert, either — `State.__setitem__` stores the same
+        list object into `_delta`, so an in-place append aliases into the delta
+        and `has_delta()` stays true. The value it has is that a future rewrite
+        which stops going through `__setitem__` at all — writing to
+        `session.state` directly, or building the record somewhere else — is
+        caught here rather than on Agent Runtime.
+        """
         context, session = _tool_context(agent_a)
         for callback in agent_a.canonical_before_tool_callbacks:
             callback(tool=self.tool, args=self.args, tool_context=context)
 
         self.assertTrue(
             context.state.has_delta(),
-            "the proposal was written in place and produced no state delta; a committed session "
-            "would carry no proposal at all",
+            "the callback wrote no session delta; the harness reads proposals back from a "
+            "committed session, so a record that never reaches the delta cannot be read",
         )
         self.assertEqual(session.state[PROPOSED_TOOL_CALLS_KEY], proposals(session.state))
 

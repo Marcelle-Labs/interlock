@@ -64,6 +64,30 @@
  * and a `verifiedBy` that is *not* `independent-reread`. Only a full set of
  * successful re-reads that positively establish absence can emit that value.
  *
+ * ## A refusal says which refusal it was
+ *
+ * Every refusal prints `teardown-refused=<CODE>` on its own line, where `<CODE>`
+ * is one member of {@link Refusal}. The codes are stable and there is one per
+ * distinct way the guard can say no:
+ *
+ *   | code                                    | exit | cause                       |
+ *   | --------------------------------------- | ---- | --------------------------- |
+ *   | `TEARDOWN_MODE_NOT_SUPPLIED`            | 2    | neither `--verify` nor `--execute` |
+ *   | `PROJECT_ID_NOT_SUPPLIED`               | 2    | `--project` absent or empty |
+ *   | `PROJECT_ID_SUPPLIED_MORE_THAN_ONCE`    | 2    | `--project` given twice     |
+ *   | `PROJECT_ID_NOT_DISPOSABLE`             | 4    | fails the G-4 shape fence   |
+ *   | `NO_DISPOSABLE_PROJECT_DECLARED`        | 3    | nothing declared at all     |
+ *   | `PROJECT_ID_DOES_NOT_MATCH_DECLARATION` | 3    | declared, but a different id |
+ *
+ * The exit codes are not distinct and are not meant to be. Asserting only that
+ * one landed in the 2-4 band is what let a `--project=<id>` parsing regression
+ * pass REQ-072 while collapsing all five of its probes into the same "nothing
+ * was supplied" refusal. The code says how bad; only the reason says what.
+ *
+ * The other half of that proof is the invocation log: see
+ * {@link GCLOUD_LOG_VARIABLE}. Set it, and every attempted spawn is recorded
+ * before it happens, so an empty log is evidence that the refusal came first.
+ *
  *   node experiments/hac-316/bin/teardown.mjs --verify --project=<id>
  *   node experiments/hac-316/bin/teardown.mjs --execute --confirm --project=<id>
  *
@@ -72,7 +96,7 @@
  * teardown succeeded, and this program will never print `PASS` for it.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -115,12 +139,63 @@ export const AMBIENT_VARIABLES = Object.freeze([
 /** Where a test shim may supply a stand-in binary (G-11). */
 export const GCLOUD_BIN_VARIABLE = 'HAC316_GCLOUD_BIN';
 
-/** Why a teardown refused. Every one of these is a stop, never a warning. */
+/**
+ * Where every attempted cloud invocation is appended, when it is set.
+ *
+ * The gate that matters most in REQ-071 and REQ-072 is not the exit code, it is
+ * the *empty invocation log*: a refusal has to happen before any process is
+ * spawned, not after one has already been told to delete something.
+ *
+ * That gate used to rest entirely on the test shim recording its own
+ * invocations, which makes it vacuous in two ways. A caller that sets
+ * `HAC316_GCLOUD_BIN` but forgets `HAC316_GCLOUD_LOG` gets an empty log no
+ * matter what teardown did; and a shim whose own append fails silently is
+ * indistinguishable from a teardown that never called it. So this program writes
+ * the audit line itself, immediately before every spawn and whatever binary is
+ * about to be run. An empty log is then evidence that no invocation was
+ * *attempted*, which is the claim the requirement is actually making.
+ *
+ * It is never a source of truth for teardown's own decisions and it never
+ * suppresses one; it is a write-only record.
+ */
+export const GCLOUD_LOG_VARIABLE = 'HAC316_GCLOUD_LOG';
+
+/**
+ * The stand-in binary the refusal probes use, defined once so the gate, the
+ * suite and this file cannot drift into testing three different things.
+ *
+ * It records what it was asked and exits 0 — the most permissive possible
+ * `gcloud`. That is deliberate: if teardown reaches it at all, the log is
+ * non-empty and the probe fails regardless of the exit code that came back.
+ */
+export const GCLOUD_SHIM_SCRIPT = `#!/bin/sh\necho "$@" >> "$${GCLOUD_LOG_VARIABLE}"\nexit 0\n`;
+
+/**
+ * Why a teardown refused.
+ *
+ * Every one of these is a stop, never a warning, and every one of them is
+ * *distinct*: the reason is emitted as a stable machine-readable token so a gate
+ * can assert which refusal happened rather than that some refusal happened.
+ *
+ * That distinction is the point. REQ-072 drives five different mismatched ids
+ * through this program and used to assert only `2 <= exit <= 4` plus an empty
+ * invocation log. When `--project=<id>` parsing regressed, all five collapsed
+ * into the same `PROJECT_ID_NOT_SUPPLIED` refusal — still in the band, still no
+ * invocations — and the requirement reported PASS having tested nothing it
+ * claimed to test. A band is not an assertion about behaviour; a reason code is.
+ */
 export const Refusal = Object.freeze({
+  /** No mode operand at all: neither `--verify` nor `--execute`. */
+  NO_MODE: 'TEARDOWN_MODE_NOT_SUPPLIED',
+  /** `--project` absent, empty, or present with no value (G-1). */
   NOT_SUPPLIED: 'PROJECT_ID_NOT_SUPPLIED',
+  /** `--project` given more than once. Two answers is no answer (G-1). */
   REPEATED: 'PROJECT_ID_SUPPLIED_MORE_THAN_ONCE',
+  /** The id is not shaped like a disposable HAC-316 project (G-4). */
   NOT_DISPOSABLE: 'PROJECT_ID_NOT_DISPOSABLE',
+  /** Nothing is recorded in `evidence/topology.json` at all (G-3). */
   NOT_DECLARED: 'NO_DISPOSABLE_PROJECT_DECLARED',
+  /** A declaration exists and names a different project (G-3). */
   UNDECLARED_ID: 'PROJECT_ID_DOES_NOT_MATCH_DECLARATION',
 });
 
@@ -130,8 +205,14 @@ export const Refusal = Object.freeze({
  * G-1 (absent, empty, repeated) exits 2; G-3 (two-key disagreement, or a
  * declaration that is missing or unreadable) exits 3; G-4 (shape) exits 4.
  * REQ-071 asserts the 2 exactly; REQ-072 asserts the whole 2-4 band.
+ *
+ * Note that the codes are deliberately *not* injective: `NOT_DECLARED` and
+ * `UNDECLARED_ID` both exit 3, and `NOT_SUPPLIED`, `REPEATED` and `NO_MODE` all
+ * exit 2. The exit code says how bad it was; only {@link Refusal} says what
+ * happened, which is why a gate has to assert the reason and not the code.
  */
 export const REFUSAL_EXIT_CODE = Object.freeze({
+  [Refusal.NO_MODE]: 2,
   [Refusal.NOT_SUPPLIED]: 2,
   [Refusal.REPEATED]: 2,
   [Refusal.NOT_DECLARED]: 3,
@@ -424,6 +505,26 @@ export function resolveGcloudBinary(env = process.env) {
 }
 
 /**
+ * Append one line to the invocation log, if one was asked for.
+ *
+ * Called immediately *before* the spawn, so the record exists even for a command
+ * that never starts — an attempted invocation is exactly as disqualifying as a
+ * completed one for the requirements that assert this log is empty.
+ *
+ * There is no catch. If the audit cannot be written then the emptiness of the
+ * log means nothing, and a teardown that cannot substantiate "I called nothing"
+ * should stop rather than proceed unaudited.
+ *
+ * @returns the log path, or `null` when no log was requested.
+ */
+export function recordInvocation({ binary, args = [], env = process.env, append = appendFileSync } = {}) {
+  const path = readEnv(GCLOUD_LOG_VARIABLE, env);
+  if (path === null) return null;
+  append(path, `${binary} ${args.join(' ')}\n`);
+  return path;
+}
+
+/**
  * The environment every spawned command gets (G-6).
  *
  * Every inherited `CLOUDSDK_*` variable is dropped, then exactly two are set:
@@ -461,6 +562,8 @@ export function gcloudAdapter({ projectId, env = process.env, spawn = spawnSync 
   const commandEnv = commandEnvironment(projectId, env);
 
   const run = (args) => {
+    // Before the spawn, not after it: the log has to record the attempt.
+    recordInvocation({ binary, args, env });
     let result;
     try {
       result = spawn(binary, args, { encoding: 'utf8', env: commandEnv });
@@ -645,6 +748,45 @@ export function readProjectArgument(argv) {
   return values.length === 1 ? values[0] : null;
 }
 
+/**
+ * Exactly one `--project` operand, or a refusal that says which way it was wrong.
+ *
+ * Repetition is its own reason code rather than being folded into "not
+ * supplied", because they are different mistakes: one is a command that forgot
+ * the target, the other is a command that named two.
+ */
+export function requireSingleProjectArgument(argv) {
+  const values = readProjectArguments(argv);
+  if (values.length > 1) {
+    throw new TeardownRefusal(
+      Refusal.REPEATED,
+      `refusing to act: --project was supplied ${values.length} times. Two answers is no answer.`,
+    );
+  }
+  return values[0];
+}
+
+/**
+ * The stdout a refusal prints, as lines a gate can grep for.
+ *
+ * `teardown-refused=<CODE>` is the assertion surface: one stable token per
+ * distinct refusal, on its own line, in `key=value` form like every other line
+ * this program emits. `REFUSED <CODE>` is kept because existing checks look for
+ * the word, and the state lines are kept because "nothing was declared" must
+ * never be readable as "teardown verified".
+ */
+export function refusalReport(refusal) {
+  return [
+    'disposable-project-state=UNKNOWN',
+    'teardown-verified=false',
+    `teardown-refused=${refusal.code}`,
+    `teardown-refusal-exit=${refusal.exitCode}`,
+    `REFUSED ${refusal.code}`,
+  ]
+    .map((line) => `${line}\n`)
+    .join('');
+}
+
 /** The commands a dry run would issue, for G-5's closed resource set. */
 export function plannedCommands(projectId) {
   return [
@@ -653,73 +795,89 @@ export function plannedCommands(projectId) {
   ];
 }
 
-function main(argv) {
-  const wantsVerify = argv.includes('--verify');
-  const wantsExecute = argv.includes('--execute');
-  const confirmed = argv.includes('--confirm');
-  if (!wantsVerify && !wantsExecute) {
-    process.stderr.write('teardown: pass --verify or --execute, and --project=<id>\n');
-    return 2;
-  }
+/**
+ * The whole command line, with every collaborator injectable.
+ *
+ * Exported and dependency-injected so each refusal reason can be driven through
+ * the *real* command line in a test — including the two that need a declaration
+ * on disk, which cannot be written for a test without inventing a Phase 7 record
+ * in `evidence/`. The cloud is built through `buildCloud` for the same reason
+ * the guard exists at all: a test can pass one that throws if it is ever called,
+ * and thereby assert that no refusal path can reach a spawn.
+ *
+ * @param options.declaration the parsed declaration, or `null`. Defaults to
+ *        whatever is on disk; `undefined` means "read it", not "there is none".
+ * @param options.buildCloud  builds the adapter. Never called on a refusal path.
+ */
+export function runCli(argv, options = {}) {
+  const {
+    out = (text) => process.stdout.write(text),
+    err = (text) => process.stderr.write(text),
+    env = process.env,
+    buildCloud = ({ projectId }) => gcloudAdapter({ projectId, env }),
+  } = options;
+  const declaration =
+    options.declaration === undefined ? readDeclaration() : options.declaration;
 
-  const declaration = readDeclaration();
   let projectId;
+  let wantsExecute = false;
+  let confirmed = false;
   try {
-    const supplied = readProjectArguments(argv);
-    if (supplied.length > 1) {
+    const wantsVerify = argv.includes('--verify');
+    wantsExecute = argv.includes('--execute');
+    confirmed = argv.includes('--confirm');
+    if (!wantsVerify && !wantsExecute) {
       throw new TeardownRefusal(
-        Refusal.REPEATED,
-        `refusing to act: --project was supplied ${supplied.length} times. Two answers is no answer.`,
+        Refusal.NO_MODE,
+        'refusing to act: pass --verify or --execute, and --project=<id>.',
       );
     }
     projectId = guardProjectId({
-      supplied: supplied[0],
+      supplied: requireSingleProjectArgument(argv),
       declared: declaration?.projectId ?? null,
-      ambient: ambientProjects(),
+      ambient: ambientProjects(env),
     });
   } catch (error) {
     if (!(error instanceof TeardownRefusal)) throw error;
-    process.stderr.write(`teardown: ${error.code}: ${error.message}\n`);
+    err(`teardown: ${error.code}: ${error.message}\n`);
     // Deliberately not `PASS`, and deliberately non-zero. "Nothing was
     // declared" must never be readable as "teardown verified".
-    process.stdout.write('disposable-project-state=UNKNOWN\n');
-    process.stdout.write('teardown-verified=false\n');
-    process.stdout.write(`REFUSED ${error.code}\n`);
+    out(refusalReport(error));
     return error.exitCode;
   }
 
   if (wantsExecute && !confirmed) {
     // G-5: a dry run says what it would do and makes no call at all. The adapter
     // is not even built, so there is no path from here to a spawned process.
-    process.stdout.write(`dry-run project=${projectId}\n`);
+    out(`dry-run project=${projectId}\n`);
     for (const command of plannedCommands(projectId)) {
-      process.stdout.write(`would-run: ${command}\n`);
+      out(`would-run: ${command}\n`);
     }
-    process.stdout.write('DRY-RUN (pass --confirm to act)\n');
+    out('DRY-RUN (pass --confirm to act)\n');
     return 0;
   }
 
-  const cloud = gcloudAdapter({ projectId });
+  const cloud = buildCloud({ projectId, env });
   const verdict = wantsExecute
     ? executeTeardown({ projectId, cloud })
     : verifyRemoval({ projectId, cloud });
 
   for (const probe of verdict.probes) {
-    process.stdout.write(`probe ${probe.probe}: outcome=${probe.outcome} rows=${probe.rows}\n`);
+    out(`probe ${probe.probe}: outcome=${probe.outcome} rows=${probe.rows}\n`);
   }
-  process.stdout.write(`agent-runtime-resources-remaining=${verdict.remainingResources}\n`);
-  process.stdout.write(`disposable-project-state=${verdict.lifecycleState}\n`);
-  process.stdout.write(`teardown-verified=${verdict.verified}\n`);
-  process.stdout.write(`teardown-verified-by=${verdict.verifiedBy}\n`);
+  out(`agent-runtime-resources-remaining=${verdict.remainingResources}\n`);
+  out(`disposable-project-state=${verdict.lifecycleState}\n`);
+  out(`teardown-verified=${verdict.verified}\n`);
+  out(`teardown-verified-by=${verdict.verifiedBy}\n`);
   if (!verdict.removed) {
-    for (const problem of verdict.problems) process.stderr.write(`teardown: ${problem}\n`);
-    process.stdout.write('FAIL\n');
+    for (const problem of verdict.problems) err(`teardown: ${problem}\n`);
+    out('FAIL\n');
     return 1;
   }
-  process.stdout.write('PASS\n');
+  out('PASS\n');
   return 0;
 }
 
 if (isDirectInvocation(import.meta.url)) {
-  process.exitCode = main(process.argv.slice(2));
+  process.exitCode = runCli(process.argv.slice(2));
 }

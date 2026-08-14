@@ -31,6 +31,8 @@ import {
   AMBIENT_VARIABLES,
   DISPOSABLE_PROJECT_PATTERN,
   GCLOUD_BIN_VARIABLE,
+  GCLOUD_LOG_VARIABLE,
+  GCLOUD_SHIM_SCRIPT,
   ProbeOutcome,
   REFUSAL_EXIT_CODE,
   REREAD_PROBES,
@@ -48,6 +50,10 @@ import {
   readDeclaration,
   readProjectArgument,
   readProjectArguments,
+  recordInvocation,
+  refusalReport,
+  requireSingleProjectArgument,
+  runCli,
   verifyRemoval,
 } from '../bin/teardown.mjs';
 
@@ -560,6 +566,290 @@ describe('every spawned command names its project and cannot be prompted', () =>
     const planned = plannedCommands(DECLARED);
     expect(planned).toHaveLength(1 + REREAD_PROBES.length);
     for (const command of planned) expect(command).toContain(DECLARED);
+  });
+});
+
+describe('a refusal says which refusal it was', () => {
+  /**
+   * One case per member of `Refusal`, driven through the real command line.
+   *
+   * `runCli` is used rather than a subprocess for exactly one reason: two of
+   * these cases need a declaration on disk, and writing one into `evidence/`
+   * would invent a Phase 7 record that REQ-069 and REQ-072 both read. The
+   * declaration is injected instead, and `buildCloud` throws if anything ever
+   * reaches it, so each case also proves its own refusal came before any spawn.
+   */
+  const cases = [
+    {
+      label: 'neither --verify nor --execute',
+      argv: [`--project=${DECLARED}`],
+      declaration: { projectId: DECLARED },
+      code: Refusal.NO_MODE,
+      exit: 2,
+    },
+    {
+      label: 'no --project at all',
+      argv: ['--verify'],
+      declaration: { projectId: DECLARED },
+      code: Refusal.NOT_SUPPLIED,
+      exit: 2,
+    },
+    {
+      label: '--project with nothing after it',
+      argv: ['--verify', '--project'],
+      declaration: { projectId: DECLARED },
+      code: Refusal.NOT_SUPPLIED,
+      exit: 2,
+    },
+    {
+      label: '--project supplied twice',
+      argv: ['--verify', '--project', DECLARED, `--project=${DECLARED}`],
+      declaration: { projectId: DECLARED },
+      code: Refusal.REPEATED,
+      exit: 2,
+    },
+    {
+      label: 'an id that is not shaped like a disposable project',
+      argv: ['--verify', '--project=my-production-project'],
+      declaration: { projectId: DECLARED },
+      code: Refusal.NOT_DISPOSABLE,
+      exit: 4,
+    },
+    {
+      label: 'nothing declared at all',
+      argv: ['--verify', `--project=${DECLARED}`],
+      declaration: null,
+      code: Refusal.NOT_DECLARED,
+      exit: 3,
+    },
+    {
+      label: 'a declaration that names a different project',
+      argv: ['--verify', '--project=interlock-s1-deadbeef'],
+      declaration: { projectId: DECLARED },
+      code: Refusal.UNDECLARED_ID,
+      exit: 3,
+    },
+  ];
+
+  const drive = ({ argv, declaration }) => {
+    let stdout = '';
+    let stderr = '';
+    const status = runCli(argv, {
+      declaration,
+      env: {},
+      out: (text) => {
+        stdout += text;
+      },
+      err: (text) => {
+        stderr += text;
+      },
+      buildCloud: () => {
+        throw new Error('a refusal path built a cloud adapter');
+      },
+    });
+    return { status, stdout, stderr };
+  };
+
+  for (const scenario of cases) {
+    it(`emits ${scenario.code} for ${scenario.label}`, () => {
+      const { status, stdout, stderr } = drive(scenario);
+      expect(status).toBe(scenario.exit);
+      expect(stdout).toContain(`teardown-refused=${scenario.code}\n`);
+      expect(stdout).toContain(`teardown-refusal-exit=${scenario.exit}\n`);
+      expect(stdout).toContain(`REFUSED ${scenario.code}\n`);
+      expect(stdout).toContain('teardown-verified=false\n');
+      expect(stdout).not.toContain('PASS');
+      expect(stderr).toContain(scenario.code);
+    });
+  }
+
+  it('covers every reason code the module declares', () => {
+    // A reason nothing can produce is a reason no gate can assert, and a reason
+    // added later without a case here would go unexercised.
+    expect(new Set(cases.map((scenario) => scenario.code))).toEqual(
+      new Set(Object.values(Refusal)),
+    );
+  });
+
+  it('emits exactly one reason line, so a grep cannot match two', () => {
+    for (const scenario of cases) {
+      const { stdout } = drive(scenario);
+      const emitted = stdout.split('\n').filter((line) => line.startsWith('teardown-refused='));
+      expect(emitted, scenario.label).toHaveLength(1);
+    }
+  });
+
+  it('the five REQ-072 probes do not collapse onto one reason', () => {
+    // This is the whole point of the reason codes. Reverting the `--project=<id>`
+    // parsing fix turns all five probes into PROJECT_ID_NOT_SUPPLIED; the exit
+    // codes stay inside the 2-4 band and the invocation log stays empty, so a
+    // band assertion still reports PASS. A reason assertion cannot.
+    const declaration = { projectId: DECLARED };
+    const observed = [
+      'interlock-s1-deadbeef',
+      'interlock-s0-gate',
+      'interlock-s2-gate',
+      'my-production-project',
+      `${DECLARED}x`,
+    ].map((probe) => {
+      const { stdout } = drive({ argv: [`--project=${probe}`, '--confirm', '--verify'], declaration });
+      return stdout.split('\n').find((line) => line.startsWith('teardown-refused='))?.slice('teardown-refused='.length);
+    });
+
+    expect(observed).toEqual([
+      Refusal.UNDECLARED_ID,
+      Refusal.NOT_DISPOSABLE,
+      Refusal.NOT_DISPOSABLE,
+      Refusal.NOT_DISPOSABLE,
+      Refusal.NOT_DISPOSABLE,
+    ]);
+    // Not one of them may be the "nothing was supplied" refusal: that is what a
+    // broken operand parser produces, and it is what the band assertion missed.
+    expect(observed).not.toContain(Refusal.NOT_SUPPLIED);
+  });
+
+  it('reports the same five reasons with no declaration on disk', () => {
+    // Phase 6 state. The fifth probe is not constructible without a declaration,
+    // and the first moves from a two-key disagreement to "nothing is declared" —
+    // which is still a G-3 refusal and still not PROJECT_ID_NOT_SUPPLIED.
+    const observed = [
+      'interlock-s1-deadbeef',
+      'interlock-s0-gate',
+      'interlock-s2-gate',
+      'my-production-project',
+    ].map((probe) => {
+      const { stdout } = drive({ argv: [`--project=${probe}`, '--confirm', '--verify'], declaration: null });
+      return stdout.split('\n').find((line) => line.startsWith('teardown-refused='))?.slice('teardown-refused='.length);
+    });
+    expect(observed).toEqual([
+      Refusal.NOT_DECLARED,
+      Refusal.NOT_DISPOSABLE,
+      Refusal.NOT_DISPOSABLE,
+      Refusal.NOT_DISPOSABLE,
+    ]);
+    expect(observed).not.toContain(Refusal.NOT_SUPPLIED);
+  });
+
+  it('separates a repeated operand from a missing one', () => {
+    expect(requireSingleProjectArgument(['--verify'])).toBe(undefined);
+    expect(requireSingleProjectArgument([`--project=${DECLARED}`])).toBe(DECLARED);
+    let refusal;
+    try {
+      requireSingleProjectArgument(['--project', DECLARED, `--project=${DECLARED}`]);
+    } catch (error) {
+      refusal = error;
+    }
+    expect(refusal.code).toBe(Refusal.REPEATED);
+  });
+
+  it('renders the report as key=value lines a gate can grep', () => {
+    const report = refusalReport(new TeardownRefusal(Refusal.NOT_DECLARED, 'because'));
+    expect(report.split('\n').filter(Boolean)).toEqual([
+      'disposable-project-state=UNKNOWN',
+      'teardown-verified=false',
+      `teardown-refused=${Refusal.NOT_DECLARED}`,
+      'teardown-refusal-exit=3',
+      `REFUSED ${Refusal.NOT_DECLARED}`,
+    ]);
+  });
+});
+
+describe('the invocation log records attempts, so an empty one means something', () => {
+  const logFile = () => {
+    const path = join(mkdtempSync(join(tmpdir(), 'hac316-log-')), 'invocations.log');
+    writeFileSync(path, '');
+    return { path, read: () => readFileSync(path, 'utf8') };
+  };
+
+  it('writes one line per attempted command, before the command runs', () => {
+    const { path, read } = logFile();
+    const { cloud } = adapterOver(removedForReal, { [GCLOUD_LOG_VARIABLE]: path });
+    executeTeardown({ projectId: DECLARED, cloud });
+    const recorded = read().trim().split('\n');
+    expect(recorded).toHaveLength(1 + REREAD_PROBES.length);
+    for (const line of recorded) expect(line).toContain(DECLARED);
+    expect(recorded[0]).toContain('projects delete');
+  });
+
+  it('records the attempt even when the binary does not exist', () => {
+    // The case the shim-only log could not see: teardown tried, and nothing ran.
+    // Without this, "the log is empty" and "the spawn failed" look identical.
+    const { path, read } = logFile();
+    const cloud = gcloudAdapter({
+      projectId: DECLARED,
+      env: { [GCLOUD_BIN_VARIABLE]: '/nonexistent/gcloud', [GCLOUD_LOG_VARIABLE]: path },
+      spawn: () => ({ error: Object.assign(new Error('ENOENT'), { code: 'ENOENT' }) }),
+    });
+    verifyRemoval({ projectId: DECLARED, cloud });
+    expect(read().trim().split('\n')).toHaveLength(REREAD_PROBES.length);
+  });
+
+  it('writes nothing at all when no log was asked for', () => {
+    expect(recordInvocation({ binary: 'gcloud', args: ['projects', 'list'], env: {} })).toBe(null);
+    expect(
+      recordInvocation({ binary: 'gcloud', args: [], env: { [GCLOUD_LOG_VARIABLE]: '   ' } }),
+    ).toBe(null);
+  });
+
+  it('leaves the log empty on every refusal path, through the real command line', () => {
+    // The assertion REQ-071 and REQ-072 rest on, made against a log this program
+    // writes itself rather than one the shim is trusted to write.
+    for (const argv of [
+      [],
+      ['--verify'],
+      ['--verify', '--project'],
+      ['--verify', '--project=my-production-project'],
+      ['--verify', `--project=${DECLARED}`],
+      ['--verify', '--project=interlock-s1-deadbeef'],
+      ['--verify', '--project', DECLARED, `--project=${DECLARED}`],
+    ]) {
+      const { path, read } = logFile();
+      const status = runCli(argv, {
+        declaration: argv.includes(`--project=${DECLARED}`) ? null : { projectId: DECLARED },
+        env: { [GCLOUD_BIN_VARIABLE]: '/nonexistent/gcloud', [GCLOUD_LOG_VARIABLE]: path },
+        out: () => {},
+        err: () => {},
+      });
+      const label = argv.join(' ');
+      expect(status, label).toBeGreaterThanOrEqual(2);
+      expect(status, label).toBeLessThanOrEqual(4);
+      expect(read(), label).toBe('');
+    }
+  });
+
+  it('an empty log is not vacuous: a run that reaches the cloud fills it', () => {
+    // The control for the test above. If reaching the cloud also left the log
+    // empty, every "0 invocations" assertion in the packet would be assertion-
+    // shaped and would prove nothing.
+    const { path, read } = logFile();
+    const status = runCli(['--verify', `--project=${DECLARED}`], {
+      declaration: { projectId: DECLARED },
+      env: { [GCLOUD_BIN_VARIABLE]: '/nonexistent/gcloud', [GCLOUD_LOG_VARIABLE]: path },
+      out: () => {},
+      err: () => {},
+    });
+    expect(status).toBe(1);
+    expect(read().trim().split('\n')).toHaveLength(REREAD_PROBES.length);
+  });
+
+  it('publishes the shim the gate uses, so the three copies cannot drift', () => {
+    expect(GCLOUD_SHIM_SCRIPT).toBe(
+      '#!/bin/sh\necho "$@" >> "$HAC316_GCLOUD_LOG"\nexit 0\n',
+    );
+    expect(GCLOUD_LOG_VARIABLE).toBe('HAC316_GCLOUD_LOG');
+
+    // And it behaves as advertised: exits 0, records what it was asked.
+    const dir = mkdtempSync(join(tmpdir(), 'hac316-shimcheck-'));
+    const bin = join(dir, 'gcloud');
+    const log = join(dir, 'invocations.log');
+    writeFileSync(bin, GCLOUD_SHIM_SCRIPT);
+    chmodSync(bin, 0o755);
+    const ran = spawnSync(bin, ['projects', 'delete', DECLARED], {
+      encoding: 'utf8',
+      env: { ...process.env, [GCLOUD_LOG_VARIABLE]: log },
+    });
+    expect(ran.status).toBe(0);
+    expect(readFileSync(log, 'utf8')).toContain(DECLARED);
   });
 });
 
