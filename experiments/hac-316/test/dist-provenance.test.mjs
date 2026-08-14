@@ -41,6 +41,7 @@ import {
   digestOfMap,
   loadBearingSymbols,
   measureBuildProvenance,
+  nonEmptyClosureProblems,
   verifyDistProvenance,
 } from '../src/dist-provenance.mjs';
 
@@ -254,6 +255,50 @@ describe('the build the verifier re-derives through is pinned', () => {
     // Nothing on disk moved, so the file layers stay silent — which is exactly
     // why the third layer has to exist.
     expect(swappedProblems).toHaveLength(1);
+  });
+
+  it('refuses an empty closure, which compares clean against everything', () => {
+    // The hole the layers could not see. `verifyDistProvenance` walks the union
+    // of the pinned and measured keys of each group; when both sides of a group
+    // are empty that union is empty and the group reports nothing. The digest
+    // does not save it either — the digest of an empty map is a fixed value, so
+    // an empty pin and an empty measurement agree on that too. And
+    // `loadedSymbols` is deliberately outside the digest, so an empty symbol set
+    // was clean on every layer at once.
+    const real = measureBuildProvenance({ repoRoot });
+    const empty = { built: {}, source: {}, loadedSymbols: {}, digest: digestOfMap({}) };
+
+    const wouldHaveCompared = ['built', 'source', 'loadedSymbols'].every(
+      (group) => new Set([...Object.keys(empty[group]), ...Object.keys(empty[group])]).size === 0,
+    );
+    expect(wouldHaveCompared).toBe(true);
+    expect(empty.digest).toBe(digestOfMap({}));
+
+    const problems = verifyDistProvenance(empty, { ...empty, unboundModules: [] });
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems.join(' ')).toContain('module closure is empty');
+    expect(problems.join(' ')).toContain('load-bearing symbol set is empty');
+
+    // One empty side is caught too, and named on the side it is empty on.
+    expect(
+      verifyDistProvenance({ ...real, loadedSymbols: {} }, real).join(' '),
+    ).toContain('pins.json: the load-bearing symbol set is empty');
+    expect(
+      verifyDistProvenance(real, { ...real, loadedSymbols: {} }).join(' '),
+    ).toContain('measured: the load-bearing symbol set is empty');
+
+    // And the predicate directly, both sets and both directions.
+    expect(nonEmptyClosureProblems({ modules: ['a'], symbols: ['b'], subject: 'x' })).toEqual([]);
+    expect(nonEmptyClosureProblems({ modules: [], symbols: ['b'], subject: 'x' })).toHaveLength(1);
+    expect(nonEmptyClosureProblems({ modules: ['a'], symbols: [], subject: 'x' })).toHaveLength(1);
+    expect(nonEmptyClosureProblems({ subject: 'x' })).toHaveLength(2);
+  });
+
+  it('measures something, or throws rather than returning an empty measurement', () => {
+    const measured = measureBuildProvenance({ repoRoot });
+    expect(DECISION_PATH_MODULES.length).toBeGreaterThan(0);
+    expect(Object.keys(measured.loadedSymbols).length).toBeGreaterThan(0);
+    expect(Object.keys(measured.built).length).toBe(DECISION_PATH_MODULES.length);
   });
 
   it('refuses to call an unpinned build re-derivation', () => {

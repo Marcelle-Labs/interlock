@@ -8,8 +8,24 @@
  * initial-state comparison all read that fixture.
  *
  * The first two tests prove the comparison catches a change in *either* output.
- * The third proves the check the verifier actually runs captures both, by
- * reading the requirement's own detail line rather than trusting the source.
+ * The third proves the real regeneration is byte-stable across both.
+ *
+ * ## The claim that used to be here, and was not true
+ *
+ * This comment used to say the third test proved the verifier's own check
+ * captures both outputs "by reading the requirement's own detail line rather
+ * than trusting the source". No such test existed: nothing here read anything
+ * the verifier produced, and reverting REQ-067's list to `['preflight.v2.json']`
+ * left this whole file green. A comment describing a test that is not there is
+ * worse than no comment, because it is the reason nobody writes the test.
+ *
+ * The gap it described is closed in `verify-packet.test.mjs` ("the regeneration
+ * comparison covers everything the producer writes"), and closed differently
+ * from the way this comment imagined. A detail line says what the verifier
+ * *reported*; the check that matters is whether its comparison set is the
+ * producer's actual output set, so REQ-067 now derives that set from the
+ * producer's source and refuses to run if its own list disagrees. The revert
+ * fails there, and it fails in the requirement itself.
  */
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';

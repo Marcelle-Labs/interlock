@@ -329,6 +329,51 @@ export function loadBearingSymbols(namespaces = CLOSURE_NAMESPACES) {
   return symbols;
 }
 
+/**
+ * The two sets that must never be empty, checked as their own statement.
+ *
+ * ## Why emptiness is not caught by the comparison
+ *
+ * `verifyDistProvenance` walks the union of the pinned and measured keys of each
+ * group. When *both* sides of a group are empty that union is empty, the loop
+ * body never runs, and the group reports no problems — a clean comparison of
+ * nothing against nothing. `digest` does not save it either: the digest of an
+ * empty map is a fixed value, so an empty pin and an empty measurement agree on
+ * that too. The one shape this pin exists to refuse — "nothing is bound, so
+ * nothing can be substituted detectably" — was the one shape it could not see.
+ *
+ * `loadedSymbols` was the live case. It is deliberately outside `digest` (a
+ * module loader legitimately rewrites function bodies, see `measureBuildProvenance`),
+ * so a simultaneously-empty pinned and measured symbol set was clean on every
+ * layer at once. A namespace enumeration that returned nothing — a build that
+ * emitted empty modules, an import that resolved to a stub, a future refactor
+ * that made `loadBearingSymbols` filter everything out — would have been
+ * indistinguishable from a build whose symbols all matched.
+ *
+ * Emptiness is therefore asserted directly, in both places it can arise: at
+ * measurement, where an empty set means the process bound nothing, and at
+ * comparison, where an empty pin means the file on disk binds nothing.
+ *
+ * @returns the problems found; `[]` when both sets carry something.
+ */
+export function nonEmptyClosureProblems({ modules, symbols, subject }) {
+  const problems = [];
+  if ((modules?.length ?? 0) === 0) {
+    problems.push(
+      `${subject}: the module closure is empty. A pin over no modules binds nothing and ` +
+        'compares clean against any build at all',
+    );
+  }
+  if ((symbols?.length ?? 0) === 0) {
+    problems.push(
+      `${subject}: the load-bearing symbol set is empty. loadedSymbols is outside the file ` +
+        'digest by design, so an empty one is clean on every layer at once and no substituted ' +
+        'function could ever be detected',
+    );
+  }
+  return problems;
+}
+
 /** Digest a `{path: digest}` map into one value, order-independently. */
 export function digestOfMap(entries) {
   const canonical = Object.keys(entries)
@@ -380,6 +425,17 @@ export function measureBuildProvenance({
     loadedSymbols[name] = sha256Hex(String(bound[name]));
   }
 
+  // Before anything is returned, and as a throw rather than a problem: a
+  // measurement that bound nothing is not a weak measurement, it is not one.
+  // Returning it would let `verifyDistProvenance` compare it to an equally empty
+  // pin and report agreement.
+  const empty = nonEmptyClosureProblems({
+    modules: DECISION_PATH_MODULES,
+    symbols: Object.keys(loadedSymbols),
+    subject: 'measured',
+  });
+  if (empty.length > 0) throw new Error(empty.join('; '));
+
   // The escape hatch check. `DECISION_PATH_MODULES` is a static import list and
   // cannot compute itself; the graph can. Anything the graph reaches that is not
   // bound above is a module a future import added and nobody pinned.
@@ -419,6 +475,22 @@ export function verifyDistProvenance(pinned, measured, { groups = COMPARABLE_GRO
         'unpinned; run experiments/hac-316/bin/pin-dist.mjs',
     ];
   }
+  // The pinned side, before any comparison. An empty pin agrees with an empty
+  // measurement, and the loop below cannot say so because it iterates the union
+  // of their keys — which, for two empty sides, is empty.
+  problems.push(
+    ...nonEmptyClosureProblems({
+      modules: Object.keys(pinned.built ?? {}),
+      symbols: Object.keys(pinned.loadedSymbols ?? {}),
+      subject: 'pins.json',
+    }),
+    ...nonEmptyClosureProblems({
+      modules: Object.keys(measured.built ?? {}),
+      symbols: Object.keys(measured.loadedSymbols ?? {}),
+      subject: 'measured',
+    }),
+  );
+
   for (const group of groups) {
     const want = pinned[group] ?? {};
     const got = measured[group] ?? {};

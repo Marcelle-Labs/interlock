@@ -58,6 +58,14 @@ the check that is wrong.
 | E-03 | §0.3 | REQ-064 (X-09) | `grep` matched the exclusion fence entry that must name what it forbids |
 | E-04 | §0.7 | REQ-009 | counter demanded exactly one ADK import path; a post-freeze owner ruling makes the working surface two |
 | E-05 | §0.8 | G-8 (REQ-073) | G-8 admits `PERMISSION_DENIED` as a way a deleted project fails; the owner directive makes it a must-FAIL |
+| E-06 | §0.9 | X-05 (REQ-050, REQ-051) | the packet asserted no retry pool exists at any layer; ADK 2.6.3 retries the MCP tool method once, so the claim is narrowed to the one that is checkable |
+| E-07 | §0.10 | REQ-058 (X-01) | the frozen `--include` list omits `*.sh`, so the only file that creates cloud resources was outside the scan forbidding the falsified topology |
+
+E-06 and E-07 are later than E-01 – E-05 and are of two further kinds. E-06 is a
+**false claim**, not an unsatisfiable command: the check passed, and what it
+attested was untrue of a layer nobody had looked at. E-07 is a **scan-scope
+widening**: the command was satisfiable and passed, and it passed partly because
+it never read the file most able to violate the rule.
 
 **Owner ruling, applied here verbatim:**
 
@@ -566,6 +574,155 @@ and a `verifiedBy` that is **not** `independent-reread`.
 
 ---
 
+### 0.9 ERRATUM E-06 — X-05 and the claim that no retry pool exists
+
+**The claim as it stood.** The packet's retry policy note ended:
+
+> There is no retry pool at the harness, ADK, HTTP or model layer.
+
+That sentence is false, and nothing in the packet could have shown it to be
+false. On the pinned `google-adk 2.6.3`, `McpTool._run_async_impl` — the method
+that performs the `set_reservation` write — is decorated with `@retry_on_errors`
+(`google/adk/tools/mcp_tool/mcp_tool.py:395`; the decorator itself at
+`google/adk/tools/mcp_tool/mcp_session_manager.py:335-369`), and ADK's own
+comment at `mcp_tool.py:452` states that it retries once with a fresh session.
+
+**Why the packet could not see it.** `before_tool_callback` and
+`after_tool_callback` fire **once**, outside the retried method. The proposal
+trail — the record every trial-validity check reads — therefore shows one
+proposal whether the tool method ran once or twice. One recorded proposal can
+correspond to two mutations on the wire, and no artifact the packet contained
+could distinguish those two runs.
+
+**What X-05 does, and does not, change.** X-05 is untouched and is not weakened:
+*do not hide invalid or model-failure attempts; every attempt is retained and
+reported*. A retry that the runtime performs beneath the harness is exactly the
+kind of thing X-05 exists to stop being hidden, and the response is to detect it,
+not to declare it absent.
+
+**The corrected claim**, which is what the packet now states and what
+REQ-075 – REQ-079 check:
+
+> No runtime retry occurred in an accepted trial, and any platform-native retry
+> is detected at the ingress, retained in full, and disqualifying —
+> `INVALID_TRIAL:RUNTIME_RETRY_OBSERVED`, consuming one of the permitted
+> attempts and never supporting a PASS.
+
+**What the fields that carried the old claim now mean.**
+
+| Field | Reading before | Reading under E-06 |
+| -- | -- | -- |
+| `forbiddenTechniques.hiddenRetry: false` (REQ-051) | no retry exists anywhere beneath the harness | the *harness* adds no retry pool of its own — a claim about this code only |
+| `carried_forward.hidden_retry_allowed: false` (REQ-007) | unchanged: a retry may not be used as a technique | unchanged |
+| `platformRetryIsDetectedNotAssumedAbsent: true` | — | new. A platform retry is detected at the ingress rather than assumed away |
+| `concurrency.ingressRetryDetection` | — | new. Per-arm, per-attempt record of what arrived |
+
+**Scope of this erratum.**
+
+- X-05 is **not** edited, softened, or scoped. Nothing that was forbidden becomes
+  permitted, and a hidden retry remains prohibited.
+- REQ-050 and REQ-051 are **not** renumbered or relaxed. Their commands are
+  unchanged and still pass; what changes is what `hiddenRetry: false` may be read
+  as asserting.
+- It adds an obligation rather than removing one: REQ-075 – REQ-079 (§0.11)
+  require the detection to exist and to disqualify.
+- It makes the packet's claim *smaller and true* rather than larger and
+  unverifiable. A claim about layers the experiment cannot observe was not
+  evidence; a claim about arrivals at an ingress it owns is.
+
+---
+
+### 0.10 ERRATUM E-07 — REQ-058's `--include` list omits the executable surface
+
+**Original** (the E-02 corrected form, §0.2, which this supersedes):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ \
+    --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml' \
+  | grep -vE '^experiments/hac-316/(evidence/preflight\.json|evidence/preflight\.v2\.json|bin/preflight\.mjs):')" \
+  && echo PASS || echo FAIL
+```
+
+**The defect.** Every extension in that list is a file the experiment *reads*.
+The one file that *creates cloud resources* — `bin/10-provision.sh` — is a shell
+script, and `*.sh` is not in the list, so the provisioning script was never
+scanned by the check that forbids re-creating the topology HAC-325 falsified.
+X-01's most direct violation is a `gcloud` line in that script, and that was the
+one place this command could not look. Reproduced: a provisioning script carrying
+a genuine gateway-creating command produced `PASS` here and
+`PACKET PRE-CLOUD CLEAN` overall.
+
+**Corrected** (the operative command; also inline at REQ-058):
+
+```sh
+cd "$REPO" && test -z "$(grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ \
+    --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml' --include='*.sh' \
+  | grep -vE '^experiments/hac-316/(evidence/preflight\.json|evidence/preflight\.v2\.json|bin/preflight\.mjs):')" \
+  && echo PASS || echo FAIL
+```
+
+**This is a widening, and it is disclosed as one.** §0.4 says this erratum log
+"does not change any pattern, scan root, or `--include` list". E-07 changes an
+`--include` list, and says so here rather than in a filter nobody reads. The
+direction matters and does not make disclosure optional: a widening cannot make a
+violating tree pass — it can only bring more of the tree into a check that was
+already failing-closed — whereas E-04's narrowing could have hidden a violation,
+which is why §0.7 had to disclose it. Both are disclosed, for the same reason:
+the operative command must be the one a reader can see.
+
+- The **pattern** is byte-identical. Compare it character by character.
+- The **scan root** is unchanged: `experiments/hac-316/`.
+- The **exclusion set** is unchanged: the same three frozen preflight paths,
+  and nothing else (§0.0).
+- X-01 is unchanged and not weakened.
+
+**Two independent scans were widened with it**, both for the same blind spot in
+a different place:
+
+| Check | Was | Is |
+| -- | -- | -- |
+| REQ-070's forbidden-shape list | `network-security`, which is a different product surface from the one that creates a gateway | `network-services` and `networkServices` as well, plus `gateways?` on any `gcloud` line |
+| REQ-069's manifest pattern | `networkAttachment\|serviceExtension\|authorizationPolicy\|egressGateway`, none of which matches `network-services gateways` | the shared `FALSIFIED_RESOURCE_SHAPES` set, plus `gateways?` |
+
+**Proved still load-bearing.** Against a copy of `bin/10-provision.sh` outside
+the worktree — no probe file was created inside the repository:
+
+| Probe | Result |
+| -- | -- |
+| `gcloud network-services gateways create hac316-gw --project="$PROJECT_ID" --location="$REGION"` inserted | `FAIL` (REQ-070, on both `network-services` and the `gateways` noun) |
+| the same script with a comment naming the falsified topology by name | `FAIL` (REQ-058, only because `*.sh` is now scanned) |
+| probes removed | `PASS` |
+
+---
+
+### 0.11 Addition — the ingress retry contract (REQ-075 - REQ-079)
+
+E-06 narrows a claim. This is the other half: five rulings that make the narrowed
+claim checkable, one requirement each. They are additions in the sense §0.5 and
+§0.6 are — no existing REQ id is changed, renumbered or relaxed — and they raise
+the requirement count from 74 to 79 (§7.4).
+
+| REQ | Ruling |
+| -- | -- |
+| REQ-075 | R1 — every arrival is retained, dispatched or not, with the full identity field set |
+| REQ-076 | R2 — a duplicate arrival is not dispatched: it mints no receipt and attempts no mutation |
+| REQ-077 | R3 — `INVALID_TRIAL:RUNTIME_RETRY_OBSERVED` consumes an attempt and can never support a PASS |
+| REQ-078 | R4 — an accepted trial requires exactly one arrival from each of A and B |
+| REQ-079 | R5 — overlap is paired by expected-agent identity, never by arrival position |
+
+Each is checked twice: against what the packet recorded, and by re-running the
+real judgement functions over constructed inputs. The second half is not
+decoration. A clean run has no duplicate to refuse and no cardinality to fail, so
+every one of these requirements would report `PASS` on a clean packet whatever
+the detector did — including if it did nothing. Re-running the judgement over an
+input that *must* be refused is what makes the pass mean something.
+
+The target is deliberately **not** made idempotent. Absorbing a retry at the
+target would make it harmless and invisible, and "no runtime retry occurred in an
+accepted trial" is the claim that has to remain checkable.
+
+---
+
 ## 1. Scope Declaration
 
 ### 1.1 In scope
@@ -755,7 +912,7 @@ Hard prohibitions. Each is independently checkable (§6, §7).
 | X-02 | **Do not change WorkspaceJSON Standard**, or promote any experimental field into it. |
 | X-03 | **Do not alter frozen S2 receipt semantics** — unless a *discovered defect* makes HAC-316 impossible, in which case stop and record on the Linear issue before changing anything. |
 | X-04 | **Do not manufacture concurrency.** No sleeps in agents, no barrier in the proxy, no artificial target delay, no TTL widening, no cherry-picked undisclosed attempt. |
-| X-05 | **Do not hide invalid or model-failure attempts.** Every attempt is retained and reported. |
+| X-05 | **Do not hide invalid or model-failure attempts.** Every attempt is retained and reported. ⚠ **Not weakened by E-06 (§0.9), extended by it:** a retry performed by a layer beneath the harness is exactly what X-05 forbids hiding, and the packet's earlier claim that no such retry existed was false. It is detected at the ingress, retained, and disqualifying (REQ-075 - REQ-079). |
 | X-06 | **Do not implement HAC-317.** No distributed/shared-backend pending store. |
 | X-07 | **Do not absorb META-339 quality-tooling work.** No linter, no formatter, no new quality gate beyond `check:packet:s1`. |
 | X-08 | **Do not change repository branch topology.** Base is protected `main`; branch is `hac/316-agent-runtime-counterfactual`; PR target is `main`; there is no `dev` branch. |
@@ -994,13 +1151,14 @@ Phases are ordered so that **cloud spend happens as late as possible**. Phases
 Each REQ carries a bash verification command and its expected output.
 
 > **On REQ numbering.** REQ ids are stable unique identifiers, not an ordering.
-> The set REQ-001 … REQ-074 is complete with no gaps; a few higher-numbered
+> The set REQ-001 … REQ-079 is complete with no gaps; a few higher-numbered
 > requirements appear in earlier phases because they were added after the
 > initial numbering. Execute by phase, verify by id.
 >
-> REQ-069 … REQ-074 were added after the freeze by §0.5 and §0.6. No existing id
-> was renumbered, reworded or relaxed. Three commands were corrected in scope
-> only, each recorded in §0 and flagged inline: REQ-027, REQ-058, REQ-064.
+> REQ-069 … REQ-074 were added after the freeze by §0.5 and §0.6, and
+> REQ-075 … REQ-079 by §0.11. No existing id was renumbered, reworded or relaxed.
+> Four commands were corrected in scope only, each recorded in §0 and flagged
+> inline: REQ-027, REQ-058 (twice — E-02 and E-07), REQ-064, and REQ-009.
 
 ### Phase 0 — Governance, pinning, and Preflight V2 (no cloud spend)
 
@@ -2400,6 +2558,14 @@ matching REQ-049's `n`.
 
 **REQ-051 — No artificial delay, barrier, or TTL tuning (X-04).**
 
+> **ERRATUM E-06 (§0.9).** The command is unchanged and still passes.
+> `hiddenRetry: false` is a claim about **this harness**, which adds no retry
+> pool of its own; it was being read as a claim about every layer beneath it,
+> and that reading was false — ADK 2.6.3 retries the MCP tool method once. The
+> companion field `platformRetryIsDetectedNotAssumedAbsent` records the claim
+> that is actually made, and REQ-075 - REQ-079 check it. Nothing here is
+> relaxed: using a retry as a technique remains forbidden.
+
 ```sh
 cd "$REPO" && test -z "$(grep -rniE 'sleep\(|setTimeout\([^)]*[0-9]{3,}|barrier|await delay|time\.sleep' experiments/hac-316/agents experiments/hac-316/src)" \
   && node -e '
@@ -2568,12 +2734,19 @@ PASS perturbation 140 > 130 BREACH
 > prose *in order to record that it is not being retried*, and V1 cannot be
 > edited (REQ-004, X-12). The command therefore could never print `PASS`,
 > including at the freeze commit `c2a7c5d`. Those three paths — and nothing else
-> — are now filtered out of the results. **The pattern, the scan root, the
-> `--include` list, and X-01 itself are unchanged.**
+> — are now filtered out of the results. **The pattern, the scan root and X-01
+> itself are unchanged.**
+>
+> **ERRATUM E-07 (§0.10).** The `--include` list omitted `*.sh`, so
+> `bin/10-provision.sh` — the only file in this experiment that creates cloud
+> resources, and therefore the file most able to violate X-01 — was never
+> scanned. `--include='*.sh'` is added. That is a **widening** of scan scope and
+> is disclosed as one; the pattern, the scan root and the three-path exclusion
+> set are all still unchanged.
 
 ```sh
 cd "$REPO" && test -z "$(grep -rniE 'AGENT_TO_ANYWHERE|CONTENT_AUTHZ|agent[_ -]?gateway' experiments/hac-316/ \
-    --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml' \
+    --include='*.mjs' --include='*.json' --include='*.py' --include='*.yaml' --include='*.sh' \
   | grep -vE '^experiments/hac-316/(evidence/preflight\.json|evidence/preflight\.v2\.json|bin/preflight\.mjs):')" \
   && echo PASS || echo FAIL
 ```
@@ -2583,8 +2756,15 @@ Expected output:
 PASS
 ```
 
+The verifier additionally asserts that `bin/10-provision.sh` was among the files
+scanned. A widening that stopped reaching the file it was made for would report
+the same `PASS` as one that reached it, which is the defect E-07 closes rather
+than a new place to hide it.
+
 Still load-bearing: a probe file `experiments/hac-316/agents/probe_058.py`
-containing `GATEWAY = "AGENT_TO_ANYWHERE"` flips this to `FAIL` (§0.2).
+containing `GATEWAY = "AGENT_TO_ANYWHERE"` flips this to `FAIL` (§0.2), and so
+does a comment naming the falsified topology inside `bin/10-provision.sh` — which
+the frozen `--include` list could not see at all (§0.10).
 `bin/preflight-v2.mjs`, `bin/10-provision.sh`, `bin/teardown.mjs`,
 `evidence/resources.json` and `evidence/topology.json` are all still scanned, and
 REQ-069/REQ-070 forbid a gateway-shaped resource independently of this check.
@@ -2659,6 +2839,203 @@ Expected output:
 PASS gcloud-calls=<n>
 ```
 with `n >= 8`.
+
+---
+
+#### The ingress retry contract (REQ-075 - REQ-079)
+
+Added by §0.11, under E-06 (§0.9). ADK 2.6.3 retries `McpTool._run_async_impl`
+once with a fresh session, outside the tool callbacks that record a proposal, so
+one recorded proposal can put two mutations on the wire. These five requirements
+are the mechanical form of the five rulings that make that detectable rather than
+denied. Each checks the packet *and* re-runs the real judgement over an input
+that must be refused — a clean run has nothing to detect, so the packet half
+alone would pass whatever the detector did.
+
+---
+
+**REQ-075 — Every ingress arrival is retained with the full identity field set
+(R1, X-05).**
+
+Every arrival is retained whether or not it was dispatched, carrying the fields
+the retry judgement and the overlap measurement both need. An arrival that lost
+one of them is not a weaker record but an undecidable one, so the ingress refuses
+it rather than judging it "not a duplicate of anything".
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { ARRIVAL_RECORD_FIELDS } = await import("./experiments/hac-316/src/trial.mjs");
+const { ingressRecordFor } = await import("./experiments/hac-316/bin/run-arm.mjs");
+const { createRequire } = await import("node:module");
+const r = createRequire(import.meta.url)("./experiments/hac-316/evidence/results.json");
+const d = r.concurrency.ingressRetryDetection;
+if(JSON.stringify(d.arrivalRecordFields)!==JSON.stringify([...ARRIVAL_RECORD_FIELDS])) throw new Error("the recorded arrival field set is not the one the judgement requires");
+const REQUIRED=[...ARRIVAL_RECORD_FIELDS,"service","startMs","endMs"];
+for(const [arm,a] of Object.entries(r.arms)){
+  if(!a.overlap.length) throw new Error(arm+": no arrivals retained");
+  a.overlap.forEach((x,i)=>{
+    if(x.arrivalOrdinal!==i+1) throw new Error(arm+": arrival ordinals are not contiguous from 1");
+    const missing=REQUIRED.filter((f)=>x[f]===undefined);
+    if(missing.length) throw new Error(arm+" arrival "+x.arrivalOrdinal+" missing "+missing.join(","));
+  });
+  if(a.overlap.length!==a.ingressRetry.arrivalCount) throw new Error(arm+": retained and judged counts differ");
+}
+let refused=null;
+try{ const [x,y]=r.arms.treatment.overlap; const {logicalIntentDigest,...blind}=y; ingressRecordFor([x,blind]); }
+catch(e){ refused=e.message; }
+if(refused===null) throw new Error("an arrival missing an identity field was accepted");
+console.log("PASS arms="+Object.keys(r.arms).length+" fields="+REQUIRED.length);'
+```
+
+Expected output:
+```
+PASS arms=3 fields=15
+```
+
+---
+
+**REQ-076 — A duplicate arrival mints no receipt and attempts no mutation (R2).**
+
+The second arrival of a logical invocation already seen is retained and **not
+forwarded**. This is not idempotency: the protected target is untouched and would
+apply a second mutation if one reached it. The ingress refuses to send one, and
+records that it refused.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { classifyArrivals } = await import("./experiments/hac-316/src/trial.mjs");
+const { createRequire } = await import("node:module");
+const r = createRequire(import.meta.url)("./experiments/hac-316/evidence/results.json");
+if(r.concurrency.ingressRetryDetection.duplicateArrivalIsDispatched!==false) throw new Error("a duplicate arrival is dispatched");
+for(const [arm,a] of Object.entries(r.arms)){
+  const touched=new Set([...(a.decisions??[]).map((d)=>d.correlationId),...(a.executed??[]).map((e)=>e.correlationId)]);
+  for(const x of a.overlap){
+    if(x.duplicateOfOrdinal===null) continue;
+    if(x.dispatched) throw new Error(arm+": a duplicate arrival was dispatched");
+    if(touched.has(x.correlationId)) throw new Error(arm+": a duplicate reached a decision or an execution");
+  }
+  if(a.overlap.filter((x)=>x.dispatched).length!==new Set(a.overlap.map((x)=>x.logicalInvocationKey)).size) throw new Error(arm+": something was forwarded twice");
+}
+const [x,y]=r.arms.treatment.overlap;
+const judged=classifyArrivals([x,y,{...x,arrivalOrdinal:3}]);
+if(!judged.retryObserved||judged.duplicates.length!==1) throw new Error("a repeated logical invocation was not detected");
+if(judged.duplicates[0].duplicateOfOrdinal!==1) throw new Error("the duplicate is not attributed to the arrival it repeats");
+if(judged.acceptable!==false) throw new Error("an attempt carrying a duplicate was judged acceptable");
+console.log("PASS duplicates-refused-dispatch");'
+```
+
+Expected output:
+```
+PASS duplicates-refused-dispatch
+```
+
+---
+
+**REQ-077 — A runtime retry consumes an attempt and can never support a PASS
+(R3, X-05).**
+
+`INVALID_TRIAL:RUNTIME_RETRY_OBSERVED` is its own verdict, distinct from
+`INVALID_TRIAL`: one is the model deviating from the predeclared intent, the
+other is the platform beneath it duplicating a mutation the model asked for once.
+A reader who cannot tell them apart cannot tell whether the experiment measured a
+model or a retry pool. It consumes one of the permitted attempts — otherwise the
+run could be repeated until no retry happened to be observed — and it forbids the
+run from printing PASS whatever the arms' numbers came out as.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { TrialVerdict } = await import("./experiments/hac-316/src/trial.mjs");
+const { disqualifications, retryPolicy } = await import("./experiments/hac-316/bin/run-arm.mjs");
+const { createRequire } = await import("node:module");
+const r = createRequire(import.meta.url)("./experiments/hac-316/evidence/results.json");
+const p = retryPolicy(r.concurrency.maxAttempts);
+if(r.concurrency.retryPolicy.runtimeRetryVerdict!==p.runtimeRetryVerdict) throw new Error("the recorded retry policy is not the one the harness produces");
+if(p.runtimeRetryVerdict!==TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY) throw new Error("a runtime retry has no verdict of its own");
+for(const k of ["invalidTrialConsumesAnAttempt","runtimeRetryIsDisqualifying","runtimeRetryDetectedAtIngress"]){
+  if(p[k]!==true) throw new Error(k+" is not true");
+}
+if(!p.platformRetryKnownToExist?.layer) throw new Error("the layer a platform retry lives at is not named (E-06)");
+if(disqualifications(r).length) throw new Error("this run is disqualified: "+disqualifications(r).join("; "));
+const withRetry={concurrency:{ingressRetryDetection:{perArm:{treatment:[{index:1,duplicates:1,retryObserved:true,acceptable:false}]}}}};
+const problems=disqualifications(withRetry);
+if(problems.length!==1||!problems[0].includes(TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY)) throw new Error("an observed runtime retry did not disqualify the run");
+if(!disqualifications({}).length) throw new Error("a packet with no detection was not treated as uncheckable");
+console.log("PASS verdict="+p.runtimeRetryVerdict);'
+```
+
+Expected output:
+```
+PASS verdict=INVALID_TRIAL:RUNTIME_RETRY_OBSERVED
+```
+
+---
+
+**REQ-078 — An accepted trial requires exactly one A arrival and one B arrival
+(R4).**
+
+Two arrivals from one agent is what a retry looks like when the transport carries
+no tool-call id, and it says nothing whatever about composition. Anything other
+than one of each is refused rather than interpreted.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { classifyArrivals } = await import("./experiments/hac-316/src/trial.mjs");
+const { createRequire } = await import("node:module");
+const r = createRequire(import.meta.url)("./experiments/hac-316/evidence/results.json");
+for(const [arm,attempts] of Object.entries(r.concurrency.ingressRetryDetection.perArm)){
+  if(!attempts.length) throw new Error(arm+": no attempt was judged");
+  for(const t of attempts){
+    if(t.acceptable!==true) throw new Error(arm+" attempt "+t.index+": not acceptable");
+    if(JSON.stringify(t.arrivalsByExpectedAgent)!==JSON.stringify({A:1,B:1})) throw new Error(arm+" attempt "+t.index+": an accepted trial requires exactly one A and one B");
+  }
+}
+const [a,b]=r.arms.treatment.overlap;
+const secondA={...a,arrivalOrdinal:2,correlationId:"probe",toolInvocationId:"probe",logicalInvocationKey:"tool-invocation:probe"};
+for(const [label,arrivals] of [["two A arrivals",[a,secondA]],["one arrival",[a]],["none",[]]]){
+  const j=classifyArrivals(arrivals);
+  if(j.exactlyOncePerExpectedAgent||j.acceptable) throw new Error(label+" was accepted as a trial");
+}
+const good=classifyArrivals([a,b]);
+if(!good.exactlyOncePerExpectedAgent||!good.acceptable) throw new Error("one A and one B was not accepted; the rule refuses everything and proves nothing");
+console.log("PASS one-A-one-B");'
+```
+
+Expected output:
+```
+PASS one-A-one-B
+```
+
+---
+
+**REQ-079 — Overlap is paired by expected-agent identity, never by arrival
+position (R5).**
+
+Whatever arrived first used to be called A and whatever arrived second B, so a
+duplicate arrival could make the measured pair one agent's two sends. That reads
+as a perfect collision and is not one — and Interlock withholding the second of
+them would look exactly like the result the experiment predicts.
+
+```sh
+cd "$REPO" && node --input-type=module -e '
+const { overlapOf } = await import("./experiments/hac-316/bin/run-arm.mjs");
+const { createRequire } = await import("node:module");
+const r = createRequire(import.meta.url)("./experiments/hac-316/evidence/results.json");
+const o = r.concurrency.runtimeOverlap;
+if(o.pairedBy!=="expected-agent-identity") throw new Error("overlap is paired by "+o.pairedBy);
+if(o.measuredAt!=="server"||o.usesClientLaunchTime!==false) throw new Error("overlap is not measured at the server");
+if(JSON.stringify(o.arrivalsByExpectedAgent)!==JSON.stringify({A:1,B:1})) throw new Error("the measured pair was not one A and one B");
+const again=overlapOf(r.arms.treatment.overlap);
+if(again.overlapped!==o.overlapped||again.startA!==o.startA||again.endB!==o.endB) throw new Error("the recorded overlap is not the overlap of the arrivals recorded beside it");
+const [a]=r.arms.treatment.overlap;
+const selfPaired=overlapOf([a,{...a,arrivalOrdinal:2,correlationId:"probe"}]);
+if(selfPaired.overlapped!==false||!selfPaired.why) throw new Error("two arrivals from one agent were reported as an A/B overlap");
+console.log("PASS pairedBy="+o.pairedBy);'
+```
+
+Expected output:
+```
+PASS pairedBy=expected-agent-identity
+```
 
 ---
 
@@ -2752,21 +3129,50 @@ something.
 
 Five probes: a well-formed disposable id that is not the recorded one; the two
 project ids deleted by earlier experiments; an ordinary long-lived-looking id;
-and the recorded id with a trailing character. Each must refuse with exit 2-4 and
-an empty invocation log.
+and the recorded id with a trailing character. Each must refuse **with the
+specific refusal its own gate produces**, and with an empty invocation log.
+
+> **The assertion this replaces.** The command used to check `2 <= rc <= 4` and
+> an empty log. Both are satisfied when all five probes are refused for the same
+> *wrong* reason: when the `--project=<id>` operand form stopped being parsed,
+> every probe collapsed into `PROJECT_ID_NOT_SUPPLIED` — exit 2, no invocations —
+> and this requirement reported `PASS` having tested nothing it claimed to. The
+> exit codes are deliberately not injective (§6 Phase 7, `REFUSAL_EXIT_CODE`), so
+> a band is not an assertion about behaviour. The reason code is.
+
+Expected refusal per probe, from the gate order
+`mode → single-operand → supplied → shape → declared → matches`:
+
+| Probe | Refusal | Exit | Gate |
+| -- | -- | -- | -- |
+| `interlock-s1-deadbeef` | `NO_DISPOSABLE_PROJECT_DECLARED` before Phase 7, `PROJECT_ID_DOES_NOT_MATCH_DECLARATION` after | 3 | G-3 |
+| `interlock-s0-gate` | `PROJECT_ID_NOT_DISPOSABLE` | 4 | G-4 |
+| `interlock-s2-gate` | `PROJECT_ID_NOT_DISPOSABLE` | 4 | G-4 |
+| `my-production-project` | `PROJECT_ID_NOT_DISPOSABLE` | 4 | G-4 |
+| `<declared>x` | `PROJECT_ID_NOT_DISPOSABLE` | 4 | G-4 |
+
+`PROJECT_ID_NOT_SUPPLIED` is a failure for every one of them: the operand *was*
+supplied, so that code can only mean it was not read.
 
 ```sh
 cd "$REPO" && SHIM="$(mktemp)" && \
   printf '#!/bin/sh\necho "$@" >> "$HAC316_GCLOUD_LOG"\nexit 0\n' > "$SHIM" && chmod +x "$SHIM" && \
-  REAL="$(node -p 'require("./experiments/hac-316/evidence/topology.json").projectId')" && \
+  REAL="$(node -p 'try{require("./experiments/hac-316/evidence/topology.json").projectId}catch(e){""}')" && \
+  if [ -z "$REAL" ]; then FIRST=NO_DISPOSABLE_PROJECT_DECLARED; else FIRST=PROJECT_ID_DOES_NOT_MATCH_DECLARATION; fi; \
   fail=0; \
-  for probe in "interlock-s1-deadbeef" "interlock-s0-gate" "interlock-s2-gate" "my-production-project" "${REAL}x"; do \
+  for pair in "interlock-s1-deadbeef:$FIRST:3" "interlock-s0-gate:PROJECT_ID_NOT_DISPOSABLE:4" \
+              "interlock-s2-gate:PROJECT_ID_NOT_DISPOSABLE:4" "my-production-project:PROJECT_ID_NOT_DISPOSABLE:4" \
+              "${REAL:+${REAL}x:PROJECT_ID_NOT_DISPOSABLE:4}"; do \
+    [ -z "$pair" ] && continue; \
+    probe="${pair%%:*}"; rest="${pair#*:}"; want="${rest%%:*}"; wantrc="${rest#*:}"; \
     [ "$probe" = "$REAL" ] && continue; \
     LOG="$(mktemp)"; \
-    HAC316_GCLOUD_BIN="$SHIM" HAC316_GCLOUD_LOG="$LOG" \
-      node experiments/hac-316/bin/teardown.mjs --project="$probe" --confirm --verify >/dev/null 2>&1; \
+    out="$(HAC316_GCLOUD_BIN="$SHIM" HAC316_GCLOUD_LOG="$LOG" \
+      node experiments/hac-316/bin/teardown.mjs --project="$probe" --confirm --verify 2>/dev/null)"; \
     rc=$?; \
-    { [ $rc -ge 2 ] && [ $rc -le 4 ] && [ ! -s "$LOG" ]; } || { echo "FAIL probe=$probe rc=$rc"; fail=1; }; \
+    got="$(printf '%s\n' "$out" | sed -n 's/^teardown-refused=//p')"; \
+    { [ "$got" = "$want" ] && [ "$rc" -eq "$wantrc" ] && [ "$got" != "PROJECT_ID_NOT_SUPPLIED" ] && [ ! -s "$LOG" ]; } \
+      || { echo "FAIL probe=$probe rc=$rc refused=$got want=$want"; fail=1; }; \
   done; \
   test $fail -eq 0 && echo PASS || echo FAIL
 ```
@@ -3112,24 +3518,27 @@ PACKET_316_OK
 
 ### 7.4 Requirement gate
 
-Every REQ-001 … REQ-074 verification command produces its expected output.
+Every REQ-001 … REQ-079 verification command produces its expected output.
 The packet verifier `experiments/hac-316/bin/verify-packet.mjs` must execute
 **all** of them and enumerate any failure by REQ id.
 
-The command below is unchanged; only its expected count moves, from 68 to 74,
-because §0.5 and §0.6 added REQ-069 … REQ-074. No existing id was renumbered, so
-the count is the only thing that changes. **E-04 (§0.7) does not move the count
-again** — it corrects REQ-009's cross-check and adds no requirement, so 74 stands.
-REQ-009, REQ-027, REQ-058 and REQ-064 must be executed in their **corrected**
-form (§0) — a verifier that still runs the frozen form of any of the four will
-report a failure that no implementation can clear.
+The command below is unchanged; only its expected count moves. It went from 68 to
+74 when §0.5 and §0.6 added REQ-069 … REQ-074, and from 74 to 79 when §0.11 added
+REQ-075 … REQ-079 (the ingress retry contract). No existing id has ever been
+renumbered, so the count is the only thing that changes. **E-04 (§0.7), E-06
+(§0.9) and E-07 (§0.10) do not move the count** — E-04 corrects REQ-009's
+cross-check, E-06 narrows a claim REQ-050 and REQ-051 relied on, and E-07 widens
+REQ-058's scan scope; none of the three adds a requirement. REQ-009, REQ-027,
+REQ-058 and REQ-064 must be executed in their **corrected** form (§0) — a verifier
+that still runs the frozen form of any of the four will report a failure that no
+implementation can clear.
 
 ```sh
 cd "$REPO" && node experiments/hac-316/bin/verify-packet.mjs --all 2>&1 | tail -2
 ```
 Expected:
 ```
-REQ 74/74 PASS
+REQ 79/79 PASS
 PACKET OK
 ```
 
@@ -3146,7 +3555,7 @@ ids out of this document and compares them to the ids it evaluates, printing the
 result on the line above the count in every sweeping mode:
 
 ```
-REQ-SET  spec=74 verifier=74 missing=0 extra=0
+REQ-SET  spec=79 verifier=79 missing=0 extra=0
 ```
 
 `missing` is a requirement this document declares that the verifier never
@@ -3183,7 +3592,7 @@ to run checks, which is the failure this whole document is organised against.
 **On the four corrected requirements.** REQ-009, REQ-027, REQ-058 and REQ-064
 report `PASS`, not `SPEC_DEFECT`. Their frozen commands are unsatisfiable and
 their corrected commands under §0 are the operative ones; those pass, this gate
-demands `REQ 74/74 PASS`, and the paragraph above requires the corrected form to
+demands `REQ 79/79 PASS`, and the paragraph above requires the corrected form to
 be the one executed. Reporting a defect against a command this document has
 already superseded would put four permanently un-clearable entries in the ledger
 and contradict the gate. Each of the four names its governing erratum in its

@@ -23,13 +23,26 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import {
+  EXECUTABLE_SURFACE,
+  EXECUTABLE_SURFACE_EXTENSIONS,
+  FALSIFIED_RESOURCE_PATTERN,
+  FALSIFIED_RESOURCE_SHAPES,
+  implementationFreshness,
+  isVacuousPass,
+  judgeRefusalProbe,
   MODES,
   parseMode,
   parseSpecRequirementIds,
+  producerOutputs,
   referencedAdkModules,
+  REGENERATED_OUTPUTS,
+  refusalProbes,
   requirementSetCorrespondence,
   terminalState,
+  VACUOUS_DETAIL,
 } from '../bin/verify-packet.mjs';
+import { Refusal } from '../bin/teardown.mjs';
+import { implementationDigest } from '../bin/run-arm.mjs';
 
 const experimentDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(experimentDir, '..', '..');
@@ -115,10 +128,10 @@ describe('the ledger is the spec\'s requirement set, exactly', () => {
     expect([...ids].sort()).toEqual(['REQ-001', 'REQ-074']);
   });
 
-  it('finds all 74 declared requirements in SPEC.md, including REQ-069 … REQ-074', () => {
+  it('finds all 79 declared requirements in SPEC.md, including REQ-075 … REQ-079', () => {
     const ids = parseSpecRequirementIds(readFileSync(join(experimentDir, 'SPEC.md'), 'utf8'));
-    expect(ids.size).toBe(74);
-    for (const id of ['REQ-069', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074']) {
+    expect(ids.size).toBe(79);
+    for (const id of ['REQ-069', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-078', 'REQ-079']) {
       expect(ids.has(id), id).toBe(true);
     }
   });
@@ -142,7 +155,7 @@ describe('the ledger is the spec\'s requirement set, exactly', () => {
     // requirement is added to SPEC.md that the verifier does not evaluate — which
     // is exactly how REQ-069 … REQ-074 went uncounted.
     const run = runVerifier('--req', 'REQ-001');
-    expect(run.stdout).toMatch(/^REQ-SET {2}spec=74 verifier=74 missing=0 extra=0$/m);
+    expect(run.stdout).toMatch(/^REQ-SET {2}spec=79 verifier=79 missing=0 extra=0$/m);
   }, 60_000);
 });
 
@@ -311,6 +324,351 @@ describe('the Phase 7 declaration exists before the phase does', () => {
     expect(run.stdout).toMatch(/^REQ 1\/2 PASS$/m);
     expect(run.status).toBe(3);
   }, 60_000);
+});
+
+// ---------------------------------------------------------------------------
+// A registered requirement that evaluates nothing (C8)
+// ---------------------------------------------------------------------------
+
+describe('a requirement cannot be counted as covered while checking nothing', () => {
+  it('calls a pass with no assertions behind it what it is', () => {
+    expect(isVacuousPass('PASS', 0)).toBe(true);
+    expect(isVacuousPass('PASS', 1)).toBe(false);
+    // Only a *pass* is a claim that needed evidence. A gated gap legitimately
+    // returns before asserting anything, and a failure already says so.
+    expect(isVacuousPass('NOT_EXERCISED', 0)).toBe(false);
+    expect(isVacuousPass('FAIL', 0)).toBe(false);
+    expect(isVacuousPass('SPEC_DEFECT', 0)).toBe(false);
+  });
+
+  it('turns every requirement red when the bodies are emptied out', () => {
+    // The control. `check` registers the id before the body runs and records
+    // PASS for a body that returns undefined, so an empty body counted in the
+    // denominator, satisfied the REQ-SET correspondence, and reported PASS.
+    // Under the fault every body *is* empty, so every id must fail.
+    const broken = spawnSync(
+      process.execPath,
+      [verifier, '--req', 'REQ-001,REQ-012,REQ-063'],
+      {
+        cwd: repoRoot,
+        encoding: 'utf8',
+        env: { ...process.env, HAC316_FAULT_INJECT: 'vacuous-requirement', VITEST: '' },
+      },
+    );
+    expect(broken.stdout).toMatch(/^REQ 0\/3 PASS$/m);
+    expect(broken.status).toBe(1);
+    for (const id of ['REQ-001', 'REQ-012', 'REQ-063']) {
+      expect(broken.stdout, id).toContain(`FAIL           ${id}`);
+    }
+    expect(broken.stdout).toContain(VACUOUS_DETAIL);
+
+    // And the same three, intact, still pass — so the test above is not passing
+    // because the command is broken all the time.
+    const clean = runVerifier('--req', 'REQ-001,REQ-012,REQ-063');
+    expect(clean.stdout).toMatch(/^REQ 3\/3 PASS$/m);
+  }, 120_000);
+});
+
+// ---------------------------------------------------------------------------
+// The erratum log records the two corrections this round made (E-06, E-07)
+// ---------------------------------------------------------------------------
+
+describe('the retry claim is narrowed to the one that is checkable (E-06)', () => {
+  const spec = readFileSync(join(experimentDir, 'SPEC.md'), 'utf8');
+
+  it('records both errata in the index rather than only in prose', () => {
+    expect(spec).toMatch(/^\| E-06 \| §0\.9 \| X-05/m);
+    expect(spec).toMatch(/^\| E-07 \| §0\.10 \| REQ-058/m);
+    expect(spec).toContain('### 0.9 ERRATUM E-06');
+    expect(spec).toContain('### 0.10 ERRATUM E-07');
+  });
+
+  it('states the narrowed claim, and states the false one only as superseded', () => {
+    const falseClaim = 'There is no retry pool at the harness, ADK, HTTP or model layer';
+    // Quoted exactly once, under §0.9, as the claim being withdrawn. A second
+    // occurrence would mean the packet still asserts it somewhere.
+    expect(spec.split(falseClaim)).toHaveLength(2);
+    expect(spec.slice(0, spec.indexOf(falseClaim))).toContain('**The claim as it stood.**');
+
+    expect(spec).toContain('No runtime retry occurred in an accepted trial');
+    expect(spec).toContain('mcp_tool.py:395');
+  });
+
+  it('does not weaken X-05, and says so where X-05 is stated', () => {
+    const row = spec.split('\n').find((line) => line.startsWith('| X-05 |'));
+    expect(row).toContain('**Do not hide invalid or model-failure attempts.**');
+    expect(row).toContain('Every attempt is retained and reported.');
+    expect(row).toContain('Not weakened by E-06');
+    expect(row).not.toMatch(/unless|except|no longer|may be omitted/i);
+  });
+
+  it('flags the field that carried the old reading, at the requirement that reads it', () => {
+    const req051 = spec.slice(spec.indexOf('**REQ-051 —'), spec.indexOf('**REQ-052 —'));
+    expect(req051).toContain('ERRATUM E-06');
+    expect(req051).toContain('platformRetryIsDetectedNotAssumedAbsent');
+    // The command itself is untouched: an erratum that rewrote it would be
+    // relaxing the requirement rather than correcting a reading of it.
+    expect(req051).toContain('"artificialDelay","barrier","ttlTuning","hiddenRetry"');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The executable surface REQ-058 scans (E-07)
+// ---------------------------------------------------------------------------
+
+describe('the prohibition scan reaches the file that creates cloud resources', () => {
+  it('includes shell scripts, which the frozen --include list did not', () => {
+    expect(EXECUTABLE_SURFACE_EXTENSIONS).toContain('sh');
+    expect(EXECUTABLE_SURFACE.test('10-provision.sh')).toBe(true);
+    // And still everything the frozen list named — a widening may not drop
+    // anything on its way in.
+    for (const name of ['run-arm.mjs', 'results.json', 'agent.py', 'ci.yaml']) {
+      expect(EXECUTABLE_SURFACE.test(name), name).toBe(true);
+    }
+    expect(EXECUTABLE_SURFACE.test('SPEC.md')).toBe(false);
+  });
+
+  it('matches the command that actually creates a gateway', () => {
+    // The blind spot, exactly. The old blocklist named `network-security`; the
+    // command is `gcloud network-services gateways create`, and the old
+    // manifest pattern named four API type words none of which match it.
+    const real = 'gcloud network-services gateways create hac316-s1-gw --project="${PROJECT_ID}"';
+    const wasChecked = ['network-security', 'service-extensions', 'networkAttachment', 'authz-polic', 'network-endpoint-groups'];
+    const wasPattern = /networkAttachment|serviceExtension|authorizationPolicy|egressGateway/i;
+    expect(wasChecked.some((shape) => real.includes(shape))).toBe(false);
+    expect(wasPattern.test(real)).toBe(false);
+
+    expect(FALSIFIED_RESOURCE_SHAPES.some((shape) => real.includes(shape))).toBe(true);
+    expect(FALSIFIED_RESOURCE_PATTERN.test(real)).toBe(true);
+    expect(FALSIFIED_RESOURCE_PATTERN.test('{"type":"gateway","id":"R-14"}')).toBe(true);
+    // Nothing the real manifest declares may match, or the check is a blanket
+    // refusal rather than a prohibition.
+    const manifest = JSON.parse(
+      readFileSync(join(experimentDir, 'evidence', 'resources.json'), 'utf8'),
+    );
+    for (const resource of manifest.resources) {
+      expect(FALSIFIED_RESOURCE_PATTERN.test(`${resource.type}${resource.id}`), resource.id).toBe(
+        false,
+      );
+    }
+  });
+
+  it('reports having scanned the provisioning script, not merely passing', () => {
+    const run = runVerifier('--req', 'REQ-058,REQ-070');
+    expect(run.stdout).toMatch(/^REQ 2\/2 PASS$/m);
+    expect(run.status).toBe(0);
+  }, 120_000);
+});
+
+// ---------------------------------------------------------------------------
+// The refusal REQ-072 asserts (C2)
+// ---------------------------------------------------------------------------
+
+describe('a refusal probe proves which gate refused it', () => {
+  const declared = 'interlock-s1-abcd1234';
+
+  it('expects the declaration gate before Phase 7 and the mismatch gate after', () => {
+    const before = refusalProbes(null);
+    expect(before).toHaveLength(4);
+    expect(before[0]).toMatchObject({
+      probe: 'interlock-s1-deadbeef',
+      expected: Refusal.NOT_DECLARED,
+    });
+
+    const after = refusalProbes(declared);
+    expect(after).toHaveLength(5);
+    expect(after[0].expected).toBe(Refusal.UNDECLARED_ID);
+    expect(after.at(-1)).toMatchObject({
+      probe: `${declared}x`,
+      expected: Refusal.NOT_DISPOSABLE,
+    });
+    // The declared project is never probed: refusing it would be the bug.
+    expect(refusalProbes('interlock-s1-deadbeef').map((entry) => entry.probe)).not.toContain(
+      'interlock-s1-deadbeef',
+    );
+  });
+
+  it('accepts the refusal each gate really produces', () => {
+    expect(
+      judgeRefusalProbe({
+        probe: 'my-production-project',
+        expected: Refusal.NOT_DISPOSABLE,
+        gate: 'G-4 (shape)',
+        status: 4,
+        stdout: `teardown-refused=${Refusal.NOT_DISPOSABLE}\nREFUSED\n`,
+        invocations: '',
+      }),
+    ).toEqual([]);
+  });
+
+  it('catches the reverted operand parser the old band assertion let through', () => {
+    // The regression, replayed. With `--project=<id>` unparsed every probe
+    // refuses as PROJECT_ID_NOT_SUPPLIED at exit 2 with an empty log — inside
+    // the old 2-4 band, log empty, `REQ 1/1 PASS`, nothing tested.
+    const reverted = {
+      status: 2,
+      stdout: `teardown-refused=${Refusal.NOT_SUPPLIED}\nREFUSED\n`,
+      invocations: '',
+    };
+    const band = (status) => status >= 2 && status <= 4;
+    expect(band(reverted.status) && reverted.invocations === '').toBe(true);
+
+    for (const { probe, expected, gate } of refusalProbes(declared)) {
+      const problems = judgeRefusalProbe({ probe, expected, gate, ...reverted });
+      expect(problems.length, probe).toBeGreaterThan(0);
+      expect(problems.join(' '), probe).toContain(Refusal.NOT_SUPPLIED);
+    }
+  });
+
+  it('catches a right code at the wrong exit, and a refusal that spawned first', () => {
+    expect(
+      judgeRefusalProbe({
+        probe: 'interlock-s0-gate',
+        expected: Refusal.NOT_DISPOSABLE,
+        gate: 'G-4 (shape)',
+        status: 2,
+        stdout: `teardown-refused=${Refusal.NOT_DISPOSABLE}\n`,
+        invocations: '',
+      }).join(' '),
+    ).toContain('exit 2, expected 4');
+
+    expect(
+      judgeRefusalProbe({
+        probe: 'interlock-s0-gate',
+        expected: Refusal.NOT_DISPOSABLE,
+        gate: 'G-4 (shape)',
+        status: 4,
+        stdout: `teardown-refused=${Refusal.NOT_DISPOSABLE}\n`,
+        invocations: 'projects delete interlock-s0-gate',
+      }).join(' '),
+    ).toContain('spawned gcloud before refusing');
+
+    // No reason line at all is not a pass either: it is a refusal whose reason
+    // is unknown, which is what asserting a band amounts to.
+    expect(
+      judgeRefusalProbe({
+        probe: 'interlock-s0-gate',
+        expected: Refusal.NOT_DISPOSABLE,
+        gate: 'G-4 (shape)',
+        status: 4,
+        stdout: 'REFUSED\n',
+        invocations: '',
+      }).join(' '),
+    ).toContain('refusal reason unknown');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The implementation the packet is evidence about (C3)
+// ---------------------------------------------------------------------------
+
+describe('the recorded implementation is compared to the one on disk', () => {
+  const armsAll = (digest) => ({
+    baseline: { implementationDigest: digest },
+    treatment: { implementationDigest: digest },
+    perturbation: { implementationDigest: digest },
+  });
+
+  it('accepts three arms that agree with the tree', () => {
+    const measured = implementationDigest();
+    expect(implementationFreshness(armsAll(measured), measured)).toEqual([]);
+  });
+
+  it('rejects three zeroed digests, which agree with each other perfectly', () => {
+    const problems = implementationFreshness(armsAll('0'.repeat(64)), implementationDigest());
+    expect(problems).toHaveLength(3);
+    for (const problem of problems) expect(problem).toContain('is not the implementation on disk');
+  });
+
+  it('rejects three equally stale digests', () => {
+    // The case the arms-against-arms comparison is blind to by construction: a
+    // results.json produced before the code moved is internally consistent and
+    // describes a program that no longer exists.
+    const stale = 'a'.repeat(64);
+    expect(implementationFreshness(armsAll(stale), implementationDigest())).toHaveLength(3);
+  });
+
+  it('rejects an arm with no digest at all', () => {
+    expect(
+      implementationFreshness({ baseline: {} }, implementationDigest()).join(' '),
+    ).toContain('no implementation digest was measured');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// REQ-067's comparison set (C4)
+// ---------------------------------------------------------------------------
+
+describe('the regeneration comparison covers everything the producer writes', () => {
+  const producer = readFileSync(join(experimentDir, 'bin', 'preflight-v2.mjs'), 'utf8');
+
+  it('reads the producer\'s outputs out of the producer', () => {
+    expect(producerOutputs(producer)).toEqual(['fixture.json', 'preflight.v2.json']);
+  });
+
+  it('fails on the revert that used to leave the suite green', () => {
+    // REQ-067's list was `['preflight.v2.json']` alone, so an in-place rewrite
+    // of `fixture.json` was invisible inside the run that caused it — and
+    // reverting the widened list broke nothing that anything checked. This is
+    // the assertion the requirement now makes before comparing a single byte.
+    const agrees = (list) =>
+      JSON.stringify([...list].sort()) === JSON.stringify(producerOutputs(producer));
+    expect(agrees(REGENERATED_OUTPUTS)).toBe(true);
+    expect(agrees(['preflight.v2.json'])).toBe(false);
+    expect(agrees(['preflight.v2.json', 'fixture.json', 'toolchain.json'])).toBe(false);
+  });
+
+  it('would notice a third output rather than quietly not comparing it', () => {
+    const widened = `${producer}\nwriteFileSync(join(evidenceDir, 'third.json'), '{}');\n`;
+    expect(producerOutputs(widened)).toContain('third.json');
+    expect(
+      JSON.stringify([...REGENERATED_OUTPUTS].sort()) === JSON.stringify(producerOutputs(widened)),
+    ).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The ingress retry contract (C7)
+// ---------------------------------------------------------------------------
+
+describe('the ingress retry rulings are checked, not merely written down', () => {
+  it('evaluates all five, and every assertion in them holds on this packet', () => {
+    const run = runVerifier('--req', 'REQ-075,REQ-076,REQ-077,REQ-078,REQ-079');
+    // Nothing failed. Each of the five runs its packet assertions *and* re-runs
+    // the real judgement over an input that must be refused, so a green line
+    // here is a statement about the detector and not only about a clean run.
+    expect(run.stdout).not.toMatch(/^FAIL/m);
+    expect(run.stdout).toMatch(/^REQ-SET {2}spec=79 verifier=79 missing=0 extra=0$/m);
+
+    // Three of the five end by requiring the ingress suite, which cannot be
+    // collected from inside a vitest run — that is the pre-existing
+    // suite-backed pattern (REQ-025, REQ-028, …), not a gap in these. The two
+    // that do not need it pass outright here.
+    for (const id of ['REQ-075', 'REQ-077']) {
+      expect(run.stdout, id).not.toContain(id);
+    }
+    for (const id of ['REQ-076', 'REQ-078', 'REQ-079']) {
+      expect(run.stdout, id).toMatch(
+        new RegExp(`NOT_EXERCISED {2}${id} \\(phase 7\\) {2}test suite not run here`),
+      );
+    }
+  }, 180_000);
+
+  it('names the ingress suite the rulings are bound to', () => {
+    // The three suite-backed requirements name R2, R4 and R5 by title, so a
+    // suite that stopped covering a ruling turns them red rather than passing
+    // on a file that happens to still exist.
+    const suite = readFileSync(join(experimentDir, 'test', 'ingress-arrivals.test.mjs'), 'utf8');
+    for (const ruling of [
+      'R1: the ingress retains every arrival',
+      'R2: a duplicate arrival is not dispatched a second time',
+      'R3: a runtime retry is INVALID_TRIAL:RUNTIME_RETRY_OBSERVED',
+      'R4: an accepted trial requires one A arrival and one B arrival',
+      'R5: overlap pairs agents, not positions',
+    ]) {
+      expect(suite, ruling).toContain(ruling);
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------

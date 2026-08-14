@@ -24,6 +24,13 @@
  *   invert-composition        the composition verdict is negated
  *   stub-reread               the re-read is replaced by a canned answer
  *   tamper-recorded-decision  a recorded decision is edited before re-derivation
+ *   vacuous-requirement       every requirement body is emptied out
+ *
+ * The fourth is a different kind of breakage from the first three. They corrupt
+ * an *answer*; it removes the *question*, which is the failure a ledger cannot
+ * normally see — an emptied body still registers its id, still satisfies the
+ * `REQ-SET` correspondence, and still reports `PASS`. Under this fault every
+ * requirement must go red instead, and `test/verify-packet.test.mjs` proves it.
  *
  * Each must make this program exit non-zero. A gate that stays green with a
  * broken verifier is not a gate, and the control that proves otherwise is
@@ -88,8 +95,25 @@ import { Decision, Reason, arbitrate } from '../../../dist/broker/pairing/arbitr
 import { asCanonical, INITIAL_STATE } from '../../../dist/target/state.js';
 import { genesisRevision } from '../../../dist/broker/revision/revision.js';
 
-import { ATTEMPT_DETAIL_FIELDS, deploymentDigestOf, runComposition } from './run-arm.mjs';
-import { judgeRemoval, REREAD_PROBES } from './teardown.mjs';
+import {
+  ATTEMPT_DETAIL_FIELDS,
+  deploymentDigestOf,
+  disqualifications,
+  implementationDigest,
+  ingressRecordFor,
+  overlapOf,
+  retryPolicy,
+  runComposition,
+} from './run-arm.mjs';
+import {
+  GCLOUD_LOG_VARIABLE,
+  GCLOUD_SHIM_SCRIPT,
+  judgeRemoval,
+  REFUSAL_EXIT_CODE,
+  Refusal,
+  REREAD_PROBES,
+} from './teardown.mjs';
+import { ARRIVAL_RECORD_FIELDS, classifyArrivals, TrialVerdict } from '../src/trial.mjs';
 import { measureBuildProvenance, verifyDistProvenance } from '../src/dist-provenance.mjs';
 import { isDirectInvocation } from '../src/entrypoint.mjs';
 import { insideVitest, readEnumEnv } from '../src/env.mjs';
@@ -110,7 +134,12 @@ const sha256Hex = (value) => createHash('sha256').update(value).digest('hex');
 const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' });
 
 /** The faults this verifier knows how to install. Anything else is an error. */
-const FAULTS = Object.freeze(['invert-composition', 'stub-reread', 'tamper-recorded-decision']);
+const FAULTS = Object.freeze([
+  'invert-composition',
+  'stub-reread',
+  'tamper-recorded-decision',
+  'vacuous-requirement',
+]);
 
 /**
  * Which fault, if any, is installed.
@@ -191,6 +220,76 @@ const SCAN = {
     ].join('|'),
   ),
 };
+
+/**
+ * The file extensions REQ-058's scan reaches (E-07, §0.9).
+ *
+ * The frozen `--include` list was `*.mjs *.json *.py *.yaml`. Every one of those
+ * is a file the experiment *reads*; the one file that makes cloud resources —
+ * `bin/10-provision.sh` — is a shell script, and so was outside the scan
+ * entirely. The prohibition it is outside of is X-01, "do not retry Agent
+ * Gateway": the single most direct way to violate X-01 is a `gcloud` line in the
+ * provisioning script, and that was the one place the check could not look. A
+ * script carrying a real gateway-creating command reached `PACKET PRE-CLOUD
+ * CLEAN`.
+ *
+ * `*.sh` is therefore added. That is a **widening** of scan scope, and it is
+ * disclosed as E-07 for exactly the reason §0.7 had to disclose E-04's
+ * narrowing: a change to what a frozen command covers is a change to what the
+ * packet claims, in either direction. A widening cannot make a violating tree
+ * pass — it can only make more of the tree checkable — but it is still not the
+ * frozen command, and an undisclosed difference between the command as written
+ * and the command as run is the thing the erratum log exists to prevent.
+ */
+export const EXECUTABLE_SURFACE_EXTENSIONS = Object.freeze(['mjs', 'json', 'py', 'yaml', 'sh']);
+
+/** `EXECUTABLE_SURFACE_EXTENSIONS`, as the filename test the scan applies. */
+export const EXECUTABLE_SURFACE = new RegExp(`\\.(${EXECUTABLE_SURFACE_EXTENSIONS.join('|')})$`);
+
+/**
+ * Resource shapes that would mean the falsified S0 topology is being rebuilt.
+ *
+ * Two independent scans use this: REQ-069 over the declared manifest, and
+ * REQ-070 over the provisioning script. Both were incomplete in the same
+ * direction, and both were incomplete in a way that let the *current* spelling
+ * of a gateway through.
+ *
+ * REQ-070 listed `network-security`. The command that creates the resource is
+ * `gcloud network-services gateways create` — a different product surface, one
+ * character-run apart, and not matched. REQ-069's pattern named four API-level
+ * type words (`networkAttachment`, `serviceExtension`, `authorizationPolicy`,
+ * `egressGateway`) and likewise did not match `network-services gateways`.
+ *
+ * So the list is one thing now, and it covers the CLI surface as well as the API
+ * one. `gateways?` is included on its own: the falsified topology is a gateway,
+ * whatever noun the surface of the day puts in front of it. That is the level at
+ * which X-01 is written, and matching below it is how this got through twice.
+ */
+export const FALSIFIED_RESOURCE_SHAPES = Object.freeze([
+  'network-security',
+  'network-services',
+  'networkServices',
+  'service-extensions',
+  'networkAttachment',
+  'network-attachments',
+  'serviceExtension',
+  'authorizationPolicy',
+  'authz-polic',
+  'egressGateway',
+  'network-endpoint-groups',
+]);
+
+/**
+ * The same set as a pattern, for text that is not a shell command line.
+ *
+ * `gateway` is matched here and not merely the product names, because a manifest
+ * entry is free-form: `{"type": "gateway", "id": "…"}` names the falsified
+ * topology as plainly as any API identifier does.
+ */
+export const FALSIFIED_RESOURCE_PATTERN = new RegExp(
+  [...FALSIFIED_RESOURCE_SHAPES, 'gateways?'].join('|'),
+  'i',
+);
 
 // ---------------------------------------------------------------------------
 // The deliberately broken verifiers
@@ -275,15 +374,77 @@ const KNOWN_IDS = new Set();
 /** The ids this run will evaluate; `null` means all of them. */
 let selection = null;
 
+/**
+ * How many assertions have been evaluated, ever, in this process.
+ *
+ * The counter behind the vacuity guard in `check`. Incremented by `must` — and
+ * therefore by everything built on it, `noMatch` and `suiteCheck` included —
+ * whether the assertion holds or not. It is a count of *questions asked*, not of
+ * answers liked.
+ */
+let assertionsEvaluated = 0;
+
+/**
+ * A requirement that was registered, ran, and evaluated nothing.
+ *
+ * `check` adds the id to `KNOWN_IDS` before the body runs, and a body that
+ * returns `undefined` records `PASS`. Those two rules compose into a hole: an
+ * empty body — `check('REQ-0NN', 7, () => {})` — is counted in the denominator
+ * of `REQ n/m PASS`, satisfies the `REQ-SET` correspondence with `SPEC.md`, and
+ * reports `PASS`. So does a body whose assertions were all deleted, or one whose
+ * only statement became dead when the field it read was renamed. The set
+ * equation proves every declared requirement is *present*; nothing proved any of
+ * them *did* anything.
+ *
+ * It cannot be closed by inspecting the body — a function that "looks like" it
+ * checks something is not a fact about what it evaluated — so it is closed by
+ * measurement: `must` counts, and a body that recorded a pass while the counter
+ * did not move asked nothing. That is reported here as a `FAIL` against the
+ * requirement itself, because a requirement that evaluates nothing is exactly as
+ * uncovered as one that is missing from the ledger, and the packet already
+ * refuses to be green with a missing one.
+ *
+ * The rule is deliberately narrow. It fires only on a recorded `PASS`:
+ * a `NOT_EXERCISED` gate legitimately returns before asserting anything (Phase 8
+ * has not run, the suite could not be collected), and a `FAIL` already says the
+ * requirement is unsatisfied. Only "passed" is a claim that needed evidence.
+ */
+export const VACUOUS_DETAIL =
+  'the requirement body recorded a pass without evaluating a single assertion; a registered ' +
+  'requirement that checks nothing counts in the denominator and reports PASS, which is ' +
+  'indistinguishable from coverage it does not have';
+
+/**
+ * Whether a finished body's outcome is a claim it did not earn.
+ *
+ * Pure and exported so the guard can be tested against every case directly
+ * rather than inferred from a packet run.
+ */
+export function isVacuousPass(outcome, assertionsMade) {
+  return outcome === Outcome.PASS && assertionsMade === 0;
+}
+
 /** Evaluate one requirement; a throw is a failure with the message attached. */
 function check(id, phase, body) {
   KNOWN_IDS.add(id);
   if (selection !== null && !selection.has(id)) return undefined;
+  const before = assertionsEvaluated;
+  const finish = (outcome, detail, gate) => {
+    const made = assertionsEvaluated - before;
+    if (isVacuousPass(outcome, made)) {
+      return record(id, phase, Outcome.FAIL, `${VACUOUS_DETAIL}${detail ? ` (said: ${detail})` : ''}`);
+    }
+    return record(id, phase, outcome, detail, gate);
+  };
+  // The control for the guard above: empty the body and keep everything else.
+  // A ledger that could not tell this apart from a satisfied requirement is a
+  // ledger whose count means nothing, so every id must go red here.
+  const effective = FAULT === 'vacuous-requirement' ? () => {} : body;
   try {
-    const result = body();
-    if (result === undefined || result === true) return record(id, phase, Outcome.PASS, '');
-    if (typeof result === 'string') return record(id, phase, Outcome.PASS, result);
-    return record(id, phase, result.outcome, result.detail, result.gate);
+    const result = effective();
+    if (result === undefined || result === true) return finish(Outcome.PASS, '');
+    if (typeof result === 'string') return finish(Outcome.PASS, result);
+    return finish(result.outcome, result.detail, result.gate);
   } catch (error) {
     return record(id, phase, Outcome.FAIL, error.message);
   }
@@ -375,9 +536,215 @@ export function referencedAdkModules(dir, io = {}) {
   return referenced;
 }
 
+/**
+ * One assertion.
+ *
+ * Counts itself. The count is what makes a requirement that evaluated nothing
+ * distinguishable from one that evaluated something and was satisfied — see
+ * `VACUOUS_DETAIL`. Counting happens before the test, so an assertion is
+ * recorded as asked whichever way it comes out.
+ */
+/**
+ * The evidence files REQ-067 compares across a regeneration.
+ *
+ * Written out rather than derived, because the requirement is a claim about a
+ * *closed* set — "regenerating the V2 producer rewrites nothing" is only a claim
+ * if the set of things it could rewrite is fixed. The check that this list is
+ * the producer's actual output set is `producerOutputs` below.
+ */
+export const REGENERATED_OUTPUTS = Object.freeze(['preflight.v2.json', 'fixture.json']);
+
+/**
+ * Every evidence file the V2 producer writes, read out of the producer itself.
+ *
+ * ## The regression this closes
+ *
+ * `REGENERATED_OUTPUTS` was `['preflight.v2.json']` alone. The producer writes
+ * two files (`preflight-v2.mjs:506-507`), so an in-place rewrite of
+ * `fixture.json` was invisible inside the very run that caused it — while
+ * REQ-010, REQ-011, REQ-019 and the arms' initial-state comparison all read that
+ * fixture. The list was widened to two; nothing stopped it being narrowed back,
+ * and narrowing it left the whole suite green, because every test asserted
+ * things about the comparison function and none asserted what the requirement
+ * fed it.
+ *
+ * A hand-maintained list of a producer's outputs goes stale the moment the
+ * producer writes a third file — so it is not maintained by hand any more. This
+ * reads the `writeFileSync(join(evidenceDir, '<name>'), …)` calls out of the
+ * producer's source and REQ-067 refuses to run unless its own list is exactly
+ * that set. Reverting the list, or adding an output and not extending the list,
+ * both turn the requirement red.
+ *
+ * @param producerSource the text of `bin/preflight-v2.mjs`.
+ */
+export function producerOutputs(producerSource) {
+  return [
+    ...new Set(
+      [...producerSource.matchAll(/writeFileSync\(\s*join\(evidenceDir,\s*'([^']+)'\)/g)].map(
+        (match) => match[1],
+      ),
+    ),
+  ].sort();
+}
+
 const must = (condition, message) => {
+  assertionsEvaluated += 1;
   if (!condition) throw new Error(message);
 };
+
+/**
+ * Compare every arm's recorded implementation digest to a **fresh** measurement.
+ *
+ * ## What comparing the arms to each other could not catch
+ *
+ * The packet's claim about implementation is that all three arms ran the same
+ * code, and REQ-056 asserted it by comparing `perturbation` to `treatment` and
+ * `baseline` to `treatment`. Both are comparisons between two recorded fields.
+ * Three fields set to the same value satisfy that equation whatever the value
+ * is: three zeroes agree, three digests of a build nobody has any more agree,
+ * and — the case that actually happens — three digests of the tree as it stood
+ * several commits ago agree. Equality across the record says the arms are
+ * consistent with each other. It says nothing about whether the record still
+ * describes the implementation on disk.
+ *
+ * That matters here more than it usually would, because the whole packet is an
+ * argument about *this* implementation. A `results.json` produced before a change
+ * to `src/` or `bin/run-arm.mjs` is evidence about a program that no longer
+ * exists, and the reader cannot tell, because the internal comparison is green.
+ *
+ * So the comparison is against `implementationDigest()` — the same function that
+ * produced the recorded value, called now, over the tree as it is. It is
+ * deliberately not a re-implementation: measuring the closure a second way would
+ * be a second thing to keep in step, and the failure would be ambiguous between
+ * "the packet is stale" and "the two measurements disagree about what to hash".
+ *
+ * @param arms     `results.arms`, keyed by arm name.
+ * @param measured the freshly recomputed digest.
+ * @returns the problems found; `[]` when every arm matches the tree.
+ */
+export function implementationFreshness(arms, measured) {
+  const problems = [];
+  for (const [name, arm] of Object.entries(arms ?? {})) {
+    const recorded = arm?.implementationDigest;
+    if (typeof recorded !== 'string' || recorded === '') {
+      problems.push(`${name}: no implementation digest was measured`);
+      continue;
+    }
+    if (recorded !== measured) {
+      problems.push(
+        `${name}: recorded implementation ${recorded.slice(0, 12)}… is not the implementation on ` +
+          `disk ${measured.slice(0, 12)}…`,
+      );
+    }
+  }
+  return problems;
+}
+
+/**
+ * The five mismatched project ids REQ-072 drives through the teardown guard, and
+ * the refusal each one must produce.
+ *
+ * ## Why the expected code is stated here rather than computed
+ *
+ * The point of this table is to be an *independent* statement of what the guard
+ * should do. Deriving the expectation by calling `guardProjectId` — the guard
+ * itself — would make the check a comparison of the tool against itself, which
+ * passes for any behaviour the tool happens to have. So the mapping is written
+ * out, per probe, from the gate table in `teardown.mjs`'s header:
+ *
+ *   mode → single-operand → supplied → shape → declared → matches
+ *
+ * The fifth probe, the declared id with a trailing character, is only
+ * constructible once Phase 7 has declared something. Until then the first probe
+ * covers the same declaration-gate ground, so this requirement is exercised
+ * before Phase 7 rather than deferred to it.
+ *
+ * @param declared the id `evidence/topology.json` records, or `null`.
+ */
+export function refusalProbes(declared) {
+  return [
+    {
+      probe: 'interlock-s1-deadbeef',
+      // Well-formed and disposable, so it clears the shape fence and reaches the
+      // declaration gate. Which of the two G-3 refusals it earns depends on
+      // whether anything has been declared at all.
+      expected: declared === null ? Refusal.NOT_DECLARED : Refusal.UNDECLARED_ID,
+      gate: 'G-3 (declaration)',
+    },
+    { probe: 'interlock-s0-gate', expected: Refusal.NOT_DISPOSABLE, gate: 'G-4 (shape)' },
+    { probe: 'interlock-s2-gate', expected: Refusal.NOT_DISPOSABLE, gate: 'G-4 (shape)' },
+    { probe: 'my-production-project', expected: Refusal.NOT_DISPOSABLE, gate: 'G-4 (shape)' },
+    ...(declared === null
+      ? []
+      : [
+          {
+            probe: `${declared}x`,
+            // A trailing character breaks the eight-hex-digit tail, so this is
+            // refused on shape before the declaration is ever consulted.
+            expected: Refusal.NOT_DISPOSABLE,
+            gate: 'G-4 (shape)',
+          },
+        ]),
+  ].filter((entry) => entry.probe !== declared);
+}
+
+/**
+ * Judge one refusal probe against the refusal it was supposed to produce.
+ *
+ * ## The assertion this replaces, and why it could not fail
+ *
+ * REQ-072 used to assert `2 <= status <= 4` and an empty invocation log, for
+ * five different mismatched ids. Both halves are satisfied by a teardown that
+ * refuses every one of them for the *same wrong reason*: when the `--project=<id>`
+ * form stopped being parsed, all five collapsed into `PROJECT_ID_NOT_SUPPLIED`,
+ * exit 2, no invocations — in the band, log empty, `REQ 1/1 PASS`. The
+ * requirement claimed to prove that five specific mismatches are each caught by
+ * the gate that is supposed to catch them, and proved instead that the program
+ * exits non-zero when handed something it never read.
+ *
+ * So three things are asserted per probe, and the middle one is the new one:
+ *
+ *   1. the exit code is the one the refusal's own table assigns to that code —
+ *      not a band, and derived from `REFUSAL_EXIT_CODE` so the two cannot drift;
+ *   2. the printed `teardown-refused=<CODE>` is the *specific* expected code,
+ *      and is explicitly not `PROJECT_ID_NOT_SUPPLIED`, which is precisely what
+ *      a reverted operand parser produces for every probe;
+ *   3. the invocation log is empty, so the refusal preceded any spawn.
+ *
+ * Pure, and exported, so the reverted-parser case can be replayed in a test
+ * without reverting the parser.
+ *
+ * @returns the problems found; `[]` when the probe was refused correctly.
+ */
+export function judgeRefusalProbe({ probe, expected, gate, status, stdout, invocations: log }) {
+  const problems = [];
+  const wantedStatus = REFUSAL_EXIT_CODE[expected];
+  const printed = /^teardown-refused=(\S+)$/m.exec(stdout ?? '')?.[1] ?? null;
+
+  if (printed === null) {
+    problems.push(`${probe}: no teardown-refused=<CODE> line was printed; refusal reason unknown`);
+  } else if (printed !== expected) {
+    problems.push(
+      `${probe}: refused as ${printed}, expected ${expected} from ${gate}` +
+        (printed === Refusal.NOT_SUPPLIED
+          ? '. That is the refusal a teardown that never read --project=<id> gives for every ' +
+            'probe, so this run proves nothing about the gate it names'
+          : ''),
+    );
+  }
+  if (printed === Refusal.NOT_SUPPLIED && expected !== Refusal.NOT_SUPPLIED) {
+    problems.push(
+      `${probe}: the operand was supplied, so ${Refusal.NOT_SUPPLIED} means it was not read`,
+    );
+  }
+  if (status !== wantedStatus) {
+    problems.push(`${probe}: exit ${status}, expected ${wantedStatus} for ${expected}`);
+  }
+  if ((log ?? '') !== '') {
+    problems.push(`${probe}: teardown spawned gcloud before refusing: ${log}`);
+  }
+  return problems;
+}
 
 /** Which top-level keys two deployment descriptions disagree about. */
 const differingKeys = (left, right) =>
@@ -832,7 +1199,23 @@ function phase0() {
     // meant an in-place change to the fixture was invisible inside the very run
     // that made it — while four other requirements (REQ-010, REQ-011, REQ-019
     // and the arms' initial-state comparison) read that fixture.
-    const WRITTEN = ['preflight.v2.json', 'fixture.json'];
+    //
+    // Which two they are is not taken on trust: the producer is read, and the
+    // comparison set has to be exactly what it writes. Narrowing this list back
+    // to one file — the regression — fails here before a single byte is
+    // compared, rather than passing while checking half of what it claims.
+    const WRITTEN = REGENERATED_OUTPUTS;
+    const writes = producerOutputs(producer);
+    must(
+      writes.length > 0,
+      'no evidence writes were found in the V2 producer; the output set cannot be confirmed',
+    );
+    must(
+      JSON.stringify([...WRITTEN].sort()) === JSON.stringify(writes),
+      `the regeneration comparison covers ${[...WRITTEN].sort().join(', ')} but the producer ` +
+        `writes ${writes.join(', ')}; an output that is written and not compared can be rewritten ` +
+        'in place by the very run that is supposed to prove it immutable',
+    );
     const snapshot = () =>
       Object.fromEntries(WRITTEN.map((name) => [name, readFileSync(join(evidenceDir, name))]));
 
@@ -1477,6 +1860,17 @@ function phase7() {
       'implementation differed',
     );
 
+    // Against the tree, not only against each other. Three arms carrying the
+    // same wrong value — three zeroes, or three digests of a tree that has since
+    // moved — satisfy every equality in this requirement and describe an
+    // implementation the packet is no longer about.
+    const stale = implementationFreshness(results.arms, implementationDigest());
+    must(
+      stale.length === 0,
+      `the recorded implementation is not the one on disk: ${stale.join('; ')}. Re-run the arms ` +
+        'so results.json describes the code it is evidence about',
+    );
+
     // Baseline↔treatment, the comparison that was missing entirely. The
     // implementation must be the same code; the deployment must differ, and
     // *only* in the topology the arms declare — a baseline that differed in its
@@ -1532,6 +1926,7 @@ function phase7() {
   check('REQ-058', 7, () => {
     const forbidden = SCAN.falsifiedTopology;
     const hits = [];
+    const scanned = [];
     const walk = (dir) => {
       for (const name of readdirSync(dir)) {
         const path = join(dir, name);
@@ -1539,11 +1934,22 @@ function phase7() {
           walk(path);
           continue;
         }
-        if (!/\.(mjs|json|py|yaml)$/.test(name)) continue;
+        if (!EXECUTABLE_SURFACE.test(name)) continue;
+        scanned.push(path.slice(repoRoot.length + 1));
         if (forbidden.test(readFileSync(path, 'utf8'))) hits.push(path.slice(repoRoot.length + 1));
       }
     };
     walk(join(repoRoot, 'experiments/hac-316'));
+    // E-07 (§0.9) in force: the widening is only a widening if the file it was
+    // added for is actually reached. A scan that silently stopped covering the
+    // provisioning script would report the same `PASS` as one that covered it,
+    // which is the defect being closed rather than a new one.
+    must(
+      scanned.includes('experiments/hac-316/bin/10-provision.sh'),
+      'the provisioning script was not scanned; the frozen --include list admitted only ' +
+        '*.mjs, *.json, *.py and *.yaml, so the one file that issues cloud-creating commands ' +
+        'was outside the scan that forbids re-creating the falsified topology (E-07, §0.9)',
+    );
     // Prose that *names* the falsified topology, versus code that *retries* it.
     // The requirement's grep cannot tell them apart, and the two files it was
     // always going to match are frozen byte-for-byte by REQ-004 and X-12.
@@ -1557,13 +1963,11 @@ function phase7() {
     const carriedForward = new Set(['experiments/hac-316/evidence/preflight.v2.json']);
     const mine = hits.filter((path) => !frozen.has(path) && !carriedForward.has(path));
     must(mine.length === 0, `the falsified S0 topology was re-attempted in: ${mine.join(', ')}`);
-    // E-02 corrected form (§0.2). X-01 is untouched: the three excluded paths
-    // are exactly the frozen preflight artifacts named in §0.0, and
-    // `bin/10-provision.sh`, `bin/run-arm.mjs`, `agents/**`, `src/**` and
-    // `evidence/resources.json` all remain in scope — a provisioning script that
-    // created a gateway-shaped resource would still be caught here, and by
-    // REQ-069 and REQ-070 independently.
-    return `E-02 corrected form; ${hits.length} frozen-artifact match(es) excluded`;
+    return (
+      `E-02 corrected form, E-07 scan-scope widening; ${scanned.length} files scanned ` +
+      `(${EXECUTABLE_SURFACE_EXTENSIONS.join(' ')}), ${hits.length} frozen-artifact match(es) ` +
+      'excluded'
+    );
   });
 
   check('REQ-069', 7, () => {
@@ -1582,7 +1986,7 @@ function phase7() {
       Array.isArray(manifest.resources) && manifest.resources.length >= 11,
       `manifest under-enumerates: ${(manifest.resources ?? []).length}`,
     );
-    const FALSIFIED = /networkAttachment|serviceExtension|authorizationPolicy|egressGateway/i;
+    const FALSIFIED = FALSIFIED_RESOURCE_PATTERN;
     for (const resource of manifest.resources) {
       must(
         Boolean(resource.id && resource.type && resource.purpose),
@@ -1660,19 +2064,338 @@ function phase7() {
       /REGION=(\$\{REGION:-)?"?us-central1/.test(text),
       'REGION is not pinned to the literal us-central1',
     );
-    for (const shape of [
-      'network-security',
-      'service-extensions',
-      'networkAttachment',
-      'authz-polic',
-      'network-endpoint-groups',
-    ]) {
+    // `network-services` was the missing entry, and it is the one the real
+    // command uses: `gcloud network-services gateways create`. The old list
+    // named `network-security`, which is a different product surface, so a
+    // genuine gateway-creating line passed this check untouched.
+    for (const shape of FALSIFIED_RESOURCE_SHAPES) {
       must(
         !text.includes(shape),
         `provisioning creates a falsified-topology resource (X-01): ${shape}`,
       );
     }
-    return `gcloud-calls=${calls.length}`;
+    // And the noun itself, on any gcloud line. A product surface can be renamed;
+    // what X-01 forbids is creating a gateway, however the CLI spells the group
+    // it lives under.
+    for (const line of calls) {
+      must(
+        !/\bgateways?\b/i.test(line),
+        `provisioning creates a gateway-shaped resource (X-01): ${line.trim()}`,
+      );
+    }
+    return `gcloud-calls=${calls.length}, ${FALSIFIED_RESOURCE_SHAPES.length} shapes refused`;
+  });
+
+  // --- the ingress retry contract (REQ-075 - REQ-079) -------------------------
+  //
+  // Five rulings, one requirement each. They exist because ADK 2.6.3 retries
+  // `McpTool._run_async_impl` once with a fresh session, outside the tool
+  // callbacks that record a proposal — so one recorded proposal can put two
+  // mutations on the wire and nothing on the agent side can see it. The rulings
+  // were written into the harness by the previous round; what was missing was a
+  // mechanical check of each, which is what these are.
+  //
+  // Each is checked twice over: against what this packet recorded, and by
+  // re-running the real judgement functions over inputs constructed here. The
+  // second half is what stops a requirement from being satisfied by a detector
+  // that never fires — every one of these would pass on a clean run whatever the
+  // detector did, because a clean run has nothing to detect.
+
+  /** Two well-formed arrivals, one per expected agent, as the ingress stamps them. */
+  const arrivalFixture = () => {
+    const base = {
+      runId: 'hac316-run-fixture',
+      arm: 'fixture',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      dispatched: true,
+      duplicateOfOrdinal: null,
+    };
+    const a = {
+      ...base,
+      arrivalOrdinal: 1,
+      agentId: 'capacity-planner',
+      expectedAgent: 'A',
+      correlationId: 'ilk-fixture-a',
+      service: 'alpha',
+      logicalIntentDigest: 'sha256:aaaa',
+      toolInvocationId: 'tool-call-a',
+      logicalInvocationKey: 'tool-invocation:tool-call-a',
+      startMs: 1000,
+      endMs: 1002,
+    };
+    const b = {
+      ...base,
+      arrivalOrdinal: 2,
+      agentId: 'traffic-shaper',
+      expectedAgent: 'B',
+      correlationId: 'ilk-fixture-b',
+      service: 'beta',
+      logicalIntentDigest: 'sha256:bbbb',
+      toolInvocationId: 'tool-call-b',
+      logicalInvocationKey: 'tool-invocation:tool-call-b',
+      startMs: 1001,
+      endMs: 1004,
+    };
+    return { a, b };
+  };
+
+  /** Every arrival this packet retained, per arm. */
+  const retainedArrivals = () =>
+    Object.entries(results.arms).map(([armName, arm]) => [armName, arm.overlap ?? []]);
+
+  check('REQ-075', 7, () => {
+    const detection = results.concurrency?.ingressRetryDetection;
+    must(detection !== undefined, 'results.json records no ingress retry detection at all');
+    must(
+      JSON.stringify(detection.arrivalRecordFields) === JSON.stringify([...ARRIVAL_RECORD_FIELDS]),
+      `the recorded arrival field set is not the one the judgement requires: ` +
+        `${JSON.stringify(detection.arrivalRecordFields)}`,
+    );
+    must(
+      JSON.stringify([...detection.armsCovered].sort()) ===
+        JSON.stringify(Object.keys(results.arms).sort()),
+      `detection did not cover every arm: ${detection.armsCovered.join(', ')}`,
+    );
+
+    // What was retained, field by field. The timing and service stamps are
+    // required alongside the identity fields because the overlap measurement
+    // reads them, and an arrival that lost them would be retained and useless.
+    const REQUIRED = [...ARRIVAL_RECORD_FIELDS, 'service', 'startMs', 'endMs'];
+    for (const [armName, arrivals] of retainedArrivals()) {
+      must(arrivals.length > 0, `${armName}: no ingress arrivals were retained`);
+      must(
+        JSON.stringify(arrivals.map((arrival) => arrival.arrivalOrdinal)) ===
+          JSON.stringify(arrivals.map((_, index) => index + 1)),
+        `${armName}: arrival ordinals are not contiguous from 1, so an arrival went unretained`,
+      );
+      for (const arrival of arrivals) {
+        const missing = REQUIRED.filter((field) => arrival[field] === undefined);
+        must(
+          missing.length === 0,
+          `${armName}: arrival ${arrival.arrivalOrdinal} is missing ${missing.join(', ')}`,
+        );
+      }
+      must(
+        arrivals.length === results.arms[armName].ingressRetry.arrivalCount,
+        `${armName}: ${arrivals.length} arrivals retained, ${results.arms[armName].ingressRetry.arrivalCount} judged`,
+      );
+    }
+
+    // And the shape gate itself, re-run: an arrival that lost an identity field
+    // must be refused rather than silently judged "not a duplicate of anything".
+    const { a, b } = arrivalFixture();
+    const { logicalIntentDigest: _dropped, ...blind } = b;
+    let refused = null;
+    try {
+      ingressRecordFor([a, blind]);
+    } catch (error) {
+      refused = error.message;
+    }
+    must(
+      refused !== null && /missing/.test(refused),
+      'the ingress accepted an arrival missing an identity field; a retry detector that cannot ' +
+        'identify the logical invocation an arrival belongs to detects nothing',
+    );
+    return `${retainedArrivals().length} arms, ${REQUIRED.length} fields per arrival`;
+  });
+
+  check('REQ-076', 7, () => {
+    const detection = results.concurrency?.ingressRetryDetection;
+    must(detection !== undefined, 'results.json records no ingress retry detection at all');
+    must(
+      detection.duplicateArrivalIsDispatched === false,
+      'the packet does not record that a duplicate arrival is refused dispatch',
+    );
+
+    for (const [armName, arrivals] of retainedArrivals()) {
+      const duplicates = arrivals.filter((arrival) => arrival.duplicateOfOrdinal !== null);
+      for (const arrival of duplicates) {
+        must(
+          arrival.dispatched === false,
+          `${armName}: arrival ${arrival.arrivalOrdinal} duplicates ` +
+            `${arrival.duplicateOfOrdinal} and was dispatched anyway`,
+        );
+      }
+      // No receipt, no mutation: a duplicate's correlation id must appear in
+      // neither the decision trail nor the execution trail of its arm.
+      const arm = results.arms[armName];
+      const touched = new Set([
+        ...(arm.decisions ?? []).map((decision) => decision.correlationId),
+        ...(arm.executed ?? []).map((execution) => execution.correlationId),
+      ]);
+      for (const arrival of duplicates) {
+        must(
+          !touched.has(arrival.correlationId),
+          `${armName}: duplicate arrival ${arrival.arrivalOrdinal} reached a decision or an ` +
+            'execution, so it did not stop at the ingress',
+        );
+      }
+      must(
+        arrivals.filter((arrival) => arrival.dispatched).length ===
+          new Set(arrivals.map((arrival) => arrival.logicalInvocationKey)).size,
+        `${armName}: the number of dispatched arrivals is not the number of distinct logical ` +
+          'invocations, so something was forwarded twice',
+      );
+    }
+
+    // Re-derived: hand the real judgement a duplicate and require it to say so.
+    // Without this the loops above are satisfied by a run that had no duplicate
+    // to refuse, which is every clean run.
+    const { a, b } = arrivalFixture();
+    const duplicate = { ...a, arrivalOrdinal: 3, correlationId: 'ilk-fixture-a2' };
+    const judged = classifyArrivals([a, b, duplicate]);
+    must(judged.retryObserved === true, 'the judgement did not see a repeated logical invocation');
+    must(judged.duplicates.length === 1, `expected 1 duplicate, got ${judged.duplicates.length}`);
+    must(
+      judged.duplicates[0].duplicateOfOrdinal === 1,
+      'the duplicate is not attributed to the arrival it repeats',
+    );
+    must(judged.acceptable === false, 'an attempt carrying a duplicate was judged acceptable');
+    return suiteCheck({
+      file: 'ingress-arrivals.test.mjs',
+      minimum: 20,
+      titles: ['R2: a duplicate arrival is not dispatched a second time'],
+    });
+  });
+
+  check('REQ-077', 7, () => {
+    // The policy, re-derived through the real function rather than read back.
+    const policy = retryPolicy(results.concurrency.maxAttempts);
+    must(
+      results.concurrency.retryPolicy.runtimeRetryVerdict === policy.runtimeRetryVerdict,
+      'the recorded retry policy is not the one the harness produces',
+    );
+    must(
+      policy.runtimeRetryVerdict === TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY,
+      `a runtime retry does not carry its own verdict: ${policy.runtimeRetryVerdict}`,
+    );
+    must(
+      policy.invalidTrialConsumesAnAttempt === true,
+      'an invalid trial does not consume an attempt, so a retry could be run until it is not seen',
+    );
+    must(policy.runtimeRetryIsDisqualifying === true, 'a runtime retry is not disqualifying');
+    must(policy.runtimeRetryDetectedAtIngress === true, 'a runtime retry is not detected at all');
+    must(
+      policy.platformRetryKnownToExist?.layer !== undefined,
+      'the packet does not name the layer a platform retry is known to live at (E-06, §0.9)',
+    );
+
+    // The disqualifier, run both ways. A `[]` on this packet is only meaningful
+    // beside a non-empty answer on a packet that did see a retry.
+    must(
+      disqualifications(results).length === 0,
+      `this run is disqualified: ${disqualifications(results).join('; ')}`,
+    );
+    const withRetry = {
+      concurrency: {
+        ingressRetryDetection: {
+          perArm: {
+            treatment: [{ index: 1, duplicates: 1, retryObserved: true, acceptable: false }],
+          },
+        },
+      },
+    };
+    const problems = disqualifications(withRetry);
+    must(
+      problems.length === 1 && problems[0].includes(TrialVerdict.INVALID_TRIAL_RUNTIME_RETRY),
+      `an observed runtime retry did not disqualify the run: ${JSON.stringify(problems)}`,
+    );
+    must(
+      disqualifications({}).length > 0,
+      'a packet with no detection at all was not treated as uncheckable',
+    );
+    return `verdict=${policy.runtimeRetryVerdict}, consumes an attempt, never supports PASS`;
+  });
+
+  check('REQ-078', 7, () => {
+    const detection = results.concurrency.ingressRetryDetection;
+    for (const [armName, attempts] of Object.entries(detection.perArm)) {
+      must(attempts.length > 0, `${armName}: no attempt was judged`);
+      for (const attempt of attempts) {
+        must(
+          attempt.acceptable === true,
+          `${armName} attempt ${attempt.index}: not acceptable — ` +
+            `${JSON.stringify(attempt.arrivalsByExpectedAgent)}`,
+        );
+        must(
+          JSON.stringify(attempt.arrivalsByExpectedAgent) === JSON.stringify({ A: 1, B: 1 }),
+          `${armName} attempt ${attempt.index}: an accepted trial requires exactly one A and one ` +
+            `B arrival; saw ${JSON.stringify(attempt.arrivalsByExpectedAgent)}`,
+        );
+      }
+    }
+
+    // Re-derived over the three cardinalities that must not be accepted. Two A
+    // arrivals is the case that matters most: it is what a retry looks like when
+    // the transport carries no tool id, and position-pairing would read it as a
+    // perfect A/B collision.
+    const { a, b } = arrivalFixture();
+    const secondA = { ...a, arrivalOrdinal: 2, correlationId: 'ilk-fixture-a2', toolInvocationId: 'tool-call-a2', logicalInvocationKey: 'tool-invocation:tool-call-a2' };
+    for (const [label, arrivals] of [
+      ['two A arrivals and no B', [a, secondA]],
+      ['one arrival only', [a]],
+      ['none at all', []],
+    ]) {
+      const judged = classifyArrivals(arrivals);
+      must(
+        judged.exactlyOncePerExpectedAgent === false && judged.acceptable === false,
+        `${label} was accepted as a trial`,
+      );
+    }
+    const good = classifyArrivals([a, b]);
+    must(
+      good.exactlyOncePerExpectedAgent === true && good.acceptable === true,
+      'one A and one B was not accepted, so the rule refuses everything and proves nothing',
+    );
+    return suiteCheck({
+      file: 'ingress-arrivals.test.mjs',
+      minimum: 20,
+      titles: ['R4: an accepted trial requires one A arrival and one B arrival'],
+    });
+  });
+
+  check('REQ-079', 7, () => {
+    const overlap = results.concurrency.runtimeOverlap;
+    must(
+      overlap.pairedBy === 'expected-agent-identity',
+      `overlap is paired by ${overlap.pairedBy}, not by expected-agent identity`,
+    );
+    must(overlap.usesClientLaunchTime === false, 'overlap uses a client-side stamp');
+    must(overlap.measuredAt === 'server', `overlap measured at ${overlap.measuredAt}`);
+    must(
+      JSON.stringify(overlap.arrivalsByExpectedAgent) === JSON.stringify({ A: 1, B: 1 }),
+      `the measured pair was not one A and one B: ${JSON.stringify(overlap.arrivalsByExpectedAgent)}`,
+    );
+
+    // Re-derived from the treatment arm's own retained arrivals: the recorded
+    // overlap must be what the real function produces from them, not a value
+    // that merely sits beside them.
+    const recomputed = overlapOf(results.arms.treatment.overlap);
+    must(
+      recomputed.overlapped === overlap.overlapped &&
+        recomputed.startA === overlap.startA &&
+        recomputed.endB === overlap.endB,
+      'the recorded overlap is not the overlap of the arrivals recorded beside it',
+    );
+
+    // And the case position-pairing got wrong: one agent's two sends are not an
+    // A/B overlap, however perfectly their windows coincide.
+    const { a } = arrivalFixture();
+    const secondA = { ...a, arrivalOrdinal: 2, correlationId: 'ilk-fixture-a2', startMs: 1000, endMs: 1002 };
+    const selfPaired = overlapOf([a, secondA]);
+    must(
+      selfPaired.overlapped === false,
+      'two arrivals from the same agent were reported as an A/B overlap',
+    );
+    must(
+      typeof selfPaired.why === 'string' && selfPaired.why !== '',
+      'the refusal to pair carries no reason',
+    );
+    return suiteCheck({
+      file: 'ingress-arrivals.test.mjs',
+      minimum: 20,
+      titles: ['R5: overlap pairs agents, not positions'],
+    });
   });
 }
 
@@ -1846,7 +2569,10 @@ function phase8() {
     const dir = mkdtempSync(join(tmpdir(), 'hac316-teardown-'));
     const shim = join(dir, 'gcloud-shim.sh');
     const log = join(dir, 'invocations.log');
-    writeFileSync(shim, '#!/bin/sh\necho "$@" >> "$HAC316_GCLOUD_LOG"\nexit 0\n');
+    // The shim body comes from `teardown.mjs` rather than being spelled again
+    // here. Two copies of "the most permissive possible gcloud" is two things
+    // that can drift, and the one that drifts is the one the gate is using.
+    writeFileSync(shim, GCLOUD_SHIM_SCRIPT);
     chmodSync(shim, 0o755);
     return { shim, log };
   };
@@ -1890,10 +2616,14 @@ function phase8() {
     const { shim, log } = gcloudShim();
     const refused = runTeardown(['--confirm', '--verify'], {
       HAC316_GCLOUD_BIN: shim,
-      HAC316_GCLOUD_LOG: log,
+      [GCLOUD_LOG_VARIABLE]: log,
       CLOUDSDK_CORE_PROJECT: 'some-live-production-project',
     });
     must(refused.status === 2, `expected exit 2 with no --project, got ${refused.status}`);
+    must(
+      refused.stdout.includes(`teardown-refused=${Refusal.NOT_SUPPLIED}`),
+      `no --project must refuse as ${Refusal.NOT_SUPPLIED}; got: ${refused.stdout.trim()}`,
+    );
     must(
       invocations(log) === '',
       `teardown spawned gcloud before refusing: ${invocations(log)}`,
@@ -1904,36 +2634,27 @@ function phase8() {
   check('REQ-072', 8, () => {
     const { shim } = gcloudShim();
     const declared = artifacts.topology?.projectId ?? null;
-    // The five probes the requirement names: a well-formed disposable id that is
-    // not the recorded one; the two project ids earlier experiments deleted; an
-    // ordinary long-lived-looking id; and the recorded id with a trailing
-    // character. The fifth is only constructible once something is declared —
-    // and the first probe covers the same G-3 ground until then, so this
-    // requirement is genuinely exercised before Phase 7 rather than deferred.
-    const probes = [
-      'interlock-s1-deadbeef',
-      'interlock-s0-gate',
-      'interlock-s2-gate',
-      'my-production-project',
-      ...(declared === null ? [] : [`${declared}x`]),
-    ].filter((probe) => probe !== declared);
-
-    for (const probe of probes) {
+    for (const { probe, expected, gate } of refusalProbes(declared)) {
       const log = join(mkdtempSync(join(tmpdir(), 'hac316-probe-')), 'invocations.log');
       const refused = runTeardown([`--project=${probe}`, '--confirm', '--verify'], {
         HAC316_GCLOUD_BIN: shim,
-        HAC316_GCLOUD_LOG: log,
+        [GCLOUD_LOG_VARIABLE]: log,
       });
-      must(
-        refused.status >= 2 && refused.status <= 4,
-        `${probe}: expected a refusal in the 2-4 band, got ${refused.status}`,
-      );
-      must(
-        invocations(log) === '',
-        `${probe}: teardown spawned gcloud before refusing: ${invocations(log)}`,
-      );
+      const problems = judgeRefusalProbe({
+        probe,
+        expected,
+        gate,
+        status: refused.status,
+        stdout: refused.stdout,
+        invocations: invocations(log),
+      });
+      must(problems.length === 0, problems.join('; '));
     }
-    return `${probes.length} mismatched ids refused, 0 invocations`;
+    const probes = refusalProbes(declared);
+    return (
+      `${probes.length} mismatched ids refused as ` +
+      `${[...new Set(probes.map((entry) => entry.expected))].join(', ')}, 0 invocations`
+    );
   });
 
   check('REQ-073', 8, () => {
@@ -2307,6 +3028,15 @@ if (mode === '--counterfactual') {
   if (new Set(armList.map((name) => results.arms[name].implementationDigest)).size !== 1) {
     problems.push('implementation digests differ across the arms');
   }
+  // Whether the value the three agree on is still the implementation on disk is
+  // deliberately *not* asked here; REQ-056 asks it, and `--all` therefore does.
+  // This mode's question is attribution — did the treatment cause the
+  // difference — and its own freshness requirement is that the decision path be
+  // the pinned build, which `assertDistProvenance` establishes above against
+  // `dist/` on disk. Whether `results.json` predates a later edit to the
+  // experiment's own sources is a question about the currency of the packet,
+  // not about which arm caused what, and answering it in two places would make
+  // one headline gate red for a reason it does not report.
   if (results.arms.baseline.deploymentDigest === results.arms.treatment.deploymentDigest) {
     problems.push('the baseline deployment is indistinguishable from the treatment deployment');
   }
