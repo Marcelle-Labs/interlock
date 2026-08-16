@@ -20,7 +20,7 @@
  * LOCAL GENERATION. Requires the private commit; never runs in public CI.
  */
 import { execFileSync } from 'node:child_process';
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +36,18 @@ const INCLUDE = [/^src\//, /^experiments\/hac-340\/(agent|bin|deploy)\//, /^(pac
 const EXCLUDE = [/^experiments\/hac-340\/evidence\//];
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const git = (args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+
+/**
+ * Resolved to an absolute path rather than looked up on PATH. This tool reads
+ * provenance, so the binary it trusts must not be selectable by whatever PATH
+ * happens to be set when it runs.
+ */
+const GIT_BIN = [process.env.GIT_BIN, '/usr/bin/git', '/usr/local/bin/git', '/opt/homebrew/bin/git']
+  .find((candidate) => candidate && existsSync(candidate));
+if (!GIT_BIN) throw new Error('no git binary found at a fixed absolute path; set GIT_BIN');
+
+const run = (args, options = {}) => execFileSync(GIT_BIN, args, { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024, ...options });
+const git = (args) => run(args, { encoding: 'utf8' });
 const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
 
 const paths = git(['ls-tree', '-r', '--name-only', RUNTIME_SOURCE_SHA])
@@ -49,7 +60,7 @@ if (paths.length === 0) throw new Error(`no runtime source found at ${RUNTIME_SO
 
 const files = paths.map((path) => ({
   path,
-  sha256: sha256(execFileSync('git', ['cat-file', 'blob', `${RUNTIME_SOURCE_SHA}:${path}`], { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024 })),
+  sha256: sha256(run(['cat-file', 'blob', `${RUNTIME_SOURCE_SHA}:${path}`])),
 }));
 
 // One digest over the canonical listing, so the snapshot has a single identity.
