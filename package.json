@@ -13,11 +13,14 @@
     "check:provenance": "node scripts/check-provenance.mjs",
     "check:packet": "node experiments/hac-330/bin/verify-packet.mjs",
     "check:packet:s2": "node experiments/hac-326/bin/verify-packet.mjs",
-    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:storyboard && pnpm run check:cockpit",
+    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:visuals",
     "check:cockpit": "node media/hac-341/bin/verify-cockpit.mjs",
     "cockpit:build": "node media/hac-341/bin/build-view-model.mjs",
     "check:storyboard": "node media/hac-333/bin/verify-storyboard.mjs",
     "check:packet:public": "node experiments/hac-342/bin/verify-public-packet.mjs",
+    "check:visuals": "node media/hac-334/bin/verify-visuals.mjs",
+    "visuals:build": "node media/hac-334/bin/build-visual-model.mjs && node media/hac-334/bin/render-masters.mjs",
+    "visuals:export": "node media/hac-334/bin/export-png.mjs",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
@@ -26,6 +29,7 @@
     "hac326": "pnpm run build && node experiments/hac-326/bin/run-experiment.mjs"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@types/node": "22.15.3",
     "@vitest/coverage-v8": "3.2.4",
     "typescript": "5.9.2",

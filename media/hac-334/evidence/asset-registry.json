@@ -1,0 +1,644 @@
+{
+  "contract": "HAC-334 asset registry",
+  "revision": "r01",
+  "issue": "HAC-334",
+  "generator": "media/hac-334/bin/build-visual-model.mjs",
+  "namingAuthority": "HAC-332, ported to scripts/export-naming.mjs",
+  "note": "Rows for the HAC-334 band only. The HAC-342 band is reused, not re-registered here.",
+  "assets": [
+    {
+      "id": "IL-PROOF-010",
+      "slug": "causal-counterfactual",
+      "name": "Controlled causal counterfactual",
+      "judgeQuestion": "What changed because Interlock existed?",
+      "classification": "evidence-bound",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "run": "hac330-local",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "2400x1350",
+        "1280x720",
+        "1200x675"
+      ],
+      "presentationRoles": [
+        "5s"
+      ],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "causal-counterfactual"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "causal-counterfactual",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "slug": "causal-counterfactual",
+          "width": 2400,
+          "height": 1350
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "causal-counterfactual",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "slug": "causal-counterfactual",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "slug": "causal-counterfactual",
+          "width": 1200,
+          "height": 675
+        },
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "causal-counterfactual-brief",
+          "presentationRole": "5s"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "causal-counterfactual-brief",
+          "width": 1920,
+          "height": 1080,
+          "presentationRole": "5s"
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-011",
+      "slug": "evidence-load-bearing",
+      "name": "Perturbation / evidence load-bearing",
+      "judgeQuestion": "Is the evidence load-bearing, or incidental?",
+      "classification": "evidence-bound",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "run": "hac330-local",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "2400x1350",
+        "1280x720",
+        "1200x675"
+      ],
+      "presentationRoles": [],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "evidence-load-bearing"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "evidence-load-bearing",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "slug": "evidence-load-bearing",
+          "width": 2400,
+          "height": 1350
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "evidence-load-bearing",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "slug": "evidence-load-bearing",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "slug": "evidence-load-bearing",
+          "width": 1200,
+          "height": 675
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-010",
+      "slug": "conceptual-causal-architecture",
+      "name": "Conceptual causal architecture",
+      "judgeQuestion": "Where does Interlock intervene?",
+      "classification": "specimen",
+      "proofClass": "none",
+      "proofClassLabel": "CONCEPTUAL",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "2400x1350",
+        "1280x720"
+      ],
+      "presentationRoles": [],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "conceptual-causal-architecture"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "conceptual-causal-architecture",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "slug": "conceptual-causal-architecture",
+          "width": 2400,
+          "height": 1350
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "conceptual-causal-architecture",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "slug": "conceptual-causal-architecture",
+          "width": 1280,
+          "height": 720
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-011",
+      "slug": "cloud-participation",
+      "name": "Real Google Cloud participation",
+      "judgeQuestion": "Did this actually traverse Google infrastructure?",
+      "classification": "evidence-bound",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "2400x1350",
+        "1280x720",
+        "1200x675"
+      ],
+      "presentationRoles": [
+        "5s"
+      ],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "cloud-participation"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "cloud-participation",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "slug": "cloud-participation",
+          "width": 2400,
+          "height": 1350
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "cloud-participation",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "slug": "cloud-participation",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "slug": "cloud-participation",
+          "width": 1200,
+          "height": 675
+        },
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "cloud-participation-brief",
+          "presentationRole": "5s"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "cloud-participation-brief",
+          "width": 1920,
+          "height": 1080,
+          "presentationRole": "5s"
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-012",
+      "slug": "deployment-trust-boundaries",
+      "name": "Exact deployment and trust boundaries",
+      "judgeQuestion": "What exactly was deployed, and where are the trust boundaries?",
+      "classification": "evidence-bound",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "2400x1350",
+        "1200x675"
+      ],
+      "presentationRoles": [
+        "5s"
+      ],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "deployment-trust-boundaries"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "deployment-trust-boundaries",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "slug": "deployment-trust-boundaries",
+          "width": 2400,
+          "height": 1350
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "deployment-trust-boundaries",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "slug": "deployment-trust-boundaries",
+          "width": 1200,
+          "height": 675
+        },
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "deployment-trust-boundaries-brief",
+          "presentationRole": "5s"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "deployment-trust-boundaries-brief",
+          "width": 1920,
+          "height": 1080,
+          "presentationRole": "5s"
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-012",
+      "slug": "receipt-effect-observation",
+      "name": "Receipt, effect, observation",
+      "judgeQuestion": "What was decided, what happened, and who checked?",
+      "classification": "evidence-bound",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "1280x720",
+        "1200x675"
+      ],
+      "presentationRoles": [],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "receipt-effect-observation"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "receipt-effect-observation",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "receipt-effect-observation",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "slug": "receipt-effect-observation",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "slug": "receipt-effect-observation",
+          "width": 1200,
+          "height": 675
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-013",
+      "slug": "fail-closed-controls",
+      "name": "Fail-closed / anti-bypass panel",
+      "judgeQuestion": "What happens when the path is attacked?",
+      "classification": "evidence-bound",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "1280x720",
+        "1200x675"
+      ],
+      "presentationRoles": [],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "fail-closed-controls"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "fail-closed-controls",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "fail-closed-controls",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "slug": "fail-closed-controls",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "slug": "fail-closed-controls",
+          "width": 1200,
+          "height": 675
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-014",
+      "slug": "claim-boundary",
+      "name": "Claim boundary",
+      "judgeQuestion": "What is claimed, and what is not?",
+      "classification": "evidence-bound",
+      "proofClass": "A+B",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT and GOOGLE CLOUD PARTICIPATION, labelled separately",
+      "runs": [
+        "hac330-local",
+        "ilk-hac340-cloud-1786730369123"
+      ],
+      "runNote": "Two runs, labelled separately. No single run identity applies, so no run suffix is written.",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg",
+        "png",
+        "pdf"
+      ],
+      "dimensions": [
+        "1920x1080",
+        "1280x720",
+        "1200x675"
+      ],
+      "presentationRoles": [],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "EVIDENCE BOUND",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "claim-boundary"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "slug": "claim-boundary",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "slug": "claim-boundary",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "slug": "claim-boundary",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "slug": "claim-boundary",
+          "width": 1200,
+          "height": 675
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-013",
+      "slug": "evaluation-shell",
+      "name": "HAC-319 anti-global-mutex evaluation shell",
+      "judgeQuestion": "How will the evaluation be reported when it exists?",
+      "classification": "specimen",
+      "proofClass": "none",
+      "proofClassLabel": "DESIGN SHELL - AWAITING HAC-319",
+      "sourceEvidence": [
+        "media/hac-341/evidence/view-model.json",
+        "media/hac-333/scene-manifest.json",
+        "experiments/hac-330/evidence/arms.json",
+        "experiments/hac-330/evidence/results.json",
+        "experiments/hac-342/evidence/cloud-run.public.json",
+        "experiments/hac-342/evidence/publication-bindings.json"
+      ],
+      "formats": [
+        "svg"
+      ],
+      "dimensions": [],
+      "presentationRoles": [],
+      "reducedMotionEquivalent": "the master itself",
+      "status": "AWAITING HAC-319",
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "evaluation-shell"
+        }
+      ]
+    }
+  ]
+}

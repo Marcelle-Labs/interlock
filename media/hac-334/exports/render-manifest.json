@@ -1,0 +1,250 @@
+{
+  "contract": "HAC-334 raster derivation record",
+  "rasterizer": "@resvg/resvg-js@2.6.2",
+  "note": "Each PNG records the SHA-256 of the master it was rendered from. verify-visuals.mjs recomputes those digests, so a master edited without re-export is a gate failure. Byte-identical rasterisation across hosts is not claimed; correspondence is asserted through the source digest, the declared geometry and the rendered pixel size.",
+  "renders": [
+    {
+      "asset": "IL-PROOF-010",
+      "export": "IL-PROOF-010-causal-counterfactual-1920x1080-runhac330local.png",
+      "master": "IL-PROOF-010-causal-counterfactual-runhac330local.svg",
+      "masterSha256": "593e1e05da577d4801d3d20dc3e6ccb2619c23a09f5741c46bc5df0024167172",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-PROOF-010",
+      "export": "IL-PROOF-010-causal-counterfactual-2400x1350-runhac330local.png",
+      "master": "IL-PROOF-010-causal-counterfactual-runhac330local.svg",
+      "masterSha256": "593e1e05da577d4801d3d20dc3e6ccb2619c23a09f5741c46bc5df0024167172",
+      "width": 2400,
+      "height": 1350
+    },
+    {
+      "asset": "IL-PROOF-010",
+      "export": "IL-PROOF-010-causal-counterfactual-1280x720-runhac330local.png",
+      "master": "IL-PROOF-010-causal-counterfactual-runhac330local.svg",
+      "masterSha256": "593e1e05da577d4801d3d20dc3e6ccb2619c23a09f5741c46bc5df0024167172",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "asset": "IL-PROOF-010",
+      "export": "IL-PROOF-010-causal-counterfactual-1200x675-runhac330local.png",
+      "master": "IL-PROOF-010-causal-counterfactual-runhac330local.svg",
+      "masterSha256": "593e1e05da577d4801d3d20dc3e6ccb2619c23a09f5741c46bc5df0024167172",
+      "width": 1200,
+      "height": 675
+    },
+    {
+      "asset": "IL-PROOF-010",
+      "export": "IL-PROOF-010-causal-counterfactual-brief-1920x1080-runhac330local.png",
+      "master": "IL-PROOF-010-causal-counterfactual-brief-runhac330local.svg",
+      "masterSha256": "2dee4149ccc9b6614fe36c061164dd2ca060e1032bd427306adea929a3c944a6",
+      "width": 1920,
+      "height": 1080,
+      "presentationRole": "5s"
+    },
+    {
+      "asset": "IL-PROOF-011",
+      "export": "IL-PROOF-011-evidence-load-bearing-1920x1080-runhac330local.png",
+      "master": "IL-PROOF-011-evidence-load-bearing-runhac330local.svg",
+      "masterSha256": "52e2b315ae5ad157a38280ab892fd9475e8363cd425cd7d5b1e3d09c8076a1bc",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-PROOF-011",
+      "export": "IL-PROOF-011-evidence-load-bearing-2400x1350-runhac330local.png",
+      "master": "IL-PROOF-011-evidence-load-bearing-runhac330local.svg",
+      "masterSha256": "52e2b315ae5ad157a38280ab892fd9475e8363cd425cd7d5b1e3d09c8076a1bc",
+      "width": 2400,
+      "height": 1350
+    },
+    {
+      "asset": "IL-PROOF-011",
+      "export": "IL-PROOF-011-evidence-load-bearing-1280x720-runhac330local.png",
+      "master": "IL-PROOF-011-evidence-load-bearing-runhac330local.svg",
+      "masterSha256": "52e2b315ae5ad157a38280ab892fd9475e8363cd425cd7d5b1e3d09c8076a1bc",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "asset": "IL-PROOF-011",
+      "export": "IL-PROOF-011-evidence-load-bearing-1200x675-runhac330local.png",
+      "master": "IL-PROOF-011-evidence-load-bearing-runhac330local.svg",
+      "masterSha256": "52e2b315ae5ad157a38280ab892fd9475e8363cd425cd7d5b1e3d09c8076a1bc",
+      "width": 1200,
+      "height": 675
+    },
+    {
+      "asset": "IL-DIAG-010",
+      "export": "IL-DIAG-010-conceptual-causal-architecture-1920x1080.png",
+      "master": "IL-DIAG-010-conceptual-causal-architecture.svg",
+      "masterSha256": "2dade360df11e3bcc6ec1c7003d23a171ea5866fc9ac1c58a06f13b3894d78cc",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-DIAG-010",
+      "export": "IL-DIAG-010-conceptual-causal-architecture-2400x1350.png",
+      "master": "IL-DIAG-010-conceptual-causal-architecture.svg",
+      "masterSha256": "2dade360df11e3bcc6ec1c7003d23a171ea5866fc9ac1c58a06f13b3894d78cc",
+      "width": 2400,
+      "height": 1350
+    },
+    {
+      "asset": "IL-DIAG-010",
+      "export": "IL-DIAG-010-conceptual-causal-architecture-1280x720.png",
+      "master": "IL-DIAG-010-conceptual-causal-architecture.svg",
+      "masterSha256": "2dade360df11e3bcc6ec1c7003d23a171ea5866fc9ac1c58a06f13b3894d78cc",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "asset": "IL-DIAG-011",
+      "export": "IL-DIAG-011-cloud-participation-1920x1080-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-DIAG-011",
+      "export": "IL-DIAG-011-cloud-participation-2400x1350-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "width": 2400,
+      "height": 1350
+    },
+    {
+      "asset": "IL-DIAG-011",
+      "export": "IL-DIAG-011-cloud-participation-1280x720-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "asset": "IL-DIAG-011",
+      "export": "IL-DIAG-011-cloud-participation-1200x675-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "width": 1200,
+      "height": 675
+    },
+    {
+      "asset": "IL-DIAG-011",
+      "export": "IL-DIAG-011-cloud-participation-brief-1920x1080-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-011-cloud-participation-brief-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "39c15db99a7e74c694a966f2b5d8c145c29f7437cfd4f735697fe7874e8c7238",
+      "width": 1920,
+      "height": 1080,
+      "presentationRole": "5s"
+    },
+    {
+      "asset": "IL-DIAG-012",
+      "export": "IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "1e4006c0764476256c332371bce3814a9cd1d6a54819bf1d84c1a1facd6e43b2",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-DIAG-012",
+      "export": "IL-DIAG-012-deployment-trust-boundaries-2400x1350-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "1e4006c0764476256c332371bce3814a9cd1d6a54819bf1d84c1a1facd6e43b2",
+      "width": 2400,
+      "height": 1350
+    },
+    {
+      "asset": "IL-DIAG-012",
+      "export": "IL-DIAG-012-deployment-trust-boundaries-1200x675-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "1e4006c0764476256c332371bce3814a9cd1d6a54819bf1d84c1a1facd6e43b2",
+      "width": 1200,
+      "height": 675
+    },
+    {
+      "asset": "IL-DIAG-012",
+      "export": "IL-DIAG-012-deployment-trust-boundaries-brief-1920x1080-runilkhac340cloud1786730369123.png",
+      "master": "IL-DIAG-012-deployment-trust-boundaries-brief-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "93e754b10900eb4834db892e3d2e6dd5a38e30ae25c3fc4e35d29615fee00f32",
+      "width": 1920,
+      "height": 1080,
+      "presentationRole": "5s"
+    },
+    {
+      "asset": "IL-PROOF-012",
+      "export": "IL-PROOF-012-receipt-effect-observation-1920x1080-runilkhac340cloud1786730369123.png",
+      "master": "IL-PROOF-012-receipt-effect-observation-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "8ca78eacadc85121b411dbb290e24c0e7704861c79e31a4ae4eb23b593d41547",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-PROOF-012",
+      "export": "IL-PROOF-012-receipt-effect-observation-1280x720-runilkhac340cloud1786730369123.png",
+      "master": "IL-PROOF-012-receipt-effect-observation-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "8ca78eacadc85121b411dbb290e24c0e7704861c79e31a4ae4eb23b593d41547",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "asset": "IL-PROOF-012",
+      "export": "IL-PROOF-012-receipt-effect-observation-1200x675-runilkhac340cloud1786730369123.png",
+      "master": "IL-PROOF-012-receipt-effect-observation-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "8ca78eacadc85121b411dbb290e24c0e7704861c79e31a4ae4eb23b593d41547",
+      "width": 1200,
+      "height": 675
+    },
+    {
+      "asset": "IL-PROOF-013",
+      "export": "IL-PROOF-013-fail-closed-controls-1920x1080-runilkhac340cloud1786730369123.png",
+      "master": "IL-PROOF-013-fail-closed-controls-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "7297cf6a65aa1e5793b18b685f0b17f126eb46a38e4e95ce4dd3cf95cfb3661c",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-PROOF-013",
+      "export": "IL-PROOF-013-fail-closed-controls-1280x720-runilkhac340cloud1786730369123.png",
+      "master": "IL-PROOF-013-fail-closed-controls-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "7297cf6a65aa1e5793b18b685f0b17f126eb46a38e4e95ce4dd3cf95cfb3661c",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "asset": "IL-PROOF-013",
+      "export": "IL-PROOF-013-fail-closed-controls-1200x675-runilkhac340cloud1786730369123.png",
+      "master": "IL-PROOF-013-fail-closed-controls-runilkhac340cloud1786730369123.svg",
+      "masterSha256": "7297cf6a65aa1e5793b18b685f0b17f126eb46a38e4e95ce4dd3cf95cfb3661c",
+      "width": 1200,
+      "height": 675
+    },
+    {
+      "asset": "IL-PROOF-014",
+      "export": "IL-PROOF-014-claim-boundary-1920x1080.png",
+      "master": "IL-PROOF-014-claim-boundary.svg",
+      "masterSha256": "464b144b83780da8c189ce0d0a5d35dc77e84bc2e101f82062a697c5353a76c2",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "asset": "IL-PROOF-014",
+      "export": "IL-PROOF-014-claim-boundary-1280x720.png",
+      "master": "IL-PROOF-014-claim-boundary.svg",
+      "masterSha256": "464b144b83780da8c189ce0d0a5d35dc77e84bc2e101f82062a697c5353a76c2",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "asset": "IL-PROOF-014",
+      "export": "IL-PROOF-014-claim-boundary-1200x675.png",
+      "master": "IL-PROOF-014-claim-boundary.svg",
+      "masterSha256": "464b144b83780da8c189ce0d0a5d35dc77e84bc2e101f82062a697c5353a76c2",
+      "width": 1200,
+      "height": 675
+    }
+  ]
+}
