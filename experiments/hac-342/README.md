@@ -28,7 +28,7 @@ counterfactual in Google Cloud.
 ```text
 sourcePacketSha256     794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0
 publicPacketSha256     ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d
-evidencePublicationSha [BIND: evidencePublicationSha]
+evidencePublicationSha 75253e38791e69f7e2a4bb3a041044a9114c32f0
 ```
 
 `publicPacketSha256` verifies `evidence/cloud-run.public.json` — the bytes
@@ -41,7 +41,9 @@ from public material, and nothing here claims you can. It exists so the source
 packet cannot later be altered without detection.
 
 `evidencePublicationSha` identifies the immutable commit publishing this
-package.
+package, anchored permanently by the tag `hac-342-evidence-publication`. Every
+judge-facing URL pins to that commit SHA — never to a branch name, which could
+move.
 
 **The public packet is a redacted derivative. It is not byte-identical to the
 frozen source packet, and its digest is not the source digest.** Each identifier
@@ -124,12 +126,31 @@ This corresponds to the source recorded at `runtimeSourceSha` but is **not** tha
 Git commit object and is never renamed to it. Evidence artifacts are excluded —
 they are the run's output, not its source.
 
+## Judge-facing evidence links
+
+Resolved in `evidence/publication-bindings.json`, all pinned to
+`75253e38791e69f7e2a4bb3a041044a9114c32f0`:
+
+- **View cloud evidence** — `experiments/hac-342/evidence/cloud-run.public.json`
+- **Verify packet** (`hac340VerifierUrl`) — `experiments/hac-342/bin/verify-public-packet.mjs`
+- **Redaction manifest** — `experiments/hac-342/evidence/redaction-manifest.json`
+- **Runtime source snapshot** — `experiments/hac-342/evidence/runtime-source-snapshot.json`
+
+`runtimeSourceUrl` is deliberately unbound; see Runtime source above.
+`hac330VerifierUrl` does not exist — HAC-330 uses `hac330VerifyCommand`.
+
 ## Redaction review
 
-`redactionReviewStatus`: **completed 2026-08-16** — automated pattern scan for
-credentials, keys, tokens, personal identifiers, deployment endpoints and
+`redactionReviewStatus`: **completed 2026-08-16** — judge-safe publication
+checked for secrets, credentials and PII before release. Automated pattern scan
+for credentials, keys, tokens, personal identifiers, deployment endpoints and
 service-account local parts, plus manual field-by-field review. Re-run
 automatically by `verify-public-packet.mjs`.
+
+**Scope: this publication package only** (`experiments/hac-342/**`). This is not
+a claim that the repository as a whole contains no personal identifiers — it does
+not; pre-existing identifiers appear in already-public HAC-325 material merged
+before this issue, tracked separately and not modified here.
 
 This is a redaction review. It is not a security audit, a penetration test, or a
 compliance review, and it is not described as one.
@@ -171,11 +192,15 @@ both values rather than resolving silently:
 
 ## Bindings still unresolved
 
-- `[BIND: evidencePublicationSha]` — needs this commit to exist
-- `[BIND: cloudEvidenceUrl]` — needs the immutable published commit URL
-- `[BIND: verifierUrl]` — namespaced `hac340VerifierUrl`; HAC-330 uses
-  `hac330VerifyCommand` and has no verifier URL
-- `[BIND: runtimeSourceUrl]` — **will not be bound.** Use the runtime source
-  snapshot model above; surfaces must show the explicit unavailable state.
+All resolved except one, in `evidence/publication-bindings.json`:
 
-An unbound token on a judge-facing surface is a release blocker.
+- `evidencePublicationSha` — **bound** to `75253e3…`
+- `cloudEvidenceUrl` — **bound**, pinned to that commit
+- `hac340VerifierUrl` — **bound**, pinned to that commit
+- `redactionReviewStatus` — **bound**
+- `runtimeSourceUrl` — **deliberately unbound.** Surfaces must render the
+  explicit unavailable state and use the runtime source snapshot. No revision
+  link may be fabricated.
+
+An unbound token on a judge-facing surface is a release blocker; the unavailable
+state above is a rendered state, not an unbound token.

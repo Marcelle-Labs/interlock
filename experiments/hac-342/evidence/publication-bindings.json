@@ -1,0 +1,50 @@
+{
+  "issue": "HAC-342",
+  "kind": "publication bindings",
+  "note": "Resolves the [BIND: ...] tokens the HAC-342 design left open. Kept separate from redaction-manifest.json so that regenerating the redaction output stays deterministic: the manifest describes what was removed, this file describes where the result was published.",
+  "publicationCommit": {
+    "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+    "permanenceAnchor": "refs/tags/hac-342-evidence-publication",
+    "permanenceRationale": "main requires linear history, so a squash or rebase merge would not preserve this commit's SHA. The annotated tag keeps the exact published bytes permanently reachable, and every judge-facing URL below pins to that SHA rather than to a branch.",
+    "mutableRefsAreNotEvidence": "No judge-facing URL resolves through a branch name."
+  },
+  "bindings": {
+    "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+    "cloudEvidenceUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+    "cloudEvidenceRawUrl": "https://raw.githubusercontent.com/Marcelle-Labs/interlock/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+    "hac340VerifierUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+    "redactionManifestUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+    "runtimeSourceSnapshotUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/runtime-source-snapshot.json",
+    "redactionReviewStatus": "completed 2026-08-16 — judge-safe publication checked for secrets, credentials and PII before release"
+  },
+  "deliberatelyUnbound": {
+    "runtimeSourceUrl": {
+      "state": "unavailable / non-public",
+      "reason": "runtimeSourceSha ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a is intentionally not published. Its tree contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to it would expose what this package exists to remove, and rewriting it would change the SHA and misstate which bytes ran.",
+      "substitute": "runtimeSourceSnapshotSha256",
+      "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+      "judgeFacingRequirement": "Surfaces must render the explicit unavailable state. No revision link may be fabricated."
+    },
+    "hac330VerifierUrl": {
+      "state": "not applicable",
+      "reason": "HAC-330 verification is reproduction from the recorded revision, bound by hac330VerifyCommand. No verifier URL exists and none is invented. verifierUrl belongs to the HAC-340 cloud packet only; no binding key is shared across proof classes."
+    }
+  },
+  "digests": {
+    "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+    "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+    "sourcePacketPublished": false,
+    "rule": "Every digest matches the exact bytes it labels. publicPacketSha256 is recomputable by any reader over the published bytes. sourcePacketSha256 is a commitment to bytes that are deliberately not published and is not reader-recomputable."
+  },
+  "redactionReviewScope": {
+    "scope": "The HAC-342 publication package only: experiments/hac-342/**.",
+    "statement": "Judge-safe publication checked for secrets, credentials and PII before release.",
+    "notClaimed": [
+      "security audit",
+      "penetration test",
+      "compliance review",
+      "that the repository as a whole contains no personal identifiers"
+    ],
+    "knownOutOfScopeExposure": "Pre-existing identifiers appear in already-public HAC-325 material merged before this issue. Not introduced by HAC-342, not remediated here, and tracked separately. HAC-342 does not modify Git history."
+  }
+}
