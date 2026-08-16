@@ -1,0 +1,558 @@
+{
+  "manifestId": "HAC-333-storyboard-manifest",
+  "revision": "r03",
+  "supersedes": [
+    "r02 (design handoff, Claude Design)",
+    "r01 (pre-HAC-316-pivot storyboard model)"
+  ],
+  "issue": "HAC-333",
+  "designAuthority": "HAC-333 current issue contract",
+  "designSource": "Claude Design bundle: templates/muted-storyboard/MutedStoryboard.dc.html + storyboard/scene-manifest.json r02",
+  "canonicalSource": "media/hac-333/storyboard.html",
+  "geometry": {
+    "width": 1920,
+    "height": 1080,
+    "aspect": "16:9"
+  },
+  "muted": true,
+  "totalDuration": 30.0,
+  "requiredTotalDuration": 30.0,
+  "proofClasses": {
+    "A": {
+      "label": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "theme": "paper"
+    },
+    "B": {
+      "label": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "theme": "ink"
+    },
+    "brand": {
+      "label": "IDENTITY",
+      "sourceIssue": "HAC-332",
+      "theme": "ink"
+    }
+  },
+  "factualClasses": [
+    "FROZEN EVIDENCE",
+    "DERIVED PRESENTATION",
+    "EDITORIAL CONTEXT",
+    "UNRESOLVED BINDING"
+  ],
+  "globalNonClaims": [
+    "HAC-330 did not run on Google Cloud",
+    "HAC-340 does not reproduce the 140/120 counterfactual",
+    "Agent Runtime did not participate",
+    "Agent Gateway did not participate",
+    "CONTENT_AUTHZ is not on the HAC-340 path",
+    "wrong-audience-token rejection is local parity evidence, not a HAC-340 cloud result",
+    "HAC-316 is failed/pivoted provenance and is not a passing proof packet",
+    "WITHHOLD_SERIALIZE is not human approval, joint authorization or certification",
+    "ALLOW plus receipt is not an AUTHORIZED lifecycle state; no HAC-317 lifecycle vocabulary is imported",
+    "no exactly-once, restart-safety or recovery guarantee is claimed (HAC-327 out of scope)",
+    "no safety, security, verification or production-readiness guarantee is claimed",
+    "three cloud negative controls are three controls, not comprehensive attack coverage"
+  ],
+  "publicEvidence": {
+    "issue": "HAC-342",
+    "status": "PASS",
+    "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+    "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+    "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+    "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+    "sourcePacketPublished": false,
+    "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+    "runtimeSourceShaPublished": false,
+    "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+    "runtimeSourceUrl": {
+      "state": "unavailable / non-public",
+      "reason": "The commit tree contains an identifier excluded from publication. No revision link may be fabricated."
+    },
+    "cloudEvidenceUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+    "hac340VerifierUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs"
+  },
+  "scenes": [
+    {
+      "sceneId": "SB-00",
+      "title": "Identity / orientation",
+      "start": 0.0,
+      "end": 2.2,
+      "duration": 2.2,
+      "proofClass": "brand",
+      "semanticJob": "Orient the viewer to the product identity in the minimum time; hand the frame to the causal story.",
+      "sourceIssue": [
+        "HAC-332"
+      ],
+      "sourceArtifact": [
+        "IL-MOT-002 GateStinger (device sequence)",
+        "assets/logo/interlock-lockup-horizontal.svg"
+      ],
+      "sourceRevision": [],
+      "factualBindings": [],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "Interlock"
+      ],
+      "startState": "Word halves separated, gate absent",
+      "endState": "Canonical horizontal lockup, gate closed",
+      "motionJob": "Approved Inter -> gate -> lock device resolving to the canonical mark.",
+      "staticEquivalent": "Canonical horizontal lockup, gate closed, no device state.",
+      "reducedMotionEquivalent": "Lockup plus GateSequence static strip (IL-BRAND GateSequence).",
+      "holdState": "Lockup held, gate closed",
+      "correspondingCockpitState": "none",
+      "captureRequirements": [
+        "deterministic graphic only (templates/motion capture stage)"
+      ],
+      "explicitNonClaims": [
+        "no evidence is asserted on this frame"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "story.identity",
+      "holdStateId": "hold.story.identity",
+      "captureStateId": "capture.story.identity",
+      "correspondingCockpitStateId": null
+    },
+    {
+      "sceneId": "SB-01",
+      "title": "Two locally valid intents",
+      "start": 2.2,
+      "end": 5.0,
+      "duration": 2.8,
+      "proofClass": "A",
+      "semanticJob": "Establish two independent intents, each valid in its own scope, with no conflict language.",
+      "sourceIssue": [
+        "HAC-330"
+      ],
+      "sourceArtifact": [
+        "HAC-330 frozen controlled causal experiment (experimental setup)",
+        "IL-PRIM state grammar: LOCALLY VALID"
+      ],
+      "sourceRevision": [
+        "HAC-330 frozen run"
+      ],
+      "factualBindings": [
+        "state LOCALLY VALID (system grammar)",
+        "two-intent experimental setup"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "Two intents. Each one valid on its own.",
+        "Checked in its own scope. Nothing is coordinated yet."
+      ],
+      "startState": "Empty frame after identity",
+      "endState": "Two lanes present, both LOCALLY VALID, no coupling drawn",
+      "motionJob": "Establish independent trajectories (phase 01 cadence).",
+      "staticEquivalent": "Both lanes and both LOCALLY VALID chips present in one frame.",
+      "reducedMotionEquivalent": "Same static frame; no staggered arrival.",
+      "holdState": "Both lanes at rest, uncoupled",
+      "correspondingCockpitState": "HAC-341: per-intent local validity view (proof class A)",
+      "captureRequirements": [
+        "deterministic graphic only"
+      ],
+      "explicitNonClaims": [
+        "no per-intent numeric decomposition is claimed; only the joint outcome is frozen evidence"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "run.local.intents",
+      "holdStateId": "hold.run.local.intents",
+      "captureStateId": "capture.run.local.intents",
+      "correspondingCockpitStateId": "run.local.overview"
+    },
+    {
+      "sceneId": "SB-02",
+      "title": "Shared environment / coupling appears",
+      "start": 5.0,
+      "end": 8.2,
+      "duration": 3.2,
+      "proofClass": "A",
+      "semanticJob": "Reveal that the two intents share one revision-bound environment and one bounded joint constraint.",
+      "sourceIssue": [
+        "HAC-330"
+      ],
+      "sourceArtifact": [
+        "HAC-330 frozen experiment",
+        "IL-PRIM edge grammar: coupling",
+        "IL-PRIM node grammar: workspace.json evidence"
+      ],
+      "sourceRevision": [
+        "WorkspaceJSON revision-bound environment evidence (HAC-330)"
+      ],
+      "factualBindings": [
+        "bounded constraint 130",
+        "state COUPLED",
+        "environment evidence is WorkspaceJSON derived and revision bound"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "They share an environment, so the constraint is joint, not local.",
+        "One environment carries both intents, and one bounded constraint applies to their joint outcome."
+      ],
+      "startState": "Two uncoupled lanes",
+      "endState": "Both lanes terminate in the shared environment band; COUPLED",
+      "motionJob": "Reveal a shared dependency and make the coupling visible (phases 02-03).",
+      "staticEquivalent": "Both lanes drawn into the environment band with COUPLED and bound 130 shown.",
+      "reducedMotionEquivalent": "Same frame; coupling drawn solid from the first frame.",
+      "holdState": "Coupled pair over the environment band",
+      "correspondingCockpitState": "HAC-341: shared-environment evidence view with the joint constraint",
+      "captureRequirements": [
+        "deterministic graphic only",
+        "optional frozen evidence panel for the environment revision"
+      ],
+      "explicitNonClaims": [
+        "the coupling arises from the shared environment, not from model reasoning or agent behaviour"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "run.local.coupled",
+      "holdStateId": "hold.run.local.coupled",
+      "captureStateId": "capture.run.local.coupled",
+      "correspondingCockpitStateId": "run.local.overview"
+    },
+    {
+      "sceneId": "SB-03",
+      "title": "Baseline arm",
+      "start": 8.2,
+      "end": 11.4,
+      "duration": 3.2,
+      "proofClass": "A",
+      "semanticJob": "Show the frozen baseline: without composition-aware coordination the joint outcome crosses the bound.",
+      "sourceIssue": [
+        "HAC-330"
+      ],
+      "sourceArtifact": [
+        "HAC-330 frozen baseline arm"
+      ],
+      "sourceRevision": [
+        "HAC-330 frozen run"
+      ],
+      "factualBindings": [
+        "140 > 130",
+        "invalid joint state",
+        "baseline arm"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "Unmanaged, the pair lands outside the bound.",
+        "Baseline, no composition-aware coordination"
+      ],
+      "startState": "Coupled pair, no decision surface",
+      "endState": "140 > 130 breach frame, FAILED",
+      "motionJob": "Show the resulting bounded state change.",
+      "staticEquivalent": "Breach frame with 140 > 130 and the invalid-joint-state label.",
+      "reducedMotionEquivalent": "Same frame, numerals present from the first frame.",
+      "holdState": "Breach frame held",
+      "correspondingCockpitState": "HAC-341: baseline arm result, proof class A",
+      "captureRequirements": [
+        "frozen evidence panel (HAC-330 baseline result)"
+      ],
+      "explicitNonClaims": [
+        "this arm ran locally, not on Google Cloud"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "run.local.baseline",
+      "holdStateId": "hold.run.local.baseline",
+      "captureStateId": "capture.run.local.baseline",
+      "correspondingCockpitStateId": "run.local.baseline"
+    },
+    {
+      "sceneId": "SB-04",
+      "title": "Interlock treatment",
+      "start": 11.4,
+      "end": 15.6,
+      "duration": 4.2,
+      "proofClass": "A",
+      "semanticJob": "Show revision-bound environment evidence reaching Interlock, the deterministic decision, and the changed bounded outcome.",
+      "sourceIssue": [
+        "HAC-330"
+      ],
+      "sourceArtifact": [
+        "HAC-330 frozen treatment arm"
+      ],
+      "sourceRevision": [
+        "WorkspaceJSON revision-bound environment evidence (HAC-330)"
+      ],
+      "factualBindings": [
+        "WITHHOLD_SERIALIZE",
+        "120 <= 130",
+        "checks 24/24",
+        "bounded constraint satisfied"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "Interlock reads the shared evidence and changes the coordination decision before the joint action proceeds.",
+        "Same environment, same intents, different coordination decision"
+      ],
+      "startState": "Coupled pair with evidence available",
+      "endState": "Evidence -> WITHHOLD_SERIALIZE -> 120 <= 130",
+      "motionJob": "Direct attention to the deterministic Interlock decision, then to the bounded result.",
+      "staticEquivalent": "The three-panel chain drawn complete in one frame with checks 24/24.",
+      "reducedMotionEquivalent": "Same frame; no sequential emphasis, no gate animation.",
+      "holdState": "Decision panel and result panel held together",
+      "correspondingCockpitState": "HAC-341: deterministic decision record for the treatment arm, proof class A",
+      "captureRequirements": [
+        "frozen evidence panel (HAC-330 treatment result and decision)"
+      ],
+      "explicitNonClaims": [
+        "not human approved",
+        "not jointly authorized",
+        "not certified",
+        "not labelled safe",
+        "no receipt, protected target or independent observer state is claimed for HAC-330"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "run.local.treatment",
+      "holdStateId": "hold.run.local.treatment",
+      "captureStateId": "capture.run.local.treatment",
+      "correspondingCockpitStateId": "run.local.treatment"
+    },
+    {
+      "sceneId": "SB-05",
+      "title": "Perturbed evidence arm",
+      "start": 15.6,
+      "end": 18.0,
+      "duration": 2.4,
+      "proofClass": "A",
+      "semanticJob": "Demonstrate the evidence is load-bearing: change it and the deterministic decision and outcome change back.",
+      "sourceIssue": [
+        "HAC-330"
+      ],
+      "sourceArtifact": [
+        "HAC-330 frozen perturbed evidence arm"
+      ],
+      "sourceRevision": [
+        "HAC-330 frozen run"
+      ],
+      "factualBindings": [
+        "ALLOW_PARALLEL",
+        "140 > 130",
+        "invalid joint state",
+        "perturbed evidence arm"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "Perturb the evidence and the decision changes with it. The evidence is load-bearing.",
+        "Perturbed evidence"
+      ],
+      "startState": "Treatment result in view, dimmed",
+      "endState": "ALLOW_PARALLEL and 140 > 130 dominant",
+      "motionJob": "Switch between frozen experiment arms.",
+      "staticEquivalent": "Two-arm comparison in one frame: evidence present vs evidence changed.",
+      "reducedMotionEquivalent": "Same comparison frame; no arm-switch transition.",
+      "holdState": "Perturbed arm held",
+      "correspondingCockpitState": "HAC-341: arm selector across the three frozen HAC-330 arms",
+      "captureRequirements": [
+        "frozen evidence panel (HAC-330 perturbation arm)"
+      ],
+      "explicitNonClaims": [
+        "the perturbation is a frozen experimental arm, not a live re-run"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "run.local.perturbed",
+      "holdStateId": "hold.run.local.perturbed",
+      "captureStateId": "capture.run.local.perturbed",
+      "correspondingCockpitStateId": "run.local.perturbed"
+    },
+    {
+      "sceneId": "SB-06",
+      "title": "Hard proof-class transition",
+      "start": 18.0,
+      "end": 19.4,
+      "duration": 1.4,
+      "proofClass": "transition",
+      "semanticJob": "Reset the proof context so no viewer can read the cloud run as the causal experiment.",
+      "sourceIssue": [
+        "HAC-330",
+        "HAC-340"
+      ],
+      "sourceArtifact": [
+        "proof-class labelling convention (HAC-331 / HAC-334)"
+      ],
+      "sourceRevision": [],
+      "factualBindings": [
+        "HAC-330 is local",
+        "HAC-340 is a separate run"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "Context reset, different run, different evidence",
+        "Controlled causal experiment",
+        "Google Cloud participation"
+      ],
+      "startState": "Paper board, proof class A",
+      "endState": "Ink board, proof class B",
+      "motionJob": "Establish a hard transition between proof classes: gate wipe, no continuous timeline.",
+      "staticEquivalent": "Split board: class A above the divider, class B below, both labelled.",
+      "reducedMotionEquivalent": "Same split board, no wipe.",
+      "holdState": "Split board held with both class labels legible",
+      "correspondingCockpitState": "HAC-341: proof-class switch (A / B are separate contexts, never merged)",
+      "captureRequirements": [
+        "deterministic graphic only"
+      ],
+      "explicitNonClaims": [
+        "no continuous timeline links HAC-330 events to HAC-340 events",
+        "no run transforms into the other"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "transition.proof-class-reset",
+      "holdStateId": "hold.transition.proof-class-reset",
+      "captureStateId": "capture.transition.proof-class-reset",
+      "correspondingCockpitStateId": "transition.proof-class-reset"
+    },
+    {
+      "sceneId": "SB-07",
+      "title": "Real Google Cloud participation",
+      "start": 19.4,
+      "end": 25.6,
+      "duration": 6.2,
+      "proofClass": "B",
+      "semanticJob": "Show the recorded cloud path once, with receipt, protected mutation, independent read-back and negative controls.",
+      "sourceIssue": [
+        "HAC-340"
+      ],
+      "sourceArtifact": [
+        "IL-DIAG-002 what actually ran on Google Cloud",
+        "IL-PROOF-001 receipt, effect, independent observation",
+        "IL-PROOF-002 three cloud negative controls",
+        "IL-DIAG-003 runtimeSourceSha vs evidencePublicationSha"
+      ],
+      "sourceRevision": [
+        "runtimeSourceSha ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a"
+      ],
+      "factualBindings": [
+        "gemini-3.5-flash",
+        "Google ADK 1.35.1",
+        "Vertex AI global access",
+        "Cloud Run-hosted agent",
+        "Interlock MCP proxy",
+        "decision ALLOW",
+        "authorization receipt (digest held in the raw-proof layer, not on the board)",
+        "observed alpha=45",
+        "negative controls 403 / 401 / 403",
+        "correlation ilk-hac340-cloud-1786730369123",
+        "Cloud Logging correlation"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "A real Gemini and ADK execution on Cloud Run traversed Interlock, and the resulting state was read back independently."
+      ],
+      "startState": "Ink board, path unlit",
+      "endState": "Hero path, plus the alpha=45 / 403-401-403 / Cloud Logging proof strip",
+      "motionJob": "Guide reading order along the recorded path; distinguish execution from observation.",
+      "staticEquivalent": "Hero path and proof strip in one frame.",
+      "reducedMotionEquivalent": "Same frame; no sequential path reveal.",
+      "holdState": "Path complete with observed alpha=45 in view",
+      "correspondingCockpitState": "HAC-341: cloud participation record, and the raw-proof drilldown holding the receipt digest, runtimeSourceSha and correlation id (IL-PROOF-005)",
+      "captureRequirements": [
+        "Google Cloud evidence frame (frozen HAC-340 record)",
+        "source artifact for runtimeSourceSha",
+        "no live cloud infrastructure required"
+      ],
+      "explicitNonClaims": [
+        "does not reproduce the HAC-330 counterfactual",
+        "Agent Runtime not on this path",
+        "Agent Gateway not on this path",
+        "CONTENT_AUTHZ not on this path",
+        "wrong-audience-token rejection is local parity evidence, not shown here",
+        "three controls, not comprehensive attack coverage",
+        "receipt is not proof of exactly-once execution",
+        "no AUTHORIZED lifecycle state is claimed for the cloud run; the frozen language is ALLOW plus receipt",
+        "read-back is not a formal correctness proof"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "run.cloud.overview",
+      "holdStateId": "hold.run.cloud.overview",
+      "captureStateId": "capture.run.cloud.overview",
+      "correspondingCockpitStateId": "run.cloud.overview"
+    },
+    {
+      "sceneId": "SB-08",
+      "title": "Close / claim boundary",
+      "start": 25.6,
+      "end": 30.0,
+      "duration": 4.4,
+      "proofClass": "close",
+      "semanticJob": "State the mechanism and the trust boundary, with the two proof classes kept distinct.",
+      "sourceIssue": [
+        "HAC-330",
+        "HAC-340",
+        "HAC-332"
+      ],
+      "sourceArtifact": [
+        "IL-PROOF-003 claim boundary",
+        "IL-SCAF-004 video end card",
+        "IL-MOT-004 EndCardMotion"
+      ],
+      "sourceRevision": [],
+      "factualBindings": [
+        "HAC-330 controlled causal proof",
+        "HAC-340 Google Cloud participation",
+        "Agent Runtime and Agent Gateway not claimed"
+      ],
+      "unresolvedBindings": [],
+      "editorialCopy": [
+        "Evidence-bound coordination before shared-state mutation.",
+        "Local. Evidence changed the decision and the bounded outcome.",
+        "One traversal, receipt-bound mutation, independent read-back.",
+        "Not on the recorded path."
+      ],
+      "startState": "Cloud path frame",
+      "endState": "End card, gate opened, claim boundary in three columns",
+      "motionJob": "Gate opens, then the end card holds; the gate rests opened because a recorded ALLOW and mutation exist.",
+      "staticEquivalent": "End card assembled, gate open, three columns legible.",
+      "reducedMotionEquivalent": "Same assembled end card; no opening animation.",
+      "holdState": "End card held to 30.00",
+      "correspondingCockpitState": "HAC-341: claim-boundary summary listing supported claims and explicit non-claims",
+      "captureRequirements": [
+        "deterministic graphic only",
+        "registry row required before shipping (evidence-bound end card)"
+      ],
+      "explicitNonClaims": [
+        "no safety, security, verification or certification claim",
+        "no fleet-scale or production-readiness claim"
+      ],
+      "status": "design-frozen",
+      "semanticStateId": "run.claim-boundary",
+      "holdStateId": "hold.run.claim-boundary",
+      "captureStateId": "capture.run.claim-boundary",
+      "correspondingCockpitStateId": [
+        "run.local.claim-boundary",
+        "run.cloud.claim-boundary"
+      ]
+    }
+  ],
+  "timingCheck": {
+    "sum": 30.0,
+    "scenes": 9,
+    "equalsRequiredTotal": true,
+    "rule": "Verified mechanically by media/hac-333/bin/verify-storyboard.mjs, not asserted here."
+  },
+  "handoffs": {
+    "HAC-324": {
+      "consumes": "captureStateId per scene",
+      "contract": "Each scene defines one inspectable hold state. Capture runs with storyboard annotation rails off. Deterministic graphics only except where captureRequirements names a product surface.",
+      "annotationRails": "never captured"
+    },
+    "HAC-336": {
+      "consumes": "this manifest plus media/hac-333/storyboard.html",
+      "contract": "Final media assembly. HAC-333 owns the story, timing and motion contract; HAC-336 owns recording and assembly.",
+      "mustNotAppear": [
+        "HAC-330 did not run on Google Cloud",
+        "HAC-340 does not reproduce the 140/120 counterfactual",
+        "Agent Runtime did not participate",
+        "Agent Gateway did not participate",
+        "CONTENT_AUTHZ is not on the HAC-340 path",
+        "wrong-audience-token rejection is local parity evidence, not a HAC-340 cloud result",
+        "HAC-316 is failed/pivoted provenance and is not a passing proof packet",
+        "WITHHOLD_SERIALIZE is not human approval, joint authorization or certification",
+        "ALLOW plus receipt is not an AUTHORIZED lifecycle state; no HAC-317 lifecycle vocabulary is imported",
+        "no exactly-once, restart-safety or recovery guarantee is claimed (HAC-327 out of scope)",
+        "no safety, security, verification or production-readiness guarantee is claimed",
+        "three cloud negative controls are three controls, not comprehensive attack coverage"
+      ]
+    },
+    "HAC-341": {
+      "consumes": "semanticStateId / correspondingCockpitStateId",
+      "contract": "One vocabulary across storyboard, cockpit and capture."
+    }
+  }
+}

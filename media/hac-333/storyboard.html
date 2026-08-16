@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en" data-storyboard="HAC-333" data-revision="r03">
+<head>
+<meta charset="utf-8">
+<title>Interlock — muted 30-second storyboard (HAC-333)</title>
+<style>
+/* Interlock design system subset — HAC-332 tokens, inlined so the storyboard
+   renders deterministically with no network fetch. Capture must not depend on
+   a font CDN being reachable. Geist is used when present, never required. */
+:root{
+  --il-n-00:#ffffff; --il-n-05:#f7f8f8; --il-n-10:#eef0f0; --il-n-20:#dde0e0;
+  --il-n-30:#c2c7c7; --il-n-40:#9ba2a2; --il-n-50:#737b7b; --il-n-60:#515858;
+  --il-n-70:#343a3a; --il-n-80:#1e2323; --il-n-90:#141818; --il-n-95:#0f1212;
+  --il-ink:#0b0d0e; --il-paper:#fbfbfa;
+  --il-state-local:oklch(0.58 0.005 240);
+  --il-state-coupled:oklch(0.58 0.130 250);
+  --il-state-blocked:oklch(0.58 0.150 28);
+  --il-state-executed:oklch(0.52 0.130 300);
+  --il-state-observed:oklch(0.60 0.100 205);
+  --font-sans:Geist,"Geist Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --stroke:2px; --radius:4px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--il-n-90);font-family:var(--font-sans);color:var(--il-ink);padding:32px}
+
+/* ── True 16:9 output geometry. Scenes are authored at 1920x1080 and scaled
+      down for review only; capture uses the unscaled frame. ── */
+.frame{width:1920px;height:1080px;position:relative;overflow:hidden;
+  transform-origin:top left;display:flex;flex-direction:column}
+.frame-wrap{width:100%;max-width:1920px;margin:0 auto 40px;position:relative}
+.frame-wrap::after{content:attr(data-label);position:absolute;left:0;top:-26px;
+  font-family:var(--font-mono);font-size:13px;color:var(--il-n-40);letter-spacing:.04em}
+
+/* ── Proof-class themes. Class A is paper, class B is ink: the field inverts
+      at the boundary so the two runs can never be misread as continuous. ── */
+.frame[data-proof-class="A"]{background:var(--il-paper);color:var(--il-ink)}
+.frame[data-proof-class="B"]{background:var(--il-ink);color:var(--il-paper)}
+.frame[data-proof-class="brand"]{background:var(--il-ink);color:var(--il-paper)}
+.frame[data-proof-class="close"]{background:var(--il-ink);color:var(--il-paper)}
+.frame[data-proof-class="transition"]{background:var(--il-n-50)}
+
+.rail{position:absolute;top:56px;left:72px;right:72px;display:flex;
+  justify-content:space-between;align-items:baseline;
+  font-family:var(--font-mono);font-size:20px;letter-spacing:.10em;text-transform:uppercase}
+.rail .cls{font-weight:600}
+.frame[data-proof-class="A"] .rail{color:var(--il-n-60)}
+.frame[data-proof-class="B"] .rail{color:var(--il-n-30)}
+.frame[data-proof-class="brand"] .rail,.frame[data-proof-class="close"] .rail{color:var(--il-n-40)}
+
+.stage{flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:0 72px;margin-top:40px}
+
+/* ── Caption-safe foot: 1680x200, min 44px type, two lines max, one
+      proposition at a time. The story must read completely muted. ── */
+.caption{position:absolute;left:120px;bottom:64px;width:1680px;height:200px;
+  display:flex;flex-direction:column;justify-content:flex-end;gap:14px}
+.caption p{font-size:46px;line-height:1.22;font-weight:500;max-width:1500px}
+.caption .sub{font-size:30px;font-weight:400;opacity:.72}
+.frame[data-proof-class="A"] .caption{color:var(--il-n-80)}
+.frame[data-proof-class="B"] .caption,.frame[data-proof-class="close"] .caption,
+.frame[data-proof-class="brand"] .caption{color:var(--il-n-10)}
+
+/* ── Nodes, states, panels ── */
+.row{display:flex;gap:40px;align-items:stretch}
+.node{flex:1;border:var(--stroke) solid currentColor;border-radius:var(--radius);
+  padding:34px 38px;min-height:190px;display:flex;flex-direction:column;gap:16px;
+  background:rgba(255,255,255,.02)}
+.node h3{font-size:30px;font-weight:600;letter-spacing:-.01em}
+.node .meta{font-family:var(--font-mono);font-size:22px;opacity:.66}
+.chip{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;
+  font-family:var(--font-mono);font-size:20px;font-weight:600;letter-spacing:.08em;
+  padding:8px 16px;border:var(--stroke) solid currentColor;border-radius:2px;text-transform:uppercase}
+/* State is never colour alone: every chip carries a glyph. */
+.chip::before{content:attr(data-glyph);font-weight:700}
+.chip[data-state="local"]{color:var(--il-state-local)}
+.chip[data-state="coupled"]{color:var(--il-state-coupled)}
+.chip[data-state="blocked"]{color:var(--il-state-blocked)}
+.chip[data-state="executed"]{color:var(--il-state-executed)}
+.chip[data-state="observed"]{color:var(--il-state-observed)}
+
+.env{border:4px solid var(--il-state-coupled);border-radius:var(--radius);
+  padding:30px 38px;margin:34px 0 0;display:flex;justify-content:space-between;align-items:center}
+.env .label{font-family:var(--font-mono);font-size:24px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--il-state-coupled);font-weight:600}
+.env .bound{font-family:var(--font-mono);font-size:40px;font-weight:600}
+
+.arms{display:flex;gap:36px;align-items:stretch;margin-top:8px}
+.arm{flex:1;border:var(--stroke) solid currentColor;border-radius:var(--radius);padding:30px 34px}
+.arm .k{font-family:var(--font-mono);font-size:20px;letter-spacing:.08em;
+  text-transform:uppercase;opacity:.6;margin-bottom:14px}
+.arm .v{font-family:var(--font-mono);font-size:56px;font-weight:600;line-height:1}
+.arm .n{font-size:24px;margin-top:14px;opacity:.75}
+.arm[data-verdict="invalid"]{border-color:var(--il-state-blocked);color:var(--il-state-blocked)}
+.arm[data-verdict="within"]{border-color:var(--il-state-observed);color:var(--il-state-observed)}
+.arrow{align-self:center;font-size:46px;opacity:.5;font-family:var(--font-mono)}
+
+/* ── SB-06 split board: both classes visible at once, divider explicit ── */
+/* Direct child of .frame, so it carries no negative margin: the halves already
+   run full-bleed and any inset here would push the frame past 1920. */
+.split{display:flex;flex-direction:column;height:100%;width:100%}
+.split .half{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 96px;gap:18px}
+.split .half.a{background:var(--il-paper);color:var(--il-ink)}
+.split .half.b{background:var(--il-ink);color:var(--il-paper)}
+.split .cls{font-family:var(--font-mono);font-size:26px;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:600}
+.split .chain{font-family:var(--font-mono);font-size:34px;font-weight:500}
+.split .rule{font-size:24px;opacity:.7}
+.divider{height:10px;background:var(--il-state-blocked);position:relative}
+.divider::after{content:"DIFFERENT RUN · DIFFERENT EVIDENCE · NOTHING CROSSES";
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--il-state-blocked);color:var(--il-n-00);font-family:var(--font-mono);
+  font-size:20px;font-weight:700;letter-spacing:.14em;padding:9px 26px;white-space:nowrap}
+
+/* ── SB-07 reading path is primary; digests are deliberately secondary ── */
+.path{display:flex;align-items:stretch;gap:0;margin-bottom:30px;flex-wrap:nowrap}
+.hop{flex:1;border:var(--stroke) solid var(--il-n-40);border-radius:var(--radius);
+  padding:20px 14px;text-align:center;display:flex;flex-direction:column;
+  justify-content:center;gap:8px;min-height:140px}
+.hop .n{font-family:var(--font-mono);font-size:15px;opacity:.55;letter-spacing:.08em}
+.hop .t{font-size:20px;font-weight:600;line-height:1.2}
+.hop[data-emph="decision"]{border-color:var(--il-state-executed);border-width:4px}
+.hop[data-emph="observe"]{border-color:var(--il-state-observed);border-width:4px}
+.hopsep{align-self:center;padding:0 10px;font-family:var(--font-mono);
+  font-size:26px;opacity:.45;color:var(--il-paper)}
+.secondary{display:flex;gap:28px;font-family:var(--font-mono);font-size:19px;
+  color:var(--il-n-40);border-top:1px solid var(--il-n-70);padding-top:20px;flex-wrap:wrap}
+.secondary b{color:var(--il-n-20);font-weight:600}
+
+/* ── SB-08 claim boundary: proven and not-claimed are equally weighted ── */
+.boundary{display:flex;gap:48px;margin-top:10px}
+.boundary .col{flex:1}
+.boundary h4{font-family:var(--font-mono);font-size:22px;letter-spacing:.10em;
+  text-transform:uppercase;margin-bottom:18px}
+.boundary .col.proven h4{color:var(--il-state-observed)}
+.boundary .col.not h4{color:var(--il-state-blocked)}
+.boundary li{list-style:none;font-size:24px;line-height:1.55;padding-left:30px;position:relative}
+.boundary .col.proven li::before{content:"+";position:absolute;left:0;
+  font-family:var(--font-mono);color:var(--il-state-observed);font-weight:700}
+.boundary .col.not li::before{content:"\2013";position:absolute;left:0;
+  font-family:var(--font-mono);color:var(--il-state-blocked);font-weight:700}
+
+.mark{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:34px}
+.mark .word{font-size:104px;font-weight:600;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.mark .gate{display:inline-block;width:26px;height:76px;border:5px solid var(--il-state-observed);
+  border-radius:3px;margin:0 12px}
+.mark .tag{font-family:var(--font-mono);font-size:26px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--il-n-40)}
+
+/* ── Motion. Reading order and state change only. Every scene is complete
+      without it; see the static/reduced-motion contract in README.md. ── */
+@keyframes il-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes il-wipe{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+[data-motion="rise"]{animation:il-rise .42s cubic-bezier(.2,.7,.3,1) both}
+[data-motion="wipe"]{animation:il-wipe .5s cubic-bezier(.2,.7,.3,1) both}
+[data-motion-delay="1"]{animation-delay:.16s}
+[data-motion-delay="2"]{animation-delay:.32s}
+[data-motion-delay="3"]{animation-delay:.48s}
+/* Reduced motion and the static build resolve to the held frame, never to a
+   frame that lost its causal order. */
+@media (prefers-reduced-motion:reduce){
+  [data-motion]{animation:none!important;opacity:1!important;transform:none!important;clip-path:none!important}
+}
+html[data-static="true"] [data-motion]{animation:none!important;opacity:1!important;
+  transform:none!important;clip-path:none!important}
+
+/* Storyboard annotation rails. Metadata for humans; never captured. */
+.annot{font-family:var(--font-mono);font-size:13px;color:var(--il-n-30);
+  background:var(--il-n-95);padding:14px 18px;margin:0 auto 40px;max-width:1920px;
+  border-left:3px solid var(--il-n-60);line-height:1.7}
+.annot b{color:var(--il-n-10)}
+html[data-rails="off"] .annot{display:none}
+</style>
+</head>
+<body>
+
+<!-- SB-00 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-00 · 00.00 → 02.20 · 2.20s · story.identity">
+<section class="frame" data-scene-id="SB-00" data-proof-class="brand"
+  data-semantic-state="story.identity" data-hold-state="hold.story.identity"
+  data-capture-state="capture.story.identity">
+  <div class="rail"><span class="cls">Identity</span><span>Interlock</span></div>
+  <div class="mark">
+    <div class="word" data-motion="rise">Inter<span class="gate"></span>lock</div>
+    <div class="tag" data-motion="rise" data-motion-delay="1">Evidence-bound coordination</div>
+  </div>
+  <div class="caption"><p>Interlock</p></div>
+</section>
+</div>
+<div class="annot"><b>SB-00</b> brand-only · no evidence claim · frozen values shown: none.
+<b>Motion job:</b> mark resolves; reading order only. <b>Static:</b> mark at rest, tagline present.</div>
+
+<!-- SB-01 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-01 · 02.20 → 05.00 · 2.80s · run.local.intents">
+<section class="frame" data-proof-class="A" data-scene-id="SB-01"
+  data-semantic-state="run.local.intents" data-hold-state="hold.run.local.intents"
+  data-capture-state="capture.run.local.intents">
+  <div class="rail"><span class="cls">Controlled local experiment</span><span>HAC-330</span></div>
+  <div class="stage">
+    <div class="row">
+      <div class="node" data-motion="rise">
+        <h3>Intent A</h3>
+        <span class="chip" data-state="local" data-glyph="○">Locally valid</span>
+        <div class="meta">reserve alpha</div>
+      </div>
+      <div class="node" data-motion="rise" data-motion-delay="1">
+        <h3>Intent B</h3>
+        <span class="chip" data-state="local" data-glyph="○">Locally valid</span>
+        <div class="meta">reserve beta</div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <p>Two intents. Each valid in its own scope.</p>
+    <p class="sub">Nothing is wrong with either one.</p>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-01</b> proof class A · HAC-330 · frozen values shown: none.
+<b>Motion job:</b> establish two independent trajectories. <b>Static:</b> both nodes drawn, both chips legible.
+<b>Cockpit:</b> run.local.overview.</div>
+
+<!-- SB-02 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-02 · 05.00 → 08.20 · 3.20s · run.local.coupled">
+<section class="frame" data-proof-class="A" data-scene-id="SB-02"
+  data-semantic-state="run.local.coupled" data-hold-state="hold.run.local.coupled"
+  data-capture-state="capture.run.local.coupled">
+  <div class="rail"><span class="cls">Controlled local experiment</span><span>HAC-330</span></div>
+  <div class="stage">
+    <div class="row">
+      <div class="node"><h3>Intent A</h3><span class="chip" data-state="local" data-glyph="○">Locally valid</span></div>
+      <div class="node"><h3>Intent B</h3><span class="chip" data-state="local" data-glyph="○">Locally valid</span></div>
+    </div>
+    <div class="env" data-motion="rise">
+      <span class="label">Shared revision-bound environment · coupled</span>
+      <span class="bound">joint bound &lt;= 130</span>
+    </div>
+  </div>
+  <div class="caption">
+    <p>They share one revision-bound environment.</p>
+    <p class="sub">The environment couples their outcomes, and it carries a joint bound.</p>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-02</b> proof class A · HAC-330 · frozen: bounded constraint &lt;= 130.
+<b>Motion job:</b> coupling becoming visible. <b>Static:</b> environment band drawn with both nodes attached.
+<b>Cockpit:</b> run.local.overview.</div>
+
+<!-- SB-03 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-03 · 08.20 → 11.40 · 3.20s · run.local.baseline">
+<section class="frame" data-proof-class="A" data-scene-id="SB-03"
+  data-semantic-state="run.local.baseline" data-hold-state="hold.run.local.baseline"
+  data-capture-state="capture.run.local.baseline">
+  <div class="rail"><span class="cls">Controlled local experiment · baseline</span><span>HAC-330</span></div>
+  <div class="stage">
+    <div class="env"><span class="label">Joint bound</span><span class="bound">&lt;= 130</span></div>
+    <div class="arms" style="margin-top:36px">
+      <div class="arm" data-verdict="invalid" data-motion="rise">
+        <div class="k">Baseline · no composition-aware coordination</div>
+        <div class="v">140 &gt; 130</div>
+        <div class="n">Invalid joint state</div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <p>Run them without composition-aware coordination and the joint result breaks the bound.</p>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-03</b> proof class A · HAC-330 baseline arm · frozen: 140 &gt; 130, invalid joint state.
+<b>Motion job:</b> bounded-result comparison. <b>Static:</b> baseline arm drawn complete.
+<b>Cockpit:</b> run.local.baseline. <b>Non-claims:</b> no receipt, target or observer state.</div>
+
+<!-- SB-04 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-04 · 11.40 → 15.60 · 4.20s · run.local.treatment">
+<section class="frame" data-proof-class="A" data-scene-id="SB-04"
+  data-semantic-state="run.local.treatment" data-hold-state="hold.run.local.treatment"
+  data-capture-state="capture.run.local.treatment">
+  <div class="rail"><span class="cls">Controlled local experiment · treatment</span><span>HAC-330</span></div>
+  <div class="stage">
+    <div class="arms">
+      <div class="arm" data-motion="rise">
+        <div class="k">Revision-bound environment evidence</div>
+        <div class="v" style="font-size:34px">WorkspaceJSON-derived</div>
+        <div class="n">reaches Interlock</div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="arm" data-motion="rise" data-motion-delay="1">
+        <div class="k">Interlock decision · deterministic</div>
+        <div class="v" style="font-size:38px">WITHHOLD_SERIALIZE</div>
+        <div class="n">coordination decision, not an approval</div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="arm" data-verdict="within" data-motion="rise" data-motion-delay="2">
+        <div class="k">Joint outcome</div>
+        <div class="v">120 &lt;= 130</div>
+        <div class="n">Bounded constraint satisfied · checks 24/24</div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <p>Interlock reads the shared evidence and changes the coordination decision.</p>
+    <p class="sub">Same environment, same intents, different coordinated outcome.</p>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-04</b> proof class A · HAC-330 treatment arm · frozen: WITHHOLD_SERIALIZE, 120 &lt;= 130, checks 24/24.
+<b>Motion job:</b> decision-state change, then bounded result. <b>Static:</b> three-panel chain complete in one frame.
+<b>Cockpit:</b> run.local.treatment. <b>Non-claims:</b> not human approved, not jointly authorized, not certified, not safe.</div>
+
+<!-- SB-05 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-05 · 15.60 → 18.00 · 2.40s · run.local.perturbed">
+<section class="frame" data-proof-class="A" data-scene-id="SB-05"
+  data-semantic-state="run.local.perturbed" data-hold-state="hold.run.local.perturbed"
+  data-capture-state="capture.run.local.perturbed">
+  <div class="rail"><span class="cls">Controlled local experiment · perturbed arm</span><span>HAC-330 · recorded arm</span></div>
+  <div class="stage">
+    <div class="arms">
+      <div class="arm" data-motion="rise">
+        <div class="k">Perturbed evidence</div>
+        <div class="v" style="font-size:34px">evidence changed</div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="arm" data-motion="rise" data-motion-delay="1">
+        <div class="k">Interlock decision</div>
+        <div class="v" style="font-size:38px">ALLOW_PARALLEL</div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="arm" data-verdict="invalid" data-motion="rise" data-motion-delay="2">
+        <div class="k">Joint outcome</div>
+        <div class="v">140 &gt; 130</div>
+        <div class="n">Invalid joint state returns</div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <p>Change the evidence and the decision changes back.</p>
+    <p class="sub">The evidence is load-bearing. This is a recorded arm, not a live recomputation.</p>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-05</b> proof class A · HAC-330 perturbed arm · frozen: ALLOW_PARALLEL, 140 &gt; 130.
+<b>Motion job:</b> bounded-result comparison against SB-04. <b>Static:</b> chain complete.
+<b>Cockpit:</b> run.local.perturbed. <b>Non-claims:</b> no live recomputation, no exactly-once.</div>
+
+<!-- SB-06 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-06 · 18.00 → 19.40 · 1.40s · transition.proof-class-reset">
+<section class="frame" data-proof-class="transition" data-scene-id="SB-06"
+  data-semantic-state="transition.proof-class-reset" data-hold-state="hold.transition.proof-class-reset"
+  data-capture-state="capture.transition.proof-class-reset">
+  <div class="split">
+    <div class="half a">
+      <div class="cls">Proof class A complete · controlled local experiment · HAC-330</div>
+      <div class="chain">140 &gt; 130 &nbsp;→&nbsp; 120 &lt;= 130 &nbsp;→&nbsp; 140 &gt; 130</div>
+      <div class="rule">Local. Deterministic. No cloud runtime involved.</div>
+    </div>
+    <div class="divider"></div>
+    <div class="half b" data-motion="wipe">
+      <div class="cls">Proof class B · Google Cloud participation · HAC-340</div>
+      <div class="chain">A different run, on a different day, with different evidence</div>
+      <div class="rule">HAC-340 does not reproduce the 140 / 120 counterfactual in Google Cloud.</div>
+    </div>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-06</b> separator · full field inversion, nothing carried across.
+<b>Motion job:</b> proof-class context reset (wipe, no continuous timeline). <b>Static:</b> split board, both labels legible.
+<b>Cockpit:</b> transition.proof-class-reset. <b>Non-claims:</b> no continuous timeline links the two runs.</div>
+
+<!-- SB-07 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-07 · 19.40 → 25.60 · 6.20s · run.cloud.overview">
+<section class="frame" data-proof-class="B" data-scene-id="SB-07"
+  data-semantic-state="run.cloud.overview" data-hold-state="hold.run.cloud.overview"
+  data-capture-state="capture.run.cloud.overview">
+  <div class="rail"><span class="cls">Google Cloud participation</span><span>HAC-340 · one recorded traversal</span></div>
+  <div class="stage">
+    <div class="path">
+      <div class="hop" data-motion="rise"><div class="n">01</div><div class="t">Gemini<br>3.5 Flash</div></div>
+      <span class="hopsep">→</span>
+      <div class="hop" data-motion="rise"><div class="n">02</div><div class="t">Google ADK<br>1.35.1</div></div>
+      <span class="hopsep">→</span>
+      <div class="hop" data-motion="rise" data-motion-delay="1"><div class="n">03</div><div class="t">Cloud Run<br>agent</div></div>
+      <span class="hopsep">→</span>
+      <div class="hop" data-motion="rise" data-motion-delay="1"><div class="n">04</div><div class="t">Interlock<br>MCP proxy</div></div>
+      <span class="hopsep">→</span>
+      <div class="hop" data-emph="decision" data-motion="rise" data-motion-delay="2"><div class="n">05</div><div class="t">ALLOW<br>+ receipt</div></div>
+      <span class="hopsep">→</span>
+      <div class="hop" data-motion="rise" data-motion-delay="2"><div class="n">06</div><div class="t">Protected<br>mutation</div></div>
+      <span class="hopsep">→</span>
+      <div class="hop" data-emph="observe" data-motion="rise" data-motion-delay="3"><div class="n">07</div><div class="t">Independent<br>read-back</div></div>
+    </div>
+    <div class="row" style="gap:28px;margin-bottom:26px">
+      <div class="node" style="min-height:0;padding:22px 28px">
+        <span class="chip" data-state="executed" data-glyph="▣">Executed</span>
+        <div class="meta">receipt-bound protected mutation</div>
+      </div>
+      <div class="node" style="min-height:0;padding:22px 28px">
+        <span class="chip" data-state="observed" data-glyph="◎">Observed</span>
+        <div class="meta">alpha=45 · independently authenticated read-back</div>
+      </div>
+    </div>
+    <div class="secondary">
+      <span><b>403 · 401 · 403</b> forged header · invalid bearer token · direct bypass</span>
+      <span><b>Cloud Logging</b> correlated</span>
+      <span><b>Vertex AI</b> global</span>
+    </div>
+  </div>
+  <div class="caption">
+    <p>A real Gemini agent on Google Cloud went through Interlock to touch protected state.</p>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-07</b> proof class B · HAC-340 · frozen: gemini-3.5-flash, ADK 1.35.1, Vertex AI global, Cloud Run,
+Interlock MCP proxy, ALLOW, EXECUTED, alpha=45, 403/401/403, Cloud Logging correlation.
+<b>Reading path is primary; digests and correlation IDs are delegated to the cockpit raw-proof surface.</b>
+<b>Motion job:</b> reading order, then effect vs observation distinction. <b>Static:</b> full path drawn, both chips legible.
+<b>Cockpit:</b> run.cloud.overview. <b>Non-claims:</b> no AUTHORIZED lifecycle state; wrong-audience rejection is local
+parity, not a cloud result; agent and target revision names are not evidenced and are not shown.</div>
+
+<!-- SB-08 ───────────────────────────────────────────────────────────── -->
+<div class="frame-wrap" data-label="SB-08 · 25.60 → 30.00 · 4.40s · run.claim-boundary">
+<section class="frame" data-proof-class="close" data-scene-id="SB-08"
+  data-semantic-state="run.claim-boundary" data-hold-state="hold.run.claim-boundary"
+  data-capture-state="capture.run.claim-boundary">
+  <div class="rail"><span class="cls">Claim boundary</span><span>HAC-330 · HAC-340</span></div>
+  <div class="stage">
+    <div class="boundary">
+      <div class="col proven">
+        <h4>Proven</h4>
+        <ul>
+          <li>Controlled causal proof — HAC-330: evidence changes the coordination decision and the joint outcome</li>
+          <li>Google Cloud participation — HAC-340: one recorded Gemini + ADK + Cloud Run traversal through Interlock</li>
+        </ul>
+      </div>
+      <div class="col not">
+        <h4>Not claimed</h4>
+        <ul>
+          <li>Agent Runtime · Agent Gateway · CONTENT_AUTHZ</li>
+          <li>General safety, security or production readiness</li>
+          <li>Exactly-once execution</li>
+          <li>Cloud reproduction of the HAC-330 counterfactual</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <p>Evidence-bound coordination before shared-state mutation.</p>
+  </div>
+</section>
+</div>
+<div class="annot"><b>SB-08</b> close · claim boundary is a first-class frame, weighted equally with the proof.
+<b>Motion job:</b> gate opens, then the end card holds. <b>Static:</b> both columns fully drawn.
+<b>Cockpit:</b> run.local.claim-boundary + run.cloud.claim-boundary.</div>
+
+<script>
+/* Review-only affordances. Neither changes the captured frame:
+   ?static=1 forces the reduced-motion resolution, ?rails=off hides annotation. */
+const q = new URLSearchParams(location.search);
+if (q.get('static') === '1') document.documentElement.dataset.static = 'true';
+if (q.get('rails') === 'off') document.documentElement.dataset.rails = 'off';
+/* Scale the 1920-wide frames to the viewport for review. Capture uses 1920x1080. */
+function fit() {
+  const w = document.querySelector('.frame-wrap')?.clientWidth || 1920;
+  const s = Math.min(1, w / 1920);
+  document.querySelectorAll('.frame').forEach((f) => { f.style.transform = `scale(${s})`; });
+  document.querySelectorAll('.frame-wrap').forEach((w2) => { w2.style.height = `${1080 * s}px`; });
+}
+addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>
