@@ -28,7 +28,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.01em}
 /* ── header ── */
 header{border-bottom:2px solid currentColor;padding:10px 24px 9px;display:flex;
   align-items:center;gap:22px;flex-wrap:wrap}
-.brand{font-size:17px;font-weight:600;font-weight:600;display:flex;align-items:center;gap:5px}
+.brand{font-size:17px;display:flex;align-items:center;gap:5px}
 .brand i{display:inline-block;width:8px;height:19px;border:2px solid var(--observed);
   border-radius:2px;font-style:normal}
 .pin{display:flex;gap:18px;flex:1;flex-wrap:wrap;font-family:var(--mono);font-size:11px}
@@ -51,7 +51,7 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{color:var(--ink)}
   border:1px dashed var(--n40);padding:2px 6px;border-radius:2px;opacity:.8;white-space:nowrap}
 .verdict p{font-size:15px;font-weight:500}
 
-main{padding:12px 24px 14px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.grid{padding:12px 24px 14px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
 .col h2{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
   opacity:.6;margin-bottom:7px;font-weight:600}
 .card{border:2px solid currentColor;border-radius:3px;padding:9px 12px}
@@ -111,12 +111,11 @@ body[data-proof="local"] .arms button[aria-pressed="true"]{color:var(--paper)}
 .note{font-size:10.5px;opacity:.68;margin-top:5px}
 
 /* ── drawer (L2/L3) — anchored, causal context stays on screen ── */
-.scrim{position:fixed;inset:0;background:rgba(0,0,0,.42);opacity:0;pointer-events:none;
-  transition:opacity .18s}
-.scrim[data-open="true"]{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,50vw);z-index:10;
+.drawer{position:fixed;top:0;right:0;bottom:0;left:auto;max-height:100vh;height:100vh;
+  width:min(560px,50vw);margin:0;border:none;border-left:3px solid currentColor;
   transform:translateX(100%);transition:transform .22s cubic-bezier(.2,.7,.3,1);
-  overflow-y:auto;padding:18px 22px;border-left:3px solid currentColor}
+  overflow-y:auto;padding:18px 22px}
+.drawer::backdrop{background:rgba(0,0,0,.42)}
 body[data-proof="local"] .drawer{background:var(--n00);color:var(--ink)}
 body[data-proof="cloud"] .drawer{background:var(--n95);color:var(--paper)}
 .drawer[data-open="true"]{transform:none}
@@ -152,19 +151,15 @@ pre{background:rgba(128,128,128,.14);padding:9px;border-radius:3px;font-family:v
 .regimes .r .t{font-family:var(--mono);font-size:11px;font-weight:600}
 .regimes .r .u{font-family:var(--mono);font-size:9px;opacity:.55;margin-top:5px}
 
-@media (prefers-reduced-motion:reduce){
-  .drawer,.scrim{transition:none!important}
-}
-html[data-static="true"] .drawer,html[data-static="true"] .scrim{transition:none!important}
+@media (prefers-reduced-motion:reduce){ .drawer{transition:none!important} }
+html[data-static="true"] .drawer{transition:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body data-proof="local">
 <a class="sr" href="#main">Skip to the run</a>
-<div id="app" role="main"></div>
-<div class="scrim" id="scrim" data-open="false"></div>
-<aside class="drawer" id="drawer" data-open="false" role="dialog" aria-modal="true"
-  aria-labelledby="drawer-title" tabindex="-1"></aside>
+<main id="app"></main>
+<dialog class="drawer" id="drawer" aria-labelledby="drawer-title"></dialog>
 <p aria-live="polite" class="sr" id="live"></p>
 
 <script type="module">
@@ -173,7 +168,7 @@ html[data-static="true"] .drawer,html[data-static="true"] .scrim{transition:none
    from frozen evidence. A field that is absent there is absent here. */
 const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');
-const scrim = document.getElementById('scrim');
+
 const live = document.getElementById('live');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -218,7 +213,7 @@ function renderLocal(run, armId) {
     ${switchHtml('local')}
   </header>
   <div class="verdict"><span class="tag">EDITORIAL</span><p>${esc(run.editorial.verdict)}</p></div>
-  <main id="main">
+  <div class="grid" id="main">
     <div class="col">
       <h2>What changed?</h2>
       <div class="intents">
@@ -262,7 +257,7 @@ function renderLocal(run, armId) {
         <button data-drawer="claim">What is not claimed?</button>
       </div>
     </div>
-  </main>`;
+  </div>`;
 }
 
 function renderCloud(run) {
@@ -280,14 +275,14 @@ function renderCloud(run) {
     ${switchHtml('cloud')}
   </header>
   <div class="verdict"><span class="tag">EDITORIAL</span><p>${esc(run.editorial.verdict)}</p></div>
-  <main id="main">
+  <div class="grid" id="main">
     <div class="col">
       <h2>What actually ran</h2>
       <div class="hops">
         ${run.events.map((h) => `<div class="hop" data-role="${esc(h.role)}">
           <span class="n">${String(h.n).padStart(2, '0')}</span>
           <span class="t">${esc(h.label)}</span>
-          <span class="d">${esc(h.detail ? (h.detail.length > 26 ? h.detail.slice(0, 23) + '…' : h.detail) : '')}</span>
+          <span class="d">${esc(truncate(h.detail))}</span>
         </div>`).join('')}
       </div>
       <div class="notonpath">Not on the recorded path — ${run.notOnPath.map(esc).join(' · ')}</div>
@@ -318,8 +313,13 @@ function renderCloud(run) {
         <button data-drawer="claim">What is not claimed?</button>
       </div>
     </div>
-  </main>`;
+  </div>`;
 }
+
+const truncate = (s, max = 26) => {
+  if (!s) return '';
+  return s.length > max ? `${s.slice(0, max - 3)}…` : s;
+};
 
 const switchHtml = (cur) => `<div class="switch"><span class="k">PROOF</span><div class="btns" role="group" aria-label="Proof class">
   <button data-proof="local" aria-pressed="${cur === 'local'}">Controlled causal experiment</button>
@@ -408,15 +408,17 @@ function openDrawer(kind) {
   const { proof, run } = current();
   lastFocus = document.activeElement;
   drawer.innerHTML = drawerHtml(kind, proof, run);
-  drawer.dataset.open = 'true'; scrim.dataset.open = 'true';
-  drawer.focus();
+  drawer.showModal();
+  drawer.dataset.open = 'true';
   live.textContent = `${kind} panel opened`;
 }
 function closeDrawer() {
   if (drawer.dataset.open !== 'true') return;
-  drawer.dataset.open = 'false'; scrim.dataset.open = 'false'; drawer.innerHTML = '';
-  // Return focus to whatever opened the drawer, so a keyboard reader is not
-  // dropped at the top of the document after closing.
+  drawer.dataset.open = 'false';
+  drawer.close();
+  drawer.innerHTML = '';
+  // <dialog> restores focus to the opener itself; this covers the case where a
+  // re-render replaced that element while the drawer was open.
   if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
   else document.querySelector('[data-drawer]')?.focus();
 }
@@ -473,14 +475,16 @@ document.addEventListener('click', (e) => {
   if (t.dataset.arm) return go({ state: `run.local.${t.dataset.arm}` });
   if (t.dataset.proof) {
     // Atomic context replacement: run, proof and state all change together.
-    const c = t.dataset.proof;
-    return go(c === 'cloud'
-      ? { run: 'hac340-cloud', proof: 'cloud', state: 'run.cloud.overview' }
-      : { run: 'hac330-local', proof: 'local', state: 'run.local.treatment' });
+    const CONTEXTS = {
+      cloud: { run: 'hac340-cloud', proof: 'cloud', state: 'run.cloud.overview' },
+      local: { run: 'hac330-local', proof: 'local', state: 'run.local.treatment' },
+    };
+    return go(CONTEXTS[t.dataset.proof]);
   }
 });
-scrim.addEventListener('click', closeDrawer);
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.dataset.open === 'true') closeDrawer(); });
+// Native dialog fires `cancel` on Escape and click-outside is handled here.
+drawer.addEventListener('cancel', (e) => { e.preventDefault(); closeDrawer(); });
+drawer.addEventListener('click', (e) => { if (e.target === drawer) closeDrawer(); });
 addEventListener('popstate', () => { closeDrawer(); resolve(); });
 
 try {

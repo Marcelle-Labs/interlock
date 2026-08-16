@@ -158,18 +158,23 @@ if (!/run\.local\.\$\{/.test(cockpit)) fail('cockpit does not construct local se
 /* --- accessibility and motion floor ------------------------------------- */
 
 if (!/prefers-reduced-motion/.test(cockpit)) fail('cockpit has no reduced-motion handling');
-if (!/aria-modal="true"/.test(cockpit)) fail('drawer is not a modal dialog');
+// A native <dialog> opened with showModal() is modal by definition; an
+// aria-modal attribute on a div is the fallback spelling of the same promise.
+if (!/<dialog\b/.test(cockpit) || !/showModal\(\)/.test(cockpit)) {
+  if (!/aria-modal="true"/.test(cockpit)) fail('drawer is not a modal dialog');
+}
 if (!/aria-pressed/.test(cockpit)) fail('toggle state is not exposed to assistive technology');
 if (!/aria-live/.test(cockpit)) fail('state changes are not announced');
 if (!/data-glyph/.test(cockpit)) fail('state is encoded by colour alone; no glyph channel');
 
+const checksLabel = local.checks.label;
 if (errors.length) {
   process.stderr.write(`HAC-341 cockpit contract violated:\n${errors.map((e) => `  - ${e}`).join('\n')}\n`);
   process.exit(1);
 }
 process.stdout.write(
   'HAC-341 cockpit verified\n'
-  + `  class A ${local.runIdentity}: ${local.arms.length} frozen arms, checks ${local.checks.label}, no receipt/observer\n`
+  + `  class A ${local.runIdentity}: ${local.arms.length} frozen arms, checks ${checksLabel}, no receipt/observer\n`
   + `  class B ${cloud.runIdentity}: ${cloud.events.length} hops, controls ${controls}, no arms/outcome\n`
   + `  ${model.degradedStates.length} degraded states, evidence links pinned to immutable commits\n`,
 );
