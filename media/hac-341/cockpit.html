@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en" data-cockpit="HAC-341">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Run — Interlock judge verification cockpit</title>
+<style>
+:root{
+  --n00:#fff;--n05:#f7f8f8;--n10:#eef0f0;--n20:#dde0e0;--n30:#c2c7c7;--n40:#9ba2a2;
+  --n50:#737b7b;--n60:#515858;--n70:#343a3a;--n80:#1e2323;--n90:#141818;--n95:#0f1212;
+  --ink:#0b0d0e;--paper:#fbfbfa;
+  --coupled:oklch(0.58 0.130 250);--blocked:oklch(0.58 0.150 28);
+  --executed:oklch(0.52 0.130 300);--observed:oklch(0.60 0.100 205);
+  --sans:Geist,"Geist Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);font-size:14px;line-height:1.4;overflow-x:hidden}
+/* Proof class is the field, exactly as HAC-333 SB-06 established. */
+body[data-proof="local"]{background:var(--paper);color:var(--ink)}
+body[data-proof="cloud"]{background:var(--ink);color:var(--paper)}
+.mono{font-family:var(--mono)}
+:focus-visible{outline:3px solid var(--coupled);outline-offset:2px}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+h1,h2,h3{font-weight:600;letter-spacing:-.01em}
+
+/* ── header ── */
+header{border-bottom:2px solid currentColor;padding:10px 24px 9px;display:flex;
+  align-items:center;gap:22px;flex-wrap:wrap}
+.brand{font-size:17px;font-weight:600;font-weight:600;display:flex;align-items:center;gap:5px}
+.brand i{display:inline-block;width:8px;height:19px;border:2px solid var(--observed);
+  border-radius:2px;font-style:normal}
+.pin{display:flex;gap:18px;flex:1;flex-wrap:wrap;font-family:var(--mono);font-size:11px}
+.pin div{display:flex;flex-direction:column;gap:2px}
+.pin .k{font-size:9px;letter-spacing:.10em;text-transform:uppercase;opacity:.55}
+.pin .v{font-size:11.5px;font-weight:600}
+.switch{display:flex;flex-direction:column;gap:3px}
+.switch .k{font-family:var(--mono);font-size:9px;letter-spacing:.12em;opacity:.55}
+.switch .btns{display:flex;border:2px solid currentColor;border-radius:3px;overflow:hidden}
+.switch button{padding:5px 11px;font-size:11px;font-weight:600;font-family:var(--mono);
+  letter-spacing:.03em;white-space:nowrap}
+.switch button[aria-pressed="true"]{background:currentColor}
+body[data-proof="local"] .switch button[aria-pressed="true"]{color:var(--paper)}
+body[data-proof="cloud"] .switch button[aria-pressed="true"]{color:var(--ink)}
+
+/* ── editorial verdict, visibly not evidence ── */
+.verdict{padding:8px 24px;display:flex;gap:12px;align-items:baseline;
+  border-bottom:1px dashed var(--n40)}
+.verdict .tag{font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+  border:1px dashed var(--n40);padding:2px 6px;border-radius:2px;opacity:.8;white-space:nowrap}
+.verdict p{font-size:15px;font-weight:500}
+
+main{padding:12px 24px 14px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.col h2{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  opacity:.6;margin-bottom:7px;font-weight:600}
+.card{border:2px solid currentColor;border-radius:3px;padding:9px 12px}
+.intents{display:flex;gap:10px}
+.intents .card{flex:1}
+.intents h3{font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;
+  font-weight:600;letter-spacing:.07em;padding:2px 7px;border:1.5px solid currentColor;
+  border-radius:2px;text-transform:uppercase;margin-top:4px}
+.chip::before{content:attr(data-glyph);font-weight:700}
+.chip[data-s="coupled"]{color:var(--coupled)}.chip[data-s="executed"]{color:var(--executed)}
+.chip[data-s="observed"]{color:var(--observed)}.chip[data-s="blocked"]{color:var(--blocked)}
+.env{border:3px solid var(--coupled);border-radius:3px;padding:9px 12px;margin-top:9px}
+.env .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.env .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--coupled);font-weight:600}
+.env .bound{font-family:var(--mono);font-size:17px;font-weight:600}
+.env .attr{font-family:var(--mono);font-size:10px;opacity:.68;margin-top:5px;line-height:1.35}
+.decision{margin-top:9px;border:2px solid currentColor;border-radius:3px;padding:9px 12px}
+.decision .tok{font-family:var(--mono);font-size:21px;font-weight:600;letter-spacing:-.01em}
+.decision .why{font-family:var(--mono);font-size:10px;opacity:.68;margin-top:3px}
+.decision .frozen{font-family:var(--mono);font-size:9px;letter-spacing:.08em;opacity:.55;margin-top:4px}
+
+.results{display:flex;flex-direction:column;gap:8px}
+.res{border:2px solid currentColor;border-radius:3px;padding:8px 12px}
+.res .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;opacity:.6}
+.res .v{font-family:var(--mono);font-size:26px;font-weight:600;line-height:1.08;margin-top:2px}
+.res .n{font-size:11.5px;opacity:.75;margin-top:2px}
+.res[data-holds="false"]{border-color:var(--blocked);color:var(--blocked)}
+.res[data-holds="true"]{border-color:var(--observed);color:var(--observed)}
+.arms{display:flex;gap:6px;margin-top:9px}
+.arms button{flex:1;border:2px solid currentColor;border-radius:3px;padding:6px 5px;
+  font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.03em}
+.arms button[aria-pressed="true"]{background:currentColor}
+body[data-proof="local"] .arms button[aria-pressed="true"]{color:var(--paper)}
+.armnote{font-family:var(--mono);font-size:9px;opacity:.6;margin-top:5px;line-height:1.4}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.actions button{border:2px solid currentColor;border-radius:3px;padding:6px 10px;
+  font-size:11.5px;font-weight:600}
+.actions button[data-state="pending"]{border-style:dashed;opacity:.75}
+
+/* ── cloud lanes ── */
+.hops{display:flex;flex-direction:column;gap:4px}
+.hop{display:grid;grid-template-columns:22px 1fr auto;gap:9px;align-items:center;
+  border:1.5px solid var(--n60);border-radius:3px;padding:5px 9px}
+.hop .n{font-family:var(--mono);font-size:9.5px;opacity:.55}
+.hop .t{font-size:12.5px;font-weight:500}
+.hop .d{font-family:var(--mono);font-size:9.5px;opacity:.68;text-align:right}
+.hop[data-role="decision"]{border-color:var(--executed);border-width:2.5px}
+.hop[data-role="observation"]{border-color:var(--observed);border-width:2.5px}
+.notonpath{margin-top:8px;border:2px solid var(--blocked);border-radius:3px;padding:6px 10px;
+  color:var(--blocked);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.05em}
+.controls{display:flex;gap:6px;margin-top:8px}
+.controls .c{flex:1;border:2px solid var(--blocked);border-radius:3px;padding:6px 8px;color:var(--blocked)}
+.controls .c .s{font-family:var(--mono);font-size:19px;font-weight:600}
+.controls .c .l{font-size:10px;opacity:.85;line-height:1.25}
+.note{font-size:10.5px;opacity:.68;margin-top:5px}
+
+/* ── drawer (L2/L3) — anchored, causal context stays on screen ── */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.42);opacity:0;pointer-events:none;
+  transition:opacity .18s}
+.scrim[data-open="true"]{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,50vw);z-index:10;
+  transform:translateX(100%);transition:transform .22s cubic-bezier(.2,.7,.3,1);
+  overflow-y:auto;padding:18px 22px;border-left:3px solid currentColor}
+body[data-proof="local"] .drawer{background:var(--n00);color:var(--ink)}
+body[data-proof="cloud"] .drawer{background:var(--n95);color:var(--paper)}
+.drawer[data-open="true"]{transform:none}
+.drawer h2{font-size:17px;margin-bottom:3px}
+.drawer .sub{font-family:var(--mono);font-size:10px;opacity:.6;margin-bottom:14px}
+.drawer section{margin-bottom:15px}
+.drawer h3{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  opacity:.62;margin-bottom:5px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-family:var(--mono);font-size:11px}
+.kv dt{opacity:.6}.kv dd{word-break:break-all}
+.drawer a{color:var(--coupled);text-decoration:underline;text-underline-offset:2px}
+.drawer .close{position:absolute;top:14px;right:18px;font-size:22px;line-height:1;padding:2px 7px;
+  border:2px solid currentColor;border-radius:3px}
+.unavail{border:2px dashed var(--n40);border-radius:3px;padding:8px 11px;font-size:11.5px;opacity:.85}
+pre{background:rgba(128,128,128,.14);padding:9px;border-radius:3px;font-family:var(--mono);
+  font-size:10px;overflow-x:auto;max-height:270px;line-height:1.45}
+.bnd{display:flex;flex-wrap:wrap;gap:14px}
+.bnd>div{flex:1;min-width:190px}
+.bnd li{list-style:none;font-size:11.5px;line-height:1.5;padding-left:15px;position:relative}
+.bnd .p li::before{content:"+";position:absolute;left:0;color:var(--observed);font-weight:700}
+.bnd .n li::before{content:"\2013";position:absolute;left:0;color:var(--blocked);font-weight:700}
+
+/* ── degraded ── */
+.degraded{padding:56px 24px;max-width:660px}
+.degraded h2{font-size:23px;margin-bottom:9px}
+.degraded .mono{font-size:12px;opacity:.72;margin-bottom:14px;word-break:break-all}
+.degraded .refused{border:2px solid var(--blocked);color:var(--blocked);border-radius:3px;
+  padding:9px 12px;font-size:12.5px;font-weight:600}
+
+/* ── reserved HAC-319 surface: labels only, never a mark ── */
+.regimes{display:flex;gap:9px;margin-top:8px}
+.regimes .r{flex:1;border:2px dashed var(--n40);border-radius:3px;padding:16px 9px;text-align:center}
+.regimes .r .t{font-family:var(--mono);font-size:11px;font-weight:600}
+.regimes .r .u{font-family:var(--mono);font-size:9px;opacity:.55;margin-top:5px}
+
+@media (prefers-reduced-motion:reduce){
+  .drawer,.scrim{transition:none!important}
+}
+html[data-static="true"] .drawer,html[data-static="true"] .scrim{transition:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body data-proof="local">
+<a class="sr" href="#main">Skip to the run</a>
+<div id="app" role="main"></div>
+<div class="scrim" id="scrim" data-open="false"></div>
+<aside class="drawer" id="drawer" data-open="false" role="dialog" aria-modal="true"
+  aria-labelledby="drawer-title" tabindex="-1"></aside>
+<p aria-live="polite" class="sr" id="live"></p>
+
+<script type="module">
+/* The cockpit renders the view model. It derives no meaning: every value below
+   comes from media/hac-341/evidence/view-model.json, which the adapter builds
+   from frozen evidence. A field that is absent there is absent here. */
+const app = document.getElementById('app');
+const drawer = document.getElementById('drawer');
+const scrim = document.getElementById('scrim');
+const live = document.getElementById('live');
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+let MODEL = null;
+let lastFocus = null;
+
+const params = () => new URLSearchParams(location.search);
+if (params().get('static') === '1') document.documentElement.dataset.static = 'true';
+
+/* ---- degraded states are first-class renders, never a blank success ---- */
+function degraded(id, requested) {
+  const d = (MODEL?.degradedStates ?? []).find((x) => x.id === id)
+    ?? { id, message: 'Could not read the pinned record.', forbiddenInference: 'any result' };
+  document.body.dataset.proof = 'local';
+  app.innerHTML = `<div class="degraded" data-state="${esc(id)}">
+    <h2>${esc(d.message)}</h2>
+    ${requested ? `<p class="mono">Requested: ${esc(requested)}</p>` : ''}
+    <p class="refused">Substitution refused. The canonical run is not shown in place of what was asked for.</p>
+    <p class="note" style="margin-top:12px">Do not infer ${esc(d.forbiddenInference)}.</p>
+    <p style="margin-top:14px"><a href="?run=hac330-local&proof=local&state=run.local.treatment">Open the controlled local experiment</a>
+    &nbsp;·&nbsp; <a href="?run=hac340-cloud&proof=cloud&state=run.cloud.overview">Open the Google Cloud run</a></p>
+  </div>`;
+  live.textContent = d.message;
+}
+
+/* ---- L1 ---- */
+function renderLocal(run, armId) {
+  const arm = run.arms.find((a) => a.armId === armId) ?? run.arms.find((a) => a.armId === run.defaultArm);
+  const base = run.arms.find((a) => a.armId === 'baseline');
+  const ev = run.environmentEvidence[0];
+  const cp = ev.coupling?.[0];
+  return `
+  <header>
+    <h1 class="brand">Inter<i></i>lock <span class="sr">— The Run, judge verification cockpit</span></h1>
+    <div class="pin">
+      <div><span class="k">Proof class</span><span class="v">A · CONTROLLED LOCAL</span></div>
+      <div><span class="k">Run</span><span class="v">${esc(run.runIdentity)}</span></div>
+      <div><span class="k">Issue</span><span class="v">${esc(run.sourceIssue)}</span></div>
+      <div><span class="k">State</span><span class="v">FROZEN</span></div>
+      <div><span class="k">Checks</span><span class="v">${esc(run.checks.label)}</span></div>
+    </div>
+    ${switchHtml('local')}
+  </header>
+  <div class="verdict"><span class="tag">EDITORIAL</span><p>${esc(run.editorial.verdict)}</p></div>
+  <main id="main">
+    <div class="col">
+      <h2>What changed?</h2>
+      <div class="intents">
+        <div class="card"><h3>Intent A</h3><span class="chip" data-glyph="○">Locally valid</span></div>
+        <div class="card"><h3>Intent B</h3><span class="chip" data-glyph="○">Locally valid</span></div>
+      </div>
+      <div class="env">
+        <div class="row"><span class="lbl">Shared environment · coupled</span>
+          <span class="bound">joint bound &lt;= ${esc(run.constraints[0].bound)}</span></div>
+        <div class="attr">${esc(ev.source)} · revision-bound<br>
+          basis ${esc(ev.basisRevision.slice(0, 12))}…${cp ? ` · coupling support ${esc(cp.support)}/${esc(cp.occurrences)}` : ''}</div>
+      </div>
+      <div class="decision">
+        <div class="k mono" style="font-size:9.5px;letter-spacing:.09em;opacity:.6;text-transform:uppercase">Interlock decision · deterministic</div>
+        <div class="tok">${esc(arm.decision ?? 'no decision — Interlock disabled')}</div>
+        ${arm.decisionReason ? `<div class="why">${esc(arm.decisionReason)}</div>` : ''}
+        <div class="frozen">FROZEN ARM · NOT RECOMPUTED</div>
+      </div>
+    </div>
+    <div class="col">
+      <h2>Bounded joint outcome</h2>
+      <div class="results">
+        <div class="res" data-holds="${base.outcome.holds}">
+          <div class="k">Baseline · no coordination</div>
+          <div class="v">${esc(base.outcome.expression)}</div>
+          <div class="n">${esc(base.outcome.verdict)}</div>
+        </div>
+        <div class="res" data-holds="${arm.outcome.holds}" data-arm="${esc(arm.armId)}">
+          <div class="k">${esc(arm.label)}</div>
+          <div class="v">${esc(arm.outcome.expression)}</div>
+          <div class="n">${esc(arm.outcome.verdict)}${arm.armId === 'treatment' ? ` · run checks ${esc(run.checks.label)}` : ''}</div>
+        </div>
+      </div>
+      <div class="arms" role="group" aria-label="Recorded arm">
+        ${run.arms.map((a) => `<button data-arm="${esc(a.armId)}" aria-pressed="${a.armId === arm.armId}">${esc(a.label)}</button>`).join('')}
+      </div>
+      <p class="armnote">Each arm is a recorded result. Selecting an arm changes which recorded arm is displayed. Nothing is executed in the browser.</p>
+      <div class="actions">
+        <button data-drawer="verify">Verify this decision</button>
+        <button data-drawer="raw">Show me the raw proof</button>
+        <button data-drawer="claim">What is not claimed?</button>
+      </div>
+    </div>
+  </main>`;
+}
+
+function renderCloud(run) {
+  const p = run.publicationRefs;
+  return `
+  <header>
+    <h1 class="brand">Inter<i></i>lock <span class="sr">— The Run, judge verification cockpit</span></h1>
+    <div class="pin">
+      <div><span class="k">Proof class</span><span class="v">B · GOOGLE CLOUD</span></div>
+      <div><span class="k">Run</span><span class="v">${esc(run.runIdentity)}</span></div>
+      <div><span class="k">Issue</span><span class="v">${esc(run.sourceIssue)}</span></div>
+      <div><span class="k">State</span><span class="v">FROZEN</span></div>
+      <div><span class="k">Publication</span><span class="v">${esc(p.evidencePublicationSha.slice(0, 12))}…</span></div>
+    </div>
+    ${switchHtml('cloud')}
+  </header>
+  <div class="verdict"><span class="tag">EDITORIAL</span><p>${esc(run.editorial.verdict)}</p></div>
+  <main id="main">
+    <div class="col">
+      <h2>What actually ran</h2>
+      <div class="hops">
+        ${run.events.map((h) => `<div class="hop" data-role="${esc(h.role)}">
+          <span class="n">${String(h.n).padStart(2, '0')}</span>
+          <span class="t">${esc(h.label)}</span>
+          <span class="d">${esc(h.detail ? (h.detail.length > 26 ? h.detail.slice(0, 23) + '…' : h.detail) : '')}</span>
+        </div>`).join('')}
+      </div>
+      <div class="notonpath">Not on the recorded path — ${run.notOnPath.map(esc).join(' · ')}</div>
+    </div>
+    <div class="col">
+      <h2>Decision, effect, observation</h2>
+      <div class="results">
+        <div class="res" style="border-color:var(--executed);color:var(--executed)">
+          <div class="k">Decision</div><div class="v">${esc(run.decision.value)} + receipt</div>
+          <div class="n mono" style="font-size:10px">${esc(run.receipt.truncated)}</div>
+        </div>
+        <div class="res" style="border-color:var(--executed);color:var(--executed)">
+          <div class="k">Effect</div><div class="v">${esc(run.effect.status)}</div>
+          <div class="n">${esc(run.effect.invariant)}</div>
+        </div>
+        <div class="res" style="border-color:var(--observed);color:var(--observed)">
+          <div class="k">Observation</div><div class="v">${esc(run.observation.observed)}</div>
+          <div class="n">${esc(run.observation.caption)}</div>
+        </div>
+      </div>
+      <div class="controls">
+        ${run.negativeControls.map((c) => `<div class="c"><div class="s">${esc(c.status)}</div><div class="l">${esc(c.label)}</div></div>`).join('')}
+      </div>
+      <p class="note">${esc(run.negativeControlsNote)}</p>
+      <div class="actions">
+        <button data-drawer="verify">Verify this run</button>
+        <button data-drawer="raw">Show me the raw proof</button>
+        <button data-drawer="claim">What is not claimed?</button>
+      </div>
+    </div>
+  </main>`;
+}
+
+const switchHtml = (cur) => `<div class="switch"><span class="k">PROOF</span><div class="btns" role="group" aria-label="Proof class">
+  <button data-proof="local" aria-pressed="${cur === 'local'}">Controlled causal experiment</button>
+  <button data-proof="cloud" aria-pressed="${cur === 'cloud'}">Google Cloud participation</button>
+</div></div>`;
+
+/* ---- L2 / L3 ---- */
+function drawerHtml(kind, proof, run) {
+  const title = { verify: 'Can I verify it?', raw: 'Raw proof', claim: 'Claim boundary' }[kind];
+  let body = '';
+  if (kind === 'claim') {
+    body = `<div class="bnd">
+      <div class="p"><h3>Proves</h3><ul>${run.claimBoundary.proves.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="n"><h3>Not claimed</h3><ul>${run.claimBoundary.notClaimed.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    </div>`;
+  } else if (proof === 'local') {
+    const ev = run.environmentEvidence[0];
+    body = kind === 'verify' ? `
+      <section><h3>Evidence attribution</h3><dl class="kv">
+        <dt>source</dt><dd>${esc(ev.source)}</dd>
+        <dt>basis revision</dt><dd>${esc(ev.basisRevision)}</dd>
+        ${(ev.coupling ?? []).map((c) => `<dt>coupling</dt><dd>${esc(c.files.join(', '))} · support ${esc(c.support)} / ${esc(c.occurrences)}</dd>`).join('')}
+      </dl></section>
+      <section><h3>Recorded arms</h3><dl class="kv">
+        ${run.arms.map((a) => `<dt>${esc(a.armId)}</dt><dd>${esc(a.decision ?? 'Interlock disabled')} → ${esc(a.outcome.expression)}</dd>`).join('')}
+      </dl></section>
+      <section><h3>Reproduce</h3>
+        <pre>${esc(run.verification.hac330VerifyCommand)}</pre>
+        <p class="note">A deterministic local command. This proof class has no verifier URL, and none is invented.</p>
+      </section>
+      <section><h3>Pinned upstream</h3><dl class="kv">
+        ${Object.entries(run.verification.pins).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(typeof v === 'string' ? v : JSON.stringify(v))}</dd>`).join('')}
+      </dl></section>`
+      : `<section><h3>Frozen arms</h3><pre>${esc(JSON.stringify(run.arms, null, 1))}</pre></section>
+         <section><h3>Not present in this run</h3>
+           <div class="unavail">No receipt, protected target, independent observer, cloud runtime or Cloud Logging exists in HAC-330. These fields are absent, not empty.</div></section>`;
+  } else {
+    const p = run.publicationRefs;
+    const rp = run.runtimeProvenance;
+    body = kind === 'verify' ? `
+      <section><h3>Immutable public evidence</h3><dl class="kv">
+        <dt>evidence</dt><dd><a href="${esc(p.cloudEvidenceUrl)}" target="_blank" rel="noreferrer">cloud-run.public.json</a></dd>
+        <dt>verifier</dt><dd><a href="${esc(p.hac340VerifierUrl)}" target="_blank" rel="noreferrer">verify-public-packet.mjs</a></dd>
+        <dt>redaction</dt><dd><a href="${esc(p.redactionManifestUrl)}" target="_blank" rel="noreferrer">redaction-manifest.json</a></dd>
+      </dl><p class="note">Pinned to commit ${esc(p.evidencePublicationSha.slice(0, 12))}… — not to a branch.</p></section>
+      <section><h3>Transport provenance</h3><dl class="kv">
+        <dt>caller</dt><dd>${esc(run.transportProvenance.caller)}</dd>
+        <dt>identity source</dt><dd>${esc(run.transportProvenance.identitySource)}</dd>
+        <dt>observer</dt><dd>${esc(run.transportProvenance.observerPrincipal)}</dd>
+      </dl><p class="note">${esc(run.transportProvenance.note)}</p></section>
+      <section><h3>Application provenance</h3><dl class="kv">
+        <dt>receipt</dt><dd>${esc(run.applicationProvenance.receiptDigest)}</dd>
+        <dt>correlation</dt><dd>${esc(run.applicationProvenance.correlationId)}</dd>
+      </dl><p class="note">${esc(run.applicationProvenance.note)}</p></section>
+      <section><h3>Runtime source</h3><dl class="kv">
+        <dt>runtimeSourceSha</dt><dd>${esc(rp.runtimeSourceSha)}</dd>
+        <dt>public URL</dt><dd>${esc(rp.runtimeSourceUrl.state)}</dd>
+        <dt>snapshot</dt><dd>${esc(rp.runtimeSourceSnapshotSha256)}</dd>
+        <dt>revision</dt><dd>${esc(rp.revisionName)}</dd>
+      </dl>
+      <div class="unavail">${esc(rp.runtimeSourceUrl.reason)} The public snapshot records the executed source content separately, across ${esc(rp.snapshotFileCount)} files.</div>
+      <p class="note">${esc(rp.revisionNote)}</p></section>`
+      : `<section><h3>Digests</h3><dl class="kv">
+        <dt>publicPacketSha256</dt><dd>${esc(p.publicPacketSha256)}</dd>
+        <dt>sourcePacketSha256</dt><dd>${esc(p.sourcePacketSha256)}</dd>
+        <dt>evidencePublicationSha</dt><dd>${esc(p.evidencePublicationSha)}</dd>
+        <dt>publicationBindingsSha</dt><dd>${esc(p.publicationBindingsSha)}</dd>
+      </dl><div class="unavail">${esc(p.sourcePacketNote)}</div></section>
+      <section><h3>Negative controls</h3><dl class="kv">
+        ${run.negativeControls.map((c) => `<dt>${esc(c.status)}</dt><dd>${esc(c.label)}${c.note ? `<br><span style="opacity:.65">${esc(c.note)}</span>` : ''}</dd>`).join('')}
+      </dl></section>
+      <section><h3>Teardown</h3><dl class="kv">
+        <dt>status</dt><dd>${esc(run.teardown.status)}</dd><dt>source</dt><dd>${esc(run.teardown.source)}</dd>
+        <dt>packet field</dt><dd>${esc(run.teardown.packetField)}</dd></dl></section>
+      <section><h3>Reserved evaluation · HAC-319</h3>
+        <div class="unavail">${esc(MODEL.reserved.message)} ${esc(MODEL.reserved.rule)}</div>
+        <div class="regimes">${MODEL.reserved.regimes.map((r) => `<div class="r"><div class="t">${esc(r)}</div><div class="u">NOT BOUND</div></div>`).join('')}</div>
+      </section>`;
+  }
+  return `<button class="close" data-close aria-label="Close">×</button>
+    <h2 id="drawer-title">${esc(title)}</h2>
+    <p class="sub">${esc(run.proofLabel)} · ${esc(run.runIdentity)}</p>${body}`;
+}
+
+function openDrawer(kind) {
+  const { proof, run } = current();
+  lastFocus = document.activeElement;
+  drawer.innerHTML = drawerHtml(kind, proof, run);
+  drawer.dataset.open = 'true'; scrim.dataset.open = 'true';
+  drawer.focus();
+  live.textContent = `${kind} panel opened`;
+}
+function closeDrawer() {
+  if (drawer.dataset.open !== 'true') return;
+  drawer.dataset.open = 'false'; scrim.dataset.open = 'false'; drawer.innerHTML = '';
+  // Return focus to whatever opened the drawer, so a keyboard reader is not
+  // dropped at the top of the document after closing.
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+  else document.querySelector('[data-drawer]')?.focus();
+}
+
+/* ---- routing: every address maps to a real state, or to an explicit one ---- */
+function current() {
+  const q = params();
+  const proof = q.get('proof') ?? 'local';
+  const run = proof === 'cloud' ? MODEL.runs.cloud : MODEL.runs.local;
+  return { proof, run };
+}
+function resolve() {
+  const q = params();
+  const runId = q.get('run') ?? 'hac330-local';
+  const proof = q.get('proof') ?? (runId === 'hac340-cloud' ? 'cloud' : 'local');
+  let state = q.get('state') ?? (proof === 'cloud' ? 'run.cloud.overview' : 'run.local.overview');
+  if (state === 'run.local.overview') state = MODEL.deepLink.aliases['run.local.overview'];
+
+  const known = { 'hac330-local': 'local', 'hac340-cloud': 'cloud' };
+  if (!(runId in known)) return degraded('run.missing', `run=${runId}`);
+  if (known[runId] !== proof) return degraded('run.missing', `run=${runId}&proof=${proof}`);
+  // proof and state must agree; a cloud state under the local class is not corrected
+  const wantsLocal = state.startsWith('run.local.');
+  const wantsCloud = state.startsWith('run.cloud.');
+  if ((wantsLocal && proof !== 'local') || (wantsCloud && proof !== 'cloud')) {
+    return degraded('run.missing', `proof=${proof}&state=${state}`);
+  }
+  if (proof === 'local') {
+    const armId = state.replace('run.local.', '');
+    const valid = MODEL.runs.local.arms.some((a) => a.armId === armId);
+    if (!valid) return degraded('run.missing', `state=${state}`);
+    document.body.dataset.proof = 'local';
+    app.innerHTML = renderLocal(MODEL.runs.local, armId);
+  } else {
+    if (state !== 'run.cloud.overview') return degraded('run.missing', `state=${state}`);
+    document.body.dataset.proof = 'cloud';
+    app.innerHTML = renderCloud(MODEL.runs.cloud);
+  }
+  document.documentElement.dataset.semanticState = state;
+  live.textContent = `${current().run.proofLabel} · ${state}`;
+}
+function go(next, replace) {
+  const q = params();
+  for (const [k, v] of Object.entries(next)) v === null ? q.delete(k) : q.set(k, v);
+  history[replace ? 'replaceState' : 'pushState']({}, '', `?${q}`);
+  closeDrawer(); resolve();
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-arm],[data-proof],[data-drawer],[data-close]');
+  if (!t) return;
+  if (t.dataset.close !== undefined) return closeDrawer();
+  if (t.dataset.drawer) { t.focus(); return openDrawer(t.dataset.drawer); }
+  if (t.dataset.arm) return go({ state: `run.local.${t.dataset.arm}` });
+  if (t.dataset.proof) {
+    // Atomic context replacement: run, proof and state all change together.
+    const c = t.dataset.proof;
+    return go(c === 'cloud'
+      ? { run: 'hac340-cloud', proof: 'cloud', state: 'run.cloud.overview' }
+      : { run: 'hac330-local', proof: 'local', state: 'run.local.treatment' });
+  }
+});
+scrim.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.dataset.open === 'true') closeDrawer(); });
+addEventListener('popstate', () => { closeDrawer(); resolve(); });
+
+try {
+  const res = await fetch('./evidence/view-model.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error(String(res.status));
+  MODEL = await res.json();
+  resolve();
+} catch {
+  MODEL = null;
+  degraded('run.unavailable', location.search || '(default)');
+}
+</script>
+</body>
+</html>
