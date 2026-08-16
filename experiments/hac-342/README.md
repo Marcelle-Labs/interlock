@@ -126,6 +126,26 @@ This corresponds to the source recorded at `runtimeSourceSha` but is **not** tha
 Git commit object and is never renamed to it. Evidence artifacts are excluded —
 they are the run's output, not its source.
 
+## Provenance anchors — do not move or delete
+
+`main` requires linear history, so this branch integrates by squash merge and
+neither commit below survives that merge with its SHA intact. Two annotated tags
+keep them permanently reachable. Every judge-facing URL pins to a commit SHA, not
+to a tag name and not to `main`.
+
+| Tag | Commit | Holds |
+| --- | --- | --- |
+| `hac-342-evidence-publication` | `75253e38791e69f7e2a4bb3a041044a9114c32f0` (P) | the exact published evidence bytes |
+| `hac-342-publication-bindings` | `9da4cb95b6eec6030fe0c622b67a319eeaf20230` (B) | `publication-bindings.json`, resolving P |
+
+**These tags are provenance anchors. Moving or deleting either one breaks every
+published judge-facing evidence link.** No tag protection rule is configured on
+this repository; that is a governance gap recorded here rather than silently
+relied upon.
+
+The squash commit that lands on `main` is the repository integration commit. It
+is **not** `evidencePublicationSha` and does not replace P or B.
+
 ## Judge-facing evidence links
 
 Resolved in `evidence/publication-bindings.json`, all pinned to
