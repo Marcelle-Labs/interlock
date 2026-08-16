@@ -25,3 +25,8 @@ gha-creds-*.json
 .vscode/
 !.vscode/extensions.json
 .idea/
+
+# Playwright MCP drops console logs, DOM snapshots and screenshots beside the
+# working directory when the cockpit or storyboard is inspected in a browser.
+# Inspection output is not evidence and must never reach a commit.
+.playwright-mcp/
