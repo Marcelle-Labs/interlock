@@ -110,6 +110,12 @@ assertFontsUsable();
 mkdirSync(exportsDir, { recursive: true });
 for (const f of readdirSync(exportsDir)) if (f.endsWith('.png')) rmSync(join(exportsDir, f));
 
+/** Order sizes by pixel count, not lexically: "1280x720" sorts before "600x400". */
+const byArea = (a, b) => {
+  const area = (s) => s.split('x').reduce((w, h) => Number(w) * Number(h));
+  return area(a) - area(b);
+};
+
 const DECLARED_SIZES = new Set();
 for (const asset of model.assets) {
   for (const ex of asset.exports) {
@@ -189,5 +195,5 @@ writeFileSync(
 process.stdout.write(
   `HAC-334 rasters exported with ${rasterizer}\n`
   + `  ${records.length} PNGs in media/hac-334/exports\n`
-  + `  sizes ${[...DECLARED_SIZES].sort().join(', ')}\n`,
+  + `  sizes ${[...DECLARED_SIZES].sort(byArea).join(', ')}\n`,
 );

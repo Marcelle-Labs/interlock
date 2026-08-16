@@ -18,10 +18,8 @@ import { measure, PDF_FONTS } from './fonts.mjs';
 
 const FONT_KEYS = { Helvetica: 'F1', 'Helvetica-Bold': 'F2', Courier: 'F3', 'Courier-Bold': 'F4' };
 
-const n = (v) => {
-  const r = Math.round(v * 100) / 100;
-  return Number.isInteger(r) ? String(r) : String(r);
-};
+/** Two decimal places, which is finer than a PDF point and keeps output stable. */
+const n = (v) => String(Math.round(v * 100) / 100);
 
 const rgb = (hex) => {
   const h = hex.replace('#', '');
