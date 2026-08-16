@@ -1,0 +1,548 @@
+{
+  "contract": "HAC-341 normalized cockpit view model",
+  "revision": "r01",
+  "generatedFrom": [
+    "experiments/hac-330/evidence/arms.json",
+    "experiments/hac-330/evidence/results.json",
+    "experiments/hac-342/evidence/cloud-run.public.json",
+    "experiments/hac-342/evidence/publication-bindings.json",
+    "experiments/hac-342/evidence/redaction-manifest.json",
+    "experiments/hac-342/evidence/runtime-source-snapshot.json"
+  ],
+  "fieldClassification": {
+    "universalRequired": [
+      "runIdentity",
+      "proofClass",
+      "proofLabel",
+      "frozen",
+      "editorial",
+      "claimBoundary"
+    ],
+    "proofClassSpecific": [
+      "arms",
+      "environmentEvidence",
+      "constraints",
+      "checks",
+      "receipt",
+      "effect",
+      "observation",
+      "negativeControls",
+      "runtimeProvenance",
+      "transportProvenance",
+      "applicationProvenance",
+      "notOnPath"
+    ],
+    "optional": [
+      "actors",
+      "events",
+      "decision"
+    ],
+    "publicationSpecific": [
+      "publicationRefs"
+    ],
+    "derivedPresentation": [
+      "proofSlug",
+      "semanticStateId",
+      "defaultArm",
+      "truncated digest display"
+    ],
+    "intentionallyAbsent": "declared per run; a key is omitted rather than set to null"
+  },
+  "deepLink": {
+    "shape": "?run=<runId>&proof=<class>&state=<semanticStateId>[&event=<eventId>]",
+    "runIds": [
+      "hac330-local",
+      "hac340-cloud"
+    ],
+    "proofClasses": [
+      "local",
+      "cloud"
+    ],
+    "aliases": {
+      "run.local.overview": "run.local.treatment"
+    },
+    "invalidRun": "run.missing",
+    "unreadableEvidence": "run.unavailable",
+    "mismatchedProofAndState": "run.missing",
+    "silentSubstitution": "forbidden"
+  },
+  "runs": {
+    "local": {
+      "runIdentity": "hac330-local",
+      "proofClass": "A",
+      "proofLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "proofSlug": "local",
+      "sourceIssue": "HAC-330",
+      "frozen": true,
+      "editorial": {
+        "verdict": "Two locally valid actions share an environment; revision-bound evidence changes the coordination decision and the bounded joint outcome.",
+        "classification": "EDITORIAL — derived presentation, not a frozen value"
+      },
+      "actors": [
+        {
+          "id": "intent.a",
+          "label": "Intent A",
+          "role": "intent",
+          "state": "LOCALLY VALID"
+        },
+        {
+          "id": "intent.b",
+          "label": "Intent B",
+          "role": "intent",
+          "state": "LOCALLY VALID"
+        },
+        {
+          "id": "environment",
+          "label": "Shared environment",
+          "role": "environment",
+          "state": "COUPLED"
+        }
+      ],
+      "environmentEvidence": [
+        {
+          "source": "WorkspaceJSON-derived co-change evidence",
+          "revisionBound": true,
+          "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+          "coupling": [
+            {
+              "intents": [
+                "A",
+                "B"
+              ],
+              "files": [
+                "services/alpha/reservation.json",
+                "services/beta/reservation.json"
+              ],
+              "support": 8,
+              "occurrences": 10
+            }
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "id": "joint-bound",
+          "expression": "sum(services[].reserved) <= 130",
+          "bound": 130
+        }
+      ],
+      "arms": [
+        {
+          "armId": "baseline",
+          "label": "Baseline arm",
+          "semanticStateId": "run.local.baseline",
+          "interlock": "disabled",
+          "outcome": {
+            "total": 140,
+            "bound": 130,
+            "expression": "140 > 130",
+            "holds": false,
+            "verdict": "invalid joint state"
+          },
+          "state": {
+            "totalReservable": 130,
+            "services": {
+              "alpha": 60,
+              "beta": 60,
+              "gamma": 20
+            }
+          },
+          "evidenceNote": "Interlock disabled. Both intents execute."
+        },
+        {
+          "armId": "treatment",
+          "label": "Treatment · original evidence",
+          "semanticStateId": "run.local.treatment",
+          "interlock": "enabled",
+          "decision": "WITHHOLD_SERIALIZE",
+          "decisionReason": "COUPLING_OBSERVED",
+          "decisionDetail": "1 qualifying co-change coupling(s) between the pending intents at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; the composition is withheld and the intents are serialized with revalidation",
+          "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+          "couplings": [
+            {
+              "intents": [
+                "A",
+                "B"
+              ],
+              "files": [
+                "services/alpha/reservation.json",
+                "services/beta/reservation.json"
+              ],
+              "support": 8,
+              "occurrences": 10
+            }
+          ],
+          "outcome": {
+            "total": 120,
+            "bound": 130,
+            "expression": "120 <= 130",
+            "holds": true,
+            "verdict": "bounded constraint satisfied"
+          },
+          "state": {
+            "totalReservable": 130,
+            "services": {
+              "alpha": 60,
+              "beta": 40,
+              "gamma": 20
+            }
+          },
+          "evidenceNote": "Interlock enabled with the recorded co-change evidence."
+        },
+        {
+          "armId": "perturbed",
+          "label": "Perturbed evidence",
+          "semanticStateId": "run.local.perturbed",
+          "interlock": "enabled",
+          "decision": "ALLOW_PARALLEL",
+          "decisionReason": "NO_QUALIFYING_COUPLING",
+          "decisionDetail": "history at db8a63ec9405191bdd40d0ed0fc69684fca5d17b was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between the pending intents at support >= 3",
+          "basisRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+          "outcome": {
+            "total": 140,
+            "bound": 130,
+            "expression": "140 > 130",
+            "holds": false,
+            "verdict": "invalid joint state"
+          },
+          "state": {
+            "totalReservable": 130,
+            "services": {
+              "alpha": 60,
+              "beta": 60,
+              "gamma": 20
+            }
+          },
+          "evidenceNote": "Interlock enabled; the evidence history is perturbed."
+        }
+      ],
+      "defaultArm": "treatment",
+      "checks": {
+        "passed": 24,
+        "of": 24,
+        "label": "24/24"
+      },
+      "verification": {
+        "hac330VerifyCommand": "node experiments/hac-330/bin/verify-packet.mjs",
+        "artifacts": [
+          "experiments/hac-330/evidence/arms.json",
+          "experiments/hac-330/evidence/results.json"
+        ],
+        "pins": {
+          "workspacejson-cli": {
+            "id": "workspacejson-cli",
+            "repository": "workspacejson/cli",
+            "remote": "https://github.com/workspacejson/cli.git",
+            "disposition": "EXECUTE_READ_ONLY",
+            "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+            "observedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+            "clean": true,
+            "matches": true,
+            "problems": []
+          },
+          "workspacejson-standard": {
+            "id": "workspacejson-standard",
+            "repository": "workspacejson/standard",
+            "remote": "https://github.com/workspacejson/standard.git",
+            "disposition": "READ_ONLY_PINNED",
+            "pinnedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+            "observedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+            "clean": true,
+            "matches": true,
+            "problems": []
+          }
+        }
+      },
+      "claimBoundary": {
+        "proves": [
+          "A bounded causal experiment: revision-bound environment evidence changes the coordination decision and the joint outcome."
+        ],
+        "notClaimed": [
+          "did not run on Google Cloud",
+          "no receipt, protected target or independent observer exists in this run",
+          "WITHHOLD_SERIALIZE is not human approval, joint authorization or certification",
+          "not a safety, security or production-readiness guarantee"
+        ]
+      },
+      "notOnPath": [],
+      "intentionallyAbsent": [
+        "receipt",
+        "effect",
+        "observation",
+        "negativeControls",
+        "runtimeProvenance",
+        "transportProvenance",
+        "publicationRefs"
+      ]
+    },
+    "cloud": {
+      "runIdentity": "ilk-hac340-cloud-1786730369123",
+      "proofClass": "B",
+      "proofLabel": "GOOGLE CLOUD PARTICIPATION",
+      "proofSlug": "cloud",
+      "sourceIssue": "HAC-340",
+      "frozen": true,
+      "editorial": {
+        "verdict": "A real Gemini agent on Google Cloud went through Interlock to touch protected state, and a separately authenticated principal read the result back.",
+        "classification": "EDITORIAL — derived presentation, not a frozen value"
+      },
+      "actors": [
+        {
+          "id": "model",
+          "label": "gemini-3.5-flash",
+          "role": "model"
+        },
+        {
+          "id": "framework",
+          "label": "Google ADK 1.35.1 / Vertex AI",
+          "role": "framework"
+        },
+        {
+          "id": "host",
+          "label": "Cloud Run · us-central1",
+          "role": "host"
+        },
+        {
+          "id": "interlock",
+          "label": "Interlock MCP proxy",
+          "role": "control"
+        },
+        {
+          "id": "target",
+          "label": "Protected target",
+          "role": "target"
+        },
+        {
+          "id": "observer",
+          "label": "Independent principal",
+          "role": "observer"
+        }
+      ],
+      "events": [
+        {
+          "n": 1,
+          "label": "gemini-3.5-flash",
+          "role": "model"
+        },
+        {
+          "n": 2,
+          "label": "Google ADK 1.35.1 / Vertex AI",
+          "role": "framework"
+        },
+        {
+          "n": 3,
+          "label": "Vertex AI global access",
+          "role": "model-access"
+        },
+        {
+          "n": 4,
+          "label": "Cloud Run-hosted agent · us-central1",
+          "role": "host"
+        },
+        {
+          "n": 5,
+          "label": "Interlock MCP proxy",
+          "role": "control"
+        },
+        {
+          "n": 6,
+          "label": "ALLOW + authorization receipt",
+          "role": "decision",
+          "detail": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234"
+        },
+        {
+          "n": 7,
+          "label": "Protected target mutation",
+          "role": "effect",
+          "detail": "EXECUTED"
+        },
+        {
+          "n": 8,
+          "label": "Independently authenticated read-back",
+          "role": "observation",
+          "detail": "alpha=45"
+        },
+        {
+          "n": 9,
+          "label": "Cloud Logging correlated by run id",
+          "role": "correlation",
+          "detail": "interlock-hac340-proxy-00002-wzf"
+        }
+      ],
+      "decision": {
+        "value": "ALLOW",
+        "receiptId": "rcpt-023dbf13-54d7-4a89-8c54-9a79953bb567",
+        "note": "A decision. Not a verification."
+      },
+      "receipt": {
+        "digest": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234",
+        "truncated": "sha256:9d0fa49385d17fea…"
+      },
+      "effect": {
+        "status": "EXECUTED",
+        "revisionBefore": "sha256:c78fe996446426339788c38a6a6edaf6b1b8ab72f984c9c72786637148615a10",
+        "revisionAfter": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+        "invariant": "total 105 <= 130",
+        "note": "Effect. Distinct from observation."
+      },
+      "observation": {
+        "status": "OBSERVED",
+        "observed": "alpha=45",
+        "revision": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+        "caption": "independently authenticated read-back",
+        "note": "An observation. Not a safety property."
+      },
+      "transportProvenance": {
+        "caller": "[REDACTED:principal-1]",
+        "identitySource": "oidc-id-token/platform-verified:email",
+        "agentServiceAccount": "serviceAccount:[REDACTED:principal-1]",
+        "observerPrincipal": "user:[REDACTED:principal-4]",
+        "note": "Cloud Run IAM establishes transport identity. It does not prove application-role semantics."
+      },
+      "applicationProvenance": {
+        "receiptDigest": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234",
+        "correlationId": "ilk-hac340-cloud-1786730369123",
+        "note": "Interlock decision and receipt. Distinct from transport provenance."
+      },
+      "runtimeProvenance": {
+        "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "runtimeSourceSha ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a is intentionally not published. Its tree contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to it would expose what this package exists to remove, and rewriting it would change the SHA and misstate which bytes ran."
+        },
+        "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+        "snapshotFileCount": 36,
+        "revisionName": "interlock-hac340-proxy-00002-wzf",
+        "revisionNote": "The only deployment revision the frozen record names. Agent and target revision names are not evidenced and are not shown."
+      },
+      "negativeControls": [
+        {
+          "id": "forged-header",
+          "label": "Forged identity header",
+          "status": 403
+        },
+        {
+          "id": "invalid-token",
+          "label": "Invalid bearer token",
+          "status": 401,
+          "note": "The frozen field is named wrongAudienceStatus; the control sent an invalid token. Genuine wrong-audience rejection is controlled local parity, not a cloud result."
+        },
+        {
+          "id": "direct-bypass",
+          "label": "Direct target bypass without receipt",
+          "status": 403
+        }
+      ],
+      "negativeControlsNote": "Three recorded refusals. Not a security claim.",
+      "teardown": {
+        "status": "completed",
+        "source": "experiments/hac-340/evidence/teardown.json (private)",
+        "packetField": "pending"
+      },
+      "publicationRefs": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "sourcePacketNote": "Private commitment. The source bytes are deliberately unpublished and this digest is not reader-recomputable.",
+        "cloudEvidenceUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+        "hac340VerifierUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+        "redactionManifestUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+        "runtimeSourceSnapshotUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/runtime-source-snapshot.json",
+        "redactionReviewStatus": "completed 2026-08-16 — judge-safe publication checked for secrets, credentials and PII before release"
+      },
+      "notOnPath": [
+        "Agent Runtime",
+        "Agent Gateway",
+        "CONTENT_AUTHZ"
+      ],
+      "claimBoundary": {
+        "proves": [
+          "One recorded Gemini + Google ADK + Cloud Run traversal through Interlock.",
+          "A receipt-bound protected mutation, independently read back, correlated in Cloud Logging.",
+          "Three recorded fail-closed refusals."
+        ],
+        "notClaimed": [
+          "does not reproduce the HAC-330 counterfactual in Google Cloud",
+          "Agent Runtime, Agent Gateway and CONTENT_AUTHZ are not on the recorded path",
+          "internal Interlock roles are not Google-managed identities",
+          "wrong-audience rejection is controlled local parity, not a cloud result",
+          "ALLOW is not VERIFIED; OBSERVED is not SAFE; a receipt is not exactly-once",
+          "three controls are not comprehensive attack coverage",
+          "not production readiness, fleet scale, or a recovery guarantee"
+        ]
+      },
+      "intentionallyAbsent": [
+        "arms",
+        "environmentEvidence",
+        "constraints",
+        "checks",
+        "outcome"
+      ]
+    }
+  },
+  "reserved": {
+    "semanticStateId": "evaluation.unbound",
+    "label": "Anti-global-mutex evaluation",
+    "sourceIssue": "HAC-319",
+    "degradedState": "evaluation-not-yet-bound",
+    "message": "Evaluation not yet bound.",
+    "regimes": [
+      "Regime 1",
+      "Regime 2",
+      "Regime 3"
+    ],
+    "metricsWithheld": [
+      "SPR",
+      "precision",
+      "recall",
+      "false-block rate",
+      "useful-concurrency"
+    ],
+    "rule": "Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen evaluation packet."
+  },
+  "degradedStates": [
+    {
+      "id": "run.loading",
+      "message": "Loading frozen evidence.",
+      "forbiddenInference": "that a run exists or passed"
+    },
+    {
+      "id": "run.unavailable",
+      "message": "Frozen evidence unavailable.",
+      "forbiddenInference": "absence as success"
+    },
+    {
+      "id": "run.missing",
+      "message": "Run unavailable.",
+      "forbiddenInference": "that the canonical run is what was asked for"
+    },
+    {
+      "id": "run.cloud.partial",
+      "message": "Partial evidence. The missing group is withheld rather than shown as passing.",
+      "forbiddenInference": "that the missing group passed"
+    },
+    {
+      "id": "run.evidence.invalid-link",
+      "message": "Invalid evidence link.",
+      "forbiddenInference": "that unverified is verified"
+    },
+    {
+      "id": "pending-binding",
+      "message": "Pending binding.",
+      "forbiddenInference": "that the action would resolve"
+    },
+    {
+      "id": "evaluation.unbound",
+      "message": "Evaluation not yet bound.",
+      "forbiddenInference": "any metric"
+    },
+    {
+      "id": "run.error",
+      "message": "Could not read the pinned record.",
+      "forbiddenInference": "any result"
+    }
+  ],
+  "judgeModeRule": "Judge mode never falls back to placeholder or design data. Absence is absence, not success."
+}

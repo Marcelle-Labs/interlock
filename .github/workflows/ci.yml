@@ -514,3 +514,56 @@ jobs:
             echo "do not delete a non-claim to silence a vocabulary check. If the evidence"
             echo "genuinely changed, that is a claim change and belongs on HAC-333."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  cockpit-contract-gate:
+    name: Cockpit contract gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the cockpit contract
+        run: pnpm run check:cockpit
+
+      - name: The view model is derived, not hand-edited
+        run: |
+          set -euo pipefail
+          # Rebuilding from frozen evidence must reproduce the committed bytes.
+          # If it does not, the view model was edited by hand and no longer
+          # describes the evidence it claims to.
+          cp media/hac-341/evidence/view-model.json /tmp/committed-view-model.json
+          pnpm run cockpit:build
+          diff -u /tmp/committed-view-model.json media/hac-341/evidence/view-model.json
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Cockpit contract gate failed"
+            echo
+            echo "**Invariant.** The two proof classes stay separate objects. HAC-330 has no"
+            echo "receipt, effect, observation or cloud provenance; HAC-340 has no arms and no"
+            echo "bounded joint outcome. Every displayed value is derived from frozen evidence,"
+            echo "\`EXECUTED\` and \`OBSERVED\` never collapse, evidence links pin to immutable"
+            echo "commits, \`runtimeSourceUrl\` stays unavailable, and an unknown run renders"
+            echo "\`run.missing\` rather than the canonical run."
+            echo
+            echo "**Why it matters.** A judge reads this surface to decide whether the claims"
+            echo "are real. A field borrowed across proof classes produces a synthetic run that"
+            echo "never happened, which is the most expensive possible defect here."
+            echo
+            echo "**Authority.** Repository CI, reported as \`Cockpit contract gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:cockpit\` passing, and"
+            echo "\`pnpm run cockpit:build\` reproducing the committed view model."
+            echo
+            echo "**Do not weaken.** Do not hand-edit the view model, do not add a field to one"
+            echo "run because the other has it, and do not relax a link check to ship a branch"
+            echo "URL. If the evidence changed, rebuild from it."
+          } >> "$GITHUB_STEP_SUMMARY"
