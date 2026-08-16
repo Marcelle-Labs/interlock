@@ -15,7 +15,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MATERIAL_FIELDS, REDACTION_POLICY_VERSION } from './redact-packet.mjs';
+import { MATERIAL_FIELDS, REDACTION_POLICY_VERSION, REDACTION_RULES } from './redact-packet.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const publicPath = join(repoRoot, 'experiments', 'hac-342', 'evidence', 'cloud-run.public.json');
@@ -45,8 +45,9 @@ if (manifest.redactionPolicyVersion !== REDACTION_POLICY_VERSION) {
   fail(`redaction manifest policy ${manifest.redactionPolicyVersion} != tool policy ${REDACTION_POLICY_VERSION}`);
 }
 
-// The source packet is evidence. If it is present it must still be the packet
-// the frozen digest names, byte for byte.
+// The source packet is evidence. It is private by design; when a local
+// checkout does hold it, it must still be the packet the frozen digest names.
+let sourceReVerified = true;
 try {
   const sourceText = readFileSync(sourcePath, 'utf8');
   const sourceActual = sha256(sourceText);
@@ -55,7 +56,10 @@ try {
   }
 } catch (err) {
   if (err.code !== 'ENOENT') throw err;
-  process.stdout.write('note: source packet not present in this checkout; source digest not re-verified\n');
+  // Expected in a public checkout. The source packet is deliberately private,
+  // so sourcePacketSha256 stands as a commitment to bytes this reader does not
+  // hold. Publication must never imply a logged-out reader recomputed it.
+  sourceReVerified = false;
 }
 
 /* --- the derivative must announce itself ------------------------------ */
@@ -93,20 +97,63 @@ if (!Array.isArray(packet.runtimeProof?.proxyLogEntries) || packet.runtimeProof.
   fail('Cloud Logging correlation proof is absent from the public packet');
 }
 
+/* --- principal relations, which are the claims themselves -------------- */
+
+// Redaction removed every principal identifier, so these assertions are what is
+// left to carry transport provenance and observer independence. If redaction
+// ever collapses distinct principals onto one token, or lets the caller drift
+// away from the agent's account, the claims stop being supported and this fails.
+const bare = (value) => String(value ?? '').replace(/^(user:|serviceAccount:)/, '');
+const { agentServiceAccount, proxyServiceAccount, targetServiceAccount, observerPrincipal } = packet.resources ?? {};
+const callerIdentity = packet.runtimeProof?.proxyLogEntries?.[0]?.jsonPayload?.identity;
+
+for (const [label, value] of [['agent', agentServiceAccount], ['proxy', proxyServiceAccount], ['target', targetServiceAccount]]) {
+  if (!String(value ?? '').startsWith('serviceAccount:')) fail(`${label} principal lost its serviceAccount: kind`);
+}
+if (!String(observerPrincipal ?? '').startsWith('user:')) {
+  fail('observer principal lost its user: kind; the independence claim rests on it not being a service account');
+}
+if (bare(callerIdentity) !== bare(agentServiceAccount)) {
+  fail('the logged caller is no longer the agent service account; transport provenance is unsupported');
+}
+if (bare(observerPrincipal) === bare(agentServiceAccount)) {
+  fail('observer and agent resolve to the same principal; the read-back is not independent');
+}
+const serviceAccounts = new Set([agentServiceAccount, proxyServiceAccount, targetServiceAccount].map(bare));
+if (serviceAccounts.size !== 3) fail('the three service accounts are no longer distinct after redaction');
+
 /* --- nothing the redaction was for came back -------------------------- */
 
+// Positive assertion beats a blocklist: every path the policy redacts must
+// actually carry a marker. A blocklist would have to name the very identifiers
+// this file is published to keep secret — the detector would become the leak.
+for (const [path] of REDACTION_RULES) {
+  const value = read(path);
+  if (value === undefined) continue;
+  if (typeof value !== 'string' || !value.includes('[REDACTED:')) {
+    fail(`policy redacts ${path} but the published value is not redacted`);
+  }
+}
+
 const FORBIDDEN = [
-  [/nimble-octagon-505403-n3/, 'cloud project identifier'],
+  [/[a-z0-9-]+@[a-z0-9-]+\.iam\.gserviceaccount\.com/, 'service account email'],
+  [/projects\/[a-z0-9_-]+\/logs/, 'project-scoped log name'],
   [/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(?:io|com|net|org)\b/, 'personal email address'],
   [/https:\/\/[a-z0-9-]+-[a-z0-9]{10}-uc\.a\.run\.app/, 'Cloud Run deployment endpoint'],
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'private key block'],
   [/\bya29\.[A-Za-z0-9_-]{20,}/, 'Google OAuth access token'],
   [/\bAIza[0-9A-Za-z_-]{30,}/, 'Google API key'],
+  [/interlock-hac340-(?:agent|proxy|target)@/, 'service account local part'],
 ];
 for (const [pattern, label] of FORBIDDEN) {
   if (pattern.test(publicText)) fail(`public packet contains a ${label}`);
 }
 
 process.stdout.write(
-  `HAC-342 public packet verified\n  sourcePacketSha256 ${manifest.sourcePacketSha256}\n  publicPacketSha256 ${manifest.publicPacketSha256}\n  material fields intact ${MATERIAL_FIELDS.length}\n`,
+  'HAC-342 public packet verified\n'
+  + `  publicPacketSha256   ${manifest.publicPacketSha256} (recomputed over the published bytes)\n`
+  + `  sourcePacketSha256   ${manifest.sourcePacketSha256} `
+  + `(${sourceReVerified ? 'private source present, digest re-verified' : 'commitment only; private source not in this checkout'})\n`
+  + `  material fields intact ${MATERIAL_FIELDS.length}\n`
+  + '  principal relations  caller = agent SA, observer distinct and user-kind, 3 service accounts distinct\n',
 );

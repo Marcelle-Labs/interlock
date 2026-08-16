@@ -23,40 +23,42 @@ import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const REDACTION_POLICY_VERSION = '1.0.0';
+export const REDACTION_POLICY_VERSION = '2.0.0';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sourcePath = join(repoRoot, 'experiments', 'hac-340', 'evidence', 'cloud-run.json');
 const outDir = join(repoRoot, 'experiments', 'hac-342', 'evidence');
 
 /**
- * `full` removes the whole value. `serviceAccountDomain` keeps the account's
- * local part and removes the project that hosts it, because which service
- * account called the proxy is the transport-provenance claim itself — dropping
- * it would delete evidence rather than protect anything. `principalIdentity`
- * keeps the principal *kind* (`user:` versus `serviceAccount:`) for the same
- * reason: that a human operator, not the agent's own identity, performed the
- * read-back is the independence claim.
+ * `full` removes the whole value.
+ *
+ * `principal` removes the identifier but keeps what the claims actually rest
+ * on: the principal *kind* (`user:` versus `serviceAccount:`), and identity
+ * *relations*. Each distinct principal maps to a stable ordinal token, so the
+ * log entry's caller still compares equal to the agent's service account and
+ * still compares unequal to the observer — the transport-provenance and
+ * independence claims survive without publishing anyone's local part. The
+ * mapping is assigned by order of first appearance and is not reversible.
  */
-const RULES = [
+export const REDACTION_RULES = [
   ['resources.projectId', 'full', 'cloud-project-identifier'],
   ['resources.agentUrl', 'full', 'deployment-endpoint'],
   ['resources.proxyUrl', 'full', 'deployment-endpoint'],
   ['resources.targetUrl', 'full', 'deployment-endpoint'],
-  ['resources.agentServiceAccount', 'serviceAccountDomain', 'cloud-project-identifier'],
-  ['resources.proxyServiceAccount', 'serviceAccountDomain', 'cloud-project-identifier'],
-  ['resources.targetServiceAccount', 'serviceAccountDomain', 'cloud-project-identifier'],
-  ['resources.observerPrincipal', 'principalIdentity', 'personal-identifier'],
+  ['resources.agentServiceAccount', 'principal', 'cloud-project-identifier'],
+  ['resources.proxyServiceAccount', 'principal', 'cloud-project-identifier'],
+  ['resources.targetServiceAccount', 'principal', 'cloud-project-identifier'],
+  ['resources.observerPrincipal', 'principal', 'personal-identifier'],
   ['resources.nodeImage', 'full', 'registry-path'],
   ['resources.agentImage', 'full', 'registry-path'],
   ['expectedConfiguration.projectId', 'full', 'cloud-project-identifier'],
   ['expectedConfiguration.agentUrl', 'full', 'deployment-endpoint'],
   ['expectedConfiguration.proxyUrl', 'full', 'deployment-endpoint'],
   ['expectedConfiguration.targetUrl', 'full', 'deployment-endpoint'],
-  ['expectedConfiguration.agentServiceAccount', 'serviceAccountDomain', 'cloud-project-identifier'],
-  ['expectedConfiguration.proxyServiceAccount', 'serviceAccountDomain', 'cloud-project-identifier'],
-  ['expectedConfiguration.targetServiceAccount', 'serviceAccountDomain', 'cloud-project-identifier'],
-  ['expectedConfiguration.observerPrincipal', 'principalIdentity', 'personal-identifier'],
+  ['expectedConfiguration.agentServiceAccount', 'principal', 'cloud-project-identifier'],
+  ['expectedConfiguration.proxyServiceAccount', 'principal', 'cloud-project-identifier'],
+  ['expectedConfiguration.targetServiceAccount', 'principal', 'cloud-project-identifier'],
+  ['expectedConfiguration.observerPrincipal', 'principal', 'personal-identifier'],
   ['expectedConfiguration.nodeImage', 'full', 'registry-path'],
   ['expectedConfiguration.agentImage', 'full', 'registry-path'],
   ['observedConfiguration.agentRevision', 'full', 'deployment-endpoint'],
@@ -65,7 +67,7 @@ const RULES = [
   ['runtimeProof.proxyLogEntries[].logName', 'full', 'cloud-project-identifier'],
   ['runtimeProof.proxyLogEntries[].labels.instanceId', 'full', 'runtime-instance-identifier'],
   ['runtimeProof.proxyLogEntries[].resource.labels.project_id', 'full', 'cloud-project-identifier'],
-  ['runtimeProof.proxyLogEntries[].jsonPayload.identity', 'serviceAccountDomain', 'cloud-project-identifier'],
+  ['runtimeProof.proxyLogEntries[].jsonPayload.identity', 'principal', 'cloud-project-identifier'],
 ];
 
 const CATEGORY_REASON = {
@@ -123,15 +125,18 @@ function applyPath(node, segments, fn) {
   return applyPath(node[head], rest, fn);
 }
 
-function redactValue(mode, category, value) {
-  if (typeof value !== 'string') return marker(category);
-  if (mode === 'serviceAccountDomain') {
-    const at = value.indexOf('@');
-    return at === -1 ? marker(category) : `${value.slice(0, at)}@${marker(category)}`;
-  }
-  if (mode === 'principalIdentity') {
-    const colon = value.indexOf(':');
-    return colon === -1 ? marker(category) : `${value.slice(0, colon)}:${marker(category)}`;
+/** Stable ordinal per distinct principal, assigned by order of first appearance. */
+function principalToken(registry, value) {
+  const prefixMatch = /^(user:|serviceAccount:)/.exec(value ?? '');
+  const prefix = prefixMatch ? prefixMatch[0] : '';
+  const bare = prefix ? value.slice(prefix.length) : value;
+  if (!registry.has(bare)) registry.set(bare, `principal-${registry.size + 1}`);
+  return `${prefix}${marker(registry.get(bare))}`;
+}
+
+function redactValue(mode, category, value, registry) {
+  if (mode === 'principal') {
+    return typeof value === 'string' ? principalToken(registry, value) : marker(category);
   }
   return marker(category);
 }
@@ -141,8 +146,9 @@ const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
 export function redact(sourceText) {
   const packet = JSON.parse(sourceText);
   const applied = [];
-  for (const [path, mode, category] of RULES) {
-    const count = applyPath(packet, path.split('.'), (v) => redactValue(mode, category, v));
+  const principals = new Map();
+  for (const [path, mode, category] of REDACTION_RULES) {
+    const count = applyPath(packet, path.split('.'), (v) => redactValue(mode, category, v, principals));
     if (count > 0) applied.push({ path, mode, category, occurrences: count });
   }
   return { packet, applied };
@@ -159,7 +165,9 @@ function main() {
     packetKind: 'judge-safe redacted derivative',
     notice:
       'Redacted derivative of the frozen HAC-340 cloud packet. NOT byte-identical to the source packet. '
-      + 'sourcePacketSha256 identifies the original; publicPacketSha256 identifies these bytes. They are not equal.',
+      + 'sourcePacketSha256 is a cryptographic commitment to the frozen source bytes, which are deliberately '
+      + 'not published; a logged-out reader cannot and is not expected to recompute it. publicPacketSha256 '
+      + 'verifies these bytes and is the digest a reader can check. The two are never equal.',
     sourcePacketPath: 'experiments/hac-340/evidence/cloud-run.json',
     sourcePacketSha256,
     redactionPolicyVersion: REDACTION_POLICY_VERSION,
@@ -178,8 +186,11 @@ function main() {
     publicPacketPath: 'experiments/hac-342/evidence/cloud-run.public.json',
     publicPacketSha256,
     evidencePublicationSha: '[BIND: evidencePublicationSha]',
+    sourcePacketPublished: false,
     digestSemantics: {
-      sourcePacketSha256: 'Verifies the original frozen source packet, byte-exact.',
+      sourcePacketSha256:
+        'Commitment to the frozen source packet, byte-exact. The source bytes are deliberately not published, '
+        + 'so this digest is not independently recomputable by a logged-out reader.',
       publicPacketSha256: 'Verifies the published judge-safe packet, byte-exact.',
       evidencePublicationSha: 'Identifies the immutable commit publishing this package.',
       rule: 'Every digest matches the exact bytes it labels. publicPacketSha256 never equals sourcePacketSha256.',

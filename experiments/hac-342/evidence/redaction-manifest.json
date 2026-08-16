@@ -1,13 +1,14 @@
 {
   "issue": "HAC-342",
-  "redactionPolicyVersion": "1.0.0",
+  "redactionPolicyVersion": "2.0.0",
   "sourcePacketPath": "experiments/hac-340/evidence/cloud-run.json",
   "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
   "publicPacketPath": "experiments/hac-342/evidence/cloud-run.public.json",
-  "publicPacketSha256": "5c181ae6474f25d2418558012f883df5d34212294d66a4224875743fddd47f13",
+  "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
   "evidencePublicationSha": "[BIND: evidencePublicationSha]",
+  "sourcePacketPublished": false,
   "digestSemantics": {
-    "sourcePacketSha256": "Verifies the original frozen source packet, byte-exact.",
+    "sourcePacketSha256": "Commitment to the frozen source packet, byte-exact. The source bytes are deliberately not published, so this digest is not independently recomputable by a logged-out reader.",
     "publicPacketSha256": "Verifies the published judge-safe packet, byte-exact.",
     "evidencePublicationSha": "Identifies the immutable commit publishing this package.",
     "rule": "Every digest matches the exact bytes it labels. publicPacketSha256 never equals sourcePacketSha256."
@@ -43,28 +44,28 @@
     },
     {
       "path": "resources.agentServiceAccount",
-      "mode": "serviceAccountDomain",
+      "mode": "principal",
       "category": "cloud-project-identifier",
       "occurrences": 1,
       "reason": "Names the Google Cloud project that hosted the torn-down deployment."
     },
     {
       "path": "resources.proxyServiceAccount",
-      "mode": "serviceAccountDomain",
+      "mode": "principal",
       "category": "cloud-project-identifier",
       "occurrences": 1,
       "reason": "Names the Google Cloud project that hosted the torn-down deployment."
     },
     {
       "path": "resources.targetServiceAccount",
-      "mode": "serviceAccountDomain",
+      "mode": "principal",
       "category": "cloud-project-identifier",
       "occurrences": 1,
       "reason": "Names the Google Cloud project that hosted the torn-down deployment."
     },
     {
       "path": "resources.observerPrincipal",
-      "mode": "principalIdentity",
+      "mode": "principal",
       "category": "personal-identifier",
       "occurrences": 1,
       "reason": "Identifies a natural person."
@@ -113,28 +114,28 @@
     },
     {
       "path": "expectedConfiguration.agentServiceAccount",
-      "mode": "serviceAccountDomain",
+      "mode": "principal",
       "category": "cloud-project-identifier",
       "occurrences": 1,
       "reason": "Names the Google Cloud project that hosted the torn-down deployment."
     },
     {
       "path": "expectedConfiguration.proxyServiceAccount",
-      "mode": "serviceAccountDomain",
+      "mode": "principal",
       "category": "cloud-project-identifier",
       "occurrences": 1,
       "reason": "Names the Google Cloud project that hosted the torn-down deployment."
     },
     {
       "path": "expectedConfiguration.targetServiceAccount",
-      "mode": "serviceAccountDomain",
+      "mode": "principal",
       "category": "cloud-project-identifier",
       "occurrences": 1,
       "reason": "Names the Google Cloud project that hosted the torn-down deployment."
     },
     {
       "path": "expectedConfiguration.observerPrincipal",
-      "mode": "principalIdentity",
+      "mode": "principal",
       "category": "personal-identifier",
       "occurrences": 1,
       "reason": "Identifies a natural person."
@@ -197,7 +198,7 @@
     },
     {
       "path": "runtimeProof.proxyLogEntries[].jsonPayload.identity",
-      "mode": "serviceAccountDomain",
+      "mode": "principal",
       "category": "cloud-project-identifier",
       "occurrences": 1,
       "reason": "Names the Google Cloud project that hosted the torn-down deployment."

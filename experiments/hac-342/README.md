@@ -23,26 +23,29 @@ This is a separate run from the HAC-330 controlled local causal experiment. The
 two are never combined into one run, and HAC-340 does not reproduce the HAC-330
 counterfactual in Google Cloud.
 
-## Three digests, three referents
+## Three identifiers, three referents
 
 ```text
 sourcePacketSha256     794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0
-publicPacketSha256     5c181ae6474f25d2418558012f883df5d34212294d66a4224875743fddd47f13
+publicPacketSha256     ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d
 evidencePublicationSha [BIND: evidencePublicationSha]
 ```
 
-`sourcePacketSha256` identifies the original frozen packet at
-`experiments/hac-340/evidence/cloud-run.json`, byte-exact.
+`publicPacketSha256` verifies `evidence/cloud-run.public.json` — the bytes
+published here. **This is the digest you can check.**
 
-`publicPacketSha256` identifies `evidence/cloud-run.public.json` — the redacted
-derivative published here, byte-exact.
+`sourcePacketSha256` is a cryptographic **commitment** to the frozen source
+packet. Those bytes are deliberately not published, because they carry the
+identifiers this publication exists to remove. You cannot recompute this digest
+from public material, and nothing here claims you can. It exists so the source
+packet cannot later be altered without detection.
 
-`evidencePublicationSha` identifies the immutable commit that publishes this
-package. It cannot exist until that commit does, and is never substituted with
-the frozen evidence commit.
+`evidencePublicationSha` identifies the immutable commit publishing this
+package.
 
-**The public packet is not byte-identical to the source packet, and its digest
-is not the source digest.** Each digest matches only the bytes it labels.
+**The public packet is a redacted derivative. It is not byte-identical to the
+frozen source packet, and its digest is not the source digest.** Each identifier
+matches only what it labels.
 
 ## Verify it yourself
 
@@ -50,27 +53,25 @@ is not the source digest.** Each digest matches only the bytes it labels.
 node experiments/hac-342/bin/verify-public-packet.mjs
 ```
 
-This recomputes both digests over the actual bytes, refuses a public packet
-whose digest claims to be the source digest, asserts that 21 material evidence
-fields survived redaction unredacted, re-checks the frozen claims the packet is
-published to support, and scans for identifiers the redaction removed.
+This recomputes `publicPacketSha256` over the actual published bytes, refuses a
+packet whose digest claims to be the source digest, asserts that 21 material
+evidence fields survived redaction unredacted, re-checks the frozen claims the
+packet supports, enforces the principal relations below, and scans for
+identifiers the redaction removed.
 
-To confirm the source packet was never mutated:
-
-```sh
-shasum -a 256 experiments/hac-340/evidence/cloud-run.json
-node experiments/hac-340/bin/verify-packet.mjs
-```
+It reports whether the private source packet was present. In a public checkout
+it is not, and the tool says so rather than implying the source digest was
+re-verified.
 
 ## What was redacted, and what was kept
 
 `evidence/redaction-manifest.json` records every redacted path, its category and
-reason, the digests, and the material fields that had to survive. It does not
-restate a single removed value.
+reason, and the material fields that had to survive. It does not restate a
+single removed value.
 
 Removed: the Google Cloud project identifier, the three Cloud Run endpoints,
-Artifact Registry paths, the operator's personal identifier, and ephemeral
-runtime instance identifiers.
+Artifact Registry paths, every principal identifier, and ephemeral runtime
+instance identifiers.
 
 Kept, because the claims rest on them: the decision, receipt id and digest,
 correlation id, model and framework, runtime source commit, the protected
@@ -79,20 +80,70 @@ observed `alpha=45`, all three negative-control status codes, the Cloud Run
 region and Vertex location, and the proxy revision name in the Cloud Logging
 entry.
 
-Service accounts and the observer principal are partially redacted rather than
-removed: the account name and the principal *kind* are the transport-provenance
-and independence claims themselves, so the local part is kept and only the
-hosting project is removed.
+### Principals: identifiers removed, relations kept
+
+No principal's local part is published. Each distinct principal maps to a stable
+ordinal token, keeping the `user:` / `serviceAccount:` kind:
+
+```text
+resources.agentServiceAccount    serviceAccount:[REDACTED:principal-1]
+resources.proxyServiceAccount    serviceAccount:[REDACTED:principal-2]
+resources.targetServiceAccount   serviceAccount:[REDACTED:principal-3]
+resources.observerPrincipal      user:[REDACTED:principal-4]
+proxy log jsonPayload.identity   [REDACTED:principal-1]
+```
+
+The claims never rested on anyone's account name — they rest on *relations*,
+which survive and are enforced by the verifier: the logged caller is the agent's
+service account; the observer is a `user:` principal, not a service account, and
+is distinct from the agent; the three service accounts are pairwise distinct.
+
+The mapping is assigned by order of first appearance and is not reversible.
+
+## Runtime source
+
+`runtimeSourceSha` is `ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a` and remains the
+recorded identity of the source that executed.
+
+**That commit is not published, and `runtimeSourceUrl` is not bound.** Its tree
+contains `experiments/hac-340/evidence/local-traversal.json`, which hardcodes
+the Google Cloud project identifier; publishing a ref to it would leak exactly
+what this publication removes. Rewriting it to drop that file would change its
+SHA, and a rewritten commit presented as `runtimeSourceSha` would misstate which
+bytes ran. No revision link is fabricated.
+
+Instead, `evidence/runtime-source-snapshot.json` records the SHA-256 of each of
+the 36 executed source files as they existed at that commit, and a single digest
+over the canonical listing:
+
+```text
+runtimeSourceSnapshotSha256  9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1
+```
+
+This corresponds to the source recorded at `runtimeSourceSha` but is **not** that
+Git commit object and is never renamed to it. Evidence artifacts are excluded —
+they are the run's output, not its source.
 
 ## Redaction review
 
 `redactionReviewStatus`: **completed 2026-08-16** — automated pattern scan for
-credentials, keys, tokens, personal identifiers and deployment endpoints, plus
-manual field-by-field review of the packet. Re-run automatically by
-`verify-public-packet.mjs`.
+credentials, keys, tokens, personal identifiers, deployment endpoints and
+service-account local parts, plus manual field-by-field review. Re-run
+automatically by `verify-public-packet.mjs`.
 
 This is a redaction review. It is not a security audit, a penetration test, or a
 compliance review, and it is not described as one.
+
+## Local generation vs public verification
+
+`bin/redact-packet.mjs` and `bin/runtime-source-snapshot.mjs` read the private
+frozen evidence and the private runtime commit. They are **local generation**
+tools; they are published for auditability but cannot run in a public checkout
+and are not wired into public CI.
+
+`bin/verify-public-packet.mjs` is **public verification**. It needs nothing
+private and is what CI runs. Determinism of regeneration is a local gate,
+asserted where the private source exists.
 
 ## Evidence discrepancies carried forward
 
@@ -116,19 +167,15 @@ both values rather than resolving silently:
    local parity, not a cloud result.
 
 3. **Teardown.** The runtime packet records `teardown: "pending"` and is not
-   mutated. Completion is sourced to `experiments/hac-340/evidence/teardown.json`.
+   mutated. Completion is sourced to the private `teardown.json`.
 
 ## Bindings still unresolved
 
-These require the immutable public commit and cannot be bound here:
-
-- `[BIND: evidencePublicationSha]`
-- `[BIND: cloudEvidenceUrl]`
+- `[BIND: evidencePublicationSha]` — needs this commit to exist
+- `[BIND: cloudEvidenceUrl]` — needs the immutable published commit URL
 - `[BIND: verifierUrl]` — namespaced `hac340VerifierUrl`; HAC-330 uses
   `hac330VerifyCommand` and has no verifier URL
-- `[BIND: runtimeSourceUrl]` — `ae6d0d3` is currently unreachable from any
-  published branch. It becomes resolvable if that history is published; until
-  then the surface must show the explicit unavailable state and must not
-  fabricate a revision link.
+- `[BIND: runtimeSourceUrl]` — **will not be bound.** Use the runtime source
+  snapshot model above; surfaces must show the explicit unavailable state.
 
 An unbound token on a judge-facing surface is a release blocker.

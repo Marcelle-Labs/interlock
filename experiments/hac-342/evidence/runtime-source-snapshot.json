@@ -1,0 +1,156 @@
+{
+  "issue": "HAC-342",
+  "kind": "runtime source snapshot",
+  "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+  "runtimeSourceShaPublished": false,
+  "runtimeSourceShaWithheldBecause": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it.",
+  "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+  "snapshotSemantics": "runtimeSourceSnapshotSha256 is the SHA-256 of the canonical \"<sha256>  <path>\" listing below, sorted by path. It corresponds to the source recorded at runtimeSourceSha but is NOT that Git commit object and must never be presented as runtimeSourceSha. Each file digest is the SHA-256 of that file’s bytes as they executed.",
+  "fileCount": 36,
+  "files": [
+    {
+      "path": "experiments/hac-340/agent/requirements.txt",
+      "sha256": "663a0ecf017fcc1a6fce31ec6c041d840fd6048343d09ea3b46db00e0640ee20"
+    },
+    {
+      "path": "experiments/hac-340/agent/server.py",
+      "sha256": "d4695c4788ab0f2a1c04552039c707f54b4ecd15aa3dee836b95b81c01f066a2"
+    },
+    {
+      "path": "experiments/hac-340/bin/00-local-traverse.sh",
+      "sha256": "9675ff4748ef9fb85ade43b8eca7d98699a5cc5380322dc99583f2bab730d9ad"
+    },
+    {
+      "path": "experiments/hac-340/bin/10-provision.sh",
+      "sha256": "631b291555ee24dc7756b881354fb8597be09aaef9773c6c96dc6e5adc8773d1"
+    },
+    {
+      "path": "experiments/hac-340/bin/20-cloud-run.mjs",
+      "sha256": "01d3a997a89886de8d9b2b71252e2b3b423c53c116aee50e82492a10596c9bdb"
+    },
+    {
+      "path": "experiments/hac-340/bin/99-teardown.sh",
+      "sha256": "147b31d77b3518a3c429f6fdbadc88f5fa939bceb123e7b8c1541275afdf06ef"
+    },
+    {
+      "path": "experiments/hac-340/bin/env.sh",
+      "sha256": "8c6f0a46cf00de16c865b46ae381a4e4632e84aec94279c9172e82b99376f514"
+    },
+    {
+      "path": "experiments/hac-340/bin/render-config.mjs",
+      "sha256": "901f20279a87d89bfeb2c8c5794d59a257ac6f39081cb6070e4a8056f859a40a"
+    },
+    {
+      "path": "experiments/hac-340/bin/verify-packet.mjs",
+      "sha256": "11ecab3792dcab8af07bbfb8513f43e8e6bb88c6639e12b086b3055aad563db1"
+    },
+    {
+      "path": "experiments/hac-340/deploy/Dockerfile",
+      "sha256": "6a5a45b8f914d0cae591ae3c6168c1136147f96cfe44683cf440ca11d1d4c291"
+    },
+    {
+      "path": "package.json",
+      "sha256": "a7a7cb5bcb5afc767058408cf05eff159c5175de6354a366fb8cc94315a4802f"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "839a579d1b8dd157af6fd723d4240c83cca61219786f56213b2314dba497b20a"
+    },
+    {
+      "path": "src/authorization/canonical.ts",
+      "sha256": "2ca8d86b3bf11dd3d4cdfa28b7871a840b4b621459ca0286b0fbe04ce0e51433"
+    },
+    {
+      "path": "src/authorization/intent.ts",
+      "sha256": "b62d7fbacfddd7c4825756d6eaa2459e766eee31f552508da98063c078fb8786"
+    },
+    {
+      "path": "src/authorization/receipt.ts",
+      "sha256": "111d43c1477e743d2fdacf5fb2ed4af8b6c93a617c6e60e20ec404d5bededd1e"
+    },
+    {
+      "path": "src/broker/bypass/guard.ts",
+      "sha256": "e2be895703b429f1228b006761e44b541171a5b3590c44d9c02b7fbb78b4ee55"
+    },
+    {
+      "path": "src/broker/idempotency/ledger.ts",
+      "sha256": "df757beba35b81edae3a4fd16af23dd53f6b5428ee5cf24654f1ace01bcb5f3f"
+    },
+    {
+      "path": "src/broker/pairing/arbitrate.ts",
+      "sha256": "245b07031facc2c5ca9b875a8c8a3ce3218899454385870731ec508e87eedf91"
+    },
+    {
+      "path": "src/broker/pairing/store.ts",
+      "sha256": "93bcb2f25be961afba55a07ffbb081cdefd52b55159418a68ecfb32ebf8f1530"
+    },
+    {
+      "path": "src/broker/revision/revision.ts",
+      "sha256": "bd6ce0d8ca8ed57825a7bf169b79294f6160e06dfc206f26bfa9e4668715b7c4"
+    },
+    {
+      "path": "src/config.ts",
+      "sha256": "c6fc533512b699550947de0b81a87c2d863d187916963fb5eb898166abe9c332"
+    },
+    {
+      "path": "src/correlation.ts",
+      "sha256": "15069c77cece418057473705ccb6a788069baf4a2d155d39c012b9cf63755841"
+    },
+    {
+      "path": "src/http/json.ts",
+      "sha256": "332f1b579a89110b54184be089960c7168defbbd0b9d25b0a925c6c1e088eb2a"
+    },
+    {
+      "path": "src/observation/events.ts",
+      "sha256": "ebdebf0cd46756c6b6b82ed7c94f48a0552ae1c7bcec5399778a389ce39dc26f"
+    },
+    {
+      "path": "src/proxy/http.ts",
+      "sha256": "37510f7c420e14bfc6c3ef2be8bc3743518f3ceb31ed198d232174600d3db017"
+    },
+    {
+      "path": "src/proxy/identity.ts",
+      "sha256": "ad53d4b771b2210635ed6d38197d008cd86bfd27bf761f6557930a812ac5741e"
+    },
+    {
+      "path": "src/proxy/main.ts",
+      "sha256": "d7dd6e33088359a21ef559a5274dd8b8b6b44ffc33859a02be31aa80955655a1"
+    },
+    {
+      "path": "src/proxy/service.ts",
+      "sha256": "8e0ce66ad1e72771b56bd9674a314ae2e188f8c98860729b1320ed5e940ca43d"
+    },
+    {
+      "path": "src/proxy/target-port.ts",
+      "sha256": "e2eda4dfafe62b64a1acf7083b2d1bf13cb6aeda3585d77b6997acc92e2a8564"
+    },
+    {
+      "path": "src/receipt.ts",
+      "sha256": "e9e627d3385e18949c09f09c26a8a2a7bceb86019cd90b5407a437cc4effc323"
+    },
+    {
+      "path": "src/target/http.ts",
+      "sha256": "166908bd18ee2cbfeb58b0c9e5fe3b4637655bfca152dc9693fba30a22d2acc3"
+    },
+    {
+      "path": "src/target/main.ts",
+      "sha256": "aacfbf5e8b17b225688a1e649e4cfb8c2c6210dbbe48c26ebe02143f461a2098"
+    },
+    {
+      "path": "src/target/service.ts",
+      "sha256": "e949a8faaf9fd003b33eb7600aee7df79d19802e728610bdefcc0077b8fb1066"
+    },
+    {
+      "path": "src/target/state.ts",
+      "sha256": "43d77a74c71acab6efc647daa0f8ffe8807e2b11c12975448bf64ca87d3662e6"
+    },
+    {
+      "path": "tsconfig.build.json",
+      "sha256": "727041493e4c3be0c2f0bfd744a808f68378f4df1b319b52e641b02626c923c9"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "7ee039c66ba44137179ca92b47abf8aa904de0ce4b24324284ed50dc36fe8035"
+    }
+  ]
+}
