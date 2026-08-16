@@ -388,3 +388,83 @@ jobs:
             echo "enforcement property genuinely changed, that is an architecture change and"
             echo "belongs on HAC-326 as a recorded finding."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  evidence-publication-gate:
+    name: Evidence publication gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # Public verification only. Regenerating the packet needs the frozen
+      # source, which is deliberately not in public history, so this asserts the
+      # published bytes rather than reproducing them. Determinism is a local
+      # gate, run where that source exists.
+      - name: Verify the published judge-safe packet
+        run: pnpm run check:packet:public
+
+      - name: No private evidence reached public history
+        run: |
+          set -euo pipefail
+          # The unredacted packet must never appear here, by path or by content.
+          if [ -e experiments/hac-340/evidence/cloud-run.json ]; then
+            echo "the unredacted HAC-340 packet is present in public history"
+            exit 1
+          fi
+          # Scoped to what HAC-342 publishes, and matched structurally. Naming a
+          # literal identifier here would put it in public history to look for it.
+          if git grep -qIE '[a-z0-9-]+@[a-z0-9-]+\.iam\.gserviceaccount\.com' -- experiments/hac-342 ; then
+            echo "a service account email is present in the published evidence"
+            exit 1
+          fi
+          if git grep -qIE 'https://[a-z0-9-]+-[a-z0-9]{10}-uc\.a\.run\.app' -- experiments/hac-342 ; then
+            echo "a Cloud Run deployment endpoint is present in the published evidence"
+            exit 1
+          fi
+          if git grep -qIE 'projects/[a-z0-9_-]+/logs' -- experiments/hac-342 ; then
+            echo "a project-scoped log name is present in the published evidence"
+            exit 1
+          fi
+          echo "no private evidence found in the published evidence"
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Evidence publication gate failed"
+            echo
+            echo "**Invariant.** The judge-safe packet published by HAC-342 is a redacted"
+            echo "derivative of a frozen HAC-340 packet that is deliberately NOT public."
+            echo "\`publicPacketSha256\` verifies the published bytes and is the digest a"
+            echo "reader can check. \`sourcePacketSha256\` is a commitment to the private"
+            echo "source and is never presented as reader-recomputable. They are never"
+            echo "equal. Every material evidence field survives redaction unredacted, and"
+            echo "the principal relations that carry transport provenance and observer"
+            echo "independence are asserted rather than assumed."
+            echo
+            echo "**Why it matters.** A judge checks this packet without repository access."
+            echo "A digest that names bytes it does not hash, a redaction that deletes the"
+            echo "receipt digest instead of an identifier, or a reintroduced project id,"
+            echo "endpoint or service-account local part each break the publication rather"
+            echo "than the build."
+            echo
+            echo "**Authority.** Repository CI, reported as \`Evidence publication gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:packet:public\` passing on this"
+            echo "commit, and no private evidence reachable from public history."
+            echo
+            echo "**Do not weaken.** Do not hand-edit the public packet or its manifest, do"
+            echo "not relax a material-field or principal-relation assertion to accommodate"
+            echo "a redaction, and do not add the frozen packet to public history to make"
+            echo "regeneration work. If a material field genuinely must be redacted, that is"
+            echo "a claim change and belongs on HAC-342 as a recorded finding."
+          } >> "$GITHUB_STEP_SUMMARY"
