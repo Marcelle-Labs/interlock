@@ -1,0 +1,250 @@
+{
+  "issue": "HAC-342",
+  "redactionPolicyVersion": "1.0.0",
+  "sourcePacketPath": "experiments/hac-340/evidence/cloud-run.json",
+  "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+  "publicPacketPath": "experiments/hac-342/evidence/cloud-run.public.json",
+  "publicPacketSha256": "5c181ae6474f25d2418558012f883df5d34212294d66a4224875743fddd47f13",
+  "evidencePublicationSha": "[BIND: evidencePublicationSha]",
+  "digestSemantics": {
+    "sourcePacketSha256": "Verifies the original frozen source packet, byte-exact.",
+    "publicPacketSha256": "Verifies the published judge-safe packet, byte-exact.",
+    "evidencePublicationSha": "Identifies the immutable commit publishing this package.",
+    "rule": "Every digest matches the exact bytes it labels. publicPacketSha256 never equals sourcePacketSha256."
+  },
+  "redactedPaths": [
+    {
+      "path": "resources.projectId",
+      "mode": "full",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "resources.agentUrl",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "resources.proxyUrl",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "resources.targetUrl",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "resources.agentServiceAccount",
+      "mode": "serviceAccountDomain",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "resources.proxyServiceAccount",
+      "mode": "serviceAccountDomain",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "resources.targetServiceAccount",
+      "mode": "serviceAccountDomain",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "resources.observerPrincipal",
+      "mode": "principalIdentity",
+      "category": "personal-identifier",
+      "occurrences": 1,
+      "reason": "Identifies a natural person."
+    },
+    {
+      "path": "resources.nodeImage",
+      "mode": "full",
+      "category": "registry-path",
+      "occurrences": 1,
+      "reason": "Artifact Registry path embedding the project identifier."
+    },
+    {
+      "path": "resources.agentImage",
+      "mode": "full",
+      "category": "registry-path",
+      "occurrences": 1,
+      "reason": "Artifact Registry path embedding the project identifier."
+    },
+    {
+      "path": "expectedConfiguration.projectId",
+      "mode": "full",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "expectedConfiguration.agentUrl",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "expectedConfiguration.proxyUrl",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "expectedConfiguration.targetUrl",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "expectedConfiguration.agentServiceAccount",
+      "mode": "serviceAccountDomain",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "expectedConfiguration.proxyServiceAccount",
+      "mode": "serviceAccountDomain",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "expectedConfiguration.targetServiceAccount",
+      "mode": "serviceAccountDomain",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "expectedConfiguration.observerPrincipal",
+      "mode": "principalIdentity",
+      "category": "personal-identifier",
+      "occurrences": 1,
+      "reason": "Identifies a natural person."
+    },
+    {
+      "path": "expectedConfiguration.nodeImage",
+      "mode": "full",
+      "category": "registry-path",
+      "occurrences": 1,
+      "reason": "Artifact Registry path embedding the project identifier."
+    },
+    {
+      "path": "expectedConfiguration.agentImage",
+      "mode": "full",
+      "category": "registry-path",
+      "occurrences": 1,
+      "reason": "Artifact Registry path embedding the project identifier."
+    },
+    {
+      "path": "observedConfiguration.agentRevision",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "observedConfiguration.proxyRevision",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "observedConfiguration.targetRevision",
+      "mode": "full",
+      "category": "deployment-endpoint",
+      "occurrences": 1,
+      "reason": "Resolvable endpoint of a deployment that no longer exists."
+    },
+    {
+      "path": "runtimeProof.proxyLogEntries[].logName",
+      "mode": "full",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "runtimeProof.proxyLogEntries[].labels.instanceId",
+      "mode": "full",
+      "category": "runtime-instance-identifier",
+      "occurrences": 1,
+      "reason": "Ephemeral Cloud Run instance identifier with no evidentiary value."
+    },
+    {
+      "path": "runtimeProof.proxyLogEntries[].resource.labels.project_id",
+      "mode": "full",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    },
+    {
+      "path": "runtimeProof.proxyLogEntries[].jsonPayload.identity",
+      "mode": "serviceAccountDomain",
+      "category": "cloud-project-identifier",
+      "occurrences": 1,
+      "reason": "Names the Google Cloud project that hosted the torn-down deployment."
+    }
+  ],
+  "removedValuesPublished": false,
+  "preservedMaterialFields": [
+    "commitSha",
+    "model",
+    "adkPath",
+    "correlationId",
+    "decision",
+    "receiptId",
+    "receiptDigest",
+    "protectedMutation.status",
+    "protectedMutation.revisionBefore",
+    "protectedMutation.revisionAfter",
+    "protectedMutation.invariant.holds",
+    "observation.revision",
+    "observation.state.services.alpha",
+    "controls.forgedHeaderStatus",
+    "controls.wrongAudienceStatus",
+    "controls.directBypassStatus",
+    "resources.region",
+    "resources.vertexLocation",
+    "runtimeProof.proxyLogEntries[].resource.labels.revision_name",
+    "runtimeProof.proxyLogEntries[].jsonPayload.correlationId",
+    "runtimeProof.proxyLogEntries[].jsonPayload.identitySource"
+  ],
+  "sourceDiscrepancies": [
+    {
+      "field": "agentRevision / targetRevision",
+      "designValue": "recorded in the HAC-342 design bindings",
+      "frozenEvidence": "absent — bin/20-cloud-run.mjs records observedConfiguration as service URLs, not revision names, so only the proxy revision survives via the Cloud Logging resource label",
+      "disposition": "Both values preserved in the design handoff per its section 6; removed from judge-facing factual surfaces. Only interlock-hac340-proxy-00002-wzf is evidenced."
+    },
+    {
+      "field": "controls.wrongAudienceStatus",
+      "designValue": "named wrong-audience",
+      "frozenEvidence": "bin/20-cloud-run.mjs:34 sends Bearer invalid.wrong.token to the real Cloud Run proxy — an invalid-token control. The signed wrong-audience token is exercised only by the local parity run.",
+      "disposition": "Field name preserved unmutated in the packet; presented as \"invalid bearer token\" on judge-facing surfaces. Genuine wrong-audience rejection remains CONTROLLED LOCAL PARITY, not a cloud result."
+    },
+    {
+      "field": "teardown",
+      "designValue": "completed",
+      "frozenEvidence": "runtime packet records teardown: \"pending\"",
+      "disposition": "Runtime packet not mutated. The completed claim sources to experiments/hac-340/evidence/teardown.json."
+    }
+  ]
+}

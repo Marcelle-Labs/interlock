@@ -1,0 +1,117 @@
+{
+  "packetKind": "judge-safe redacted derivative",
+  "notice": "Redacted derivative of the frozen HAC-340 cloud packet. NOT byte-identical to the source packet. sourcePacketSha256 identifies the original; publicPacketSha256 identifies these bytes. They are not equal.",
+  "sourcePacketPath": "experiments/hac-340/evidence/cloud-run.json",
+  "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+  "redactionPolicyVersion": "1.0.0",
+  "redactionManifest": "experiments/hac-342/evidence/redaction-manifest.json",
+  "commitSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+  "model": "gemini-3.5-flash",
+  "adkPath": "Google ADK 1.35.1 / Vertex AI",
+  "resources": {
+    "projectId": "[REDACTED:cloud-project-identifier]",
+    "region": "us-central1",
+    "vertexLocation": "global",
+    "agentUrl": "[REDACTED:deployment-endpoint]",
+    "proxyUrl": "[REDACTED:deployment-endpoint]",
+    "targetUrl": "[REDACTED:deployment-endpoint]",
+    "agentServiceAccount": "serviceAccount:interlock-hac340-agent@[REDACTED:cloud-project-identifier]",
+    "proxyServiceAccount": "serviceAccount:interlock-hac340-proxy@[REDACTED:cloud-project-identifier]",
+    "targetServiceAccount": "serviceAccount:interlock-hac340-target@[REDACTED:cloud-project-identifier]",
+    "observerPrincipal": "user:[REDACTED:personal-identifier]",
+    "nodeImage": "[REDACTED:registry-path]",
+    "agentImage": "[REDACTED:registry-path]"
+  },
+  "correlationId": "ilk-hac340-cloud-1786730369123",
+  "decision": "ALLOW",
+  "receiptId": "rcpt-023dbf13-54d7-4a89-8c54-9a79953bb567",
+  "receiptDigest": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234",
+  "protectedMutation": {
+    "status": "EXECUTED",
+    "correlationId": "ilk-hac340-cloud-1786730369123",
+    "receiptId": "rcpt-023dbf13-54d7-4a89-8c54-9a79953bb567",
+    "revisionBefore": "sha256:c78fe996446426339788c38a6a6edaf6b1b8ab72f984c9c72786637148615a10",
+    "revisionAfter": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    },
+    "invariant": {
+      "holds": true,
+      "total": 105,
+      "totalReservable": 130,
+      "detail": "total 105 <= 130"
+    }
+  },
+  "observation": {
+    "revision": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    }
+  },
+  "runtimeProof": {
+    "proxyLogEntries": [
+      {
+        "insertId": "6a7f5784000e89ca1d56aee1",
+        "jsonPayload": {
+          "correlationId": "ilk-hac340-cloud-1786730369123",
+          "event": "proxy.request",
+          "identity": "interlock-hac340-agent@[REDACTED:cloud-project-identifier]",
+          "identitySource": "oidc-id-token/platform-verified:email",
+          "transport": "mcp"
+        },
+        "labels": {
+          "instanceId": "[REDACTED:runtime-instance-identifier]"
+        },
+        "logName": "[REDACTED:cloud-project-identifier]",
+        "receiveTimestamp": "2026-08-14T17:59:32.961344960Z",
+        "resource": {
+          "labels": {
+            "configuration_name": "interlock-hac340-proxy",
+            "location": "us-central1",
+            "project_id": "[REDACTED:cloud-project-identifier]",
+            "revision_name": "interlock-hac340-proxy-00002-wzf",
+            "service_name": "interlock-hac340-proxy"
+          },
+          "type": "cloud_run_revision"
+        },
+        "timestamp": "2026-08-14T17:59:32.952778Z"
+      }
+    ],
+    "agentHttpStatus": 200
+  },
+  "expectedConfiguration": {
+    "projectId": "[REDACTED:cloud-project-identifier]",
+    "region": "us-central1",
+    "vertexLocation": "global",
+    "agentUrl": "[REDACTED:deployment-endpoint]",
+    "proxyUrl": "[REDACTED:deployment-endpoint]",
+    "targetUrl": "[REDACTED:deployment-endpoint]",
+    "agentServiceAccount": "serviceAccount:interlock-hac340-agent@[REDACTED:cloud-project-identifier]",
+    "proxyServiceAccount": "serviceAccount:interlock-hac340-proxy@[REDACTED:cloud-project-identifier]",
+    "targetServiceAccount": "serviceAccount:interlock-hac340-target@[REDACTED:cloud-project-identifier]",
+    "observerPrincipal": "user:[REDACTED:personal-identifier]",
+    "nodeImage": "[REDACTED:registry-path]",
+    "agentImage": "[REDACTED:registry-path]"
+  },
+  "observedConfiguration": {
+    "agentRevision": "[REDACTED:deployment-endpoint]",
+    "proxyRevision": "[REDACTED:deployment-endpoint]",
+    "targetRevision": "[REDACTED:deployment-endpoint]"
+  },
+  "controls": {
+    "forgedHeaderStatus": 403,
+    "wrongAudienceStatus": 401,
+    "directBypassStatus": 403
+  },
+  "teardown": "pending"
+}

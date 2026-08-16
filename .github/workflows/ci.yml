@@ -388,3 +388,70 @@ jobs:
             echo "enforcement property genuinely changed, that is an architecture change and"
             echo "belongs on HAC-326 as a recorded finding."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  evidence-publication-gate:
+    name: Evidence publication gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the published judge-safe packet
+        run: pnpm run check:packet:public
+
+      - name: Redaction is deterministic and the committed bytes are its output
+        run: |
+          set -euo pipefail
+          # Regenerating must reproduce the committed bytes exactly. If it does
+          # not, the published packet was hand-edited after generation and its
+          # digest describes bytes no tool can reproduce.
+          cp experiments/hac-342/evidence/cloud-run.public.json /tmp/committed-public.json
+          cp experiments/hac-342/evidence/redaction-manifest.json /tmp/committed-manifest.json
+          pnpm run hac342:redact
+          diff -u /tmp/committed-public.json experiments/hac-342/evidence/cloud-run.public.json
+          diff -u /tmp/committed-manifest.json experiments/hac-342/evidence/redaction-manifest.json
+
+      - name: The source packet was not mutated to make publication easier
+        run: |
+          set -euo pipefail
+          # HAC-342 publishes HAC-340's evidence; it never edits it.
+          echo '794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0  experiments/hac-340/evidence/cloud-run.json' \
+            | sha256sum --check --strict
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Evidence publication gate failed"
+            echo
+            echo "**Invariant.** The judge-safe packet published by HAC-342 is a redacted"
+            echo "derivative of the frozen HAC-340 packet. Every digest matches the exact"
+            echo "bytes it labels: \`sourcePacketSha256\` the original, \`publicPacketSha256\`"
+            echo "the published bytes. They are never equal, and the derivative says so"
+            echo "about itself. Every material evidence field survives redaction unredacted."
+            echo
+            echo "**Why it matters.** A judge checks this packet without repository access."
+            echo "A digest that names bytes it does not hash, a redaction that deletes the"
+            echo "receipt digest instead of an identifier, or a reintroduced project id or"
+            echo "personal identifier each break the publication rather than the build."
+            echo
+            echo "**Authority.** Repository CI, reported as \`Evidence publication gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:packet:public\` passing on this"
+            echo "commit, and \`pnpm run hac342:redact\` reproducing the committed bytes."
+            echo
+            echo "**Do not weaken.** Do not hand-edit the public packet or its manifest, do"
+            echo "not relax a material-field assertion to accommodate a redaction, and do"
+            echo "not edit the frozen HAC-340 packet. If a field genuinely must be redacted"
+            echo "and it is material, that is a claim change and belongs on HAC-342 as a"
+            echo "recorded finding."
+          } >> "$GITHUB_STEP_SUMMARY"

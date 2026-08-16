@@ -13,15 +13,17 @@
     "check:provenance": "node scripts/check-provenance.mjs",
     "check:packet": "node experiments/hac-330/bin/verify-packet.mjs",
     "check:packet:s2": "node experiments/hac-326/bin/verify-packet.mjs",
-    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2",
+    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "hac330": "node experiments/hac-330/bin/run-experiment.mjs",
-    "hac326": "pnpm run build && node experiments/hac-326/bin/run-experiment.mjs"
-    ,"hac340:render:local": "node experiments/hac-340/bin/render-config.mjs local"
-    ,"hac340:packet": "node experiments/hac-340/bin/verify-packet.mjs"
+    "hac326": "pnpm run build && node experiments/hac-326/bin/run-experiment.mjs",
+    "hac340:render:local": "node experiments/hac-340/bin/render-config.mjs local",
+    "hac340:packet": "node experiments/hac-340/bin/verify-packet.mjs",
+    "hac342:redact": "node experiments/hac-342/bin/redact-packet.mjs",
+    "check:packet:public": "node experiments/hac-342/bin/verify-public-packet.mjs"
   },
   "devDependencies": {
     "@types/node": "22.15.3",
