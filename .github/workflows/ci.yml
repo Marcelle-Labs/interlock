@@ -468,3 +468,49 @@ jobs:
             echo "regeneration work. If a material field genuinely must be redacted, that is"
             echo "a claim change and belongs on HAC-342 as a recorded finding."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  storyboard-contract-gate:
+    name: Storyboard contract gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the 30-second storyboard contract
+        run: pnpm run check:storyboard
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Storyboard contract gate failed"
+            echo
+            echo "**Invariant.** The muted 30-second cut runs exactly 30.00 s across nine"
+            echo "contiguous scenes; proof class A completes before SB-06 resets the context"
+            echo "and proof class B begins after it; no scene presents HAC-330 and HAC-340 as"
+            echo "one run; every scene keeps a static and reduced-motion equivalent and a"
+            echo "hold/capture state; and no lifecycle state appears that a frozen packet"
+            echo "does not emit."
+            echo
+            echo "**Why it matters.** This storyboard is the motion and capture contract that"
+            echo "HAC-341, HAC-324 and HAC-336 consume. A drift here becomes a false claim in"
+            echo "the judge-facing video, where it is far more expensive to catch."
+            echo
+            echo "**Authority.** Repository CI, reported as \`Storyboard contract gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:storyboard\` passing on this commit."
+            echo
+            echo "**Do not weaken.** Do not retime a scene to reach 30.00 without re-deriving"
+            echo "the story, do not relax the proof-class separation to fit a transition, and"
+            echo "do not delete a non-claim to silence a vocabulary check. If the evidence"
+            echo "genuinely changed, that is a claim change and belongs on HAC-333."
+          } >> "$GITHUB_STEP_SUMMARY"
