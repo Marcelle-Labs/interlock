@@ -1,0 +1,915 @@
+{
+  "contract": "HAC-334 canonical proof visual model",
+  "revision": "r01",
+  "issue": "HAC-334",
+  "generatedFrom": [
+    "media/hac-341/evidence/view-model.json",
+    "media/hac-333/scene-manifest.json",
+    "experiments/hac-330/evidence/arms.json",
+    "experiments/hac-330/evidence/results.json",
+    "experiments/hac-342/evidence/cloud-run.public.json",
+    "experiments/hac-342/evidence/publication-bindings.json"
+  ],
+  "generator": "media/hac-334/bin/build-visual-model.mjs",
+  "idBand": {
+    "owned": [
+      "IL-DIAG-010",
+      "IL-DIAG-011",
+      "IL-DIAG-012",
+      "IL-DIAG-013",
+      "IL-PROOF-010",
+      "IL-PROOF-011",
+      "IL-PROOF-012",
+      "IL-PROOF-013",
+      "IL-PROOF-014"
+    ],
+    "reusedFromHac342": [
+      "IL-DIAG-002",
+      "IL-DIAG-003",
+      "IL-PROOF-001",
+      "IL-PROOF-002",
+      "IL-PROOF-003",
+      "IL-PROOF-005"
+    ],
+    "rule": "The HAC-342 band is reused, never renumbered and never redrawn. No derivative is promoted into a master id."
+  },
+  "proofClasses": {
+    "A": {
+      "label": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "runIdentity": "hac330-local",
+      "theme": "paper"
+    },
+    "B": {
+      "label": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "runIdentity": "ilk-hac340-cloud-1786730369123",
+      "theme": "ink"
+    }
+  },
+  "proofSeparation": "Class A and class B never share a run identity, a timeline, a revision, a receipt or runtime provenance on any surface. No board renders them as one chain.",
+  "publicEvidence": {
+    "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+    "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+    "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+    "sourcePacketPublished": false,
+    "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+    "runtimeSourceUrl": {
+      "state": "unavailable / non-public",
+      "reason": "runtimeSourceSha ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a is intentionally not published. Its tree contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to it would expose what this package exists to remove, and rewriting it would change the SHA and misstate which bytes ran."
+    },
+    "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+    "cloudEvidenceUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+    "hac340VerifierUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+    "redactionManifestUrl": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+    "hac330VerifyCommand": "node experiments/hac-330/bin/verify-packet.mjs"
+  },
+  "assets": [
+    {
+      "id": "IL-PROOF-010",
+      "slug": "causal-counterfactual",
+      "assetName": "Controlled causal counterfactual",
+      "board": "V1",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "run": "hac330-local",
+      "semanticStates": [
+        "run.local.baseline",
+        "run.local.treatment"
+      ],
+      "composition": {
+        "intents": [
+          {
+            "label": "Intent A",
+            "state": "LOCALLY VALID"
+          },
+          {
+            "label": "Intent B",
+            "state": "LOCALLY VALID"
+          }
+        ],
+        "environment": {
+          "id": "environment",
+          "label": "Shared environment",
+          "role": "environment",
+          "state": "COUPLED"
+        },
+        "constraint": {
+          "value": "sum(services[].reserved) <= 130",
+          "source": "experiments/hac-330/evidence/arms.json"
+        },
+        "bound": {
+          "value": 130,
+          "source": "experiments/hac-330/evidence/arms.json"
+        },
+        "arms": [
+          {
+            "armId": "baseline",
+            "label": "Baseline arm",
+            "semanticStateId": "run.local.baseline",
+            "interlock": "disabled",
+            "expression": "140 > 130",
+            "holds": false,
+            "verdict": "invalid joint state"
+          },
+          {
+            "armId": "treatment",
+            "label": "Treatment · original evidence",
+            "semanticStateId": "run.local.treatment",
+            "interlock": "enabled",
+            "decision": "WITHHOLD_SERIALIZE",
+            "expression": "120 <= 130",
+            "holds": true,
+            "verdict": "bounded constraint satisfied"
+          }
+        ],
+        "checks": {
+          "value": "24/24",
+          "source": "experiments/hac-330/evidence/results.json"
+        }
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "causal-counterfactual"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "causal-counterfactual"
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "width": 2400,
+          "height": 1350,
+          "slug": "causal-counterfactual"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "causal-counterfactual"
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "width": 1280,
+          "height": 720,
+          "slug": "causal-counterfactual"
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "width": 1200,
+          "height": 675,
+          "slug": "causal-counterfactual"
+        },
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "causal-counterfactual-brief",
+          "presentationRole": "5s"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "causal-counterfactual-brief",
+          "presentationRole": "5s"
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-011",
+      "slug": "evidence-load-bearing",
+      "assetName": "Perturbation / evidence load-bearing",
+      "board": "V2",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "run": "hac330-local",
+      "semanticStates": [
+        "run.local.treatment",
+        "run.local.perturbed"
+      ],
+      "composition": {
+        "comparison": [
+          {
+            "armId": "treatment",
+            "label": "Treatment · original evidence",
+            "semanticStateId": "run.local.treatment",
+            "decision": "WITHHOLD_SERIALIZE",
+            "decisionReason": "COUPLING_OBSERVED",
+            "basisRevision": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+            "expression": "120 <= 130",
+            "holds": true,
+            "verdict": "bounded constraint satisfied"
+          },
+          {
+            "armId": "perturbed",
+            "label": "Perturbed evidence",
+            "semanticStateId": "run.local.perturbed",
+            "decision": "ALLOW_PARALLEL",
+            "decisionReason": "NO_QUALIFYING_COUPLING",
+            "basisRevision": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+            "expression": "140 > 130",
+            "holds": false,
+            "verdict": "invalid joint state"
+          }
+        ],
+        "proposition": "The evidence is load-bearing.",
+        "selectionNote": "Each arm is a recorded result. Nothing is executed to produce this comparison."
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "evidence-load-bearing"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "evidence-load-bearing"
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "width": 2400,
+          "height": 1350,
+          "slug": "evidence-load-bearing"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "evidence-load-bearing"
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "width": 1280,
+          "height": 720,
+          "slug": "evidence-load-bearing"
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "width": 1200,
+          "height": 675,
+          "slug": "evidence-load-bearing"
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-010",
+      "slug": "conceptual-causal-architecture",
+      "assetName": "Conceptual causal architecture",
+      "board": "V3",
+      "proofClass": "none",
+      "proofClassLabel": "CONCEPTUAL",
+      "semanticStates": [
+        "run.local.intents",
+        "run.local.coupled"
+      ],
+      "composition": {
+        "conceptual": true,
+        "intents": [
+          "Intent A",
+          "Intent B"
+        ],
+        "environment": "Shared environment",
+        "boundary": "Interlock coordination boundary",
+        "outcome": "Controlled shared-state action",
+        "constraint": {
+          "value": "sum(services[].reserved) <= 130",
+          "source": "experiments/hac-330/evidence/arms.json"
+        },
+        "note": "Mechanism only. No deployment topology is asserted on this board."
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "conceptual-causal-architecture"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "conceptual-causal-architecture"
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "width": 2400,
+          "height": 1350,
+          "slug": "conceptual-causal-architecture"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "conceptual-causal-architecture"
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "width": 1280,
+          "height": 720,
+          "slug": "conceptual-causal-architecture"
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-011",
+      "slug": "cloud-participation",
+      "assetName": "Real Google Cloud participation",
+      "board": "V4",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "semanticStates": [
+        "run.cloud.overview"
+      ],
+      "composition": {
+        "path": [
+          {
+            "n": 1,
+            "label": "gemini-3.5-flash",
+            "role": "model"
+          },
+          {
+            "n": 2,
+            "label": "Google ADK 1.35.1 / Vertex AI",
+            "role": "framework"
+          },
+          {
+            "n": 3,
+            "label": "Vertex AI global access",
+            "role": "model-access"
+          },
+          {
+            "n": 4,
+            "label": "Cloud Run-hosted agent · us-central1",
+            "role": "host"
+          },
+          {
+            "n": 5,
+            "label": "Interlock MCP proxy",
+            "role": "control"
+          },
+          {
+            "n": 6,
+            "label": "ALLOW + authorization receipt",
+            "role": "decision"
+          },
+          {
+            "n": 7,
+            "label": "Protected target mutation",
+            "role": "effect"
+          },
+          {
+            "n": 8,
+            "label": "Independently authenticated read-back",
+            "role": "observation"
+          },
+          {
+            "n": 9,
+            "label": "Cloud Logging correlated by run id",
+            "role": "correlation"
+          }
+        ],
+        "observed": {
+          "value": "alpha=45",
+          "source": "experiments/hac-342/evidence/cloud-run.public.json"
+        },
+        "correlationId": {
+          "value": "ilk-hac340-cloud-1786730369123",
+          "source": "experiments/hac-342/evidence/cloud-run.public.json"
+        },
+        "runtimeSourceSha": {
+          "value": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+          "source": "experiments/hac-342/evidence/runtime-source-snapshot.json"
+        },
+        "notOnPath": [
+          "Agent Runtime",
+          "Agent Gateway",
+          "CONTENT_AUTHZ"
+        ]
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "cloud-participation"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "cloud-participation"
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "width": 2400,
+          "height": 1350,
+          "slug": "cloud-participation"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "cloud-participation"
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "width": 1280,
+          "height": 720,
+          "slug": "cloud-participation"
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "width": 1200,
+          "height": 675,
+          "slug": "cloud-participation"
+        },
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "cloud-participation-brief",
+          "presentationRole": "5s"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "cloud-participation-brief",
+          "presentationRole": "5s"
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-012",
+      "slug": "deployment-trust-boundaries",
+      "assetName": "Exact deployment and trust boundaries",
+      "board": "V5",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "semanticStates": [
+        "run.cloud.overview"
+      ],
+      "composition": {
+        "layers": [
+          {
+            "zone": "MODEL / ACCESS",
+            "nodes": [
+              "gemini-3.5-flash",
+              "Vertex AI global access"
+            ]
+          },
+          {
+            "zone": "AGENT FRAMEWORK",
+            "nodes": [
+              "Google ADK 1.35.1 / Vertex AI"
+            ]
+          },
+          {
+            "zone": "CLOUD HOST",
+            "nodes": [
+              "Cloud Run-hosted agent · us-central1"
+            ]
+          },
+          {
+            "zone": "INTERLOCK APPLICATION BOUNDARY",
+            "nodes": [
+              "Interlock MCP proxy"
+            ]
+          },
+          {
+            "zone": "DECISION / RECEIPT",
+            "nodes": [
+              "ALLOW + authorization receipt"
+            ]
+          },
+          {
+            "zone": "PROTECTED TARGET",
+            "nodes": [
+              "Protected target mutation"
+            ]
+          },
+          {
+            "zone": "INDEPENDENT OBSERVATION",
+            "nodes": [
+              "Independently authenticated read-back"
+            ]
+          },
+          {
+            "zone": "CLOUD LOGGING / CORRELATION",
+            "nodes": [
+              "Cloud Logging correlated by run id"
+            ]
+          }
+        ],
+        "transportProvenance": {
+          "identitySource": "oidc-id-token/platform-verified:email",
+          "note": "Cloud Run IAM establishes transport identity. It does not prove application-role semantics.",
+          "boundary": "dashed"
+        },
+        "applicationProvenance": {
+          "receiptDigest": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234",
+          "correlationId": "ilk-hac340-cloud-1786730369123",
+          "note": "Interlock decision and receipt. Distinct from transport provenance.",
+          "boundary": "solid"
+        },
+        "separationRule": "Cloud Run IAM establishes transport provenance. It does not establish Google-managed proposer, reviewer or authorizer roles inside Interlock.",
+        "evidencedRevision": {
+          "value": "interlock-hac340-proxy-00002-wzf",
+          "source": "experiments/hac-342/evidence/cloud-run.public.json"
+        },
+        "revisionNote": "The only deployment revision the frozen record names. Agent and target revision names are not evidenced and are not shown.",
+        "notOnPath": [
+          "Agent Runtime",
+          "Agent Gateway",
+          "CONTENT_AUTHZ"
+        ]
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "deployment-trust-boundaries"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "deployment-trust-boundaries"
+        },
+        {
+          "format": "png2400",
+          "ext": "png",
+          "width": 2400,
+          "height": 1350,
+          "slug": "deployment-trust-boundaries"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "deployment-trust-boundaries"
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "width": 1200,
+          "height": 675,
+          "slug": "deployment-trust-boundaries"
+        },
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "deployment-trust-boundaries-brief",
+          "presentationRole": "5s"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "deployment-trust-boundaries-brief",
+          "presentationRole": "5s"
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-012",
+      "slug": "receipt-effect-observation",
+      "assetName": "Receipt, effect, observation",
+      "board": "V6",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "semanticStates": [
+        "run.cloud.overview"
+      ],
+      "composition": {
+        "stages": [
+          {
+            "stage": "DECISION",
+            "value": "ALLOW",
+            "detail": "authorization receipt sha256:9d0fa49385d17fea…",
+            "note": "A decision. Not a verification."
+          },
+          {
+            "stage": "EFFECT",
+            "value": "EXECUTED",
+            "detail": "protected target mutation",
+            "note": "Effect. Distinct from observation."
+          },
+          {
+            "stage": "OBSERVATION",
+            "value": "OBSERVED",
+            "detail": "independently authenticated read-back · alpha=45",
+            "note": "An observation. Not a safety property."
+          }
+        ],
+        "receiptDigest": {
+          "value": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234",
+          "source": "experiments/hac-342/evidence/cloud-run.public.json"
+        },
+        "correlationId": {
+          "value": "ilk-hac340-cloud-1786730369123",
+          "source": "experiments/hac-342/evidence/cloud-run.public.json"
+        },
+        "absentStates": [
+          "AUTHORIZED",
+          "JOINT REVIEW",
+          "ACCEPTED",
+          "FAILED"
+        ],
+        "absentStatesNote": "Not present in this run. The recorded chain is ALLOW plus receipt, EXECUTED, OBSERVED."
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "receipt-effect-observation"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "receipt-effect-observation"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "receipt-effect-observation"
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "width": 1280,
+          "height": 720,
+          "slug": "receipt-effect-observation"
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "width": 1200,
+          "height": 675,
+          "slug": "receipt-effect-observation"
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-013",
+      "slug": "fail-closed-controls",
+      "assetName": "Fail-closed / anti-bypass panel",
+      "board": "V7",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "semanticStates": [
+        "run.cloud.overview"
+      ],
+      "composition": {
+        "cloudControls": [
+          {
+            "id": "forged-header",
+            "label": "Forged identity header",
+            "status": 403
+          },
+          {
+            "id": "invalid-token",
+            "label": "Invalid bearer token",
+            "status": 401
+          },
+          {
+            "id": "direct-bypass",
+            "label": "Direct target bypass without receipt",
+            "status": 403
+          }
+        ],
+        "cloudControlsNote": "Three recorded refusals. Not a security claim.",
+        "localParity": {
+          "heading": "CONTROLLED LOCAL PARITY — NOT A CLOUD RESULT",
+          "note": "The frozen field is named wrongAudienceStatus; the control sent an invalid token. Genuine wrong-audience rejection is controlled local parity, not a cloud result."
+        }
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "fail-closed-controls"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "fail-closed-controls"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "fail-closed-controls"
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "width": 1280,
+          "height": 720,
+          "slug": "fail-closed-controls"
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "width": 1200,
+          "height": 675,
+          "slug": "fail-closed-controls"
+        }
+      ]
+    },
+    {
+      "id": "IL-PROOF-014",
+      "slug": "claim-boundary",
+      "assetName": "Claim boundary",
+      "board": "V8",
+      "proofClass": "A+B",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT and GOOGLE CLOUD PARTICIPATION, labelled separately",
+      "runs": [
+        "hac330-local",
+        "ilk-hac340-cloud-1786730369123"
+      ],
+      "runNote": "Two runs, labelled separately. No single run identity applies, so no run suffix is written.",
+      "semanticStates": [
+        "run.claim-boundary"
+      ],
+      "composition": {
+        "regions": [
+          {
+            "heading": "CONTROLLED LOCAL EXPERIMENT",
+            "sourceIssue": "HAC-330",
+            "supports": [
+              "A bounded causal experiment: revision-bound environment evidence changes the coordination decision and the joint outcome."
+            ]
+          },
+          {
+            "heading": "GOOGLE CLOUD PARTICIPATION",
+            "sourceIssue": "HAC-340",
+            "supports": [
+              "One recorded Gemini + Google ADK + Cloud Run traversal through Interlock.",
+              "A receipt-bound protected mutation, independently read back, correlated in Cloud Logging.",
+              "Three recorded fail-closed refusals."
+            ]
+          },
+          {
+            "heading": "NOT CLAIMED",
+            "sourceIssue": null,
+            "supports": [
+              "HAC-330 did not run on Google Cloud",
+              "HAC-340 does not reproduce the 140/120 counterfactual",
+              "Agent Runtime did not participate",
+              "Agent Gateway did not participate",
+              "CONTENT_AUTHZ is not on the HAC-340 path",
+              "wrong-audience-token rejection is local parity evidence, not a HAC-340 cloud result",
+              "HAC-316 is failed/pivoted provenance and is not a passing proof packet",
+              "WITHHOLD_SERIALIZE is not human approval, joint authorization or certification",
+              "ALLOW plus receipt is not an AUTHORIZED lifecycle state; no HAC-317 lifecycle vocabulary is imported",
+              "no exactly-once, restart-safety or recovery guarantee is claimed (HAC-327 out of scope)",
+              "no safety, security, verification or production-readiness guarantee is claimed",
+              "three cloud negative controls are three controls, not comprehensive attack coverage",
+              "internal Interlock roles are not Google-managed identities"
+            ]
+          }
+        ]
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "claim-boundary"
+        },
+        {
+          "format": "png1920",
+          "ext": "png",
+          "width": 1920,
+          "height": 1080,
+          "slug": "claim-boundary"
+        },
+        {
+          "format": "pdf",
+          "ext": "pdf",
+          "width": 1920,
+          "height": 1080,
+          "slug": "claim-boundary"
+        },
+        {
+          "format": "readme",
+          "ext": "png",
+          "width": 1280,
+          "height": 720,
+          "slug": "claim-boundary"
+        },
+        {
+          "format": "devpost",
+          "ext": "png",
+          "width": 1200,
+          "height": 675,
+          "slug": "claim-boundary"
+        }
+      ]
+    },
+    {
+      "id": "IL-DIAG-013",
+      "slug": "evaluation-shell",
+      "assetName": "HAC-319 anti-global-mutex evaluation shell",
+      "board": "V9",
+      "proofClass": "none",
+      "proofClassLabel": "DESIGN SHELL - AWAITING HAC-319",
+      "semanticStates": [
+        "evaluation.unbound"
+      ],
+      "composition": {
+        "state": "evaluation-not-yet-bound",
+        "message": "Evaluation not yet bound.",
+        "regimes": [
+          "Regime 1",
+          "Regime 2",
+          "Regime 3"
+        ],
+        "metricsWithheld": [
+          "SPR",
+          "precision",
+          "recall",
+          "false-block rate",
+          "useful-concurrency"
+        ],
+        "rule": "Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen evaluation packet.",
+        "marks": []
+      },
+      "exports": [
+        {
+          "format": "svg",
+          "ext": "svg",
+          "slug": "evaluation-shell"
+        }
+      ]
+    }
+  ],
+  "contractDiscrepancies": [
+    {
+      "id": "five-second-variant-has-no-filename-token",
+      "severity": "recorded",
+      "statement": "The HAC-334 visual manifest requests a five-second presentation role. The frozen HAC-332 filename grammar accepts only light, dark, mono and static as variants, none of which denotes a simplified composition.",
+      "resolution": "HAC-332 was not modified. The five-second boards are separate compositions carrying their own conformant kebab slug, and the purpose is recorded as presentationRole \"5s\" in this model and in the asset registry.",
+      "authority": "HAC-332 owns the filename grammar. A later amendment, if wanted, is a HAC-332 change and not a HAC-334 one."
+    },
+    {
+      "id": "builder-parser-family-asymmetry",
+      "severity": "recorded",
+      "statement": "buildExportName validates a registry id against a shape regex that accepts any three-to-five uppercase letters, while validateExportName checks membership in FAMILIES. A name such as IL-BOARD-010 builds and then fails to parse.",
+      "resolution": "Ported faithfully rather than repaired. Every export path round-trips its own output through validateExportName, so the asymmetry cannot produce a shipped file.",
+      "authority": "HAC-332"
+    },
+    {
+      "id": "design-bundle-names-three-deployment-revisions",
+      "severity": "corrected",
+      "statement": "The design bundle renders three Cloud Run revision names and binds \"three deployed revisions\". The frozen record names only the proxy revision; the agent and target names appear in no evidence artifact and in no git history.",
+      "resolution": "Only interlock-hac340-proxy-00002-wzf appears on any board. The binding reads as one evidenced revision.",
+      "authority": "experiments/hac-342/evidence/redaction-manifest.json sourceDiscrepancies"
+    },
+    {
+      "id": "design-system-observer-note-overstates-authority",
+      "severity": "corrected",
+      "statement": "The HAC-332 OBSERVED state carries the note \"Independently witnessed by a party that cannot authorize\", which the frozen packet does not establish, and the shipped HAC-342 deck asserts the same in prose.",
+      "resolution": "No board imports that note. The observation is captioned with the frozen language, independently authenticated read-back, and the gate fails on authority-strengthening copy.",
+      "authority": "media/hac-341/evidence/view-model.json runs.cloud.observation.caption"
+    }
+  ]
+}

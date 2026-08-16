@@ -567,3 +567,74 @@ jobs:
             echo "run because the other has it, and do not relax a link check to ship a branch"
             echo "URL. If the evidence changed, rebuild from it."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  visual-suite-gate:
+    name: Visual suite gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        # resvg-js resolves a prebuilt platform binary through optional
+        # dependencies and has no install script, so the house --ignore-scripts
+        # rule costs nothing here.
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the visual contract
+        run: pnpm run check:visuals
+
+      - name: The model and the masters are derived, not hand-edited
+        run: |
+          set -euo pipefail
+          # Rebuilding from frozen evidence must reproduce the committed bytes.
+          # SVG and the visual model are deterministic string output, so they are
+          # compared exactly. Rasters are not: font rasterisation differs between
+          # hosts, so their correspondence is asserted by check:visuals through
+          # the recorded master digest and the real pixel geometry instead.
+          mkdir -p /tmp/committed-pdf
+          cp -r media/hac-334/evidence /tmp/committed-evidence
+          cp -r media/hac-334/masters /tmp/committed-masters
+          cp media/hac-334/exports/*.pdf /tmp/committed-pdf/
+          pnpm run visuals:build
+          diff -ru /tmp/committed-evidence media/hac-334/evidence
+          diff -ru /tmp/committed-masters media/hac-334/masters
+          for f in /tmp/committed-pdf/*.pdf; do diff "$f" "media/hac-334/exports/$(basename "$f")"; done
+
+      - name: Every gate is proven to fail on the defect it targets
+        run: pnpm vitest run test/hac-334-gate-perturbation.test.mjs
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Visual suite gate failed"
+            echo
+            echo "**Invariant.** Every factual label on every board is derived from frozen"
+            echo "evidence, and the two proof classes never merge. Class A carries the HAC-330"
+            echo "counterfactual and no receipt, effect or observation; class B carries the"
+            echo "HAC-340 traversal and no bounded joint outcome. No board renders a lifecycle"
+            echo "state the packets do not emit, describes the observer as unable to authorize,"
+            echo "names an unevidenced deployment revision, fabricates \`runtimeSourceUrl\`,"
+            echo "links evidence through a mutable branch, or puts a quantitative mark on the"
+            echo "HAC-319 shell. Every derivative corresponds to a current master."
+            echo
+            echo "**Why it matters.** These are the images a judge reads before any prose, and"
+            echo "they are reused by HAC-335 and HAC-336. A number that drifts here is repeated"
+            echo "into the README, the Devpost entry and the video, where it is far more"
+            echo "expensive to retract than to prevent."
+            echo
+            echo "**Authority.** Repository CI, reported as \`Visual suite gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:visuals\` passing,"
+            echo "\`pnpm run visuals:build\` reproducing the committed model and masters, and"
+            echo "the perturbation suite proving each check still fails on its own defect."
+            echo
+            echo "**Do not weaken.** Do not hand-edit a master or the visual model, do not"
+            echo "widen the forbidden-language allowlist to ship a phrase, and do not delete a"
+            echo "non-claim to quiet a check. If a raster is reported stale, re-run"
+            echo "\`pnpm run visuals:export\`; if the evidence genuinely changed, rebuild from it."
+          } >> "$GITHUB_STEP_SUMMARY"
