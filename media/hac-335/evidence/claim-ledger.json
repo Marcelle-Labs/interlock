@@ -1,0 +1,271 @@
+{
+  "manifestId": "HAC-335-claim-ledger",
+  "revision": "r01",
+  "issue": "HAC-335",
+  "note": "Every material statement in the judge-facing package. A sentence with no row here is either reclassified as bounded editorial explanation or removed. Editorial rows explain; they may not carry a technical assertion the evidence rows do not already support.",
+  "classifications": {
+    "EVIDENCED": "Supported by a frozen artifact committed on public main or published immutably by HAC-342.",
+    "EDITORIAL": "Explanatory framing. Asserts no technical result beyond the EVIDENCED rows it introduces.",
+    "NOT CLAIMED": "Explicitly disclaimed in judge-facing copy so a reader cannot infer it.",
+    "UNAVAILABLE": "Deliberately withheld; the absence is stated rather than filled.",
+    "NOT YET BOUND": "Reserved surface with no frozen packet yet. No value is rendered."
+  },
+  "claims": [
+    {
+      "id": "CL-001",
+      "text": "Two changes can each be locally valid yet jointly violate a shared constraint.",
+      "classification": "EDITORIAL",
+      "proofClass": "A",
+      "proofSource": "Framing for the HAC-330 experiment; the concrete instance is CL-003.",
+      "surfaces": ["readme", "devpost", "thumbnail", "video-title"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-002",
+      "text": "Interlock reads revision-bound environment evidence before shared-state mutation and selects a deterministic coordination decision.",
+      "classification": "EVIDENCED",
+      "proofClass": "A",
+      "proofSource": "experiments/hac-330/evidence/arms.json; media/hac-341/evidence/view-model.json (runs.local.environmentEvidence, runs.local.arms)",
+      "publicVerification": "media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment",
+      "surfaces": ["readme", "devpost", "video-title"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-003",
+      "text": "Without Interlock the two intents produce 140 > 130, an invalid joint state against the bound sum(services[].reserved) <= 130.",
+      "classification": "EVIDENCED",
+      "proofClass": "A",
+      "proofSource": "experiments/hac-330/evidence/arms.json (baseline arm); experiments/hac-330/evidence/results.json",
+      "evidenceValues": { "baselineTotal": 140, "bound": 130 },
+      "surfaces": ["readme", "devpost", "thumbnail", "video"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-004",
+      "text": "With Interlock enabled and the original evidence, the decision is WITHHOLD_SERIALIZE and the joint outcome is 120 <= 130.",
+      "classification": "EVIDENCED",
+      "proofClass": "A",
+      "proofSource": "experiments/hac-330/evidence/arms.json (treatment arm)",
+      "evidenceValues": { "decision": "WITHHOLD_SERIALIZE", "treatmentTotal": 120, "bound": 130 },
+      "surfaces": ["readme", "devpost", "thumbnail", "video"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-005",
+      "text": "The controlled local experiment reports 24/24 checks.",
+      "classification": "EVIDENCED",
+      "proofClass": "A",
+      "proofSource": "experiments/hac-330/evidence/results.json",
+      "evidenceValues": { "checksPassed": 24, "checksTotal": 24 },
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-006",
+      "text": "Changing the environment evidence changes the decision to ALLOW_PARALLEL and returns the joint outcome to 140 > 130.",
+      "classification": "EVIDENCED",
+      "proofClass": "A",
+      "proofSource": "experiments/hac-330/evidence/perturbed.evidence.json; experiments/hac-330/evidence/perturbed.selection.json; experiments/hac-330/evidence/arms.json (perturbed arm)",
+      "evidenceValues": { "decision": "ALLOW_PARALLEL", "perturbedTotal": 140, "bound": 130 },
+      "surfaces": ["readme", "devpost", "video"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-007",
+      "text": "Each arm is a recorded result; the perturbation is a frozen arm, not a live re-run.",
+      "classification": "EVIDENCED",
+      "proofClass": "A",
+      "proofSource": "media/hac-334/masters/IL-PROOF-011-evidence-load-bearing-runhac330local.svg; media/hac-341/evidence/view-model.json (runs.local.arms)",
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-008",
+      "text": "The cockpit screenshots are real captures of the merged HAC-341 verification surface at the stated deep-link addresses.",
+      "classification": "EVIDENCED",
+      "proofClass": "A+B",
+      "proofSource": "media/hac-335/evidence/capture-manifest.json",
+      "surfaces": ["readme", "devpost-screenshot"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-009",
+      "text": "HAC-330 and HAC-340 are two separate runs with separate evidence. Neither is evidence for the other.",
+      "classification": "EVIDENCED",
+      "proofClass": "A+B",
+      "proofSource": "media/hac-334/masters/IL-PROOF-014-claim-boundary.svg; media/hac-333/scene-manifest.json (SB-06); media/hac-341/evidence/view-model.json (intentionallyAbsent on both runs)",
+      "surfaces": ["readme", "devpost", "video-end"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-010",
+      "text": "One recorded traversal ran gemini-3.5-flash through Google ADK 1.35.1 with Vertex AI access, from a Cloud Run-hosted agent in us-central1, through the Interlock MCP proxy.",
+      "classification": "EVIDENCED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json (model, adkPath, resources)",
+      "publicVerification": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+      "surfaces": ["readme", "devpost", "video"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-011",
+      "text": "Interlock returned ALLOW with an authorization receipt; the protected mutation is EXECUTED.",
+      "classification": "EVIDENCED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json (decision, receiptId, receiptDigest, protectedMutation)",
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-012",
+      "text": "A separately authenticated principal read the result back and OBSERVED alpha=45, correlated in Cloud Logging by run id.",
+      "classification": "EVIDENCED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json (observation, correlationId)",
+      "evidenceValues": { "observed": "alpha=45", "correlationId": "ilk-hac340-cloud-1786730369123" },
+      "surfaces": ["readme", "devpost", "video"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-013",
+      "text": "Three fail-closed refusals were recorded: a forged identity header returned 403, an invalid bearer token returned 401, and a direct target bypass without a receipt returned 403.",
+      "classification": "EVIDENCED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json (controls)",
+      "evidenceValues": {
+        "forgedIdentityHeader": 403,
+        "invalidBearerToken": 401,
+        "directTargetBypass": 403
+      },
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-014",
+      "text": "Three recorded refusals are three controls, not comprehensive attack coverage.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "B",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014",
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-015",
+      "text": "Cloud Run IAM establishes transport provenance. It does not establish Google-managed proposer, reviewer or authorizer roles inside Interlock.",
+      "classification": "EVIDENCED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json (runtimeProof); media/hac-334/masters/IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg",
+      "surfaces": ["readme", "devpost-architecture"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-016",
+      "text": "interlock-hac340-proxy-00002-wzf is the only deployment revision the frozen record names. Agent and target revision names are not evidenced and are not shown.",
+      "classification": "EVIDENCED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json (runtimeProof.proxyLogEntries[].resource.labels.revision_name — a Cloud Logging resource label). observedConfiguration carries only [REDACTED:deployment-endpoint], which is why no agent or target revision name is shown.",
+      "surfaces": ["readme", "devpost-architecture"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-017",
+      "text": "The public cloud packet is published immutably at commit 75253e38791e69f7e2a4bb3a041044a9114c32f0 and its bytes hash to publicPacketSha256 ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d, which any reader can recompute.",
+      "classification": "EVIDENCED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/publication-bindings.json; experiments/hac-342/bin/verify-public-packet.mjs",
+      "publicVerification": "https://raw.githubusercontent.com/Marcelle-Labs/interlock/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+      "surfaces": ["readme", "devpost-verification", "video-end"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-018",
+      "text": "sourcePacketSha256 794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0 is a private commitment. The source bytes are deliberately unpublished and this digest is not reader-recomputable.",
+      "classification": "UNAVAILABLE",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/publication-bindings.json (sourcePacketPublished: false)",
+      "surfaces": ["readme", "devpost-verification"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-019",
+      "text": "runtimeSourceSha ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a has no public URL. Its tree contains an identifier excluded from publication; a public snapshot records the executed source content instead, under runtimeSourceSnapshotSha256 9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1.",
+      "classification": "UNAVAILABLE",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/runtime-source-snapshot.json; experiments/hac-342/evidence/publication-bindings.json",
+      "surfaces": ["readme", "devpost-verification"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-020",
+      "text": "HAC-340 does not reproduce the HAC-330 counterfactual in Google Cloud.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "A+B",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014",
+      "surfaces": ["readme", "devpost", "video-end"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-027",
+      "text": "HAC-330 did not run on Google Cloud. It is a controlled experiment executed locally.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "A",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-010 non-claim strip; media/hac-341/evidence/view-model.json (runs.local.intentionallyAbsent)",
+      "surfaces": ["readme", "devpost", "video"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-021",
+      "text": "Agent Runtime, Agent Gateway and CONTENT_AUTHZ are not on the recorded HAC-340 path.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "B",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json; media/hac-334 IL-DIAG-012 (ABSENT FROM THIS DEPLOYMENT)",
+      "surfaces": ["readme", "devpost", "devpost-architecture"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-022",
+      "text": "Wrong-audience token rejection is controlled local parity evidence, not a HAC-340 cloud result.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "A",
+      "proofSource": "media/hac-341/evidence/view-model.json (negativeControlsNote); media/hac-333/scene-manifest.json (globalNonClaims)",
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-023",
+      "text": "No safety, security, verification, certification or production-readiness guarantee is claimed. ALLOW is not VERIFIED, OBSERVED is not SAFE, and WITHHOLD_SERIALIZE is not human approval, joint authorization or an AUTHORIZED lifecycle state.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "A+B",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014; DISCLOSURE.md",
+      "surfaces": ["readme", "devpost", "video-end"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-024",
+      "text": "No exactly-once execution, restart-safety, recovery guarantee, fleet-scale readiness or universal collision prevention is claimed.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "A+B",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014",
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    },
+    {
+      "id": "CL-025",
+      "text": "HAC-319 evaluation is not bound. No SPR, precision, recall, false-block or useful-concurrency value exists in this package.",
+      "classification": "NOT YET BOUND",
+      "proofClass": "none",
+      "proofSource": "media/hac-341/evidence/view-model.json (reserved); media/hac-334/masters/IL-DIAG-013-evaluation-shell.svg",
+      "surfaces": ["readme", "devpost-limitations"],
+      "status": "OPEN — awaiting a frozen HAC-319 evaluation packet"
+    },
+    {
+      "id": "CL-026",
+      "text": "Interlock is new work created during the contest, built on the pre-existing open-source workspace.json specification and toolchain consumed at pinned revisions and never copied.",
+      "classification": "EVIDENCED",
+      "proofClass": "none",
+      "proofSource": "DISCLOSURE.md; provenance/manifest.json; enforced by scripts/check-provenance.mjs in CI",
+      "surfaces": ["readme", "devpost"],
+      "status": "FROZEN"
+    }
+  ]
+}

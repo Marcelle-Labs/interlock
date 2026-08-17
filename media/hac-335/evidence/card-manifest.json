@@ -1,0 +1,41 @@
+{
+  "manifestId": "HAC-335-card-manifest",
+  "issue": "HAC-335",
+  "generator": "media/hac-335/bin/build-cards.mjs",
+  "note": "Source-editable masters and their derivatives. masterSha256 binds each PNG to the SVG it came from, so a stale derivative is a mechanical finding rather than something a reviewer has to catch by eye. Copy derives from HAC-333 SB-00 and SB-08.",
+  "geometry": {
+    "width": 1920,
+    "height": 1080,
+    "captionSafeFoot": 200,
+    "sideMargin": 120
+  },
+  "cards": [
+    {
+      "assetId": "IL-SCAF-010",
+      "master": "media/hac-335/cards/IL-SCAF-010-video-title-card.svg",
+      "masterSha256": "3c03c043106b25d6b2b672fd0504519ce199f01d68e37a54520290753a998168",
+      "export": "media/hac-335/exports/IL-SCAF-010-video-title-card-1920x1080.png",
+      "exportSha256": "0d238422b53d960ceb2b75f7871f042799bd8578969fd20d2944c7d84e080fa2",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "assetId": "IL-SCAF-011",
+      "master": "media/hac-335/cards/IL-SCAF-011-video-end-card.svg",
+      "masterSha256": "31d4074c78a214cd71b4b3da26bc926169528fe836a768767aaa7e4530b724dc",
+      "export": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+      "exportSha256": "0fd186af922178a972e049f9d70351ceae62e63494270b182dbc8a9ec5ae1946",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "assetId": "IL-SOC-010",
+      "master": "media/hac-335/cards/IL-SOC-010-open-graph-card.svg",
+      "masterSha256": "490cf17f913c3bbb65ea9f5b5c725512657eba193b29bf5f2ee6b9649a660a4c",
+      "export": "media/hac-335/exports/IL-SOC-010-open-graph-card-1200x630.png",
+      "exportSha256": "127e14423769533e340c0716db4d4c927908e63d65aab4928a87ba1c9813b8d0",
+      "width": 1200,
+      "height": 630
+    }
+  ]
+}

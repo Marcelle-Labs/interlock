@@ -687,3 +687,59 @@ jobs:
             echo "recover a render, and do not silence a digest mismatch. A change to the mark"
             echo "is a change to the identity: record a new asset revision instead."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  judge-package-gate:
+    name: Judge package gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the judge-facing package
+        run: pnpm run check:package
+
+      - name: Every package gate is proven to fail on its own defect
+        run: pnpm vitest run test/hac-335-package-gates.test.mjs
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Judge package gate failed"
+            echo
+            echo "**Invariant.** The judge-facing package says exactly what the frozen"
+            echo "evidence supports, in an order that never presents a stronger claim than"
+            echo "the first proof carries. The controlled local experiment (HAC-330) and"
+            echo "Google Cloud participation (HAC-340) never merge into one purported run;"
+            echo "\`AUTHORIZED\`, Agent Runtime and Agent Gateway never appear as evidenced"
+            echo "participation; \`140\`, \`120\`, \`130\`, \`24/24\` and \`alpha=45\` are read out of"
+            echo "the frozen records rather than typed into prose; every public evidence URL"
+            echo "is commit-pinned and registered; \`runtimeSourceUrl\` is never fabricated and"
+            echo "\`sourcePacketSha256\` is never described as reader-recomputable; HAC-319 is"
+            echo "unbound and no metric is rendered; every asset is in the registry and every"
+            echo "material claim is in the claim ledger."
+            echo
+            echo "**Why it matters.** This is a synthesis surface: it authors almost no facts"
+            echo "and arranges facts other issues froze. That is exactly where a claim drifts"
+            echo "one notch stronger than its evidence without anyone editing the evidence."
+            echo "The gate binds prose to evidence in both directions, so changing either"
+            echo "side alone fails."
+            echo
+            echo "**Authority.** HAC-335 issue contract; HAC-330, HAC-340 and HAC-342 own the"
+            echo "facts; HAC-332 owns the export naming grammar."
+            echo
+            echo "**Evidence required.** \`pnpm run check:package\` passing, and the"
+            echo "negative-proof suite showing each invariant still fails when violated."
+            echo
+            echo "**Do not weaken.** Do not delete a non-claim to quiet a check, do not"
+            echo "replace an immutable evidence URL with a branch URL to keep a link alive,"
+            echo "and do not widen the export-naming vocabulary. If a derivative is reported"
+            echo "stale, re-run \`pnpm run package:build\`; if a capture is stale, re-run"
+            echo "\`pnpm run package:capture\` against the merged cockpit."
+          } >> "$GITHUB_STEP_SUMMARY"

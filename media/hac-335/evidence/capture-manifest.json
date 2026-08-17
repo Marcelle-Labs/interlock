@@ -1,0 +1,169 @@
+{
+  "manifestId": "HAC-335-capture-manifest",
+  "issue": "HAC-335",
+  "generator": "media/hac-335/bin/capture-cockpit.mjs",
+  "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+  "capturedSurface": "media/hac-341/cockpit.html (merged executable surface)",
+  "servedFrom": "repository root — the cockpit resolves shared identity from /assets",
+  "viewport": "1440x900",
+  "note": "Real captures of the merged cockpit. Pixels inside each frame are unmodified. Crops drop unused canvas only; the crop height is the measured bounding box of main#app, never a hand-typed number.",
+  "captures": [
+    {
+      "assetId": "IL-COCK-010",
+      "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x507-runhac330local.png",
+      "sha256": "42a1ef4d15c39a875025e0a7b1e7fc2cd1a9c72bd26cf61e37d59b8f20abe01e",
+      "judgeQuestion": "Can I verify the causal claim myself?",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "run": "hac330-local",
+      "semanticState": "run.local.treatment",
+      "drawerPanel": null,
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1",
+      "viewport": "1440x900",
+      "width": 1440,
+      "height": 507,
+      "cropAnchor": "main#app",
+      "reducedMotion": true,
+      "staticCapture": true,
+      "provenanceType": "screenshot",
+      "supportedClaim": "The merged cockpit renders the frozen HAC-330 treatment arm: two locally valid intents, a coupled shared environment bounded at 130, the deterministic WITHHOLD_SERIALIZE decision, and 120 <= 130 against the 140 > 130 baseline, with 24/24 checks.",
+      "requiredTokens": [
+        "CONTROLLED LOCAL EXPERIMENT",
+        "Intent A",
+        "Intent B",
+        "COUPLED",
+        "joint bound <= 130",
+        "WITHHOLD_SERIALIZE",
+        "140 > 130",
+        "120 <= 130",
+        "24/24"
+      ],
+      "forbiddenTokens": [
+        "alpha=45",
+        "EXECUTED",
+        "gemini",
+        "403"
+      ],
+      "targetSurface": [
+        "readme",
+        "devpost-screenshot"
+      ]
+    },
+    {
+      "assetId": "IL-COCK-011",
+      "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x507-runhac330local.png",
+      "sha256": "2150a70ddec3a950e44db87a8dbdd2adc0242dc9443046fc908284312af1d95a",
+      "judgeQuestion": "What happens if the evidence changes?",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "run": "hac330-local",
+      "semanticState": "run.local.perturbed",
+      "drawerPanel": null,
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed&static=1",
+      "viewport": "1440x900",
+      "width": 1440,
+      "height": 507,
+      "cropAnchor": "main#app",
+      "reducedMotion": true,
+      "staticCapture": true,
+      "provenanceType": "screenshot",
+      "supportedClaim": "Selecting the frozen perturbed-evidence arm in the merged cockpit shows ALLOW_PARALLEL and 140 > 130. The arm is a recorded result; nothing is recomputed in the browser.",
+      "requiredTokens": [
+        "CONTROLLED LOCAL EXPERIMENT",
+        "ALLOW_PARALLEL",
+        "140 > 130",
+        "FROZEN ARM"
+      ],
+      "forbiddenTokens": [
+        "alpha=45",
+        "EXECUTED",
+        "gemini"
+      ],
+      "targetSurface": [
+        "readme",
+        "devpost-screenshot"
+      ]
+    },
+    {
+      "assetId": "IL-COCK-012",
+      "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x619-runilkhac340cloud1786730369123.png",
+      "sha256": "93e11a482725d1634fa1f6281a711fd9162e607ef267ce8b138c35d560a47fc3",
+      "judgeQuestion": "What actually ran on Google Cloud?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "semanticState": "run.cloud.overview",
+      "drawerPanel": null,
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
+      "viewport": "1440x900",
+      "width": 1440,
+      "height": 619,
+      "cropAnchor": "main#app",
+      "reducedMotion": true,
+      "staticCapture": true,
+      "provenanceType": "screenshot",
+      "supportedClaim": "The merged cockpit renders the frozen HAC-340 cloud run: the lane-attributed path from Google to Interlock to the protected target to an independent observer, ALLOW + authorization receipt, EXECUTED, OBSERVED alpha=45, the 403/401/403 controls, and the not-on-the-recorded-path strip.",
+      "requiredTokens": [
+        "GOOGLE CLOUD PARTICIPATION",
+        "gemini-3.5-flash",
+        "Google ADK 1.35.1",
+        "Cloud Run-hosted agent",
+        "Interlock MCP proxy",
+        "ALLOW + authorization receipt",
+        "EXECUTED",
+        "OBSERVED",
+        "alpha=45",
+        "403",
+        "401",
+        "Not on the recorded path"
+      ],
+      "forbiddenTokens": [
+        "WITHHOLD_SERIALIZE",
+        "24/24",
+        "Baseline arm"
+      ],
+      "targetSurface": [
+        "readme",
+        "devpost-screenshot"
+      ]
+    },
+    {
+      "assetId": "IL-COCK-013",
+      "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x640-runilkhac340cloud1786730369123.png",
+      "sha256": "cbb2f2aad7e975ae5e3630bb77baff57ac2e24b75bd6cae7cb66d4504e61861c",
+      "judgeQuestion": "Where is the immutable evidence, and what is withheld?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "run": "ilk-hac340-cloud-1786730369123",
+      "semanticState": "run.cloud.overview",
+      "drawerPanel": "Verify this run",
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
+      "viewport": "1440x900",
+      "width": 1440,
+      "height": 640,
+      "cropAnchor": "union:main#app,aside#drawer",
+      "reducedMotion": true,
+      "staticCapture": true,
+      "provenanceType": "screenshot",
+      "supportedClaim": "The evidence panel exposes commit-pinned public evidence, keeps transport provenance separate from application provenance, and renders the runtime source URL as unavailable / non-public rather than fabricating a link. The panel is anchored, so the causal column stays readable behind it.",
+      "requiredTokens": [
+        "IMMUTABLE PUBLIC EVIDENCE",
+        "TRANSPORT PROVENANCE",
+        "APPLICATION PROVENANCE",
+        "unavailable / non-public",
+        "interlock-hac340-proxy-00002-wzf"
+      ],
+      "forbiddenTokens": [
+        "WITHHOLD_SERIALIZE",
+        "24/24"
+      ],
+      "targetSurface": [
+        "devpost-screenshot"
+      ]
+    }
+  ]
+}
