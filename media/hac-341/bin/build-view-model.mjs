@@ -18,6 +18,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { codeToHtml } from 'shiki';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = (...p) => JSON.parse(readFileSync(join(repoRoot, ...p), 'utf8'));
@@ -32,6 +33,15 @@ const snapshot = read('experiments', 'hac-342', 'evidence', 'runtime-source-snap
 const total = (arm) => arm.invariant?.report?.total;
 const holds = (arm) => arm.invariant?.report?.holds === true;
 const bound = arms.baseline.invariant.report.totalReservable;
+const rawJson = (value) => JSON.stringify(value, null, 2);
+/* Build the proof presentation once. The browser only receives frozen HTML and
+   plain JSON for copying, so judge capture remains deterministic and does not
+   depend on a client-side syntax highlighter or a theme CDN. */
+const highlightJson = (value) => codeToHtml(rawJson(value), {
+  lang: 'json',
+  themes: { light: 'github-light', dark: 'github-dark' },
+  defaultColor: false,
+});
 const outcomeOf = (arm) => ({
   total: total(arm),
   bound,
@@ -109,6 +119,12 @@ const local = {
   notOnPath: [],
   // Absent by evidence, listed so the absence is auditable rather than accidental:
   intentionallyAbsent: ['receipt', 'effect', 'observation', 'negativeControls', 'runtimeProvenance', 'transportProvenance', 'publicationRefs'],
+};
+
+local.rawProof = {
+  source: 'experiments/hac-330/evidence/arms.json',
+  json: rawJson(arms),
+  html: await highlightJson(arms),
 };
 
 /* --- proof class B: Google Cloud participation -------------------------- */
@@ -224,6 +240,12 @@ const cloudRun = {
   intentionallyAbsent: ['arms', 'environmentEvidence', 'constraints', 'checks', 'outcome'],
 };
 
+cloudRun.rawProof = {
+  source: 'experiments/hac-342/evidence/cloud-run.public.json',
+  json: rawJson(cloud),
+  html: await highlightJson(cloud),
+};
+
 /* --- reserved surface: HAC-319 ----------------------------------------- */
 
 const reserved = {
@@ -251,9 +273,9 @@ const model = {
   fieldClassification: {
     universalRequired: ['runIdentity', 'proofClass', 'proofLabel', 'frozen', 'editorial', 'claimBoundary'],
     proofClassSpecific: ['arms', 'environmentEvidence', 'constraints', 'checks', 'receipt', 'effect', 'observation', 'negativeControls', 'runtimeProvenance', 'transportProvenance', 'applicationProvenance', 'notOnPath'],
-    optional: ['actors', 'events', 'decision'],
+    optional: ['actors', 'events', 'decision', 'rawProof'],
     publicationSpecific: ['publicationRefs'],
-    derivedPresentation: ['proofSlug', 'semanticStateId', 'defaultArm', 'truncated digest display'],
+    derivedPresentation: ['proofSlug', 'semanticStateId', 'defaultArm', 'truncated digest display', 'rawProof syntax highlighting'],
     intentionallyAbsent: 'declared per run; a key is omitted rather than set to null',
   },
   deepLink: {

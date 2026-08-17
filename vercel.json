@@ -1,0 +1,48 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/", "destination": "/media/hac-341/cockpit.html" },
+    { "source": "/cockpit", "destination": "/media/hac-341/cockpit.html" },
+    { "source": "/storyboard", "destination": "/media/hac-333/storyboard.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/fonts/(.*).woff2",
+      "headers": [
+        { "key": "Content-Type", "value": "font/woff2" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/media/(.*).mjs",
+      "headers": [
+        { "key": "Content-Type", "value": "text/javascript" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/(.*).svg",
+      "headers": [
+        { "key": "Content-Type", "value": "image/svg+xml" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/(.*).css",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/media/hac-341/evidence/(.*).json",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    }
+  ]
+}

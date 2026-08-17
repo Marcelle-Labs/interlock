@@ -1,0 +1,35 @@
+# Source code — not served by the static deployment
+src/
+test/
+scripts/
+experiments/
+docs/
+
+# Build artifacts
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Development files
+.github/
+.vscode/
+.idea/
+.playwright-mcp/
+*.log
+.env
+.env.*
+*.pem
+*.key
+
+# Git
+.git/
+.gitignore
+
+# TypeScript config (not needed for static serving)
+tsconfig*.json
+pnpm-lock.yaml
+pnpm-workspace.yaml

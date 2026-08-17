@@ -568,6 +568,60 @@ jobs:
             echo "URL. If the evidence changed, rebuild from it."
           } >> "$GITHUB_STEP_SUMMARY"
 
+  cockpit-visual-contract-gate:
+    name: Cockpit visual contract gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install repository dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # Browser tooling is intentionally external to the repository package:
+      # deterministic evidence gates must still install without a browser.
+      - name: Install pinned browser runner
+        run: |
+          set -euo pipefail
+          npm install --prefix /tmp/interlock-playwright playwright@1.56.1
+          /tmp/interlock-playwright/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Verify rendered first-frame and drawer contracts
+        env:
+          PLAYWRIGHT_MODULE: /tmp/interlock-playwright/node_modules/playwright
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/interlock-cockpit-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 20); do
+            curl --fail --silent http://127.0.0.1:4173/media/hac-341/cockpit.html >/dev/null && break
+            sleep 0.25
+          done
+          curl --fail --silent http://127.0.0.1:4173/media/hac-341/cockpit.html >/dev/null
+          pnpm run check:cockpit:visual -- --base http://127.0.0.1:4173
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Cockpit visual contract gate failed"
+            echo
+            echo "**Invariant.** The real cockpit fits its required desktop first-frame"
+            echo "regions with 48px headroom, does not create horizontal overflow, keeps"
+            echo "the evidence drawer anchored and keyboard-correct, syntax-renders raw proof,"
+            echo "and makes no off-origin requests. Mobile has its own intentional first-frame"
+            echo "contract rather than pretending to fit the whole desktop review into a phone."
+            echo
+            echo "**Evidence required.** Run a repository-root server and then"
+            echo "\`PLAYWRIGHT_MODULE=/path/to/playwright pnpm run check:cockpit:visual\`."
+            echo "Repair the layout or interaction; do not lower the viewport, headroom, or"
+            echo "required semantic regions merely to recover green."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   visual-suite-gate:
     name: Visual suite gate
     runs-on: ubuntu-24.04
