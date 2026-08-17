@@ -21,6 +21,7 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const NEEDED = [
   'README.md',
   'scripts/export-naming.mjs',
+  'assets/logo',
   'media/hac-335',
   'media/hac-334/evidence',
   'media/hac-334/exports',
@@ -351,6 +352,30 @@ describe('claim ledger completeness', () => {
     });
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/unknown classification/);
+  });
+});
+
+describe('identity survives both themes', () => {
+  it('fails when a judge surface embeds a currentColor SVG', () => {
+    const r = perturbed((p) =>
+      p.edit(
+        'README.md',
+        'assets/logo/interlock-lockup-horizontal-black.svg',
+        'assets/logo/interlock-lockup-horizontal.svg',
+      ));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/root fill is currentColor/);
+  });
+
+  it('fails when a judge surface embeds a missing SVG', () => {
+    const r = perturbed((p) =>
+      p.edit(
+        'README.md',
+        'assets/logo/interlock-lockup-horizontal-black.svg',
+        'assets/logo/interlock-lockup-nonexistent.svg',
+      ));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/embeds a missing SVG/);
   });
 });
 

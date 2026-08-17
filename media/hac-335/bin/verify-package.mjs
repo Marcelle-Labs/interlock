@@ -426,6 +426,37 @@ function checkClaimLedger({ ledger, sequence, registry }, fail) {
   }
 }
 
+/* -- identity survives both themes ----------------------------------------- */
+
+/**
+ * A markdown `<img>` loads its SVG as a separate, sandboxed document with no
+ * inherited `color`, so a root `fill="currentColor"` resolves to black. On a
+ * dark README that is an invisible mark: the page silently loses its identity
+ * while every other gate still passes.
+ *
+ * This repository has now hit that class twice — once where the white lockup
+ * was re-wrapped without carrying its root fill, and once here — so it earns a
+ * check rather than a comment. Theme-fixed `-black`/`-white` variants exist for
+ * exactly this, paired inside a `<picture>`.
+ */
+function checkThemeSafeIdentity({ root, prose }, fail) {
+  const imgRe = /<img\b[^>]*\bsrc="([^"]+\.svg)"/g;
+  for (const [file, text] of Object.entries(prose)) {
+    for (const m of text.matchAll(imgRe)) {
+      const src = m[1];
+      if (/^https?:/.test(src)) continue;
+      if (!existsSync(join(root, src))) {
+        fail(`${file}: embeds a missing SVG: ${src}`);
+        continue;
+      }
+      const rootFill = readFileSync(join(root, src), 'utf8').match(/<svg[^>]*\sfill="([^"]*)"/)?.[1];
+      if (rootFill === 'currentColor') {
+        fail(`${file}: embeds ${src}, whose root fill is currentColor — it renders black and vanishes on a dark background; pair the theme-fixed -black/-white variants in a <picture>`);
+      }
+    }
+  }
+}
+
 /* -- sequence integrity ---------------------------------------------------- */
 
 function checkSequenceOrder({ sequence, shots }, fail) {
@@ -472,6 +503,7 @@ const CHECKS = [
   checkNamingAndFreshness,
   checkRegistryCoverage,
   checkClaimLedger,
+  checkThemeSafeIdentity,
   checkSequenceOrder,
 ];
 

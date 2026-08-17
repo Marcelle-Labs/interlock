@@ -1,3 +1,8 @@
+# Both forms deliberately: the trailing slash matches a directory, the bare name
+# also matches a symlink. Pointing node_modules at another checkout is a normal
+# thing to do in a worktree, and with only the slash form that symlink is not
+# ignored — it gets committed, and CI then fails on ENOTDIR at install.
+node_modules
 node_modules/
 dist/
 build/

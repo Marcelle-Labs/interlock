@@ -1,4 +1,12 @@
-<img src="assets/logo/interlock-lockup-horizontal.svg" alt="Interlock" height="40">
+<!--
+  The theme-fixed lockups, not the `currentColor` one: a markdown <img> loads
+  the SVG as its own sandboxed document with no inherited `color`, so
+  `currentColor` resolves to black and the mark disappears against a dark README.
+-->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo/interlock-lockup-horizontal-white.svg">
+  <img src="assets/logo/interlock-lockup-horizontal-black.svg" alt="Interlock" height="44">
+</picture>
 
 **Evidence-bound coordination before shared-state mutation.**
 
