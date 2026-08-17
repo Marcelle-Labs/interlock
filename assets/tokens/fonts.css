@@ -1,0 +1,39 @@
+/* FONTS — Interlock
+   Geist (UI + display) and Geist Mono (data, paths, labels, evidence).
+   Geist Mono is shared with the workspace.json standard: the deliberate
+   ecosystem tie. The sans is different, so the two products do not
+   read as the same brand.
+
+   REWRITTEN FOR THE REPOSITORY. The design bundle loads these from a hosted
+   web-font service. A judge-facing Interlock surface may not depend on a font
+   CDN: it would make the rendered frame depend on network conditions, which
+   defeats deterministic capture and fails offline review. The faces are
+   vendored under assets/fonts/ instead and referenced by relative path. The
+   provider hostname is deliberately not written anywhere in this repository, so
+   a scan for it is unambiguous.
+
+   Provenance, license and checksums: assets/HARVEST.md and assets/fonts/OFL.txt.
+   Both files are the upstream variable faces, unmodified — the family names are
+   therefore the upstream names, and no Reserved Font Name applies.
+
+   font-display: block, deliberately. The faces are local, so there is no real
+   download; block avoids rendering a fallback frame first, which would make a
+   deterministic capture depend on when the shutter fired. */
+
+@font-face {
+  font-family: "Geist";
+  src: url("../fonts/geist-variable.woff2") format("woff2-variations"),
+       url("../fonts/geist-variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../fonts/geist-mono-variable.woff2") format("woff2-variations"),
+       url("../fonts/geist-mono-variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}

@@ -1,0 +1,82 @@
+/* ─────────────────────────────────────────────────────────────
+   VISUAL GRAMMAR — Interlock
+   The deterministic part of the system: what a state looks like,
+   what an edge means, what a node is. Diagram authors read these
+   tokens instead of inventing treatments.
+
+   RULE: every state is carried by at least three channels —
+   colour, glyph, and stroke behaviour — so the system survives
+   greyscale, projection, and colour-vision deficiency.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Semantic states ── */
+  --state-local-color: var(--il-state-local); /* @kind color */
+  --state-local-glyph: "\2219"; /* @kind other */ /* ∙  a single local point */
+  --state-local-stroke: dashed; /* @kind other */
+  --state-local-weight: var(--stroke-hair); /* @kind other */
+
+  --state-coupled-color: var(--il-state-coupled); /* @kind color */
+  --state-coupled-glyph: "\29C9"; /* @kind other */ /* ⧉  two bound frames */
+  --state-coupled-stroke: solid; /* @kind other */
+  --state-coupled-weight: var(--stroke-1); /* @kind other */
+
+  --state-blocked-color: var(--il-state-blocked); /* @kind color */
+  --state-blocked-glyph: "\2016"; /* @kind other */ /* ‖  a closed gate */
+  --state-blocked-stroke: solid; /* @kind other */
+  --state-blocked-weight: var(--stroke-2); /* @kind other */
+
+  --state-review-color: var(--il-state-review); /* @kind color */
+  --state-review-glyph: "\2687"; /* @kind other */ /* ⚇  two parties, held */
+  --state-review-stroke: dashed; /* @kind other */
+  --state-review-weight: var(--stroke-2); /* @kind other */
+
+  --state-authorized-color: var(--il-state-authorized); /* @kind color */
+  --state-authorized-glyph: "\2AFC"; /* @kind other */ /* ⫼  the aperture, open */
+  --state-authorized-stroke: solid; /* @kind other */
+  --state-authorized-weight: var(--stroke-2); /* @kind other */
+
+  --state-executed-color: var(--il-state-executed); /* @kind color */
+  --state-executed-glyph: "\29BF"; /* @kind other */ /* ⦿  a committed mutation */
+  --state-executed-stroke: double; /* @kind other */
+  --state-executed-weight: var(--stroke-3); /* @kind other */
+
+  --state-observed-color: var(--il-state-observed); /* @kind color */
+  --state-observed-glyph: "\25CE"; /* @kind other */ /* ◎  independent witness */
+  --state-observed-stroke: dotted; /* @kind other */
+  --state-observed-weight: var(--stroke-1); /* @kind other */
+
+  --state-failed-color: var(--il-state-failed); /* @kind color */
+  --state-failed-glyph: "\2715"; /* @kind other */ /* ✕  terminal */
+  --state-failed-stroke: solid; /* @kind other */
+  --state-failed-weight: var(--stroke-2); /* @kind other */
+
+  /* ── Relationship / edge grammar ──
+     colour is always ink or state; the pattern carries the meaning. */
+  --edge-intent-dash: 5 4; /* @kind other */
+  --edge-intent-weight: var(--stroke-1); /* @kind other */
+  --edge-evidence-dash: 1 3; /* @kind other */
+  --edge-evidence-weight: var(--stroke-hair); /* @kind other */
+  --edge-coupling-dash: 0; /* @kind other */
+  --edge-coupling-weight: var(--stroke-2); /* @kind other */
+  --edge-authorization-dash: 0; /* @kind other */
+  --edge-authorization-weight: var(--stroke-3); /* @kind other */
+  --edge-mutation-dash: 0; /* @kind other */
+  --edge-mutation-weight: var(--stroke-2); /* @kind other */
+  --edge-observation-dash: 2 5; /* @kind other */
+  --edge-observation-weight: var(--stroke-hair); /* @kind other */
+  --edge-refusal-dash: 0; /* @kind other */
+  --edge-refusal-weight: var(--stroke-2); /* @kind other */
+  --edge-bypass-dash: 3 3; /* @kind other */
+  --edge-bypass-weight: var(--stroke-2); /* @kind other */
+
+  /* ── Node grammar: each class owns one border treatment ── */
+  --node-agent-border: var(--stroke-1) solid var(--border-strong); /* @kind other */
+  --node-evidence-border: var(--stroke-hair) dotted var(--border-strong); /* @kind other */
+  --node-core-border: var(--stroke-2) solid var(--border-ink); /* @kind other */
+  --node-receipt-border: var(--stroke-hair) solid var(--border-default); /* @kind other */
+  --node-target-border: var(--stroke-2) double var(--border-ink); /* @kind other */
+  --node-verifier-border: var(--stroke-1) dotted var(--border-strong); /* @kind other */
+  --node-runtime-border: var(--stroke-hair) dashed var(--border-default); /* @kind other */
+  --node-external-border: var(--stroke-hair) dashed var(--border-default); /* @kind other */
+}

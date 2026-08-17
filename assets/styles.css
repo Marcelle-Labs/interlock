@@ -1,0 +1,15 @@
+/* Interlock — design system entry point.
+   Consumers link THIS file. It only @imports; all rules live in tokens/.
+
+   Ported repository-native from the HAC-332 design bundle so that every
+   judge-facing surface resolves one identity authority from a clean clone.
+   Every url() below is relative and local: no surface may acquire a runtime
+   network dependency to render. */
+
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/effects.css";
+@import "./tokens/motion.css";
+@import "./tokens/grammar.css";

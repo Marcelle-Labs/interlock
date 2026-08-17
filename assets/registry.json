@@ -1,0 +1,317 @@
+{
+  "contract": "Interlock repository-native identity and cockpit asset registry",
+  "revision": "r01",
+  "namingAuthority": "HAC-332, ported to scripts/export-naming.mjs",
+  "identityAuthority": "HAC-332 frozen design identity",
+  "authorityBoundary": {
+    "thisFile": "Shared identity assets (IL-LOGO-*, IL-MOT-001) and cockpit state identifiers (IL-COCK-*).",
+    "mediaHac334": "media/hac-334/evidence/asset-registry.json owns the HAC-334 proof band (IL-DIAG-01x, IL-PROOF-01x).",
+    "hac335": "HAC-335 owns final judge-facing export metadata and may extend both; it does not replace them."
+  },
+  "portedFrom": "Claude Design bundle assets/registry.json (HAC-332 frozen design system)",
+  "assets": [
+    {
+      "id": "IL-LOGO-001",
+      "name": "Primary lockup (horizontal)",
+      "classification": "brand-only",
+      "designSource": "assets/logo/interlock-lockup-horizontal.svg",
+      "dimensions": "190 \u00d7 48 viewBox, scalable",
+      "formats": [
+        "svg"
+      ],
+      "consumedBy": [
+        "hac-341 cockpit",
+        "hac-333 storyboard SB-00"
+      ],
+      "files": [
+        {
+          "file": "assets/logo/interlock-lockup-horizontal.svg",
+          "sha256": "ba2a132e023e616a6cbbfa633da8ccb111eed2aebcc52032c38976372d216476",
+          "portability": "source-editable (contains live text; requires the local Geist face)",
+          "containsLiveText": true
+        }
+      ]
+    },
+    {
+      "id": "IL-LOGO-002",
+      "name": "Compact lockup (stacked)",
+      "classification": "brand-only",
+      "designSource": "assets/logo/interlock-lockup-compact.svg",
+      "dimensions": "132 \u00d7 84 viewBox",
+      "formats": [
+        "svg"
+      ],
+      "consumedBy": [],
+      "files": [
+        {
+          "file": "assets/logo/interlock-lockup-compact.svg",
+          "sha256": "378cfd216369a81ba52aa73f0598b9b4ad892a71994e790d0d993237eef1b240",
+          "portability": "source-editable (contains live text; requires the local Geist face)",
+          "containsLiveText": true
+        }
+      ]
+    },
+    {
+      "id": "IL-LOGO-003",
+      "name": "Symbol",
+      "classification": "brand-only",
+      "designSource": "assets/logo/interlock-symbol.svg",
+      "dimensions": "48 \u00d7 48 viewBox",
+      "formats": [
+        "svg"
+      ],
+      "consumedBy": [
+        "hac-341 cockpit",
+        "hac-333 storyboard SB-00"
+      ],
+      "files": [
+        {
+          "file": "assets/logo/interlock-symbol.svg",
+          "sha256": "3a4325e8ef06ab6aaab00b52d90ceb6dd1e2cdfdd2f3ce7fad335bf9efa77fb5",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        }
+      ]
+    },
+    {
+      "id": "IL-LOGO-004",
+      "name": "Micro symbol",
+      "classification": "brand-only",
+      "designSource": "assets/logo/interlock-micro.svg",
+      "dimensions": "24 \u00d7 24 viewBox, use \u226412px",
+      "formats": [
+        "svg"
+      ],
+      "consumedBy": [],
+      "files": [
+        {
+          "file": "assets/logo/interlock-micro.svg",
+          "sha256": "e5a059559db0550de608a31039f0be8ee6b9cd55a72095b31ff6a28893a6812d",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        }
+      ]
+    },
+    {
+      "id": "IL-LOGO-005",
+      "name": "Symbol, gate open",
+      "classification": "brand-only",
+      "designSource": "assets/logo/interlock-symbol-open.svg",
+      "dimensions": "48 \u00d7 48 viewBox",
+      "formats": [
+        "svg"
+      ],
+      "consumedBy": [],
+      "files": [
+        {
+          "file": "assets/logo/interlock-symbol-open.svg",
+          "sha256": "5ee1b54ba019fc81364cf082a433f8bf637e42bacc92f71914004a2948285bc5",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        }
+      ]
+    },
+    {
+      "id": "IL-LOGO-006",
+      "name": "Monochrome set",
+      "classification": "brand-only",
+      "designSource": "assets/logo/interlock-*-black.svg, assets/logo/interlock-*-white.svg",
+      "dimensions": "as parent lockup",
+      "formats": [
+        "svg"
+      ],
+      "consumedBy": [],
+      "files": [
+        {
+          "file": "assets/logo/interlock-lockup-horizontal-black.svg",
+          "sha256": "f247bae05b8d5692cace55ebea8879bf9057aba745e62c66badce74921b577ff",
+          "portability": "source-editable (contains live text; requires the local Geist face)",
+          "containsLiveText": true
+        },
+        {
+          "file": "assets/logo/interlock-lockup-horizontal-white.svg",
+          "sha256": "2b68b49f5434882230ca7647b03efed83e8e530cc9c95b539b38470a597fc2f5",
+          "portability": "source-editable (contains live text; requires the local Geist face)",
+          "containsLiveText": true
+        },
+        {
+          "file": "assets/logo/interlock-lockup-compact-black.svg",
+          "sha256": "49ecd6dbe5b4d5f302fdded8ee109ece8fc66ca814587b6848c3c787c9689815",
+          "portability": "source-editable (contains live text; requires the local Geist face)",
+          "containsLiveText": true
+        },
+        {
+          "file": "assets/logo/interlock-lockup-compact-white.svg",
+          "sha256": "115a16523b7667096bf45cf0b05b6bc9807b9a82754ba053e69fe96e0e36bea4",
+          "portability": "source-editable (contains live text; requires the local Geist face)",
+          "containsLiveText": true
+        },
+        {
+          "file": "assets/logo/interlock-symbol-black.svg",
+          "sha256": "db48b67682f22e9dd556fc1afeb9a93738358be37e6bc475939953e3aa122df9",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-symbol-white.svg",
+          "sha256": "0b5ae476989d9e31e48a1b591767eb87b11fdde6638527971e437b07b78051c1",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        }
+      ]
+    },
+    {
+      "id": "IL-LOGO-007",
+      "name": "Favicon and app icons",
+      "classification": "brand-only",
+      "designSource": "assets/logo/interlock-favicon-{light,dark}.svg, interlock-appicon-{light,dark}.svg",
+      "dimensions": "64 \u00d7 64 viewBox",
+      "formats": [
+        "svg"
+      ],
+      "consumedBy": [],
+      "files": [
+        {
+          "file": "assets/logo/interlock-favicon-light.svg",
+          "sha256": "0d77f2d19ba96826ab71935d04f47f65a10cca41ae3b15d87dad31c073ca57dd",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-favicon-dark.svg",
+          "sha256": "9bbd85135a010e04eb0db28f7802ec8ee284e3a5e996eb2453947fac32a15959",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-appicon-light.svg",
+          "sha256": "82ecdc806453465ca8e29d07eccbd60d27b554019ddc7035d93143e3b4d25698",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-appicon-dark.svg",
+          "sha256": "c1a0b6211362e8f3c0e03b45a8b40bf9b6bb0e8522bc1490ffc9c085b325f1f9",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        }
+      ]
+    },
+    {
+      "id": "IL-MOT-001",
+      "name": "Five-state gate sequence",
+      "classification": "brand-only",
+      "designSource": "components/brand/GateSequence.jsx, assets/logo/interlock-state-1..5.svg",
+      "dimensions": "per stage 48 \u00d7 48",
+      "formats": [
+        "react",
+        "svg"
+      ],
+      "consumedBy": [
+        "hac-333 storyboard SB-00 reduced-motion"
+      ],
+      "files": [
+        {
+          "file": "assets/logo/interlock-state-1.svg",
+          "sha256": "1d83f3d5bc8a3a6377cb7f44baacf1e70d3880c1568932cf57b348bc67dffed0",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-state-2.svg",
+          "sha256": "d0b077f2ab05275be4d5606d6f1111f6b79705de8c7215efe41e3d1fb427c7eb",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-state-3.svg",
+          "sha256": "0fe1c962d45a450f89e81d00589bfdd1e582c89bd30197e67328894520c674df",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-state-4.svg",
+          "sha256": "2a1bf9a57775a156deb4467df15415eb87ccf96d15deea0e154ff7eee198eb7a",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/logo/interlock-state-5.svg",
+          "sha256": "f166cc2ffb7f7808ea88016d551392780490481f52dfcee217e85e0c2b91920a",
+          "portability": "portable (vector geometry only)",
+          "containsLiveText": false
+        }
+      ]
+    },
+    {
+      "id": "IL-COCK-001",
+      "name": "The Run \u2014 cockpit master",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-002",
+      "name": "Controlled local experiment, causal view",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-003",
+      "name": "Evidence drawer (both proof classes)",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-004",
+      "name": "Claim boundary",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-005",
+      "name": "Raw proof panel",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-006",
+      "name": "Google Cloud participation view",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-007",
+      "name": "Reserved evaluation surface (HAC-319)",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-008",
+      "name": "Degraded state family",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-009",
+      "name": "Keyboard and focus contract",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-COCK-010",
+      "name": "Proof-class context reset",
+      "classification": "evidence-bound",
+      "designSource": "templates/judge-cockpit/TheRun.dc.html",
+      "status": "identifier ported; export metadata deferred to HAC-335"
+    }
+  ]
+}

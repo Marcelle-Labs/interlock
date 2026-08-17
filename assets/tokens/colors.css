@@ -1,0 +1,104 @@
+/* ─────────────────────────────────────────────────────────────
+   COLORS — Interlock
+   Achromatic first. The identity carries no brand hue: the mark is
+   ink on paper, or paper on ink. Colour is reserved for semantic
+   state, and state is never signalled by colour alone.
+   Light is the default theme; dark is a full peer.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Neutral ramp (theme-independent, faint cool cast) ── */
+  --il-n-00: #ffffff; /* @kind color */
+  --il-n-05: #f7f8f8; /* @kind color */
+  --il-n-10: #eef0f0; /* @kind color */
+  --il-n-20: #dde0e0; /* @kind color */
+  --il-n-30: #c2c7c7; /* @kind color */
+  --il-n-40: #9ba2a2; /* @kind color */
+  --il-n-50: #737b7b; /* @kind color */
+  --il-n-60: #515858; /* @kind color */
+  --il-n-70: #343a3a; /* @kind color */
+  --il-n-80: #1e2323; /* @kind color */
+  --il-n-90: #141818; /* @kind color */
+  --il-n-95: #0f1212; /* @kind color */
+  --il-n-99: #0b0d0e; /* @kind color */
+
+  /* ── Brand ── */
+  --il-ink: #0b0d0e; /* @kind color */
+  --il-paper: #fbfbfa; /* @kind color */
+
+  /* ── Semantic state hues (matched chroma; hue does the work) ──
+     Every state also owns a glyph and a stroke behaviour: see
+     tokens/grammar.css. Never ship a state as colour only. */
+  --il-state-local: oklch(0.58 0.005 240); /* @kind color */ /* LOCALLY VALID */
+  --il-state-coupled: oklch(0.58 0.130 250); /* @kind color */ /* COUPLED */
+  --il-state-blocked: oklch(0.58 0.150 28); /* @kind color */ /* BLOCKED */
+  --il-state-review: oklch(0.62 0.130 78); /* @kind color */ /* JOINT REVIEW */
+  --il-state-authorized: oklch(0.56 0.130 150); /* @kind color */ /* AUTHORIZED */
+  --il-state-executed: oklch(0.52 0.130 300); /* @kind color */ /* EXECUTED */
+  --il-state-observed: oklch(0.60 0.100 205); /* @kind color */ /* OBSERVED */
+  --il-state-failed: oklch(0.46 0.170 22); /* @kind color */ /* FAILED */
+
+  color-scheme: light;
+}
+
+/* ── LIGHT (default) ── */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-page: var(--il-paper); /* @kind color */
+  --surface-card: var(--il-n-00); /* @kind color */
+  --surface-sunken: var(--il-n-05); /* @kind color */
+  --surface-code: var(--il-n-05); /* @kind color */
+  --surface-invert: var(--il-n-99); /* @kind color */
+
+  --text-heading: var(--il-n-99); /* @kind color */
+  --text-body: var(--il-n-90); /* @kind color */
+  --text-muted: var(--il-n-50); /* @kind color */
+  --text-faint: var(--il-n-40); /* @kind color */
+  --text-invert: var(--il-n-05); /* @kind color */
+  --text-link: var(--il-n-99); /* @kind color */
+
+  --border-hair: var(--il-n-20); /* @kind color */
+  --border-default: var(--il-n-30); /* @kind color */
+  --border-strong: var(--il-n-70); /* @kind color */
+  --border-ink: var(--il-n-99); /* @kind color */
+
+  --state-tint: 10%; /* @kind other */ /* fill strength of a state wash on this theme */
+  --state-edge: 55%; /* @kind other */
+}
+
+/* ── DARK (peer) ── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --il-state-local: oklch(0.72 0.005 240); /* @kind color */
+  --il-state-coupled: oklch(0.74 0.120 250); /* @kind color */
+  --il-state-blocked: oklch(0.72 0.150 32); /* @kind color */
+  --il-state-review: oklch(0.80 0.120 82); /* @kind color */
+  --il-state-authorized: oklch(0.74 0.130 152); /* @kind color */
+  --il-state-executed: oklch(0.70 0.130 300); /* @kind color */
+  --il-state-observed: oklch(0.76 0.090 205); /* @kind color */
+  --il-state-failed: oklch(0.64 0.170 25); /* @kind color */
+
+  --surface-page: var(--il-n-99); /* @kind color */
+  --surface-card: var(--il-n-95); /* @kind color */
+  --surface-sunken: var(--il-n-90); /* @kind color */
+  --surface-code: var(--il-n-90); /* @kind color */
+  --surface-invert: var(--il-n-05); /* @kind color */
+
+  --text-heading: var(--il-n-05); /* @kind color */
+  --text-body: var(--il-n-10); /* @kind color */
+  --text-muted: var(--il-n-40); /* @kind color */
+  --text-faint: var(--il-n-50); /* @kind color */
+  --text-invert: var(--il-n-99); /* @kind color */
+  --text-link: var(--il-n-00); /* @kind color */
+
+  --border-hair: var(--il-n-80); /* @kind color */
+  --border-default: var(--il-n-70); /* @kind color */
+  --border-strong: var(--il-n-40); /* @kind color */
+  --border-ink: var(--il-n-05); /* @kind color */
+
+  --state-tint: 18%; /* @kind other */
+  --state-edge: 60%; /* @kind other */
+}

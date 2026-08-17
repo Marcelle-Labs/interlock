@@ -49,6 +49,25 @@ revision. None is **COPIED**. `scripts/check-provenance.mjs` fails the build if 
 entry is ever marked `COPIED`, and fails if any of these siblings is marked
 writable while the current phase says otherwise.
 
+## Third-party content vendored into this repository
+
+One thing is genuinely **copied in** rather than consumed at a pinned revision,
+so it is called out separately from the table above.
+
+| What | Upstream | Version | License |
+| -- | -- | -- | -- |
+| Geist and Geist Mono, variable web faces | `https://github.com/vercel/geist-font` | `v1.7.2`, tag commit `a73329da8fc62afc917f796555202e4997f79b7c` | SIL Open Font License 1.1 |
+
+The two `.woff2` files under `assets/fonts/` are the upstream bytes, unmodified
+and renamed only; their SHA-256 digests and the full licence text are recorded in
+`assets/HARVEST.md` and `assets/fonts/OFL.txt`. The OFL permits redistribution,
+and the upstream copyright line declares no Reserved Font Name.
+
+They are vendored rather than fetched because a judge-facing surface may not
+depend on a font CDN: it would make the rendered frame depend on network
+conditions, which defeats deterministic capture and offline review. No other
+third-party asset is copied into this repository.
+
 ### Why the mining path is executed, not vendored
 
 The co-change evidence that drives the Interlock counterfactual comes from
