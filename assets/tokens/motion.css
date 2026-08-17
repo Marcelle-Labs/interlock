@@ -1,0 +1,73 @@
+/* ─────────────────────────────────────────────────────────────
+   MOTION — Interlock
+   Motion exists to explain a state change. Nothing loops forever.
+   Every animated asset ships a reduced-motion equivalent that shows
+   the same information as a static or stepped composition.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --dur-instant: 80ms; /* @kind other */
+  --dur-fast: 140ms; /* @kind other */
+  --dur-base: 220ms; /* @kind other */
+  --dur-slow: 380ms; /* @kind other */
+  --dur-gate: 520ms; /* @kind other */ /* the authorization gate opening */
+  --dur-hold: 700ms; /* @kind other */ /* the authorization pause: deliberately felt */
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --ease-enter: cubic-bezier(0, 0, 0, 1); /* @kind other */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* @kind other */
+  --ease-mech: cubic-bezier(0.85, 0, 0.15, 1); /* @kind other */ /* gate leaves: mechanical */
+
+  --transition-interactive: color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard); /* @kind other */
+
+  --delay-step: 90ms; /* @kind other */ /* successive items in a sequence */
+  --delay-stage: 260ms; /* @kind other */ /* successive stages in the five-state model */
+
+  /* ── Stinger cadence ──
+     The five-state pass, phase by phase, in the order the product works.
+     JavaScript timers cannot read a custom property, so components/motion/phases.js
+     repeats these numbers. Change them here and there together, or not at all. */
+  --mot-p1-independent: 560ms; /* @kind other */
+  --mot-p2-constraint: 340ms; /* @kind other */
+  --mot-p3-coupling: 440ms; /* @kind other */
+  --mot-p4-authorization: 1220ms; /* @kind other */ /* --dur-hold held, then --dur-gate */
+  --mot-p5-passage: 520ms; /* @kind other */
+  --mot-rest: 380ms; /* @kind other */ /* the lockup resolves, the gate re-arms */
+  --mot-stinger-total: 3460ms; /* @kind other */
+  --mot-card-in: 1780ms; /* @kind other */ /* staged card assembly including the hold */
+  --mot-card-wipe: 520ms; /* @kind other */ /* gate wipe out, on --ease-mech */
+}
+
+/* Five-state logo primitive. Consumers set data-il-motion="run" to play
+   once; it never repeats on its own. */
+@keyframes il-gate-open   { from { transform: translateX(0); } to { transform: translateX(var(--il-gate-travel, -1.6px)); } }
+@keyframes il-gate-open-r { from { transform: translateX(0); } to { transform: translateX(calc(var(--il-gate-travel, -1.6px) * -1)); } }
+@keyframes il-converge    { from { transform: translate(var(--il-approach, 6px), var(--il-approach, 6px)); opacity: 0; } to { transform: translate(0,0); opacity: 1; } }
+@keyframes il-pass        { from { transform: translateX(0); } to { transform: translateX(var(--il-pass, 4px)); } }
+@keyframes il-appear      { from { opacity: 0; } to { opacity: 1; } }
+@keyframes il-step-in     { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms; /* @kind other */
+    --dur-fast: 0ms; /* @kind other */
+    --dur-base: 0ms; /* @kind other */
+    --dur-slow: 0ms; /* @kind other */
+    --dur-gate: 0ms; /* @kind other */
+    --dur-hold: 0ms; /* @kind other */
+    --delay-step: 0ms; /* @kind other */
+    --delay-stage: 0ms; /* @kind other */
+    --mot-p1-independent: 0ms; /* @kind other */
+    --mot-p2-constraint: 0ms; /* @kind other */
+    --mot-p3-coupling: 0ms; /* @kind other */
+    --mot-p4-authorization: 0ms; /* @kind other */
+    --mot-p5-passage: 0ms; /* @kind other */
+    --mot-rest: 0ms; /* @kind other */
+    --mot-stinger-total: 0ms; /* @kind other */
+    --mot-card-in: 0ms; /* @kind other */
+    --mot-card-wipe: 0ms; /* @kind other */
+  }
+  /* Animated assets must expose a [data-il-static] sibling; the
+     motion layer hides itself rather than snapping through frames. */
+  [data-il-motion] { animation: none !important; transition: none !important; }
+}

@@ -638,3 +638,52 @@ jobs:
             echo "non-claim to quiet a check. If a raster is reported stale, re-run"
             echo "\`pnpm run visuals:export\`; if the evidence genuinely changed, rebuild from it."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  identity-boundary-gate:
+    name: Identity boundary gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the identity boundary
+        run: pnpm run check:identity
+
+      - name: Every identity gate is proven to fail on its own defect
+        run: pnpm vitest run test/hac-341-identity-gates.test.mjs
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Identity boundary gate failed"
+            echo
+            echo "**Invariant.** The Interlock identity is repository-native and one"
+            echo "authority. The canonical mark is drawn from the frozen geometry, never"
+            echo "approximated in CSS; Geist and Geist Mono resolve from vendored local faces"
+            echo "with recorded provenance and digests; no judge-facing surface reaches a font"
+            echo "CDN to render; the cockpit and the storyboard resolve the same identity"
+            echo "authority; and no manifest cites an identity asset the repository lacks."
+            echo
+            echo "**Why it matters.** This gate exists because all of that was false at once"
+            echo "and nothing noticed: the cockpit drew the mark as a CSS rectangle, both"
+            echo "surfaces named Geist and loaded no font, and the HAC-333 scene manifest"
+            echo "cited a logo file that was never in the repository. A judge saw an"
+            echo "engineering harness where the product should have been."
+            echo
+            echo "**Authority.** HAC-332 frozen identity; repository CI reports this as"
+            echo "\`Identity boundary gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:identity\` passing, and the"
+            echo "negative-proof suite showing each invariant still fails when violated."
+            echo
+            echo "**Do not weaken.** Do not re-approximate the mark, do not add a font CDN to"
+            echo "recover a render, and do not silence a digest mismatch. A change to the mark"
+            echo "is a change to the identity: record a new asset revision instead."
+          } >> "$GITHUB_STEP_SUMMARY"
