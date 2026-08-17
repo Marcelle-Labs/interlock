@@ -3,10 +3,14 @@
 <head>
 <meta charset="utf-8">
 <title>Interlock — muted 30-second storyboard (HAC-333)</title>
+<!-- The frozen HAC-332 identity, shared with the HAC-341 cockpit: one identity
+     authority, not two. The Geist faces are vendored under assets/fonts/ and
+     referenced by relative path, so capture still depends on no network. -->
+<link rel="stylesheet" href="../../assets/styles.css">
 <style>
 /* Interlock design system subset — HAC-332 tokens, inlined so the storyboard
-   renders deterministically with no network fetch. Capture must not depend on
-   a font CDN being reachable. Geist is used when present, never required. */
+   renders deterministically with no network fetch. The families now resolve to
+   the vendored faces above rather than to whatever the host happens to have. */
 :root{
   --il-n-00:#ffffff; --il-n-05:#f7f8f8; --il-n-10:#eef0f0; --il-n-20:#dde0e0;
   --il-n-30:#c2c7c7; --il-n-40:#9ba2a2; --il-n-50:#737b7b; --il-n-60:#515858;
@@ -17,8 +21,9 @@
   --il-state-blocked:oklch(0.58 0.150 28);
   --il-state-executed:oklch(0.52 0.130 300);
   --il-state-observed:oklch(0.60 0.100 205);
-  --font-sans:Geist,"Geist Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
-  --font-mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* --font-sans and --font-mono are deliberately NOT redefined here. They come
+     from the ported HAC-332 typography tokens, so the storyboard and the
+     cockpit resolve one family, not two that happen to match today. */
   --stroke:2px; --radius:4px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -142,9 +147,13 @@ body{background:var(--il-n-90);font-family:var(--font-sans);color:var(--il-ink);
 
 .mark{display:flex;flex-direction:column;align-items:center;justify-content:center;
   flex:1;gap:34px}
-.mark .word{font-size:104px;font-weight:600;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
-.mark .gate{display:inline-block;width:26px;height:76px;border:5px solid var(--il-state-observed);
-  border-radius:3px;margin:0 12px}
+/* The canonical lockup at storyboard scale. `size` is the mark height; the
+   wordmark and gap are the frozen ratios of it (0.71 / 0.29), so 146 lands the
+   wordmark on the 104px this frame was already composed around. The gate stays
+   closed — SB-00 asserts no evidence, so it may not show an opened gate. */
+.mark .lockup{display:flex;align-items:center;gap:42.3px;color:var(--il-paper)}
+.mark .lockup .glyph{display:block;flex:none}
+.mark .word{font-size:103.7px;font-weight:500;letter-spacing:-.03em;line-height:1}
 .mark .tag{font-family:var(--font-mono);font-size:26px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--il-n-40)}
 
@@ -182,7 +191,17 @@ html[data-rails="off"] .annot{display:none}
   data-capture-state="capture.story.identity">
   <div class="rail"><span class="cls">Identity</span><span>Interlock</span></div>
   <div class="mark">
-    <div class="word" data-motion="rise">Inter<span class="gate"></span>lock</div>
+    <div class="lockup" data-motion="rise" data-gate="closed" role="img" aria-label="Interlock">
+      <svg class="glyph" viewBox="0 0 48 48" width="146" height="146" fill="currentColor" aria-hidden="true">
+        <path d="M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z"></path>
+        <path d="M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z"></path>
+        <path d="M2.889 42 L9.111 42 L17.2 33.911 L17.2 27.689 Z"></path>
+        <path d="M45.111 42 L38.889 42 L30.8 33.911 L30.8 27.689 Z"></path>
+        <path class="leaf leaf-l" d="M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z"></path>
+        <path class="leaf leaf-r" d="M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z"></path>
+      </svg>
+      <span class="word">Interlock</span>
+    </div>
     <div class="tag" data-motion="rise" data-motion-delay="1">Evidence-bound coordination</div>
   </div>
   <div class="caption"><p>Interlock</p></div>

@@ -158,11 +158,26 @@ if (!/run\.local\.\$\{/.test(cockpit)) fail('cockpit does not construct local se
 /* --- accessibility and motion floor ------------------------------------- */
 
 if (!/prefers-reduced-motion/.test(cockpit)) fail('cockpit has no reduced-motion handling');
-// A native <dialog> opened with showModal() is modal by definition; an
-// aria-modal attribute on a div is the fallback spelling of the same promise.
-if (!/<dialog\b/.test(cockpit) || !/showModal\(\)/.test(cockpit)) {
-  if (!/aria-modal="true"/.test(cockpit)) fail('drawer is not a modal dialog');
-}
+/**
+ * The evidence panel must preserve causal context.
+ *
+ * This check used to require `showModal()`. That protected an implementation
+ * choice, and the choice was wrong: a modal panel makes L1 inert and its
+ * backdrop dims the very column the panel exists to explain. HAC-341's contract
+ * is that L1 stays readable during drilldown, so the invariant is stated
+ * directly now — non-modal, no backdrop, still keyboard-complete.
+ */
+if (/showModal\(\)/.test(cockpit)) fail('evidence panel opens modally; L1 causal context is made inert');
+if (/aria-modal="true"/.test(cockpit)) fail('evidence panel claims aria-modal; it must not trap the reader in L2');
+if (/::backdrop/.test(cockpit)) fail('evidence panel draws a backdrop over the causal column it explains');
+if (!/aria-labelledby="drawer-title"/.test(cockpit)) fail('evidence panel has no accessible name');
+if (!/key === 'Escape'/.test(cockpit)) fail('Escape does not close the evidence panel');
+if (!/class="close"/.test(cockpit)) fail('evidence panel has no explicit close control');
+// Closed it must leave the tab order; open it must not remove the run from it.
+if (!/drawer\.setAttribute\('inert'/.test(cockpit)) fail('closed evidence panel stays reachable by keyboard');
+if (!/drawer\.removeAttribute\('inert'\)/.test(cockpit)) fail('opened evidence panel is never made reachable');
+if (/app\.(setAttribute\('inert'|inert\s*=\s*true)/.test(cockpit)) fail('the run is made inert while the panel is open');
+if (!/lastFocus/.test(cockpit)) fail('focus is not returned to the invoking control');
 if (!/aria-pressed/.test(cockpit)) fail('toggle state is not exposed to assistive technology');
 if (!/aria-live/.test(cockpit)) fail('state changes are not announced');
 if (!/data-glyph/.test(cockpit)) fail('state is encoded by colour alone; no glyph channel');
