@@ -382,7 +382,7 @@ body[data-proof="cloud"]{background:var(--n95)}
 .frame{max-width:var(--width-wide,76rem);background:var(--paper);min-height:100vh}
 body[data-proof="cloud"] .frame{background:var(--ink)}
 .run-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;padding:16px 24px 12px}
-.run-header__identity{display:flex;align-items:center;gap:14px;min-width:0}
+.run-header__identity{display:flex;align-items:center;gap:14px;min-width:0;overflow-x:auto}
 .run-header__identity .eyebrow{border-right:1px solid var(--border-default);padding-right:14px}
 .run-header__facts{grid-column:1/-1;gap:20px;padding-top:8px;border-top:1px solid var(--border-hair);font-size:10px}
 .run-header__facts .k{font-size:8.5px}.run-header__facts .v{font-size:10px}
@@ -391,7 +391,7 @@ body[data-proof="cloud"] .frame{background:var(--ink)}
 .run-thesis .tag{margin-top:2px}.run-thesis p{max-width:72ch;font-size:15px;line-height:1.45}
 .causal-layout{padding:16px 24px 18px;display:grid;gap:0}
 .stage-head{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:baseline;margin-bottom:10px;font-family:var(--mono);text-transform:uppercase}
-.stage-head h2{font-size:10px;font-weight:600;letter-spacing:.12em}.stage-head>span:last-child{font-size:8.5px;letter-spacing:.1em;opacity:.52}
+.stage-head h2{font-size:10px;font-weight:600;letter-spacing:.12em;overflow-x:auto}.stage-head>span:last-child{font-size:8.5px;letter-spacing:.1em;opacity:.52}
 .stage-no{font-size:10px;color:var(--coupled);font-weight:600;letter-spacing:.04em}
 .causal-stage{max-width:44rem}
 .intents{gap:12px}.intent-card{display:grid;gap:5px;padding:10px 14px;min-height:78px}
@@ -417,7 +417,7 @@ body[data-proof="cloud"] .frame{background:var(--ink)}
 .arm-switcher .arms{margin:0}.arm-switcher .armnote{grid-column:1/-1;margin:0}.arm-switcher .actions{margin:0;justify-self:end}.arms button{min-height:var(--tap-target,44px);padding:7px 9px}.actions button{min-height:var(--tap-target,44px)}
 .proof-source{font-family:var(--mono);font-size:9px;letter-spacing:.05em;opacity:.62;margin:-1px 0 7px;overflow-wrap:anywhere}
 pre.shiki-proof{padding:0;background:var(--surface-code);border:1px solid var(--border-default);font-size:10px;line-height:1.55;white-space:pre;overflow:auto}
-pre.shiki-proof code{display:block;padding:12px 14px;font-family:var(--mono)}
+pre.shiki-proof code{display:block;padding:12px 14px;font-family:var(--mono);overflow-x:auto}
 pre.shiki-proof .line{min-height:1.55em}body[data-proof="cloud"] pre.shiki-proof{border-color:var(--border-default)}
 @media (min-width:901px){
   .run-header{padding-top:13px;padding-bottom:10px}.run-header__facts{padding-top:6px}
@@ -429,7 +429,7 @@ pre.shiki-proof .line{min-height:1.55em}body[data-proof="cloud"] pre.shiki-proof
    chain, recorded comparison and verification controls all fit in an 800px
    high browser with breathing room. This is density only; no evidence is
    removed or hidden. Taller viewports retain the more generous review rhythm. */
-@media (min-width:901px) and (max-height:850px){
+@media (min-width:901px) and (max-height:900px){
   .run-header{padding-top:10px;padding-bottom:8px;gap:6px 20px}.run-header__facts{padding-top:5px;gap:15px}
   .run-thesis{padding-top:5px;padding-bottom:5px}.run-thesis p{font-size:13px;line-height:1.3}
   .causal-layout{padding-top:10px;padding-bottom:12px}.stage-head{margin-bottom:6px}
@@ -475,7 +475,7 @@ const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');
 
 const live = document.getElementById('live');
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const short = (s, n = 12) => (s ? `${String(s).slice(0, n)}…` : '');
 
 /* The canonical Interlock lockup: the frozen mark geometry plus a live wordmark

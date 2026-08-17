@@ -126,7 +126,7 @@ async function assertDrawer(page, name) {
   const main = await box(page, 'main#app', `${name}: run behind drawer`);
   assert(main.width > 0 && main.x >= 0, `${name}: drawer covered the run instead of reserving space`);
   await page.keyboard.press('Escape');
-  await page.waitForSelector('#drawer[data-open="false"]');
+  await page.waitForSelector('#drawer[data-open="false"]', { state: 'attached' });
   assert(await trigger.evaluate((el) => document.activeElement === el),
     `${name}: focus did not return to the opener after Escape`);
 }
