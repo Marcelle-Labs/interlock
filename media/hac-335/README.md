@@ -61,6 +61,26 @@ records the deep-link address, the semantic state, the proof class and the
 commit the cockpit was serving, so a crop cannot drift into reading as a
 rendered claim.
 
+### Captures cannot silently go stale
+
+The manifest recorded `capturedFromSha` and nothing ever compared it to
+anything, so editing the cockpit after a capture left stale screenshots in the
+judge package with no mechanical signal at all. A commit SHA cannot close that
+gap either, because the capture is committed in the same commit it would have to
+name.
+
+`captureSourceDigest` does. It is a sha256 over the path and contents of every
+file whose bytes can change a captured pixel — `cockpit.html`, the view model,
+`lib/arm-view.mjs`, `assets/styles.css`, every token file and every vendored
+font face — computed by `bin/lib/capture-source.mjs` and recorded in the
+manifest at capture time. `check:package` recomputes it and fails when the two
+disagree, naming the recapture command. Token and lib directories are swept by
+extension rather than listed, so a newly added file is covered without anyone
+remembering to add it, and the manifest also states the covered set so a
+hand-narrowed list is visible rather than merely wrong.
+
+The commit SHA stays, as provenance. Freshness is the digest's job.
+
 ## Regenerating
 
 Deterministic, no browser:

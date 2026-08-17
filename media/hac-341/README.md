@@ -11,6 +11,7 @@ simulation. Nothing here executes; every value is a recorded result.
 | File | Role |
 | --- | --- |
 | `cockpit.html` | The Run. Renders the view model; derives no meaning of its own. |
+| `lib/arm-view.mjs` | What one *selected arm* shows. Pure, so the gate can assert it without a browser. |
 | `evidence/view-model.json` | Normalized view model, generated — not hand-written. |
 | `bin/build-view-model.mjs` | Adapter. Derives the view model from frozen evidence. |
 | `bin/verify-cockpit.mjs` | Mechanical gate. |
@@ -66,12 +67,22 @@ ALLOW + receipt → alpha=45`. That did not happen.
 ## Layers
 
 **L1 — what changed?** Default `run.local.treatment`. Both fold gates pass with
-no scrolling at all: two locally valid intents, the coupled shared environment
-with `joint bound <= 130`, the deterministic decision, and `140 > 130` beside
-`120 <= 130` as a direct comparison. The baseline stays on screen in every arm so
-the delta is always visible.
+no scrolling at all: two locally valid intents converging on the shared
+environment with `joint bound <= 130`, the deterministic decision, and
+`140 > 130` beside `120 <= 130` as a direct comparison. The baseline stays on
+screen in every arm *except its own*, so the delta is always visible and the
+baseline is never compared against itself. Bracket connectors carry the
+convergence and the decision's descent into the outcome; the decision token also
+appears as the cause line on the outcome it produced, so the relationship
+survives without vision and without colour.
 
-**L2 — can I verify it?** An anchored drawer, so causal context survives.
+**L2 — can I verify it?** An anchored drawer, so causal context survives. The
+panel used to be *drawn over* the result column it exists to explain: at 1440 it
+covered the outcome numerals outright, so "L1 stays readable" held only for the
+left column. The run now yields exactly the panel's width instead of sitting
+underneath it, and the numerals step down just far enough not to wrap in the
+narrower frame. Verified at 1280x800, 1440x900 and 1920x1080: the run's right
+edge meets the panel's left edge and never crosses it.
 Question-shaped actions only: *Verify this decision*, *Show me the raw proof*,
 *What is not claimed?* Class A gets evidence attribution, coupling support, the
 recorded arms, pinned upstream revisions and a deterministic
@@ -79,7 +90,13 @@ recorded arms, pinned upstream revisions and a deterministic
 provenance and application provenance **kept separate**, and runtime source.
 
 **L3 — raw proof.** Digests, negative-control detail, teardown, the reserved
-evaluation surface. Never the first layer.
+evaluation surface. Never the first layer. The frozen-arms block was boxed into
+a fixed 270px window inside a panel that did not scroll — about a fifth of it
+was reachable while the space beneath sat empty — so the block now flows and the
+panel scrolls. Digests, the correlation id, the runtime shas and the
+reproduction command each carry a **Copy** control: `navigator.clipboard` where
+the context allows it, a `textarea` + `execCommand` fallback where it does not,
+no dependency either way, and the evidence text is read rather than altered.
 
 ## Arms are selected, not run
 
@@ -90,6 +107,42 @@ is displayed; nothing is executed in the browser.* No "Run experiment", no
 
 The baseline arm shows *no decision — Interlock disabled*, because that arm has
 no decision to show.
+
+## The selected arm carries its own evidence
+
+The correction this surface most needed. `renderLocal` read
+`run.environmentEvidence[0]` for every arm, so selecting the perturbed arm
+changed the decision and the outcome but left the *treatment's* basis revision
+and `coupling support 8/10` on screen. About eighty pixels apart, the page
+asserted a coupling and `NO_QUALIFYING_COUPLING` at the same time — and the
+perturbation, which exists to show that the evidence is load-bearing, taught the
+opposite: same evidence, different decision. Two prior browser inspections
+missed it because each arm was checked against its own required tokens and never
+against the other.
+
+The shared environment and its bound are properties of the experiment and do not
+move between arms. The *evidence instance* does, so `basis` and `couplings` now
+come from the selected arm:
+
+| Arm | Basis | Coupling | Environment reads |
+| --- | --- | --- | --- |
+| baseline | none | none | *not consulted — Interlock was disabled in this arm* |
+| treatment | `eb67a6f5…` | support 8/10 | `COUPLED` |
+| perturbed | `db8a63ec…` | none recorded | *no qualifying coupling*, and no `COUPLED` state is drawn |
+
+The perturbed arm additionally renders an **Evidence changed** block naming the
+basis that replaced which, the resulting `ALLOW_PARALLEL → 140 > 130` chain, and
+the frozen `decisionDetail` verbatim. That lesson used to live in 9px helper
+copy at 60% opacity.
+
+The derivation lives in `lib/arm-view.mjs` rather than inside the HTML so the
+gate can assert it without a browser. `verify-cockpit.mjs` calls the same
+function the cockpit renders from and fails if a selected arm's rendered basis
+or coupling count stops matching its frozen arm, if a disabled arm is drawn as
+coupled, if the baseline is compared against itself, if the perturbed arm stops
+reporting changed evidence, or if an arm records a coupling its own
+`decisionReason` denies. Those are bindings, not strings: rewiring the
+derivation fails them, and so does editing the frozen arms.
 
 ## Deep links
 
@@ -161,6 +214,24 @@ The boundary the comment protects is satisfied by construction: **zero
 dependencies were added**, and the deterministic core remains testable without
 any of this. Reopen if a concrete capture or comprehension failure earns it.
 
+A comprehension failure was later found — the arm/evidence binding above — and
+it did **not** earn the dependency, because it was a binding defect and the fix
+was to bind correctly. Motion is used in exactly one place: switching between
+frozen arms steps the three regions that actually change (evidence, decision,
+outcome) so a reader sees which parts moved together. It uses the `il-step-in`
+keyframe and the `--dur-*`/`--delay-step` tokens already in
+`assets/tokens/motion.css`, plays once, settles, and is re-entrant because each
+arm change re-renders. `prefers-reduced-motion` zeroes the durations and
+hard-stops `[data-il-motion]` from the same token file, and `?static=1` disables
+it independently, so a capture cannot catch a frame mid-transition.
+
+The five-state gate sequence (`assets/logo/interlock-state-1..5.svg`) is
+deliberately **not** used here. It encodes a review-then-open progression the
+frozen packets never emitted — the same reason `phases.js` was rejected during
+the identity port — and driving it from `WITHHOLD_SERIALIZE`, which withholds,
+would imply a lifecycle this run does not have. The unreachable
+`[data-gate="open"]` rule it left behind has been removed.
+
 ## Accessibility
 
 Skip link; focusables in reading order, each with an accessible name; H1 → H2 →
@@ -200,9 +271,19 @@ approximated in CSS, geometry drift, a font CDN appearing, a vendored face
 failing its digest, the two surfaces resolving different identity authorities,
 or a manifest citing an identity asset the repository lacks.
 
+It also fails on: a selected arm rendering another arm's basis or coupling
+count; a disabled arm drawn as coupled; the baseline compared against itself; an
+arm whose recorded couplings contradict its own `decisionReason`; the perturbed
+arm losing its changed-evidence report or sharing the default arm's basis; the
+cockpit bypassing `lib/arm-view.mjs` or reading a basis off the environment
+again; the proof switch naming a class from anything but its own `proofLabel`;
+raw proof reacquiring a fixed `max-height`; the run no longer yielding space to
+the panel; the copy control or its offline fallback disappearing; and any
+looping animation.
+
 **20 negative cases** were confirmed to fire on the original gate; the identity
-and evidence-panel invariants add **16 more**, in
-`test/hac-341-identity-gates.test.mjs`.
+and evidence-panel invariants add **16 more**, and the corrective pass adds
+**17 more**, in `test/hac-341-identity-gates.test.mjs`.
 
 ## Downstream use — this is a verification surface, not the hero
 
@@ -228,8 +309,8 @@ Strongest crops, measured at 1440x900:
 
 | Class | Region | Must survive the crop |
 | --- | --- | --- |
-| A · local | header through the actions row, ~top 500px | lockup, `CONTROLLED LOCAL EXPERIMENT`, checks 24/24, both intents, `COUPLED` with `joint bound <= 130`, `WITHHOLD_SERIALIZE`, and `140 > 130` beside `120 <= 130` |
-| B · cloud | header through the controls row, ~top 600px | the lane-attributed path from Google to Interlock to protected target to independent observer, `ALLOW + receipt`, `EXECUTED`, `alpha=45`, `403 / 401 / 403`, and the not-on-the-recorded-path strip |
+| A · local | header through the actions row, ~top 570px | lockup, `CONTROLLED LOCAL EXPERIMENT`, checks 24/24, both intents, `COUPLED` with `joint bound <= 130`, `WITHHOLD_SERIALIZE`, and `140 > 130` beside `120 <= 130` |
+| B · cloud | header through the controls row, ~top 650px | the lane-attributed path from Google to Interlock to protected target to independent observer, `ALLOW + receipt`, `EXECUTED`, `alpha=45`, `403 / 401 / 403`, and the not-on-the-recorded-path strip |
 
 Both crops drop only unused canvas. The lane column in the cloud view is what
 lets that crop stand alone: it answers *where does Google end and Interlock

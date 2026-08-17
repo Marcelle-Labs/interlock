@@ -30,6 +30,7 @@ import { mkdirSync, writeFileSync, readFileSync, existsSync, statSync } from 'no
 import { createHash } from 'node:crypto';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { captureSourceDigest, captureSourceFiles } from './lib/capture-source.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../../..');
@@ -372,10 +373,18 @@ async function main() {
     capturedSurface: 'media/hac-341/cockpit.html (merged executable surface)',
     servedFrom: 'repository root — the cockpit resolves shared identity from /assets',
     viewport: `${VIEWPORT.width}x${VIEWPORT.height}`,
+    // Provenance answers "which commit was served". Freshness answers "are
+    // these still what the cockpit renders", which a commit SHA cannot: the
+    // capture is committed in the same commit it would have to name. The
+    // digest is computable before that commit exists and moves whenever a byte
+    // that can change a captured pixel changes.
+    captureSourceDigest: captureSourceDigest(ROOT),
+    captureSourceFiles: captureSourceFiles(ROOT),
     note:
       'Real captures of the merged cockpit. Pixels inside each frame are unmodified. ' +
       'Crops drop unused canvas only; the crop height is the measured bounding box of ' +
-      'main#app, never a hand-typed number.',
+      'main#app, never a hand-typed number. captureSourceDigest binds these frames to ' +
+      'the render sources they came from; verify-package.mjs fails if they drift apart.',
     captures: records,
   };
   writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);

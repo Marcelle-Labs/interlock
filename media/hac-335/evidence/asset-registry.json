@@ -496,17 +496,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "capturedFromSha": "fa4ce75e0d4aacff01832313676872442fd458be",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "readme+devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x507-runhac330local.png",
+          "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x566-runhac330local.png",
           "width": 1440,
-          "height": 507,
-          "sha256": "42a1ef4d15c39a875025e0a7b1e7fc2cd1a9c72bd26cf61e37d59b8f20abe01e",
+          "height": 566,
+          "sha256": "09a359b84ff532501ea440edea5f4e27ea13002bf1b2af593e1079d74c615d75",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -540,17 +540,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "capturedFromSha": "fa4ce75e0d4aacff01832313676872442fd458be",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "readme+devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x507-runhac330local.png",
+          "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x702-runhac330local.png",
           "width": 1440,
-          "height": 507,
-          "sha256": "2150a70ddec3a950e44db87a8dbdd2adc0242dc9443046fc908284312af1d95a",
+          "height": 702,
+          "sha256": "aec958d424e289befa861834e00d7e9537bf3ba0ca39dd42083789b7770fbed7",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -584,17 +584,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "capturedFromSha": "fa4ce75e0d4aacff01832313676872442fd458be",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "readme+devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x619-runilkhac340cloud1786730369123.png",
+          "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x645-runilkhac340cloud1786730369123.png",
           "width": 1440,
-          "height": 619,
-          "sha256": "93e11a482725d1634fa1f6281a711fd9162e607ef267ce8b138c35d560a47fc3",
+          "height": 645,
+          "sha256": "3cc99b4e32097208b29cec0f5d5f66f299a12acf0f0ff9081cc39553ee3a74f4",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -644,17 +644,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "capturedFromSha": "fa4ce75e0d4aacff01832313676872442fd458be",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x640-runilkhac340cloud1786730369123.png",
+          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x808-runilkhac340cloud1786730369123.png",
           "width": 1440,
-          "height": 640,
-          "sha256": "cbb2f2aad7e975ae5e3630bb77baff57ac2e24b75bd6cae7cb66d4504e61861c",
+          "height": 808,
+          "sha256": "4826c09fc3469954e32f26476d58400ff039fec82e42bda4cdd20648ec8ee243",
           "cropAnchor": "union:main#app,aside#drawer",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
