@@ -1,0 +1,139 @@
+# HAC-335 — the judge-facing package
+
+The frozen assembly of an already-approved factual system into one judge path.
+This issue **authors almost no facts**. HAC-330 owns the causal experiment,
+HAC-340 owns the cloud run, HAC-342 owns the public evidence, HAC-334 owns the
+visual masters, HAC-341 owns the verification cockpit, HAC-333 owns the
+storyboard, HAC-332 owns the identity and naming grammar. HAC-335 decides what a
+judge meets, in what order, and what each artifact is allowed to claim.
+
+## The rule the order exists to enforce
+
+> A judge must never encounter a stronger claim later in the sequence than the
+> first proof actually supports.
+
+That is why behaviour comes before architecture, why the causal counterfactual
+is the hero rather than the cockpit or a diagram, and why an explicit
+proof-class reset sits between the local experiment and the cloud run.
+
+## The sequence
+
+| | Step | Question | Class | Lead asset |
+| -- | -- | -- | -- | -- |
+| 1 | Hero / thesis | What is this? | A | `IL-PROOF-010` |
+| 2 | Controlled causal proof | What changed because Interlock existed? | A | `IL-PROOF-010` |
+| 3 | Perturbation | How do I know the evidence did the work? | A | `IL-PROOF-011` |
+| 4 | The Run — verify it | Can I verify this myself? | A | `IL-COCK-010` |
+| 5 | Proof-class reset | Is what follows the same experiment? | — | SB-06 |
+| 6 | Google Cloud participation | What actually ran on Google Cloud? | B | `IL-DIAG-011` |
+| 7 | Fail-closed controls | What happens when the caller is wrong? | B | `IL-PROOF-013` |
+| 8 | Architecture / trust boundary | Where does Google end and Interlock begin? | B | `IL-DIAG-012` |
+| 9 | Claim boundary | What is not being claimed? | A+B | `IL-PROOF-014` |
+
+Machine-readable in [`evidence/judge-sequence.json`](./evidence/judge-sequence.json).
+HAC-336 consumes that order for final media assembly.
+
+## Files
+
+| Path | Role |
+| --- | --- |
+| `evidence/judge-sequence.json` | The ordered judge path. The editorial decision of this issue. |
+| `evidence/asset-registry.json` | The one final registry. Generated. |
+| `evidence/claim-ledger.json` | Every material claim, classified and bound to a source. |
+| `evidence/capture-manifest.json` | Cockpit capture provenance. Generated. |
+| `evidence/card-manifest.json` | Video card masters and derivatives. Generated. |
+| `captures/` | Real captures of the merged HAC-341 cockpit. |
+| `cards/` | Source-editable video title and end card masters. |
+| `exports/` | Card derivatives. |
+| `devpost/` | Frozen Devpost copy, screenshot order, thumbnail and architecture selections. |
+| `bin/verify-package.mjs` | The gate. Dependency-free — no browser, no server, no network. |
+
+## The cockpit is a verification surface, not the hero
+
+`media/hac-341/README.md` states the downstream-use rule and this package obeys
+it. The cockpit enters at step 4, answering *can I verify this?* — never as the
+README hero, the Devpost thumbnail, a social image or an opening video frame.
+The gate fails if the thumbnail becomes a cockpit capture.
+
+Captures are cropped to the measured bounding box of the rendered content and
+nothing else. **The pixels inside are unmodified.** Each row in the registry
+records the deep-link address, the semantic state, the proof class and the
+commit the cockpit was serving, so a crop cannot drift into reading as a
+rendered claim.
+
+## Regenerating
+
+Deterministic, no browser:
+
+```sh
+pnpm run package:build     # cards, then the registry
+pnpm run check:package     # the gate
+```
+
+Re-capturing the cockpit needs a browser and a served repository root, which is
+why it is a separate step and not part of `check`:
+
+```sh
+# playwright is deliberately NOT a dependency of this repository — the
+# deterministic core and every gate must stay installable without a browser.
+mkdir -p /tmp/il-capture && cd /tmp/il-capture
+npm init -y && npm i playwright && npx playwright install chromium
+
+cd <repo> && python3 -m http.server 4173 &      # serve the ROOT, not media/
+PLAYWRIGHT_MODULE=/tmp/il-capture/node_modules/playwright pnpm run package:capture
+```
+
+Serve the **repository root**: the cockpit resolves shared identity from
+`/assets`, so serving `media/hac-341/` alone renders it without its typefaces
+and mark.
+
+## What the gate checks
+
+It binds prose to evidence **in both directions**, which is the only way a
+synthesis gate avoids becoming constants that agree with themselves. Editing the
+frozen evidence without the copy fails; editing the copy without the evidence
+fails.
+
+- the two proof classes never merge into one purported run, and no sentence
+  chains `WITHHOLD_SERIALIZE` to `alpha=45`;
+- `AUTHORIZED`, `Agent Runtime`, `Agent Gateway` and `CONTENT_AUTHZ` never
+  appear without a disclaimer;
+- cloud controls stay `403` / `401` / `403`, and wrong-audience is never
+  described as a cloud result;
+- `140`, `120`, `130`, `24/24` and `alpha=45` are read from the frozen records
+  and compared against the prose;
+- every public evidence URL is commit-pinned, never a branch, and present in the
+  registry;
+- `runtimeSourceUrl` is never fabricated, and `runtimeSourceSha` never collapses
+  into `evidencePublicationSha`;
+- `sourcePacketSha256` is never described as reader-recomputable;
+- no unevidenced deployment revision is named;
+- HAC-319 is unbound: no metric, no value, and `IL-DIAG-013` is out of the
+  judge-facing registry and sequence with its seam recorded;
+- every capture's proof class agrees with its URL and its semantic state;
+- every filename passes the frozen HAC-332 naming grammar;
+- no derivative is stale relative to its source, checked by digest and PNG
+  header;
+- every judge-critical asset is in the registry and every material claim is in
+  the ledger;
+- the sequence opens on class A, resets between classes, and never puts
+  architecture before the result.
+
+**33 negative cases** in `test/hac-335-package-gates.test.mjs` prove each of
+these still fails when violated.
+
+## HAC-319
+
+Not bound. No SPR, precision, recall, false-block or useful-concurrency value
+appears anywhere in this package. `IL-DIAG-013` stays in the HAC-334 registry as
+the reserved evaluation shell and is deliberately excluded here, recorded in
+both the sequence and the registry with `seamPreserved: true`, so binding it
+later is an addition rather than an excavation.
+
+## Still open
+
+The real three-reader cold-read has **not** been run against this assembled
+sequence. No cold-read result is claimed anywhere in this package. The protocol
+lives in `media/hac-341/README.md`; per the HAC-335 execution-sequencing
+amendment it runs against the assembled experience before final freeze and
+before HAC-336.

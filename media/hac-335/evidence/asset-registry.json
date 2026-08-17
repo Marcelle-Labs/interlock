@@ -1,0 +1,830 @@
+{
+  "manifestId": "HAC-335-asset-registry",
+  "revision": "r01",
+  "issue": "HAC-335",
+  "generator": "media/hac-335/bin/build-registry.mjs",
+  "namingAuthority": "scripts/export-naming.mjs (HAC-332 frozen grammar, ported)",
+  "note": "The final judge-facing package registry. HAC-334 authors its visual masters and stays the authority for their facts; this registry records what the package consumes, what HAC-335 authored, and what each asset is allowed to claim. Dimensions come out of PNG headers and digests off the bytes on disk, so a stale derivative is a mechanical finding.",
+  "publicEvidence": {
+    "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+    "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+    "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+    "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+    "sourcePacketPublished": false,
+    "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+    "runtimeSourceShaPublished": false,
+    "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+    "runtimeSourceUrl": {
+      "state": "unavailable / non-public",
+      "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+    }
+  },
+  "immutableEvidenceTargets": {
+    "cloudEvidence": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+    "cloudEvidenceRaw": "https://raw.githubusercontent.com/Marcelle-Labs/interlock/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+    "verifier": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+    "redactionManifest": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+    "runtimeSourceSnapshot": "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/runtime-source-snapshot.json",
+    "publicationBindings": "https://github.com/Marcelle-Labs/interlock/blob/9da4cb95b6eec6030fe0c622b67a319eeaf20230/experiments/hac-342/evidence/publication-bindings.json"
+  },
+  "runs": {
+    "A": {
+      "run": "hac330-local",
+      "issue": "HAC-330",
+      "label": "CONTROLLED LOCAL EXPERIMENT"
+    },
+    "B": {
+      "run": "ilk-hac340-cloud-1786730369123",
+      "issue": "HAC-340",
+      "label": "GOOGLE CLOUD PARTICIPATION"
+    }
+  },
+  "excluded": [
+    {
+      "assetId": "IL-DIAG-013",
+      "reason": "HAC-319 evaluation is not bound. The asset stays in the HAC-334 registry as the reserved evaluation shell and is deliberately absent from every judge-facing surface here, so an unavailable evaluation cannot be read as a pending result. The integration seam is preserved.",
+      "seamPreserved": true
+    },
+    {
+      "assetId": "IL-DIAG-010",
+      "reason": "Conceptual, not evidence-bound. Kept out of the judge sequence so it cannot compete with IL-PROOF-010 for the causal slot."
+    }
+  ],
+  "assets": [
+    {
+      "assetId": "IL-PROOF-010",
+      "title": "Controlled causal counterfactual",
+      "judgeQuestion": "What changed because Interlock existed?",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "sourceRun": "hac330-local",
+      "correlationId": null,
+      "supportedClaim": "Two locally valid intents against a shared bound of 130: without Interlock 140 > 130, an invalid joint state; with Interlock the decision is WITHHOLD_SERIALIZE and the outcome 120 <= 130, with 24/24 checks.",
+      "claimIds": [
+        "CL-003",
+        "CL-004",
+        "CL-005"
+      ],
+      "canonicalMasterId": "IL-PROOF-010",
+      "canonicalMasterIssue": "HAC-334",
+      "authoredBy": "HAC-334",
+      "consumedBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme-hero",
+          "file": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1280x720-runhac330local.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "b39c3d9ada921df46bee1eccdf525418545b4b3bc352654bf417e2e43c234ba5",
+          "presentationRole": null
+        },
+        {
+          "surface": "devpost-thumbnail",
+          "file": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1200x675-runhac330local.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "06241a975cc45ac334df0af079b7e9b844a0f5940d95ce3c0c5cfa3305dd45a9",
+          "presentationRole": null
+        },
+        {
+          "surface": "devpost-screenshot",
+          "file": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1200x675-runhac330local.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "06241a975cc45ac334df0af079b7e9b844a0f5940d95ce3c0c5cfa3305dd45a9",
+          "presentationRole": null
+        },
+        {
+          "surface": "video-5s",
+          "file": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-brief-1920x1080-runhac330local.png",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "82b1fefba0add5d9a2b0bfb3f6d7ea1c23ec60d2790fa8e3344b369f29a9e7e7",
+          "presentationRole": "5s"
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the master itself",
+      "provenanceType": "deterministic",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "note": "Class A is a controlled local experiment; it has no cloud publication identity."
+      },
+      "immutableEvidenceRefs": []
+    },
+    {
+      "assetId": "IL-PROOF-011",
+      "title": "Perturbation / evidence load-bearing",
+      "judgeQuestion": "How do I know the evidence did the work?",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "sourceRun": "hac330-local",
+      "correlationId": null,
+      "supportedClaim": "With perturbed evidence the decision becomes ALLOW_PARALLEL and the joint outcome returns to 140 > 130. Both arms are recorded results, not a live re-run.",
+      "claimIds": [
+        "CL-006",
+        "CL-007"
+      ],
+      "canonicalMasterId": "IL-PROOF-011",
+      "canonicalMasterIssue": "HAC-334",
+      "authoredBy": "HAC-334",
+      "consumedBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme",
+          "file": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1280x720-runhac330local.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "90e8bb3c60c52f289594850e516bb12663c41bd168462f0e0f7abfc49c382982",
+          "presentationRole": null
+        },
+        {
+          "surface": "devpost-screenshot",
+          "file": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1200x675-runhac330local.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "2f684fb60b22fc8411cb379bad844b296353611dec2c13a272e083bfcdb600cd",
+          "presentationRole": null
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the master itself",
+      "provenanceType": "deterministic",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "note": "Class A is a controlled local experiment; it has no cloud publication identity."
+      },
+      "immutableEvidenceRefs": []
+    },
+    {
+      "assetId": "IL-DIAG-011",
+      "title": "Real Google Cloud participation",
+      "judgeQuestion": "What actually ran on Google Cloud?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "sourceRun": "ilk-hac340-cloud-1786730369123",
+      "correlationId": "ilk-hac340-cloud-1786730369123",
+      "supportedClaim": "One recorded traversal: gemini-3.5-flash through Google ADK 1.35.1 and Vertex AI, from a Cloud Run-hosted agent in us-central1, through the Interlock MCP proxy, to ALLOW + receipt, a protected mutation, an independently authenticated read-back observing alpha=45, and Cloud Logging correlated by run id.",
+      "claimIds": [
+        "CL-010",
+        "CL-011",
+        "CL-012"
+      ],
+      "canonicalMasterId": "IL-DIAG-011",
+      "canonicalMasterIssue": "HAC-334",
+      "authoredBy": "HAC-334",
+      "consumedBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme",
+          "file": "media/hac-334/exports/IL-DIAG-011-cloud-participation-1280x720-runilkhac340cloud1786730369123.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "6b4f285b0671a26a1198ae882fc4a26a855022495e392d510e5652bfc31589ae",
+          "presentationRole": null
+        },
+        {
+          "surface": "devpost-screenshot",
+          "file": "media/hac-334/exports/IL-DIAG-011-cloud-participation-1200x675-runilkhac340cloud1786730369123.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "a7690f3aac276a80206657f53c664653daf436cc67e3f9771c7922cf6992b330",
+          "presentationRole": null
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the master itself",
+      "provenanceType": "deterministic",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+        "runtimeSourceShaPublished": false,
+        "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+        }
+      },
+      "immutableEvidenceRefs": [
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/9da4cb95b6eec6030fe0c622b67a319eeaf20230/experiments/hac-342/evidence/publication-bindings.json"
+      ]
+    },
+    {
+      "assetId": "IL-DIAG-012",
+      "title": "Exact deployment and trust boundaries",
+      "judgeQuestion": "Where does Google end and Interlock begin?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "sourceRun": "ilk-hac340-cloud-1786730369123",
+      "correlationId": "ilk-hac340-cloud-1786730369123",
+      "supportedClaim": "Cloud Run IAM establishes transport provenance; the Interlock decision and receipt are application provenance, and they do not collapse. interlock-hac340-proxy-00002-wzf is the only evidenced deployment revision. Agent Runtime, Agent Gateway and CONTENT_AUTHZ are absent from this deployment.",
+      "claimIds": [
+        "CL-015",
+        "CL-016",
+        "CL-021"
+      ],
+      "canonicalMasterId": "IL-DIAG-012",
+      "canonicalMasterIssue": "HAC-334",
+      "authoredBy": "HAC-334",
+      "consumedBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "devpost-architecture-upload",
+          "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "e7e54989d6906885aa4bbfaa28b694472fa8657230d207c55b082c5724147c21",
+          "presentationRole": null
+        },
+        {
+          "surface": "readme",
+          "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "e7e54989d6906885aa4bbfaa28b694472fa8657230d207c55b082c5724147c21",
+          "presentationRole": null
+        },
+        {
+          "surface": "devpost-screenshot",
+          "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1200x675-runilkhac340cloud1786730369123.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "f0a6032332dd9091e5533203ea07bfd5453f0bf54b5f3c36a9266154abdbb584",
+          "presentationRole": null
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the master itself",
+      "provenanceType": "deterministic",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+        "runtimeSourceShaPublished": false,
+        "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+        }
+      },
+      "immutableEvidenceRefs": [
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/9da4cb95b6eec6030fe0c622b67a319eeaf20230/experiments/hac-342/evidence/publication-bindings.json"
+      ]
+    },
+    {
+      "assetId": "IL-PROOF-012",
+      "title": "Receipt, effect, observation",
+      "judgeQuestion": "Did the receipt actually govern the effect?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "sourceRun": "ilk-hac340-cloud-1786730369123",
+      "correlationId": "ilk-hac340-cloud-1786730369123",
+      "supportedClaim": "Receipt, protected effect and independent observation are recorded as three separate states. EXECUTED and OBSERVED do not collapse.",
+      "claimIds": [
+        "CL-011",
+        "CL-012"
+      ],
+      "canonicalMasterId": "IL-PROOF-012",
+      "canonicalMasterIssue": "HAC-334",
+      "authoredBy": "HAC-334",
+      "consumedBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "devpost-reserve",
+          "file": "media/hac-334/exports/IL-PROOF-012-receipt-effect-observation-1200x675-runilkhac340cloud1786730369123.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "9a3aca833fa6e7b4716691ad465b89309d5ebf1c06b57f08974b542fc1d6479e",
+          "presentationRole": null
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the master itself",
+      "provenanceType": "deterministic",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+        "runtimeSourceShaPublished": false,
+        "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+        }
+      },
+      "immutableEvidenceRefs": [
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/9da4cb95b6eec6030fe0c622b67a319eeaf20230/experiments/hac-342/evidence/publication-bindings.json"
+      ]
+    },
+    {
+      "assetId": "IL-PROOF-013",
+      "title": "Fail-closed / anti-bypass panel",
+      "judgeQuestion": "What happens when the caller is wrong?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "sourceRun": "ilk-hac340-cloud-1786730369123",
+      "correlationId": "ilk-hac340-cloud-1786730369123",
+      "supportedClaim": "Three recorded fail-closed refusals: forged identity header 403, invalid bearer token 401, direct target bypass without receipt 403. Three controls, not comprehensive attack coverage.",
+      "claimIds": [
+        "CL-013",
+        "CL-014"
+      ],
+      "canonicalMasterId": "IL-PROOF-013",
+      "canonicalMasterIssue": "HAC-334",
+      "authoredBy": "HAC-334",
+      "consumedBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme",
+          "file": "media/hac-334/exports/IL-PROOF-013-fail-closed-controls-1200x675-runilkhac340cloud1786730369123.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "5e1511d181d9c5d0fa18768f433c054e51a5666f2036f8a97fe2503d68a62767",
+          "presentationRole": null
+        },
+        {
+          "surface": "devpost-screenshot",
+          "file": "media/hac-334/exports/IL-PROOF-013-fail-closed-controls-1200x675-runilkhac340cloud1786730369123.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "5e1511d181d9c5d0fa18768f433c054e51a5666f2036f8a97fe2503d68a62767",
+          "presentationRole": null
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the master itself",
+      "provenanceType": "deterministic",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+        "runtimeSourceShaPublished": false,
+        "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+        }
+      },
+      "immutableEvidenceRefs": [
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/9da4cb95b6eec6030fe0c622b67a319eeaf20230/experiments/hac-342/evidence/publication-bindings.json"
+      ]
+    },
+    {
+      "assetId": "IL-PROOF-014",
+      "title": "Claim boundary",
+      "judgeQuestion": "What is not being claimed?",
+      "proofClass": "A+B",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT and GOOGLE CLOUD PARTICIPATION, labelled separately",
+      "sourceIssue": "HAC-334",
+      "sourceRun": null,
+      "correlationId": null,
+      "supportedClaim": "The controlled local experiment and Google Cloud participation are stated separately, alongside an explicit not-claimed column. Neither proof class is evidence for the other.",
+      "claimIds": [
+        "CL-009",
+        "CL-020",
+        "CL-023",
+        "CL-024"
+      ],
+      "canonicalMasterId": "IL-PROOF-014",
+      "canonicalMasterIssue": "HAC-334",
+      "authoredBy": "HAC-334",
+      "consumedBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme",
+          "file": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1280x720.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "6f31f06f8fbfe9b8fd122e4ba2def064e885b61ad91fa79504484741750bb34b",
+          "presentationRole": null
+        },
+        {
+          "surface": "devpost-screenshot",
+          "file": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1200x675.png",
+          "width": 1200,
+          "height": 675,
+          "sha256": "ad1da8d8d86a3edc0be110507c6afa4d975965982ef1f128eb67202345b5f924",
+          "presentationRole": null
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the master itself",
+      "provenanceType": "deterministic",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "note": "Class A is a controlled local experiment; it has no cloud publication identity."
+      },
+      "immutableEvidenceRefs": []
+    },
+    {
+      "assetId": "IL-COCK-010",
+      "title": "The Run — run.local.treatment",
+      "judgeQuestion": "Can I verify the causal claim myself?",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "sourceRun": "hac330-local",
+      "correlationId": null,
+      "supportedClaim": "The merged cockpit renders the frozen HAC-330 treatment arm: two locally valid intents, a coupled shared environment bounded at 130, the deterministic WITHHOLD_SERIALIZE decision, and 120 <= 130 against the 140 > 130 baseline, with 24/24 checks.",
+      "claimIds": [
+        "CL-008"
+      ],
+      "canonicalMasterId": null,
+      "canonicalMasterIssue": null,
+      "authoredBy": "HAC-335",
+      "capturedFrom": "HAC-341 merged cockpit",
+      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1",
+      "sourceFormat": "live surface (html)",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme+devpost-screenshot",
+          "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x507-runhac330local.png",
+          "width": 1440,
+          "height": 507,
+          "sha256": "42a1ef4d15c39a875025e0a7b1e7fc2cd1a9c72bd26cf61e37d59b8f20abe01e",
+          "cropAnchor": "main#app",
+          "cropRule": "measured bounding box of the rendered content; unused canvas only"
+        }
+      ],
+      "semanticState": "run.local.treatment",
+      "captureState": "capture.run.local.treatment",
+      "reducedMotionEquivalent": "the capture itself — taken with ?static=1, the reduced-motion resolution",
+      "provenanceType": "screenshot",
+      "pixelIntegrity": "unmodified cockpit pixels; cropped only, never retouched or recomposed",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "note": "Class A is a controlled local experiment; it has no cloud publication identity."
+      },
+      "immutableEvidenceRefs": []
+    },
+    {
+      "assetId": "IL-COCK-011",
+      "title": "The Run — run.local.perturbed",
+      "judgeQuestion": "What happens if the evidence changes?",
+      "proofClass": "A",
+      "proofClassLabel": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "sourceRun": "hac330-local",
+      "correlationId": null,
+      "supportedClaim": "Selecting the frozen perturbed-evidence arm in the merged cockpit shows ALLOW_PARALLEL and 140 > 130. The arm is a recorded result; nothing is recomputed in the browser.",
+      "claimIds": [
+        "CL-008"
+      ],
+      "canonicalMasterId": null,
+      "canonicalMasterIssue": null,
+      "authoredBy": "HAC-335",
+      "capturedFrom": "HAC-341 merged cockpit",
+      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed&static=1",
+      "sourceFormat": "live surface (html)",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme+devpost-screenshot",
+          "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x507-runhac330local.png",
+          "width": 1440,
+          "height": 507,
+          "sha256": "2150a70ddec3a950e44db87a8dbdd2adc0242dc9443046fc908284312af1d95a",
+          "cropAnchor": "main#app",
+          "cropRule": "measured bounding box of the rendered content; unused canvas only"
+        }
+      ],
+      "semanticState": "run.local.perturbed",
+      "captureState": "capture.run.local.perturbed",
+      "reducedMotionEquivalent": "the capture itself — taken with ?static=1, the reduced-motion resolution",
+      "provenanceType": "screenshot",
+      "pixelIntegrity": "unmodified cockpit pixels; cropped only, never retouched or recomposed",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "note": "Class A is a controlled local experiment; it has no cloud publication identity."
+      },
+      "immutableEvidenceRefs": []
+    },
+    {
+      "assetId": "IL-COCK-012",
+      "title": "The Run — run.cloud.overview",
+      "judgeQuestion": "What actually ran on Google Cloud?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "sourceRun": "ilk-hac340-cloud-1786730369123",
+      "correlationId": "ilk-hac340-cloud-1786730369123",
+      "supportedClaim": "The merged cockpit renders the frozen HAC-340 cloud run: the lane-attributed path from Google to Interlock to the protected target to an independent observer, ALLOW + authorization receipt, EXECUTED, OBSERVED alpha=45, the 403/401/403 controls, and the not-on-the-recorded-path strip.",
+      "claimIds": [
+        "CL-008"
+      ],
+      "canonicalMasterId": null,
+      "canonicalMasterIssue": null,
+      "authoredBy": "HAC-335",
+      "capturedFrom": "HAC-341 merged cockpit",
+      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
+      "sourceFormat": "live surface (html)",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "readme+devpost-screenshot",
+          "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x619-runilkhac340cloud1786730369123.png",
+          "width": 1440,
+          "height": 619,
+          "sha256": "93e11a482725d1634fa1f6281a711fd9162e607ef267ce8b138c35d560a47fc3",
+          "cropAnchor": "main#app",
+          "cropRule": "measured bounding box of the rendered content; unused canvas only"
+        }
+      ],
+      "semanticState": "run.cloud.overview",
+      "captureState": "capture.run.cloud.overview",
+      "reducedMotionEquivalent": "the capture itself — taken with ?static=1, the reduced-motion resolution",
+      "provenanceType": "screenshot",
+      "pixelIntegrity": "unmodified cockpit pixels; cropped only, never retouched or recomposed",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+        "runtimeSourceShaPublished": false,
+        "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+        }
+      },
+      "immutableEvidenceRefs": [
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/9da4cb95b6eec6030fe0c622b67a319eeaf20230/experiments/hac-342/evidence/publication-bindings.json"
+      ]
+    },
+    {
+      "assetId": "IL-COCK-013",
+      "title": "The Run — run.cloud.overview · Verify this run",
+      "judgeQuestion": "Where is the immutable evidence, and what is withheld?",
+      "proofClass": "B",
+      "proofClassLabel": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "sourceRun": "ilk-hac340-cloud-1786730369123",
+      "correlationId": "ilk-hac340-cloud-1786730369123",
+      "supportedClaim": "The evidence panel exposes commit-pinned public evidence, keeps transport provenance separate from application provenance, and renders the runtime source URL as unavailable / non-public rather than fabricating a link. The panel is anchored, so the causal column stays readable behind it.",
+      "claimIds": [
+        "CL-008"
+      ],
+      "canonicalMasterId": null,
+      "canonicalMasterIssue": null,
+      "authoredBy": "HAC-335",
+      "capturedFrom": "HAC-341 merged cockpit",
+      "capturedFromSha": "87b1cdf8cd901c5991007c83c02311a02188fa0f",
+      "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
+      "sourceFormat": "live surface (html)",
+      "exportFormat": "png",
+      "exports": [
+        {
+          "surface": "devpost-screenshot",
+          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x640-runilkhac340cloud1786730369123.png",
+          "width": 1440,
+          "height": 640,
+          "sha256": "cbb2f2aad7e975ae5e3630bb77baff57ac2e24b75bd6cae7cb66d4504e61861c",
+          "cropAnchor": "union:main#app,aside#drawer",
+          "cropRule": "measured bounding box of the rendered content; unused canvas only"
+        }
+      ],
+      "semanticState": "run.cloud.overview",
+      "captureState": "capture.run.cloud.overview",
+      "reducedMotionEquivalent": "the capture itself — taken with ?static=1, the reduced-motion resolution",
+      "provenanceType": "screenshot",
+      "pixelIntegrity": "unmodified cockpit pixels; cropped only, never retouched or recomposed",
+      "status": "EVIDENCE BOUND",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+        "runtimeSourceShaPublished": false,
+        "runtimeSourceSnapshotSha256": "9aaa4ad1661444fff50a0392785aa69cbfc8a54fecff1fc4a1c178aa7da22cd1",
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+        }
+      },
+      "immutableEvidenceRefs": [
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/bin/verify-public-packet.mjs",
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/redaction-manifest.json",
+        "https://github.com/Marcelle-Labs/interlock/blob/9da4cb95b6eec6030fe0c622b67a319eeaf20230/experiments/hac-342/evidence/publication-bindings.json"
+      ]
+    },
+    {
+      "assetId": "IL-SCAF-010",
+      "title": "Video title card",
+      "judgeQuestion": "What is this?",
+      "proofClass": "none",
+      "proofClassLabel": null,
+      "sourceIssue": "HAC-335",
+      "derivedFrom": "HAC-333 SB-00 editorialCopy",
+      "sourceRun": null,
+      "correlationId": null,
+      "supportedClaim": "Identity and thesis only. No evidence is asserted on this frame; both proof classes are named without either being claimed as the other.",
+      "claimIds": [
+        "CL-001",
+        "CL-002"
+      ],
+      "canonicalMasterId": "IL-SCAF-010",
+      "canonicalMasterIssue": "HAC-335",
+      "authoredBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "master": "media/hac-335/cards/IL-SCAF-010-video-title-card.svg",
+      "masterSha256": "3c03c043106b25d6b2b672fd0504519ce199f01d68e37a54520290753a998168",
+      "exports": [
+        {
+          "surface": "video-title",
+          "file": "media/hac-335/exports/IL-SCAF-010-video-title-card-1920x1080.png",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "0d238422b53d960ceb2b75f7871f042799bd8578969fd20d2944c7d84e080fa2"
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the card itself — a static board; HAC-336 assembles motion around it",
+      "provenanceType": "editorial",
+      "status": "FROZEN — source-editable master committed alongside the derivative",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "note": "Identity and thesis only; no evidence is asserted on this frame."
+      },
+      "immutableEvidenceRefs": []
+    },
+    {
+      "assetId": "IL-SCAF-011",
+      "title": "Video end card",
+      "judgeQuestion": "What was proved, and what is not claimed?",
+      "proofClass": "A+B",
+      "proofClassLabel": null,
+      "sourceIssue": "HAC-335",
+      "derivedFrom": "HAC-333 SB-08 editorialCopy",
+      "sourceRun": null,
+      "correlationId": null,
+      "supportedClaim": "Controlled causal proof (HAC-330), real Google Cloud participation (HAC-340) and immutable evidence (HAC-342) presented as three separate columns, with the claim boundary and the not-on-the-recorded-path strip.",
+      "claimIds": [
+        "CL-009",
+        "CL-017",
+        "CL-021"
+      ],
+      "canonicalMasterId": "IL-SCAF-011",
+      "canonicalMasterIssue": "HAC-335",
+      "authoredBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "master": "media/hac-335/cards/IL-SCAF-011-video-end-card.svg",
+      "masterSha256": "31d4074c78a214cd71b4b3da26bc926169528fe836a768767aaa7e4530b724dc",
+      "exports": [
+        {
+          "surface": "video-end",
+          "file": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "0fd186af922178a972e049f9d70351ceae62e63494270b182dbc8a9ec5ae1946"
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the card itself — a static board; HAC-336 assembles motion around it",
+      "provenanceType": "editorial",
+      "status": "FROZEN — source-editable master committed alongside the derivative",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "evidencePublicationSha": "75253e38791e69f7e2a4bb3a041044a9114c32f0",
+        "publicationBindingsSha": "9da4cb95b6eec6030fe0c622b67a319eeaf20230",
+        "publicPacketSha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d",
+        "sourcePacketSha256": "794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0",
+        "sourcePacketPublished": false,
+        "runtimeSourceUrl": {
+          "state": "unavailable / non-public",
+          "reason": "The tree at this commit contains experiments/hac-340/evidence/local-traversal.json, which hardcodes the Google Cloud project identifier. Publishing a ref to this commit would expose it."
+        }
+      },
+      "immutableEvidenceRefs": [
+        "https://github.com/Marcelle-Labs/interlock/blob/75253e38791e69f7e2a4bb3a041044a9114c32f0/experiments/hac-342/evidence/cloud-run.public.json"
+      ]
+    },
+    {
+      "assetId": "IL-SOC-010",
+      "title": "Open-graph card",
+      "judgeQuestion": "What is this, in one card?",
+      "proofClass": "A",
+      "proofClassLabel": null,
+      "sourceIssue": "HAC-335",
+      "derivedFrom": "the same visual system as the judge-critical set; built only after it was frozen",
+      "sourceRun": null,
+      "correlationId": null,
+      "supportedClaim": "Without Interlock 140 > 130; with Interlock 120 <= 130. Attributed to the controlled local experiment HAC-330 on the card itself, so a shared link cannot read as a cloud result.",
+      "claimIds": [
+        "CL-002",
+        "CL-003",
+        "CL-004",
+        "CL-027"
+      ],
+      "canonicalMasterId": "IL-SOC-010",
+      "canonicalMasterIssue": "HAC-335",
+      "authoredBy": "HAC-335",
+      "sourceFormat": "svg",
+      "exportFormat": "png",
+      "master": "media/hac-335/cards/IL-SOC-010-open-graph-card.svg",
+      "masterSha256": "490cf17f913c3bbb65ea9f5b5c725512657eba193b29bf5f2ee6b9649a660a4c",
+      "exports": [
+        {
+          "surface": "social-og",
+          "file": "media/hac-335/exports/IL-SOC-010-open-graph-card-1200x630.png",
+          "width": 1200,
+          "height": 630,
+          "sha256": "127e14423769533e340c0716db4d4c927908e63d65aab4928a87ba1c9813b8d0"
+        }
+      ],
+      "semanticState": null,
+      "captureState": null,
+      "reducedMotionEquivalent": "the card itself — a static board; HAC-336 assembles motion around it",
+      "provenanceType": "deterministic",
+      "status": "FROZEN — social derivative, built after the judge-critical set was frozen",
+      "license": "Marcelle-Labs contest submission asset. Interlock identity and boards are original work created for this submission; Geist and Geist Mono are vendored under OFL-1.1 and are not redistributed inside raster exports.",
+      "evidence": {
+        "note": "Identity and thesis only; no evidence is asserted on this frame."
+      },
+      "immutableEvidenceRefs": []
+    }
+  ]
+}

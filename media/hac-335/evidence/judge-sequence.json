@@ -1,0 +1,143 @@
+{
+  "manifestId": "HAC-335-judge-sequence",
+  "revision": "r01",
+  "issue": "HAC-335",
+  "note": "The one ordered judge path. Organised by judge comprehension, not by asset variety. A judge must never meet a stronger claim later in this sequence than step 02 actually supports. HAC-336 consumes this order for final media assembly.",
+  "orderingRule": "behaviour and result before architecture; controlled local proof before cloud participation; an explicit proof-class reset between them; claim boundary last and never implied earlier.",
+  "proofClasses": {
+    "A": {
+      "label": "CONTROLLED LOCAL EXPERIMENT",
+      "sourceIssue": "HAC-330",
+      "isCausalCounterfactual": true
+    },
+    "B": {
+      "label": "GOOGLE CLOUD PARTICIPATION",
+      "sourceIssue": "HAC-340",
+      "isCausalCounterfactual": false
+    }
+  },
+  "steps": [
+    {
+      "order": 1,
+      "stepId": "seq.hero",
+      "title": "Hero / thesis",
+      "judgeQuestion": "What is this?",
+      "proofClass": "A",
+      "sourceIssue": "HAC-330",
+      "primaryAsset": "IL-PROOF-010",
+      "thesis": "Individually valid actions can be jointly unsafe. Interlock reads revision-bound environment evidence before shared-state mutation and selects a deterministic coordination decision.",
+      "surfaces": ["readme", "devpost-thumbnail", "video-title"],
+      "claimIds": ["CL-001", "CL-002"]
+    },
+    {
+      "order": 2,
+      "stepId": "seq.causal-proof",
+      "title": "Controlled causal proof",
+      "judgeQuestion": "What changed because Interlock existed?",
+      "proofClass": "A",
+      "sourceIssue": "HAC-330",
+      "primaryAsset": "IL-PROOF-010",
+      "supportingAssets": ["IL-PROOF-010-brief"],
+      "surfaces": ["readme", "devpost-narrative", "video"],
+      "claimIds": ["CL-003", "CL-004", "CL-005"]
+    },
+    {
+      "order": 3,
+      "stepId": "seq.perturbation",
+      "title": "Perturbation — the evidence is load-bearing",
+      "judgeQuestion": "How do I know the evidence did the work?",
+      "proofClass": "A",
+      "sourceIssue": "HAC-330",
+      "primaryAsset": "IL-PROOF-011",
+      "surfaces": ["readme", "devpost-narrative", "devpost-screenshot", "video"],
+      "claimIds": ["CL-006", "CL-007"]
+    },
+    {
+      "order": 4,
+      "stepId": "seq.verify",
+      "title": "The Run — verify it",
+      "judgeQuestion": "Can I verify this myself?",
+      "proofClass": "A",
+      "sourceIssue": "HAC-330",
+      "primaryAsset": "IL-COCK-010",
+      "supportingAssets": ["IL-COCK-011"],
+      "surfaces": ["readme", "devpost-screenshot"],
+      "note": "The cockpit enters the sequence here as a verification surface, never as the hero. Captures are cropped to the rendered content; the pixels inside are unmodified.",
+      "claimIds": ["CL-008"]
+    },
+    {
+      "order": 5,
+      "stepId": "seq.proof-class-reset",
+      "title": "Proof-class reset",
+      "judgeQuestion": "Is what follows the same experiment?",
+      "proofClass": "transition",
+      "sourceIssue": "HAC-333",
+      "storyboardScene": "SB-06",
+      "assertion": "DIFFERENT RUN. DIFFERENT EVIDENCE. Neither proof class is evidence for the other.",
+      "surfaces": ["readme", "devpost-narrative", "video"],
+      "claimIds": ["CL-009"]
+    },
+    {
+      "order": 6,
+      "stepId": "seq.cloud-participation",
+      "title": "Google Cloud participation",
+      "judgeQuestion": "What actually ran on Google Cloud?",
+      "proofClass": "B",
+      "sourceIssue": "HAC-340",
+      "primaryAsset": "IL-DIAG-011",
+      "supportingAssets": ["IL-PROOF-012", "IL-COCK-012"],
+      "surfaces": ["readme", "devpost-narrative", "devpost-screenshot", "video"],
+      "claimIds": ["CL-010", "CL-011", "CL-012"]
+    },
+    {
+      "order": 7,
+      "stepId": "seq.fail-closed",
+      "title": "Fail-closed controls",
+      "judgeQuestion": "What happens when the caller is wrong?",
+      "proofClass": "B",
+      "sourceIssue": "HAC-340",
+      "primaryAsset": "IL-PROOF-013",
+      "surfaces": ["readme", "devpost-narrative"],
+      "claimIds": ["CL-013", "CL-014"]
+    },
+    {
+      "order": 8,
+      "stepId": "seq.architecture",
+      "title": "Architecture / trust boundary",
+      "judgeQuestion": "Where does Google end and Interlock begin?",
+      "proofClass": "B",
+      "sourceIssue": "HAC-340",
+      "primaryAsset": "IL-DIAG-012",
+      "surfaces": ["readme", "devpost-architecture-upload"],
+      "note": "Architecture arrives after the result, never before it.",
+      "claimIds": ["CL-015", "CL-016"]
+    },
+    {
+      "order": 9,
+      "stepId": "seq.claim-boundary",
+      "title": "Claim boundary / reproducibility",
+      "judgeQuestion": "What is not being claimed, and where is the proof?",
+      "proofClass": "A+B",
+      "sourceIssue": "HAC-342",
+      "primaryAsset": "IL-PROOF-014",
+      "supportingAssets": ["IL-COCK-013"],
+      "surfaces": ["readme", "devpost-limitations", "video-end"],
+      "claimIds": ["CL-017", "CL-018", "CL-019", "CL-020"]
+    }
+  ],
+  "excludedFromJudgePath": [
+    {
+      "assetId": "IL-DIAG-013",
+      "reason": "HAC-319 evaluation is not bound. The shell stays in the internal registry as EVALUATION NOT YET BOUND and is deliberately kept out of README, Devpost and video assets so no judge reads an unavailable evaluation as a pending result.",
+      "seamPreserved": true
+    },
+    {
+      "assetId": "IL-DIAG-010",
+      "reason": "Conceptual causal architecture is explanatory, not evidence-bound. IL-PROOF-010 carries the causal story in the judge path; IL-DIAG-010 stays available for longer-form explanation without competing with the proof."
+    }
+  ],
+  "historicalProvenanceOmitted": {
+    "issue": "HAC-316",
+    "reason": "Failed/pivoted provenance. Omitted from the judge path entirely rather than explained; it is not a co-equal proof source and mentioning it in a judge surface invites reading it as one."
+  }
+}

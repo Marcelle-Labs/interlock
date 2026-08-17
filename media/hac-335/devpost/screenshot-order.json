@@ -1,0 +1,105 @@
+{
+  "manifestId": "HAC-335-devpost-screenshot-order",
+  "revision": "r01",
+  "issue": "HAC-335",
+  "note": "Deterministic upload order for the Devpost gallery. Ordered for judge comprehension, not asset variety: each frame answers a question no other frame answers. Upload in this order; the gallery order is the argument.",
+  "thumbnail": {
+    "assetId": "IL-PROOF-010",
+    "file": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1200x675-runhac330local.png",
+    "width": 1200,
+    "height": 675,
+    "proposition": "Without Interlock the joint outcome is invalid; with Interlock it is within the bound.",
+    "rationale": "A single proposition, not architecture density. The hero is the causal counterfactual — never the cockpit, and never a diagram."
+  },
+  "architectureUpload": {
+    "assetId": "IL-DIAG-012",
+    "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png",
+    "width": 1920,
+    "height": 1080,
+    "rationale": "The exact deployment and trust boundaries, including what is absent from the deployment. Selected from the canonical HAC-334 suite; no new architecture was authored for the upload slot."
+  },
+  "screenshots": [
+    {
+      "order": 1,
+      "assetId": "IL-PROOF-010",
+      "file": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1200x675-runhac330local.png",
+      "proofClass": "A",
+      "judgeQuestion": "What changed because Interlock existed?",
+      "caption": "Controlled local experiment (HAC-330). Two locally valid intents, one shared environment bounded at 130. Without Interlock: 140 > 130, an invalid joint state. With Interlock: WITHHOLD_SERIALIZE, and 120 <= 130. Checks 24/24."
+    },
+    {
+      "order": 2,
+      "assetId": "IL-PROOF-011",
+      "file": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1200x675-runhac330local.png",
+      "proofClass": "A",
+      "judgeQuestion": "How do I know the evidence did the work?",
+      "caption": "Change the environment evidence and the decision changes: ALLOW_PARALLEL, and the outcome returns to 140 > 130. Both arms are recorded results; nothing is re-run to produce this comparison."
+    },
+    {
+      "order": 3,
+      "assetId": "IL-COCK-010",
+      "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x507-runhac330local.png",
+      "proofClass": "A",
+      "judgeQuestion": "Can I verify this myself?",
+      "caption": "The Run — a real capture of the judge verification surface at ?run=hac330-local&proof=local&state=run.local.treatment. Every value is read from the frozen record; nothing executes in the browser."
+    },
+    {
+      "order": 4,
+      "assetId": "IL-DIAG-011",
+      "file": "media/hac-334/exports/IL-DIAG-011-cloud-participation-1200x675-runilkhac340cloud1786730369123.png",
+      "proofClass": "B",
+      "judgeQuestion": "What actually ran on Google Cloud?",
+      "caption": "A different run, with different evidence. Google Cloud participation (HAC-340): gemini-3.5-flash through Google ADK 1.35.1 and Vertex AI, from a Cloud Run agent, through the Interlock MCP proxy, to ALLOW + receipt, EXECUTED, and an independently authenticated read-back observing alpha=45. This is not the HAC-330 counterfactual."
+    },
+    {
+      "order": 5,
+      "assetId": "IL-COCK-012",
+      "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x619-runilkhac340cloud1786730369123.png",
+      "proofClass": "B",
+      "judgeQuestion": "Where does Google end and Interlock begin?",
+      "caption": "The same verification surface, switched to the cloud run. Lanes attribute each hop: Google, Interlock, protected target, independent observer. EXECUTED and OBSERVED stay distinct."
+    },
+    {
+      "order": 6,
+      "assetId": "IL-PROOF-013",
+      "file": "media/hac-334/exports/IL-PROOF-013-fail-closed-controls-1200x675-runilkhac340cloud1786730369123.png",
+      "proofClass": "B",
+      "judgeQuestion": "What happens when the caller is wrong?",
+      "caption": "Three recorded fail-closed refusals: forged identity header 403, invalid bearer token 401, direct target bypass without receipt 403. Three controls, not comprehensive attack coverage."
+    },
+    {
+      "order": 7,
+      "assetId": "IL-COCK-013",
+      "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x640-runilkhac340cloud1786730369123.png",
+      "proofClass": "B",
+      "judgeQuestion": "Where is the immutable evidence, and what is withheld?",
+      "caption": "Evidence pinned to a commit rather than a branch, transport provenance kept separate from application provenance, and the runtime source URL rendered as unavailable / non-public rather than fabricated."
+    },
+    {
+      "order": 8,
+      "assetId": "IL-DIAG-012",
+      "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1200x675-runilkhac340cloud1786730369123.png",
+      "proofClass": "B",
+      "judgeQuestion": "What is the exact deployment and trust boundary?",
+      "caption": "Cloud Run IAM establishes transport provenance; the Interlock decision and receipt are application provenance. They do not collapse. Agent Runtime, Agent Gateway and CONTENT_AUTHZ are absent from this deployment."
+    },
+    {
+      "order": 9,
+      "assetId": "IL-PROOF-014",
+      "file": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1200x675.png",
+      "proofClass": "A+B",
+      "judgeQuestion": "What is not being claimed?",
+      "caption": "Two runs, two proof classes, and an explicit not-claimed column. Neither proof class is evidence for the other."
+    }
+  ],
+  "excluded": [
+    {
+      "assetId": "IL-DIAG-013",
+      "reason": "HAC-319 evaluation is not bound. Excluded so an unavailable evaluation cannot read as a pending result."
+    },
+    {
+      "assetId": "IL-COCK-011",
+      "reason": "The perturbation is already carried by IL-PROOF-011 at order 2. A second frame of the same argument would add variety without adding a judge question."
+    }
+  ]
+}
