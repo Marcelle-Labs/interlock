@@ -80,6 +80,18 @@ separately and lets no claim cross between them. The gate fails if a class A
 board grows cloud apparatus, if a class B board grows the counterfactual, or if
 any single board renders both `140 > 130` and `alpha=45`.
 
+## The hero, and what is not
+
+`IL-PROOF-010` is the primary judge-facing visual — it, or its five-second
+derivative, is what a README, a Devpost thumbnail, a social image or an opening
+frame leads with. Behaviour change precedes architecture: the causal delta is the
+proof, and the architecture boards verify it afterwards.
+
+The HAC-341 cockpit is **not** the hero. It answers *can I verify this?* and
+belongs after the causal visual, cropped and framed rather than pasted in as a
+full-viewport screenshot. See `media/hac-341/README.md` for the permitted crops
+and the attribution a composed asset has to carry.
+
 ## The assets
 
 | Id | Board | Class | Answers |

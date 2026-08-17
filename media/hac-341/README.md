@@ -163,11 +163,19 @@ any of this. Reopen if a concrete capture or comprehension failure earns it.
 
 ## Accessibility
 
-Skip link; nine focusables in reading order, each with an accessible name; H1 →
-H2 → H3 hierarchy; `aria-pressed` on both toggles; drawer as
-`role="dialog" aria-modal="true"` with focus moved in on open and **returned to
-the trigger** on close; Escape closes; `aria-live` announces state changes; state
-carries a glyph and a text verdict, never colour alone. Verified in a browser.
+Skip link; focusables in reading order, each with an accessible name; H1 → H2 →
+H3 hierarchy, where the H1 is the proof class — the thing this page is about and
+the thing that changes when you switch; `aria-pressed` on both toggles;
+`aria-live` announces state changes; state carries a glyph and a text verdict,
+never colour alone. Verified in a browser.
+
+The evidence panel is **non-modal, by contract**. It was briefly implemented with
+`showModal()` and a dimming backdrop, which made L1 inert and darkened the causal
+column the panel exists to explain — the opposite of the intent stated under
+Layers above. It is now an anchored `aside`: no backdrop, no focus trap, focus
+moves in on open and **returns to the trigger** on close, Escape closes, an
+explicit close control exists, and the run stays reachable by keyboard behind it.
+The panel is `inert` only while closed.
 
 ## Verify
 
@@ -182,10 +190,54 @@ decision drifting from the frozen record; the baseline gaining a decision;
 labelled as a cloud control; an evidence link on a branch; a fabricated
 `runtimeSourceUrl` or `hac330VerifierUrl`; the source packet claimed as
 published; silent substitution enabled; a missing degraded state; a HAC-319
-metric; an unevidenced revision; a lost `aria-modal`, reduced-motion rule or
-substitution refusal; storyboard/cockpit vocabulary divergence.
+metric; an unevidenced revision; a lost reduced-motion rule or substitution
+refusal; storyboard/cockpit vocabulary divergence; and the evidence panel
+becoming modal, acquiring a backdrop, losing Escape or its close control, or
+making the run inert while open.
 
-**20 negative cases** were confirmed to fire.
+`scripts/check-identity.mjs` covers the identity half: the canonical mark
+approximated in CSS, geometry drift, a font CDN appearing, a vendored face
+failing its digest, the two surfaces resolving different identity authorities,
+or a manifest citing an identity asset the repository lacks.
+
+**20 negative cases** were confirmed to fire on the original gate; the identity
+and evidence-panel invariants add **16 more**, in
+`test/hac-341-identity-gates.test.mjs`.
+
+## Downstream use — this is a verification surface, not the hero
+
+The cockpit answers one judge question: *can I verify this?* It is not the
+opening artifact, and a full-viewport screenshot of it is not a hero image.
+
+**Do not** use an uncropped full-page cockpit capture as the primary README
+image, the Devpost thumbnail, a social image, or the first thing a judge sees.
+The hero is HAC-334's causal master `IL-PROOF-010`, or its five-second
+derivative. The preferred order is:
+
+```
+causal visual  ->  concise explanatory copy  ->  cropped cockpit verification frame
+```
+
+A composed asset **may** crop the capture or place it inside a branded
+deterministic frame. The cockpit pixels and content inside that frame must stay
+unmodified, and the asset must identify it as a real capture rather than a
+diagram — the run identity and the deep-link address it was captured from, so a
+crop cannot drift into reading as a rendered claim.
+
+Strongest crops, measured at 1440x900:
+
+| Class | Region | Must survive the crop |
+| --- | --- | --- |
+| A · local | header through the actions row, ~top 500px | lockup, `CONTROLLED LOCAL EXPERIMENT`, checks 24/24, both intents, `COUPLED` with `joint bound <= 130`, `WITHHOLD_SERIALIZE`, and `140 > 130` beside `120 <= 130` |
+| B · cloud | header through the controls row, ~top 600px | the lane-attributed path from Google to Interlock to protected target to independent observer, `ALLOW + receipt`, `EXECUTED`, `alpha=45`, `403 / 401 / 403`, and the not-on-the-recorded-path strip |
+
+Both crops drop only unused canvas. The lane column in the cloud view is what
+lets that crop stand alone: it answers *where does Google end and Interlock
+begin* without the surrounding page.
+
+The complete uncropped surface remains the underlying verification target and
+the reproducible HAC-324 capture target. Emptiness below the fold is expected
+there and is not a defect — this surface is read, not framed.
 
 ## Cold-read protocol — NOT YET RUN
 
