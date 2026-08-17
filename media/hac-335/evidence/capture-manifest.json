@@ -2,11 +2,11 @@
   "manifestId": "HAC-335-capture-manifest",
   "issue": "HAC-335",
   "generator": "media/hac-335/bin/capture-cockpit.mjs",
-  "capturedFromSha": "fa4ce75e0d4aacff01832313676872442fd458be",
+  "capturedFromSha": "64b01426a3fc4e12b4639139f64d21bab888a3c3",
   "capturedSurface": "media/hac-341/cockpit.html (merged executable surface)",
   "servedFrom": "repository root — the cockpit resolves shared identity from /assets",
   "viewport": "1440x900",
-  "captureSourceDigest": "ad86fbcb729e739123e0815eb21bd30a436738794bde223e575123a7a120342f",
+  "captureSourceDigest": "5e2a63451972b58bd787fb6360e32361da0246de45f14fa223e38a1fd5db61a8",
   "captureSourceFiles": [
     "assets/fonts/geist-mono-variable.woff2",
     "assets/fonts/geist-variable.woff2",

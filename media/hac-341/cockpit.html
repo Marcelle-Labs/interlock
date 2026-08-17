@@ -164,7 +164,7 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{background:var(--pa
 .delta .dar{font-size:15px;opacity:.55}
 .delta .dv{font-family:var(--mono);font-size:20px;font-weight:600}
 .delta[data-holds="false"] .dv{color:var(--failed)}
-.delta .ddetail{font-size:10px;opacity:.62;margin-top:7px;line-height:1.45;word-break:break-word}
+.delta .ddetail{font-size:10px;opacity:.62;margin-top:7px;line-height:1.45;overflow-wrap:anywhere}
 
 .decision{margin-top:0;border:1px solid var(--border-default);border-left:3px solid currentColor;
   border-radius:3px;padding:12px 16px;background:var(--surface-card)}
@@ -622,9 +622,23 @@ const switchHtml = (cur) => `<div class="switch"><span class="k">PROOF</span><di
 let copySeq = 0;
 /** A value plus an offline copy control. The evidence text is never altered. */
 function copyable(value, label) {
-  const id = `cp-${(copySeq += 1)}`;
+  copySeq += 1;
+  const id = `cp-${copySeq}`;
   return `<span id="${id}">${esc(value)}</span>`
     + `<button class="copy" data-copy="${id}" aria-label="Copy ${esc(label)}">Copy</button>`;
+}
+
+/**
+ * One recorded arm's evidence, in that arm's own terms. Extracted so the
+ * panel's markup does not nest a conditional inside a conditional inside two
+ * levels of template.
+ */
+function armEvidenceRow(a) {
+  if (!a.basisRevision) return 'Interlock disabled — evidence not consulted';
+  const basis = `basis ${copyable(a.basisRevision, `the ${a.armId} basis revision`)}`;
+  const cp = (a.couplings ?? [])[0];
+  if (!cp) return `${basis} · no qualifying coupling`;
+  return `${basis} · coupling support ${esc(cp.support)}/${esc(cp.occurrences)}`;
 }
 
 function drawerHtml(kind, proof, run) {
@@ -651,11 +665,7 @@ function localVerify(run) {
   const cmdId = 'cp-cmd';
   return `
       <section><h3>Evidence, by recorded arm</h3><dl class="kv">
-        ${run.arms.map((a) => `<dt>${esc(a.armId)}</dt><dd>${a.basisRevision
-          ? `basis ${copyable(a.basisRevision, `the ${a.armId} basis revision`)}`
-          : 'Interlock disabled — evidence not consulted'}${(a.couplings ?? []).length
-            ? ` · coupling support ${esc(a.couplings[0].support)}/${esc(a.couplings[0].occurrences)}`
-            : a.basisRevision ? ' · no qualifying coupling' : ''}</dd>`).join('')}
+        ${run.arms.map((a) => `<dt>${esc(a.armId)}</dt><dd>${armEvidenceRow(a)}</dd>`).join('')}
       </dl><p class="note">Each arm carries its own basis. The perturbed arm was decided on a different mined history, which is why its decision differs.</p></section>
       <section><h3>Environment</h3><dl class="kv">
         <dt>source</dt><dd>${esc(ev.source)}</dd>
@@ -810,45 +820,64 @@ function markArmChange() {
   }
 }
 
-function resolve() {
-  const q = params();
+/**
+ * Resolve an address to a renderable state, or to the address that earned a
+ * refusal. Returns `{ missing }` — the requested address, echoed back — or
+ * `{ proof, state, armId }`. Every guard here refuses rather than correcting:
+ * a cloud state under the local class is not quietly fixed up, and no branch
+ * falls through to the canonical run.
+ */
+function route(q) {
   const runId = q.get('run') ?? 'hac330-local';
   const proof = q.get('proof') ?? (runId === 'hac340-cloud' ? 'cloud' : 'local');
   let state = q.get('state') ?? (proof === 'cloud' ? 'run.cloud.overview' : 'run.local.overview');
   if (state === 'run.local.overview') state = MODEL.deepLink.aliases['run.local.overview'];
 
   const known = { 'hac330-local': 'local', 'hac340-cloud': 'cloud' };
+  if (!(runId in known)) return { missing: `run=${runId}` };
+  if (known[runId] !== proof) return { missing: `run=${runId}&proof=${proof}` };
+
+  const wantsLocal = state.startsWith('run.local.');
+  const wantsCloud = state.startsWith('run.cloud.');
+  if ((wantsLocal && proof !== 'local') || (wantsCloud && proof !== 'cloud')) {
+    return { missing: `proof=${proof}&state=${state}` };
+  }
+  if (proof === 'cloud') {
+    if (state !== 'run.cloud.overview') return { missing: `state=${state}` };
+    return { proof, state };
+  }
+  const armId = state.replace('run.local.', '');
+  if (!MODEL.runs.local.arms.some((a) => a.armId === armId)) return { missing: `state=${state}` };
+  return { proof, state, armId };
+}
+
+function renderRoute(r) {
+  if (r.proof === 'local') {
+    document.body.dataset.proof = 'local';
+    const changed = lastLocalArm !== null && lastLocalArm !== r.armId;
+    app.innerHTML = renderLocal(MODEL.runs.local, r.armId);
+    if (changed) markArmChange();
+    lastLocalArm = r.armId;
+    return;
+  }
+  document.body.dataset.proof = 'cloud';
+  app.innerHTML = renderCloud(MODEL.runs.cloud);
+  lastLocalArm = null;
+}
+
+function resolve() {
+  const q = params();
   // Deterministic hook for the declared degraded states that no ordinary
   // address reaches. Every state in the view model must be renderable and
   // capturable; a state that can only be described is a state nobody has seen.
   // This is a capture and test affordance, not a navigation entry: it never
   // fires unless explicitly asked for, and it never substitutes a real run.
   if (q.get('degraded')) return renderForcedDegraded(q.get('degraded'));
-  if (!(runId in known)) return degraded('run.missing', `run=${runId}`);
-  if (known[runId] !== proof) return degraded('run.missing', `run=${runId}&proof=${proof}`);
-  // proof and state must agree; a cloud state under the local class is not corrected
-  const wantsLocal = state.startsWith('run.local.');
-  const wantsCloud = state.startsWith('run.cloud.');
-  if ((wantsLocal && proof !== 'local') || (wantsCloud && proof !== 'cloud')) {
-    return degraded('run.missing', `proof=${proof}&state=${state}`);
-  }
-  if (proof === 'local') {
-    const armId = state.replace('run.local.', '');
-    const valid = MODEL.runs.local.arms.some((a) => a.armId === armId);
-    if (!valid) return degraded('run.missing', `state=${state}`);
-    document.body.dataset.proof = 'local';
-    const changed = lastLocalArm !== null && lastLocalArm !== armId;
-    app.innerHTML = renderLocal(MODEL.runs.local, armId);
-    if (changed) markArmChange();
-    lastLocalArm = armId;
-  } else {
-    if (state !== 'run.cloud.overview') return degraded('run.missing', `state=${state}`);
-    document.body.dataset.proof = 'cloud';
-    app.innerHTML = renderCloud(MODEL.runs.cloud);
-    lastLocalArm = null;
-  }
-  document.documentElement.dataset.semanticState = state;
-  live.textContent = `${current().run.proofLabel} · ${state}`;
+  const r = route(q);
+  if (r.missing) return degraded('run.missing', r.missing);
+  renderRoute(r);
+  document.documentElement.dataset.semanticState = r.state;
+  live.textContent = `${current().run.proofLabel} · ${r.state}`;
 }
 function go(next, replace) {
   const q = params();

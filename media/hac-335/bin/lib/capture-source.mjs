@@ -39,6 +39,19 @@ const SWEPT = [
   ['assets/fonts', /\.woff2$/],
 ];
 
+/**
+ * Byte-stable ordering.
+ *
+ * Deliberately **not** `localeCompare`, which is the usual advice for an
+ * unparameterised `sort()`: this ordering feeds a digest that CI and a laptop
+ * have to agree on, and locale-aware collation is not guaranteed identical
+ * across environments or ICU builds. Comparing code units is.
+ */
+const byPath = (a, b) => {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+};
+
 /** Every file whose bytes can change what a capture looks like, sorted. */
 export function captureSourceFiles(root) {
   const files = [...EXPLICIT];
@@ -49,7 +62,7 @@ export function captureSourceFiles(root) {
       if (pattern.test(name)) files.push(`${dir}/${name}`);
     }
   }
-  return files.sort();
+  return files.sort(byPath);
 }
 
 /**
