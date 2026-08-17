@@ -225,3 +225,168 @@ describe('the evidence panel preserves causal context', () => {
     expect(r.out).toMatch(/closed evidence panel stays reachable/);
   });
 });
+
+/**
+ * The corrective pass added one class of defect the earlier gate could not see:
+ * the cockpit read `environmentEvidence[0]` for every arm, so the perturbed arm
+ * rendered the treatment's basis and `coupling support 8/10` directly above
+ * `NO_QUALIFYING_COUPLING`. Every case below perturbs the binding rather than a
+ * string, so a check that only greps the markup cannot pass them.
+ */
+describe('the selected arm drives its own evidence', () => {
+  const gate = 'media/hac-341/bin/verify-cockpit.mjs';
+  const VM = 'media/hac-341/evidence/view-model.json';
+  const ARM_VIEW = 'media/hac-341/lib/arm-view.mjs';
+
+  const withModel = (mutate) => (a) => {
+    const m = JSON.parse(a.read(VM));
+    mutate(m);
+    a.write(VM, `${JSON.stringify(m, null, 2)}\n`);
+  };
+  const arm = (m, id) => m.runs.local.arms.find((x) => x.armId === id);
+
+  it('accepts the repository as built', () => {
+    const r = run(pristine, gate);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('HAC-341 cockpit verified');
+  });
+
+  it('fails when the derivation stops reading the arm basis', () => {
+    const r = perturbed((a) => {
+      a.edit(ARM_VIEW, 'basis: arm.basisRevision ?? null,', 'basis: env.basisRevision ?? null,');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/renders basis .* but its frozen basis is/);
+  });
+
+  it('fails when the derivation stops reading the arm couplings', () => {
+    const r = perturbed((a) => {
+      a.edit(ARM_VIEW, 'couplings: arm.couplings ?? [],', 'couplings: env.coupling ?? [],');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/coupling\(s\); the frozen arm records|draws COUPLED without a recorded coupling/);
+  });
+
+  it('fails when a disabled arm is drawn as coupled', () => {
+    const r = perturbed((a) => {
+      a.edit(ARM_VIEW, "consulted: arm.interlock === 'enabled',", 'consulted: true,');
+      const m = JSON.parse(a.read(VM));
+      arm(m, 'baseline').couplings = [{ intents: ['A', 'B'], files: ['x'], support: 8, occurrences: 10 }];
+      a.write(VM, `${JSON.stringify(m, null, 2)}\n`);
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/draws COUPLED although Interlock was disabled/);
+  });
+
+  it('fails when the perturbed arm shares the default arm basis', () => {
+    const r = perturbed(withModel((m) => {
+      arm(m, 'perturbed').basisRevision = arm(m, 'treatment').basisRevision;
+    }), gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/shares the default arm basis|does not report changed evidence/);
+  });
+
+  it('fails when an arm records a coupling its own reason denies', () => {
+    const r = perturbed(withModel((m) => {
+      arm(m, 'perturbed').couplings = [{ intents: ['A', 'B'], files: ['x'], support: 8, occurrences: 10 }];
+    }), gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/decided NO_QUALIFYING_COUPLING while recording/);
+  });
+
+  it('fails when an arm claims an observed coupling it does not record', () => {
+    const r = perturbed(withModel((m) => { delete arm(m, 'treatment').couplings; }), gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/decided COUPLING_OBSERVED with no recorded coupling/);
+  });
+
+  it('fails when the baseline is compared against itself', () => {
+    const r = perturbed((a) => {
+      a.edit(ARM_VIEW, "if (arm.armId === baseline?.armId) return [{ ...selected, key: 'only' }];", '');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/compares against itself/);
+  });
+
+  it('fails when an arm stops being rendered beside the baseline', () => {
+    const r = perturbed((a) => {
+      a.edit(ARM_VIEW, '  return [\n    {\n      key: \'reference\',', '  return [\n    {\n      key: \'reference\',');
+      a.edit(ARM_VIEW, 'return [\n    {', 'return [\n    // eslint-disable-next-line\n    {');
+      a.edit(ARM_VIEW, '    selected,\n  ];', '  ];');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/is not rendered against the baseline|does not keep the baseline/);
+  });
+
+  it('fails when the cockpit stops consuming the shared derivation', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', "import { armView } from './lib/arm-view.mjs';", '');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/does not consume the shared arm-view derivation/);
+  });
+
+  it('fails when the cockpit reads a basis off the environment again', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', 'const short =',
+        'const legacyBasis = (run) => run.environmentEvidence[0].basisRevision;\nconst short =');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/reads a basis revision off the environment/);
+  });
+
+  it('fails when the proof switch stops naming a class from its own label', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', '${esc(MODEL.runs.local.proofLabel)}', 'Controlled causal experiment');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/does not name the local class from its own proofLabel/);
+  });
+});
+
+describe('the evidence panel stays usable', () => {
+  const gate = 'media/hac-341/bin/verify-cockpit.mjs';
+
+  it('fails when raw proof is clipped by a fixed height again', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', 'pre{background:rgba(128,128,128,.14);',
+        'pre{max-height:270px;background:rgba(128,128,128,.14);');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/raw proof is clipped by a fixed max-height/);
+  });
+
+  it('fails when the run stops yielding space to the panel', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', 'body[data-drawer="open"] main.frame{max-width:calc(100vw - var(--drawer-w));',
+        'body[data-drawer="open"] .nothing{max-width:calc(100vw - var(--drawer-w));');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/does not yield space when the panel opens/);
+  });
+
+  it('fails when the copy control disappears', () => {
+    const r = perturbed((a) => {
+      a.write('media/hac-341/cockpit.html', a.read('media/hac-341/cockpit.html').replaceAll('data-copy=', 'data-nocopy='));
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/no copy control exists/);
+  });
+
+  it('fails when copy loses its offline fallback', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', "ok = document.execCommand('copy');", 'ok = false;');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/no offline fallback/);
+  });
+
+  it('fails when motion is made to loop', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', 'animation:il-step-in var(--dur-base,220ms) var(--ease-standard) both',
+        'animation:il-step-in var(--dur-base,220ms) var(--ease-standard) infinite');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/looping animation/);
+  });
+});

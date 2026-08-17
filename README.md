@@ -46,7 +46,7 @@ displayed; nothing is executed to produce this comparison.
 The Run is a verification surface over one pinned, frozen evidence object.
 Nothing in it executes — every value is read out of a frozen record.
 
-![The Run cockpit rendering the HAC-330 treatment arm: run identity hac330-local, checks 24/24, two intents marked locally valid, a coupled shared environment with joint bound 130, the WITHHOLD_SERIALIZE decision, and 140 > 130 beside 120 <= 130.](media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x507-runhac330local.png)
+![The Run cockpit rendering the HAC-330 treatment arm: run identity hac330-local, checks 24/24, two intents marked locally valid, a coupled shared environment with joint bound 130, the WITHHOLD_SERIALIZE decision, and 140 > 130 beside 120 <= 130.](media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x566-runhac330local.png)
 
 <sub>Real capture of `media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1` at 1440×900, cropped to the rendered content.</sub>
 

@@ -21,12 +21,12 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const NEEDED = [
   'README.md',
   'scripts/export-naming.mjs',
-  'assets/logo',
+  'assets',
   'media/hac-335',
   'media/hac-334/evidence',
   'media/hac-334/exports',
   'media/hac-333/scene-manifest.json',
-  'media/hac-341/evidence/view-model.json',
+  'media/hac-341',
   'experiments/hac-330/evidence/arms.json',
   'experiments/hac-330/evidence/results.json',
   'experiments/hac-342/evidence/cloud-run.public.json',
@@ -422,5 +422,82 @@ describe('sequence order is the argument', () => {
     });
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/hero is not IL-PROOF-010/);
+  });
+});
+
+/**
+ * Capture freshness.
+ *
+ * `capturedFromSha` was recorded and never compared to anything, so editing the
+ * cockpit after a capture left four stale screenshots in the judge package with
+ * no mechanical signal. These cases perturb the *render sources* rather than the
+ * manifest, which is the direction that actually happens: someone improves the
+ * cockpit and forgets the frames.
+ */
+describe('cockpit captures cannot silently go stale', () => {
+  const MANIFEST = 'media/hac-335/evidence/capture-manifest.json';
+
+  it('fails when the cockpit changes without a recapture', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', '<title>', '<title>changed ');
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/cockpit render sources changed since these captures were taken/);
+  });
+
+  it('fails when the view model changes without a recapture', () => {
+    const r = perturbed((a) => {
+      const m = a.json('media/hac-341/evidence/view-model.json');
+      m.runs.local.editorial.verdict = `${m.runs.local.editorial.verdict} `;
+      a.writeJson('media/hac-341/evidence/view-model.json', m);
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/cockpit render sources changed/);
+  });
+
+  it('fails when a shared identity token changes without a recapture', () => {
+    const r = perturbed((a) => {
+      a.append('assets/tokens/colors.css', '/* nudged */');
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/cockpit render sources changed/);
+  });
+
+  it('fails when the arm derivation changes without a recapture', () => {
+    const r = perturbed((a) => {
+      a.append('media/hac-341/lib/arm-view.mjs', '/* nudged */');
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/cockpit render sources changed/);
+  });
+
+  it('fails when the recorded digest is removed', () => {
+    const r = perturbed((a) => {
+      const m = a.json(MANIFEST);
+      delete m.captureSourceDigest;
+      a.writeJson(MANIFEST, m);
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/records no captureSourceDigest/);
+  });
+
+  it('fails when the digest is edited to agree with itself', () => {
+    const r = perturbed((a) => {
+      const m = a.json(MANIFEST);
+      m.captureSourceDigest = 'f'.repeat(64);
+      a.writeJson(MANIFEST, m);
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/cockpit render sources changed/);
+  });
+
+  it('fails when the declared source coverage is narrowed', () => {
+    const r = perturbed((a) => {
+      const m = a.json(MANIFEST);
+      m.captureSourceFiles = m.captureSourceFiles.filter((f) => !f.endsWith('cockpit.html'));
+      a.writeJson(MANIFEST, m);
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/capture source coverage narrowed/);
   });
 });

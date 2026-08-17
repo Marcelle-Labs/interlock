@@ -14,6 +14,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { armView } from '../lib/arm-view.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..', '..', '..');
@@ -70,6 +71,118 @@ if ('decision' in (local.arms.find((a) => a.armId === 'baseline') ?? {})) {
   fail('the baseline arm has a decision; Interlock was disabled in that arm');
 }
 if (local.verification.hac330VerifierUrl) fail('a HAC-330 verifier URL was invented; this class has only a command');
+
+/* --- the selected arm drives its own evidence --------------------------- */
+
+/**
+ * The defect these replace: the cockpit read `environmentEvidence[0]` for every
+ * arm, so selecting the perturbed arm changed the decision and the outcome but
+ * left the treatment's basis revision and `coupling support 8/10` on screen.
+ * The surface asserted a coupling and its absence about eighty pixels apart,
+ * and the perturbation — which exists to show the evidence is load-bearing —
+ * taught the opposite: same evidence, different decision.
+ *
+ * These run through `armView`, the derivation the cockpit itself renders from,
+ * so a rewiring of the binding fails here rather than a changed string.
+ */
+for (const arm of local.arms) {
+  const v = armView(local, arm.armId);
+  if (v.arm.armId !== arm.armId) { fail(`selecting arm ${arm.armId} resolves to ${v.arm.armId}`); continue; }
+  if ((v.evidence.basis ?? null) !== (arm.basisRevision ?? null)) {
+    fail(`arm ${arm.armId} renders basis ${v.evidence.basis} but its frozen basis is ${arm.basisRevision}`);
+  }
+  const frozenCouplings = (arm.couplings ?? []).length;
+  if (v.evidence.couplings.length !== frozenCouplings) {
+    fail(`arm ${arm.armId} renders ${v.evidence.couplings.length} coupling(s); the frozen arm records ${frozenCouplings}`);
+  }
+  // A coupled state may only be drawn where that arm's own evidence establishes one.
+  if (v.coupled && !frozenCouplings) fail(`arm ${arm.armId} draws COUPLED without a recorded coupling`);
+  if (v.coupled && arm.interlock !== 'enabled') {
+    fail(`arm ${arm.armId} draws COUPLED although Interlock was ${arm.interlock}`);
+  }
+}
+
+// An arm may not record evidence that contradicts its own reason. This is the
+// shape the rendering defect had — a coupling asserted beside a decision that
+// says none qualified — and it is worth refusing in the data as well.
+for (const arm of local.arms) {
+  const couplings = (arm.couplings ?? []).length;
+  if (arm.decisionReason === 'NO_QUALIFYING_COUPLING' && couplings) {
+    fail(`arm ${arm.armId} decided NO_QUALIFYING_COUPLING while recording ${couplings} coupling(s)`);
+  }
+  if (arm.decisionReason === 'COUPLING_OBSERVED' && !couplings) {
+    fail(`arm ${arm.armId} decided COUPLING_OBSERVED with no recorded coupling`);
+  }
+}
+
+// The baseline compared against itself is not a counterfactual. It rendered as
+// two identical cards and read as a rendering bug.
+const baselineArm = local.arms.find((a) => a.interlock === 'disabled');
+if (!baselineArm) fail('no arm records Interlock disabled; the counterfactual has no baseline');
+else {
+  if (armView(local, baselineArm.armId).comparison.length !== 1) {
+    fail('selecting the baseline renders more than one outcome row; it compares against itself');
+  }
+  for (const other of local.arms.filter((a) => a.armId !== baselineArm.armId)) {
+    const cmp = armView(local, other.armId).comparison;
+    if (cmp.length !== 2) fail(`arm ${other.armId} is not rendered against the baseline`);
+    else if (cmp[0].armId !== baselineArm.armId || cmp[1].armId !== other.armId) {
+      fail(`arm ${other.armId} does not keep the baseline beside its own outcome`);
+    }
+  }
+}
+
+// The perturbation is only legible as a change *from* the default arm.
+const defaultArm = local.arms.find((a) => a.armId === local.defaultArm);
+const perturbedArm = local.arms.find((a) => a.armId === 'perturbed');
+if (defaultArm && perturbedArm) {
+  if (defaultArm.basisRevision === perturbedArm.basisRevision) {
+    fail('the perturbed arm shares the default arm basis; the perturbation would render identical evidence');
+  }
+  if (!armView(local, 'perturbed').evidenceChanged) {
+    fail('the perturbed arm does not report changed evidence; the falsification stays invisible');
+  }
+  if (armView(local, local.defaultArm).evidenceChanged) {
+    fail('the default arm reports changed evidence against itself');
+  }
+}
+
+// The cockpit must consume that derivation rather than re-deriving it inline.
+if (!/from '\.\/lib\/arm-view\.mjs'/.test(cockpit)) {
+  fail('cockpit does not consume the shared arm-view derivation');
+}
+if (/environmentEvidence\[0\][^\n]*basisRevision|basisRevision[^\n]*environmentEvidence\[0\]/.test(cockpit)) {
+  fail('cockpit reads a basis revision off the environment, bypassing the selected arm');
+}
+// One proof class, one name: the switch and the heading may not drift apart.
+for (const cls of ['local', 'cloud']) {
+  if (!new RegExp(String.raw`MODEL\.runs\.${cls}\.proofLabel`).test(cockpit)) {
+    fail(`the proof switch does not name the ${cls} class from its own proofLabel`);
+  }
+}
+
+/* --- the evidence panel stays usable ------------------------------------ */
+
+// Raw proof was boxed into a fixed 270px window inside a panel that did not
+// scroll: a fifth of it was reachable and the space beneath it sat empty.
+if (/\bpre\s*\{[^}]*max-height/.test(cockpit)) {
+  fail('raw proof is clipped by a fixed max-height; the panel should scroll instead');
+}
+// L2 explains L1's result, so it may not be drawn on top of that result. The
+// frame has to be reduced *by the panel's own width* — matching any rule that
+// merely mentions the frame would accept the narrow-viewport fallback, which
+// sets it back to full width and covers everything.
+if (!/body\[data-drawer="open"\][^{]*\.frame\s*\{[^}]*calc\(100vw - var\(--drawer-w\)\)/.test(cockpit)) {
+  fail('the run does not yield space when the panel opens; the panel covers what it explains');
+}
+if (!/data-copy=/.test(cockpit)) fail('no copy control exists for raw evidence');
+if (!/navigator\.clipboard/.test(cockpit)) fail('copy does not use the native clipboard');
+if (!/execCommand\('copy'\)/.test(cockpit)) fail("copy has no offline fallback for a non-secure context");
+// Motion comes from the frozen tokens, plays once, and never loops.
+if (/animation:[^;]*\binfinite\b/.test(cockpit)) fail('cockpit contains a looping animation');
+if (/\bdata-il-motion\b/.test(cockpit) && !/il-step-in/.test(cockpit)) {
+  fail('cockpit animates without using a frozen motion keyframe');
+}
 
 /* --- class B derives from the published packet ------------------------- */
 

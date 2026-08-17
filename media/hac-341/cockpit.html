@@ -24,6 +24,9 @@
      stack after them is a safety net, not the intended rendering. */
   --sans:var(--font-sans);
   --mono:var(--font-mono);
+  /* One source for the panel width: the drawer is sized from it and the run
+     yields exactly that much space when the panel opens. */
+  --drawer-w:min(560px,50vw);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -50,37 +53,37 @@ h1,h2,h3{font-weight:500;letter-spacing:-.018em}
    desktop and the composition reads as a debug panel. */
 .frame{max-width:var(--width-full,90rem);margin:0 auto;width:100%}
 header{border-bottom:2px solid currentColor;padding:14px 24px 12px;display:flex;
-  align-items:center;gap:22px;flex-wrap:wrap}
+  align-items:center;gap:20px;flex-wrap:wrap}
 /* The canonical lockup, at the size TheRun.dc.html specifies (mark 20px).
    The gap and wordmark size are derived from that one number by the frozen
-   ratios, never set independently. The gate stays closed: it opens only where
-   something was actually authorized, and this surface claims no such state. */
+   ratios, never set independently. */
 .brand{display:inline-flex;align-items:center;gap:5.8px;color:currentColor}
 .brand .mark{display:block;flex:none}
 .brand .word{font-family:var(--sans);font-weight:500;font-size:14.2px;
   letter-spacing:-.03em;line-height:1}
-.brand .leaf{transition:transform var(--dur-gate) var(--ease-mech)}
-.brand[data-gate="open"] .leaf-l{transform:translateX(-1.6px)}
-.brand[data-gate="open"] .leaf-r{transform:translateX(1.6px)}
-@media (prefers-reduced-motion:reduce){.brand .leaf{transition:none}}
-/* "The Run" names the surface; the h1 names what this page is about, which is
-   the proof class — the thing that actually changes when you switch. */
+/* The gate is drawn closed and stays closed. The open-state transform that
+   used to live here was unreachable CSS, and the five-state gate sequence is
+   deliberately not used on this surface: it encodes a review-then-open
+   progression the frozen packets never emitted. */
 .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   opacity:.55;white-space:nowrap}
-.ptitle{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;
+/* The proof class is what this page is about and the thing that changes when
+   you switch, so it outranks the run metadata beside it rather than sharing a
+   tier with it. */
+.ptitle{font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:.10em;
   text-transform:uppercase;padding-left:14px;border-left:1px solid var(--border-default);
   white-space:nowrap}
 .degraded-head{border-bottom:2px solid currentColor;padding:14px 24px 12px;display:flex;
   align-items:center;gap:14px}
-.pin{display:flex;gap:18px;flex:1;flex-wrap:wrap;font-family:var(--mono);font-size:11px}
+.pin{display:flex;gap:16px;flex:1;flex-wrap:wrap;font-family:var(--mono);font-size:11px}
 .pin div{display:flex;flex-direction:column;gap:2px}
 .pin .k{font-size:9px;letter-spacing:.10em;text-transform:uppercase;opacity:.55}
-.pin .v{font-size:11.5px;font-weight:600}
+.pin .v{font-size:11px;font-weight:600;opacity:.9}
 .switch{display:flex;flex-direction:column;gap:3px}
 .switch .k{font-family:var(--mono);font-size:9px;letter-spacing:.12em;opacity:.55}
 .switch .btns{display:flex;border:2px solid currentColor;border-radius:3px;overflow:hidden}
-.switch button{padding:5px 11px;font-size:11px;font-weight:600;font-family:var(--mono);
-  letter-spacing:.03em;white-space:nowrap}
+.switch button{padding:5px 10px;font-size:10px;font-weight:600;font-family:var(--mono);
+  letter-spacing:.05em;white-space:nowrap;text-transform:uppercase}
 .switch button:hover{background:var(--surface-sunken)}
 .switch button[aria-pressed="true"]{background:currentColor}
 .switch button[aria-pressed="true"]:hover{background:currentColor}
@@ -118,26 +121,73 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{background:var(--pa
 .chip[data-s="executed"]{color:var(--executed);border-style:double;border-width:3px}
 .chip[data-s="observed"]{color:var(--observed);border-style:dotted}
 .chip[data-s="blocked"]{color:var(--blocked);border-style:solid;border-width:2px}
-.env{border:2px solid currentColor;border-radius:3px;padding:14px 16px;margin-top:12px;
+
+/* ── causal connectors ──
+   The relationship used to be carried by nothing but stacking order, so the
+   two intents converged on nothing and the decision pointed at no result. The
+   stroke patterns come from the frozen edge grammar rather than being invented
+   here; the connectors are decorative reinforcement of an order the headings
+   and the cause line already state, so they are hidden from assistive tech.
+   Drawn as brackets rather than diagonals on purpose: the strip is ~700px wide
+   and 26px tall, so `preserveAspectRatio:none` compresses the horizontal axis
+   about sevenfold and any diagonal flattens into a near-horizontal line. Right
+   angles survive that distortion and still read as convergence. */
+.cxn{height:26px;margin-bottom:-1px}
+.cxn.short{height:20px}
+.cxn svg{display:block;width:100%;height:100%}
+.cxn path{fill:none;stroke:currentColor;vector-effect:non-scaling-stroke}
+.cxn .e-intent{stroke-width:var(--stroke-1,1.5px);stroke-dasharray:var(--edge-intent-dash,5 4);opacity:.5}
+.cxn .e-couple{stroke-width:var(--stroke-2,2px);opacity:.7}
+
+.env{border:2px solid currentColor;border-radius:3px;padding:14px 16px;
   background:var(--surface-card)}
-.env .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.env .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .env .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--coupled);font-weight:600}
+.env[data-coupled="false"] .lbl{color:inherit;opacity:.7}
 .env .bound{font-family:var(--mono);font-size:17px;font-weight:600}
-.env .attr{font-family:var(--mono);font-size:10px;opacity:.68;margin-top:5px;line-height:1.35}
-.decision{margin-top:12px;border:1px solid var(--border-default);border-left:3px solid currentColor;
+.env .attr{font-family:var(--mono);font-size:10px;opacity:.68;margin-top:5px;line-height:1.4}
+.env .attr b{font-weight:600;opacity:.9}
+
+/* ── the perturbation lesson, stated rather than implied ──
+   This used to live only in 9px helper copy, so the one fact that makes the
+   perturbed arm meaningful — that the evidence itself changed — was the least
+   visible thing on the page. */
+.delta{border:2px solid currentColor;border-radius:3px;padding:11px 14px;margin-top:12px;
+  background:var(--surface-sunken)}
+.delta .dl{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;border:1.5px solid currentColor;
+  border-radius:2px;padding:2px 7px}
+.delta .dtext{font-size:12.5px;margin-top:7px;line-height:1.45}
+.delta .dchain{display:flex;align-items:baseline;gap:9px;margin-top:8px;flex-wrap:wrap}
+.delta .dtok{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.02em}
+.delta .dar{font-size:15px;opacity:.55}
+.delta .dv{font-family:var(--mono);font-size:20px;font-weight:600}
+.delta[data-holds="false"] .dv{color:var(--failed)}
+.delta .ddetail{font-size:10px;opacity:.62;margin-top:7px;line-height:1.45;overflow-wrap:anywhere}
+
+.decision{margin-top:0;border:1px solid var(--border-default);border-left:3px solid currentColor;
   border-radius:3px;padding:12px 16px;background:var(--surface-card)}
-.decision .tok{font-family:var(--mono);font-size:26px;font-weight:500;letter-spacing:.01em}
+.decision .dk{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;opacity:.6;
+  text-transform:uppercase}
+/* The decision is the mechanism; the numerals are the consequence. It used to
+   be set at 26px against 32px numerals and, being the widest object on the
+   page, read as the headline. */
+.decision .tok{font-family:var(--mono);font-size:18px;font-weight:600;letter-spacing:.01em;
+  margin-top:2px}
 .decision .why{font-family:var(--mono);font-size:10px;opacity:.68;margin-top:3px}
 .decision .frozen{font-family:var(--mono);font-size:9px;letter-spacing:.08em;opacity:.55;margin-top:4px}
+.decision .outflow{display:flex;align-items:center;gap:7px;margin-top:9px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.5}
+.decision .outflow .ol{flex:1;border-top:2px solid currentColor}
 
 .results{display:flex;flex-direction:column;gap:8px}
 .res{border:1px solid var(--border-default);border-left:3px solid currentColor;
   border-radius:3px;padding:11px 14px;background:var(--surface-card)}
 .res .v::before{content:attr(data-glyph) " ";font-weight:500}
 .res .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;opacity:.6}
-.res .v{font-family:var(--mono);font-size:32px;font-weight:500;line-height:1.08;margin-top:2px}
-.res .n{font-size:11.5px;opacity:.75;margin-top:2px}
+.res .v{font-family:var(--mono);font-size:40px;font-weight:500;line-height:1.06;margin-top:2px}
+.res .n{font-size:11.5px;opacity:.75;margin-top:3px}
 .res[data-holds="false"]{border-left-color:var(--failed)}
 .res[data-holds="false"] .v{color:var(--failed)}
 /* Satisfied stays ink. The design's green is the authorization-state hue, which
@@ -145,29 +195,50 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{background:var(--pa
    belongs to the cloud class; the check glyph and the verdict line carry the
    state instead. */
 .res[data-holds="true"]{border-left-color:currentColor}
+/* The inbound cause: what produced this number. This is the decision -> outcome
+   link, and it is real text rather than a line, so it survives without vision. */
+.res .cause{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.res .cause .cxl{width:15px;flex:none;border-top:2px solid currentColor;opacity:.45}
+.res .cause .ctok{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;opacity:.82}
+.res[data-row="reference"]{opacity:.9}
+
 .arms{display:flex;gap:6px;margin-top:9px}
 .arms button{flex:1;border:2px solid currentColor;border-radius:3px;padding:6px 5px;
   font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.03em}
 .arms button[aria-pressed="true"]{background:currentColor}
 body[data-proof="local"] .arms button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.armnote{font-family:var(--mono);font-size:9px;opacity:.6;margin-top:5px;line-height:1.4}
+.armnote{font-family:var(--mono);font-size:10px;opacity:.62;margin-top:6px;line-height:1.45}
+.armnote.lead{font-family:var(--sans);font-size:12px;opacity:.85}
+.armnote.lead b{font-weight:600}
 .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
 .actions button{border:2px solid currentColor;border-radius:3px;padding:6px 10px;
   font-size:11.5px;font-weight:600}
 .actions button[data-state="pending"]{border-style:dashed;opacity:.75}
 
-/* ── cloud lanes ── */
-.hops{display:flex;flex-direction:column;gap:4px}
-.hop{display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center;
-  border:1.5px solid var(--n60);border-radius:3px;padding:5px 9px}
+/* ── cloud lanes ──
+   A spine with a node per hop, and the lane named only where it changes, so the
+   recorded sequence reads as one traversed path instead of nine unrelated rows.
+   No ordinal is drawn: the lane attribution is what answers "where does Google
+   end and Interlock begin", and ordinals were deliberately dropped for it. */
+.hops{position:relative;padding-left:19px;display:flex;flex-direction:column;gap:3px}
+.hops::before{content:"";position:absolute;left:5px;top:12px;bottom:12px;
+  border-left:2px solid var(--border-default);opacity:.6}
+.hop{position:relative;display:grid;grid-template-columns:152px 1fr auto;gap:12px;
+  align-items:center;border:1px solid var(--border-hair);border-radius:3px;padding:6px 9px}
+.hop::before{content:"";position:absolute;left:-17px;top:50%;width:7px;height:7px;
+  margin-top:-3.5px;border-radius:50%;background:var(--border-default)}
 .hop .n{font-family:var(--mono);font-size:10px;opacity:.55;letter-spacing:.06em;
-  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  text-transform:uppercase;line-height:1.25}
 .hop .t{font-size:12.5px;font-weight:500}
 .hop .d{font-family:var(--mono);font-size:9.5px;opacity:.68;text-align:right}
-.hop[data-role="decision"]{border-color:var(--executed);border-width:2px;background:var(--surface-sunken)}
-.hop[data-role="effect"]{border-color:var(--executed);border-width:2px;background:var(--surface-sunken)}
+.hop[data-lane="new"]{margin-top:5px}
+.hops .hop:first-child{margin-top:0}
+.hop[data-role="decision"],.hop[data-role="effect"]{border-color:var(--executed);border-width:2px;background:var(--surface-sunken)}
 .hop[data-role="observation"]{border-color:var(--observed);border-width:2px;background:var(--surface-sunken)}
-.notonpath{margin-top:8px;border:1px solid var(--border-default);
+.hop[data-role="decision"]::before,.hop[data-role="effect"]::before{background:var(--executed)}
+.hop[data-role="observation"]::before{background:var(--observed)}
+.notonpath{margin-top:10px;border:1px solid var(--border-default);
   border-left:3px solid var(--blocked);border-radius:3px;padding:8px 12px;
   font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.05em}
 .controls{display:flex;gap:6px;margin-top:8px}
@@ -178,7 +249,7 @@ body[data-proof="local"] .arms button[aria-pressed="true"]{background:var(--ink)
 
 /* ── drawer (L2/L3) — anchored, causal context stays on screen ── */
 .drawer{position:fixed;top:0;right:0;bottom:0;left:auto;max-height:100vh;height:100vh;
-  width:min(560px,50vw);margin:0;border:none;border-left:3px solid currentColor;
+  width:var(--drawer-w);margin:0;border:none;border-left:3px solid currentColor;
   transform:translateX(100%);transition:transform .22s cubic-bezier(.2,.7,.3,1);
   overflow-y:auto;padding:18px 22px}
 /* No backdrop. L2 explains L1, so L1 must stay lit and readable behind it.
@@ -191,27 +262,48 @@ body[data-proof="cloud"] .drawer{background:var(--n95);color:var(--paper)}
 .drawer .sub{font-family:var(--mono);font-size:10px;opacity:.6;margin-bottom:14px}
 .drawer section{margin-bottom:15px}
 .drawer h3{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
-  opacity:.62;margin-bottom:5px}
+  opacity:.62;margin-bottom:5px;display:flex;align-items:center;gap:8px}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-family:var(--mono);font-size:11px}
 .kv dt{opacity:.6}.kv dd{word-break:break-all}
 .drawer a{color:var(--coupled);text-decoration:underline;text-underline-offset:2px}
 .drawer .close{position:absolute;top:14px;right:18px;font-size:22px;line-height:1;padding:2px 7px;
   border:2px solid currentColor;border-radius:3px}
 .unavail{border:2px dashed var(--n40);border-radius:3px;padding:8px 11px;font-size:11.5px;opacity:.85}
+/* Raw proof is read, so it is not boxed into a fixed 270px window while the
+   panel below it sits empty; the panel scrolls and the block shows its content. */
 pre{background:rgba(128,128,128,.14);padding:9px;border-radius:3px;font-family:var(--mono);
-  font-size:10px;overflow-x:auto;max-height:270px;line-height:1.45}
+  font-size:10px;overflow-x:auto;line-height:1.45;white-space:pre}
+.copy{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;border:1.5px solid currentColor;border-radius:2px;
+  padding:1px 6px;opacity:.75;white-space:nowrap}
+.copy:hover{opacity:1;background:var(--surface-sunken)}
+.copy[data-copied="true"]{opacity:1;background:currentColor;color:var(--surface-card)}
+.kv dd .copy{margin-left:8px}
 .bnd{display:flex;flex-wrap:wrap;gap:14px}
 .bnd>div{flex:1;min-width:190px}
 .bnd li{list-style:none;font-size:11.5px;line-height:1.5;padding-left:15px;position:relative}
 .bnd .p li::before{content:"+";position:absolute;left:0;color:var(--observed);font-weight:700}
 .bnd .n li::before{content:"\2013";position:absolute;left:0;color:var(--blocked);font-weight:700}
 
+/* The panel explains the result, so the result may not be underneath it. The
+   run yields exactly the panel's width instead of being covered. */
+body[data-drawer="open"] main.frame{max-width:calc(100vw - var(--drawer-w));
+  margin-left:0;margin-right:0;transition:max-width .22s cubic-bezier(.2,.7,.3,1)}
+/* The run keeps both columns in the space it has left, so nothing needs
+   scrolling to stay visible; the numerals step down just far enough not to
+   wrap, and still lead the decision token by roughly 2:1. */
+body[data-drawer="open"] .res .v{font-size:32px}
+body[data-drawer="open"] .hop{grid-template-columns:112px 1fr auto;gap:9px}
+
 /* ── degraded ── */
-.degraded{padding:56px 24px;max-width:660px}
-.degraded h2{font-size:23px;margin-bottom:9px}
+.degraded{padding:48px 24px;max-width:660px}
+.degraded h2{font-size:23px;margin-bottom:9px;max-width:24ch}
 .degraded .mono{font-size:12px;opacity:.72;margin-bottom:14px;word-break:break-all}
 .degraded .refused{border:2px solid var(--blocked);color:var(--blocked);border-radius:3px;
   padding:9px 12px;font-size:12.5px;font-weight:600}
+.degraded .next{margin-top:18px;border-top:1px solid var(--border-hair);padding-top:14px}
+.degraded .next .k{font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;opacity:.55;display:block;margin-bottom:6px}
 
 /* ── reserved HAC-319 surface: labels only, never a mark ── */
 .regimes{display:flex;gap:9px;margin-top:8px}
@@ -228,13 +320,36 @@ pre{background:rgba(128,128,128,.14);padding:9px;border-radius:3px;font-family:v
     border-bottom:1px solid var(--border-hair);padding-bottom:18px}
   .grid>.col:last-child{padding-left:0;padding-top:18px}
 }
+/* With the panel open the run has a column's worth less room, so it stacks for
+   the same reason — the causal order survives, the crush does not. */
+@media (max-width:1439px){
+  body[data-drawer="open"] .grid{grid-template-columns:1fr;gap:0}
+  body[data-drawer="open"] .grid>.col:first-child{padding-right:0;border-right:0;
+    border-bottom:1px solid var(--border-hair);padding-bottom:18px}
+  body[data-drawer="open"] .grid>.col:last-child{padding-left:0;padding-top:18px}
+}
 /* Below 1024 the anchored panel has no room to sit beside the run, so it takes
    the frame. It stays non-modal: the run is still behind it, not inert. */
 @media (max-width:1023px){
   .drawer{width:100%;max-width:none;border-left:0;border-top:3px solid currentColor}
+  body[data-drawer="open"] main.frame{max-width:100%}
 }
-@media (prefers-reduced-motion:reduce){ .drawer{transition:none!important} }
+@media (prefers-reduced-motion:reduce){
+  .drawer{transition:none!important}
+  body[data-drawer="open"] main.frame{transition:none!important}
+}
 html[data-static="true"] .drawer{transition:none!important}
+html[data-static="true"] main.frame{transition:none!important}
+/* Arm switching is the one explanatory transition on this surface: the three
+   things that change together — evidence, decision, outcome — are stepped in
+   together so the reader sees which parts moved. Keyframes and durations come
+   from the frozen motion tokens, which also zero themselves and hard-stop
+   [data-il-motion] under prefers-reduced-motion. It plays once and settles. */
+[data-il-motion="arm"]{animation:il-step-in var(--dur-base,220ms) var(--ease-standard) both}
+.env[data-il-motion="arm"]{animation-delay:0ms}
+.delta[data-il-motion="arm"],.decision[data-il-motion="arm"]{animation-delay:var(--delay-step,90ms)}
+.results[data-il-motion="arm"]{animation-delay:calc(var(--delay-step,90ms) * 2)}
+html[data-static="true"] [data-il-motion]{animation:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
@@ -248,12 +363,17 @@ html[data-static="true"] .drawer{transition:none!important}
 <script type="module">
 /* The cockpit renders the view model. It derives no meaning: every value below
    comes from media/hac-341/evidence/view-model.json, which the adapter builds
-   from frozen evidence. A field that is absent there is absent here. */
+   from frozen evidence. A field that is absent there is absent here.
+   What the *selected arm* shows is derived in lib/arm-view.mjs, so the binding
+   between an arm and its evidence can be asserted without a browser. */
+import { armView } from './lib/arm-view.mjs';
+
 const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');
 
 const live = document.getElementById('live');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const short = (s, n = 12) => (s ? `${String(s).slice(0, n)}…` : '');
 
 /* The canonical Interlock lockup: the frozen mark geometry plus a live wordmark
    in the vendored Geist face. Defined once and interpolated wherever a header
@@ -272,12 +392,12 @@ const LANE_OF = {
 };
 
 const STATE_OF = {
-  effect: { s: 'executed', g: '\u29bf', t: 'EXECUTED' },
-  observation: { s: 'observed', g: '\u25ce', t: 'OBSERVED' },
+  effect: { s: 'executed', g: '⦿', t: 'EXECUTED' },
+  observation: { s: 'observed', g: '◎', t: 'OBSERVED' },
 };
 
 const brandHtml = `
-    <div class="brand" data-gate="closed">
+    <div class="brand">
       <svg class="mark" viewBox="0 0 48 48" width="20" height="20" fill="currentColor" aria-hidden="true">
         <path d="M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z"></path>
         <path d="M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z"></path>
@@ -292,6 +412,9 @@ const brandHtml = `
 
 let MODEL = null;
 let lastFocus = null;
+/* Which arm was on screen last, so the explanatory transition fires on an arm
+   change and not on first paint or on a proof-class reset. */
+let lastLocalArm = null;
 
 const params = () => new URLSearchParams(location.search);
 if (params().get('static') === '1') document.documentElement.dataset.static = 'true';
@@ -301,24 +424,61 @@ function degraded(id, requested) {
   const d = (MODEL?.degradedStates ?? []).find((x) => x.id === id)
     ?? { id, message: 'Could not read the pinned record.', forbiddenInference: 'any result' };
   document.body.dataset.proof = 'local';
+  lastLocalArm = null;
   app.innerHTML = `<header class="degraded-head">${brandHtml}</header>
   <div class="degraded" data-state="${esc(id)}">
     <h2>${esc(d.message)}</h2>
     ${requested ? `<p class="mono">Requested: ${esc(requested)}</p>` : ''}
     <p class="refused">Substitution refused. The canonical run is not shown in place of what was asked for.</p>
     <p class="note" style="margin-top:12px">Do not infer ${esc(d.forbiddenInference)}.</p>
-    <p style="margin-top:14px"><a href="?run=hac330-local&proof=local&state=run.local.treatment">Open the controlled local experiment</a>
-    &nbsp;·&nbsp; <a href="?run=hac340-cloud&proof=cloud&state=run.cloud.overview">Open the Google Cloud run</a></p>
+    <div class="next"><span class="k">Where to go instead</span>
+    <p><a href="?run=hac330-local&proof=local&state=run.local.treatment">Open the controlled local experiment</a>
+    &nbsp;·&nbsp; <a href="?run=hac340-cloud&proof=cloud&state=run.cloud.overview">Open the Google Cloud run</a></p></div>
   </div>`;
   live.textContent = d.message;
 }
 
 /* ---- L1 ---- */
+
+/** The evidence line for the selected arm, in that arm's own terms. */
+function evidenceLine(v) {
+  const cp = v.evidence.couplings[0];
+  if (!v.evidence.consulted) {
+    return `${esc(v.evidence.source)} · not consulted<br>Interlock was disabled in this arm`;
+  }
+  const basis = `basis <b>${esc(short(v.evidence.basis))}</b>`;
+  return `${esc(v.evidence.source)} · revision-bound<br>${basis} · ${cp
+    ? `coupling support ${esc(cp.support)}/${esc(cp.occurrences)}`
+    : 'no qualifying coupling'}`;
+}
+
+/** The falsification, stated where the change happens. */
+function deltaHtml(v) {
+  if (!v.evidenceChanged) return '';
+  return `<div class="delta" data-holds="${v.arm.outcome.holds}">
+      <span class="dl">Evidence changed</span>
+      <p class="dtext">Same intents, same shared environment, same bound. Only the frozen
+        evidence differs: basis <span class="mono">${esc(short(v.evidence.basis))}</span>
+        replaces <span class="mono">${esc(short(v.referenceBasis))}</span>.</p>
+      <p class="dchain"><span class="dtok">${esc(v.arm.decision)}</span>
+        <span class="dar" aria-hidden="true">→</span>
+        <span class="dv">${esc(v.arm.outcome.expression)}</span></p>
+      <p class="ddetail">${esc(v.arm.decisionDetail ?? '')}</p>
+    </div>`;
+}
+
+const outcomeCard = (row) => `
+      <div class="res" data-holds="${row.outcome.holds}" data-row="${esc(row.key)}" data-arm="${esc(row.armId)}">
+        <div class="cause"><span class="cxl" aria-hidden="true"></span>
+          <span class="sr">Cause:</span><span class="ctok">${esc(row.cause)}</span></div>
+        <div class="k">${esc(row.label)}</div>
+        <div class="v" data-glyph="${row.outcome.holds ? '✓' : '✕'}">${esc(row.outcome.expression)}</div>
+        <div class="n">${esc(row.outcome.verdict)}${row.checksLabel ? ` · run checks ${esc(row.checksLabel)}` : ''}</div>
+      </div>`;
+
 function renderLocal(run, armId) {
-  const arm = run.arms.find((a) => a.armId === armId) ?? run.arms.find((a) => a.armId === run.defaultArm);
-  const base = run.arms.find((a) => a.armId === 'baseline');
-  const ev = run.environmentEvidence[0];
-  const cp = ev.coupling?.[0];
+  const v = armView(run, armId);
+  const isBaseline = v.arm.armId === v.baseline?.armId;
   return `
   <header>
 ${brandHtml}
@@ -339,36 +499,35 @@ ${brandHtml}
         <div class="card"><h3>Intent A</h3><span class="chip" data-s="local" data-glyph="∙">Locally valid</span></div>
         <div class="card"><h3>Intent B</h3><span class="chip" data-s="local" data-glyph="∙">Locally valid</span></div>
       </div>
-      <div class="env">
+      <div class="cxn" aria-hidden="true"><svg viewBox="0 0 100 26" preserveAspectRatio="none" focusable="false">
+        <path class="e-intent" d="M25 1 L25 13 L75 13 L75 1"></path>
+        <path class="e-couple" d="M50 13 L50 25"></path></svg></div>
+      <div class="env" data-coupled="${v.coupled}">
         <div class="row"><span class="lbl">Shared environment</span>
-          <span class="chip" data-s="coupled" data-glyph="⧉">Coupled</span>
-          <span class="bound">joint bound &lt;= ${esc(run.constraints[0].bound)}</span></div>
-        <div class="attr">${esc(ev.source)} · revision-bound<br>
-          basis ${esc(ev.basisRevision.slice(0, 12))}…${cp ? ` · coupling support ${esc(cp.support)}/${esc(cp.occurrences)}` : ''}</div>
+          ${v.coupled ? '<span class="chip" data-s="coupled" data-glyph="⧉">Coupled</span>' : ''}
+          <span class="bound">joint bound &lt;= ${esc(v.constraint.bound)}</span></div>
+        <div class="attr">${evidenceLine(v)}</div>
       </div>
+      ${deltaHtml(v)}
+      <div class="cxn short" aria-hidden="true"><svg viewBox="0 0 100 20" preserveAspectRatio="none" focusable="false">
+        <path class="e-couple" d="M50 0 L50 19"></path></svg></div>
       <div class="decision">
-        <div class="k mono" style="font-size:9.5px;letter-spacing:.09em;opacity:.6;text-transform:uppercase">Interlock decision · deterministic</div>
-        <div class="tok">${esc(arm.decision ?? 'no decision — Interlock disabled')}</div>
-        ${arm.decisionReason ? `<div class="why">${esc(arm.decisionReason)}</div>` : ''}
+        <div class="dk">Interlock decision · deterministic</div>
+        <div class="tok">${esc(v.arm.decision ?? 'no decision — Interlock disabled')}</div>
+        ${v.arm.decisionReason ? `<div class="why">${esc(v.arm.decisionReason)}</div>` : ''}
         <div class="frozen">FROZEN ARM · NOT RECOMPUTED</div>
+        <div class="outflow" aria-hidden="true"><span class="ol"></span><span>joint outcome →</span></div>
       </div>
     </div>
     <div class="col">
       <h2>Bounded joint outcome</h2>
-      <div class="results">
-        <div class="res" data-holds="${base.outcome.holds}">
-          <div class="k">Baseline · no coordination</div>
-          <div class="v" data-glyph="${base.outcome.holds ? '\u2713' : '\u2715'}">${esc(base.outcome.expression)}</div>
-          <div class="n">${esc(base.outcome.verdict)}</div>
-        </div>
-        <div class="res" data-holds="${arm.outcome.holds}" data-arm="${esc(arm.armId)}">
-          <div class="k">${esc(arm.label)}</div>
-          <div class="v" data-glyph="${arm.outcome.holds ? '\u2713' : '\u2715'}">${esc(arm.outcome.expression)}</div>
-          <div class="n">${esc(arm.outcome.verdict)}${arm.armId === 'treatment' ? ` · run checks ${esc(run.checks.label)}` : ''}</div>
-        </div>
-      </div>
+      <div class="results">${v.comparison.map(outcomeCard).join('')}</div>
+      ${isBaseline ? `<p class="armnote lead">Interlock was disabled in this arm, so no coordination
+        occurred and there is no second result to compare it against. Select
+        <b>Treatment · original evidence</b> or <b>Perturbed evidence</b> to see what the
+        coordination decision changes.</p>` : ''}
       <div class="arms" role="group" aria-label="Recorded arm">
-        ${run.arms.map((a) => `<button data-arm="${esc(a.armId)}" aria-pressed="${a.armId === arm.armId}">${esc(a.label)}</button>`).join('')}
+        ${run.arms.map((a) => `<button data-arm="${esc(a.armId)}" aria-pressed="${a.armId === v.arm.armId}">${esc(a.label)}</button>`).join('')}
       </div>
       <p class="armnote">Each arm is a recorded result. Selecting an arm changes which recorded arm is displayed. Nothing is executed in the browser.</p>
       <div class="actions">
@@ -378,6 +537,22 @@ ${brandHtml}
       </div>
     </div>
   </div>`;
+}
+
+function cloudHops(run) {
+  let lane = null;
+  return run.events.map((h) => {
+    const l = LANE_OF[h.role] ?? '';
+    const fresh = l !== lane;
+    lane = l;
+    const st = STATE_OF[h.role];
+    const detail = truncate(h.detail);
+    return `<div class="hop" data-role="${esc(h.role)}" data-lane="${fresh ? 'new' : 'same'}">
+          <span class="n">${fresh ? esc(l) : ''}</span>
+          <span class="t">${esc(h.label)}</span>
+          <span class="d">${st ? `<span class="chip" data-s="${st.s}" data-glyph="${st.g}">${st.t}</span> ` : ''}${detail === st?.t ? '' : esc(detail)}</span>
+        </div>`;
+  }).join('');
 }
 
 function renderCloud(run) {
@@ -390,7 +565,7 @@ ${brandHtml}
       <div><span class="k">Run</span><span class="v">${esc(run.runIdentity)}</span></div>
       <div><span class="k">Issue</span><span class="v">${esc(run.sourceIssue)}</span></div>
       <div><span class="k">State</span><span class="v">FROZEN</span></div>
-      <div><span class="k">Publication</span><span class="v">${esc(p.evidencePublicationSha.slice(0, 12))}…</span></div>
+      <div><span class="k">Publication</span><span class="v">${esc(short(p.evidencePublicationSha))}</span></div>
     </div>
     ${switchHtml('cloud')}
   </header>
@@ -398,15 +573,7 @@ ${brandHtml}
   <div class="grid" id="main">
     <div class="col">
       <h2>What actually ran</h2>
-      <div class="hops">
-        ${run.events.map((h) => `<div class="hop" data-role="${esc(h.role)}">
-          <span class="n">${esc(LANE_OF[h.role] ?? '')}</span>
-          <span class="t">${esc(h.label)}</span>
-          <span class="d">${STATE_OF[h.role]
-            ? `<span class="chip" data-s="${STATE_OF[h.role].s}" data-glyph="${STATE_OF[h.role].g}">${STATE_OF[h.role].t}</span> `
-            : ''}${esc(truncate(h.detail)) === STATE_OF[h.role]?.t ? '' : esc(truncate(h.detail))}</span>
-        </div>`).join('')}
-      </div>
+      <div class="hops">${cloudHops(run)}</div>
       <div class="notonpath">Not on the recorded path — ${run.notOnPath.map(esc).join(' · ')}</div>
     </div>
     <div class="col">
@@ -443,13 +610,39 @@ const truncate = (s, max = 26) => {
   return s.length > max ? `${s.slice(0, max - 3)}…` : s;
 };
 
+/* The switch names each class with the run's own proofLabel, so the button and
+   the heading cannot drift into two names for one proof class. */
 const switchHtml = (cur) => `<div class="switch"><span class="k">PROOF</span><div class="btns" role="group" aria-label="Proof class">
-  <button data-proof="local" aria-pressed="${cur === 'local'}">Controlled causal experiment</button>
-  <button data-proof="cloud" aria-pressed="${cur === 'cloud'}">Google Cloud participation</button>
+  <button data-proof="local" aria-pressed="${cur === 'local'}">${esc(MODEL.runs.local.proofLabel)}</button>
+  <button data-proof="cloud" aria-pressed="${cur === 'cloud'}">${esc(MODEL.runs.cloud.proofLabel)}</button>
 </div></div>`;
 
 /* ---- L2 / L3 ---- */
+
+let copySeq = 0;
+/** A value plus an offline copy control. The evidence text is never altered. */
+function copyable(value, label) {
+  copySeq += 1;
+  const id = `cp-${copySeq}`;
+  return `<span id="${id}">${esc(value)}</span>`
+    + `<button class="copy" data-copy="${id}" aria-label="Copy ${esc(label)}">Copy</button>`;
+}
+
+/**
+ * One recorded arm's evidence, in that arm's own terms. Extracted so the
+ * panel's markup does not nest a conditional inside a conditional inside two
+ * levels of template.
+ */
+function armEvidenceRow(a) {
+  if (!a.basisRevision) return 'Interlock disabled — evidence not consulted';
+  const basis = `basis ${copyable(a.basisRevision, `the ${a.armId} basis revision`)}`;
+  const cp = (a.couplings ?? [])[0];
+  if (!cp) return `${basis} · no qualifying coupling`;
+  return `${basis} · coupling support ${esc(cp.support)}/${esc(cp.occurrences)}`;
+}
+
 function drawerHtml(kind, proof, run) {
+  copySeq = 0;
   const title = { verify: 'Can I verify it?', raw: 'Raw proof', claim: 'Claim boundary' }[kind];
   let body = '';
   if (kind === 'claim') {
@@ -458,57 +651,80 @@ function drawerHtml(kind, proof, run) {
       <div class="n"><h3>Not claimed</h3><ul>${run.claimBoundary.notClaimed.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
     </div>`;
   } else if (proof === 'local') {
-    const ev = run.environmentEvidence[0];
-    body = kind === 'verify' ? `
-      <section><h3>Evidence attribution</h3><dl class="kv">
+    body = kind === 'verify' ? localVerify(run) : localRaw(run);
+  } else {
+    body = kind === 'verify' ? cloudVerify(run) : cloudRaw(run);
+  }
+  return `<button class="close" data-close aria-label="Close">×</button>
+    <h2 id="drawer-title">${esc(title)}</h2>
+    <p class="sub">${esc(run.proofLabel)} · ${esc(run.runIdentity)}</p>${body}`;
+}
+
+function localVerify(run) {
+  const ev = run.environmentEvidence[0];
+  const cmdId = 'cp-cmd';
+  return `
+      <section><h3>Evidence, by recorded arm</h3><dl class="kv">
+        ${run.arms.map((a) => `<dt>${esc(a.armId)}</dt><dd>${armEvidenceRow(a)}</dd>`).join('')}
+      </dl><p class="note">Each arm carries its own basis. The perturbed arm was decided on a different mined history, which is why its decision differs.</p></section>
+      <section><h3>Environment</h3><dl class="kv">
         <dt>source</dt><dd>${esc(ev.source)}</dd>
-        <dt>basis revision</dt><dd>${esc(ev.basisRevision)}</dd>
-        ${(ev.coupling ?? []).map((c) => `<dt>coupling</dt><dd>${esc(c.files.join(', '))} · support ${esc(c.support)} / ${esc(c.occurrences)}</dd>`).join('')}
+        ${(ev.coupling ?? []).map((c) => `<dt>coupled files</dt><dd>${esc(c.files.join(', '))}</dd>`).join('')}
       </dl></section>
       <section><h3>Recorded arms</h3><dl class="kv">
         ${run.arms.map((a) => `<dt>${esc(a.armId)}</dt><dd>${esc(a.decision ?? 'Interlock disabled')} → ${esc(a.outcome.expression)}</dd>`).join('')}
       </dl></section>
-      <section><h3>Reproduce</h3>
-        <pre>${esc(run.verification.hac330VerifyCommand)}</pre>
+      <section><h3>Reproduce <button class="copy" data-copy="${cmdId}" aria-label="Copy the reproduction command">Copy</button></h3>
+        <pre id="${cmdId}">${esc(run.verification.hac330VerifyCommand)}</pre>
         <p class="note">A deterministic local command. This proof class has no verifier URL, and none is invented.</p>
       </section>
       <section><h3>Pinned upstream</h3><dl class="kv">
-        ${Object.entries(run.verification.pins).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(typeof v === 'string' ? v : JSON.stringify(v))}</dd>`).join('')}
-      </dl></section>`
-      : `<section><h3>Frozen arms</h3><pre>${esc(JSON.stringify(run.arms, null, 1))}</pre></section>
+        ${Object.entries(run.verification.pins).map(([k, val]) => `<dt>${esc(k)}</dt><dd>${esc(typeof val === 'string' ? val : JSON.stringify(val))}</dd>`).join('')}
+      </dl></section>`;
+}
+
+function localRaw(run) {
+  return `<section><h3>Frozen arms <button class="copy" data-copy="cp-arms" aria-label="Copy the frozen arms JSON">Copy</button></h3>
+           <pre id="cp-arms">${esc(JSON.stringify(run.arms, null, 1))}</pre></section>
          <section><h3>Not present in this run</h3>
            <div class="unavail">No receipt, protected target, independent observer, cloud runtime or Cloud Logging exists in HAC-330. These fields are absent, not empty.</div></section>`;
-  } else {
-    const p = run.publicationRefs;
-    const rp = run.runtimeProvenance;
-    body = kind === 'verify' ? `
+}
+
+function cloudVerify(run) {
+  const p = run.publicationRefs;
+  const rp = run.runtimeProvenance;
+  return `
       <section><h3>Immutable public evidence</h3><dl class="kv">
         <dt>evidence</dt><dd><a href="${esc(p.cloudEvidenceUrl)}" target="_blank" rel="noreferrer">cloud-run.public.json</a></dd>
         <dt>verifier</dt><dd><a href="${esc(p.hac340VerifierUrl)}" target="_blank" rel="noreferrer">verify-public-packet.mjs</a></dd>
         <dt>redaction</dt><dd><a href="${esc(p.redactionManifestUrl)}" target="_blank" rel="noreferrer">redaction-manifest.json</a></dd>
-      </dl><p class="note">Pinned to commit ${esc(p.evidencePublicationSha.slice(0, 12))}… — not to a branch.</p></section>
+      </dl><p class="note">Pinned to commit ${esc(short(p.evidencePublicationSha))} — not to a branch.</p></section>
       <section><h3>Transport provenance</h3><dl class="kv">
         <dt>caller</dt><dd>${esc(run.transportProvenance.caller)}</dd>
         <dt>identity source</dt><dd>${esc(run.transportProvenance.identitySource)}</dd>
         <dt>observer</dt><dd>${esc(run.transportProvenance.observerPrincipal)}</dd>
       </dl><p class="note">${esc(run.transportProvenance.note)}</p></section>
       <section><h3>Application provenance</h3><dl class="kv">
-        <dt>receipt</dt><dd>${esc(run.applicationProvenance.receiptDigest)}</dd>
-        <dt>correlation</dt><dd>${esc(run.applicationProvenance.correlationId)}</dd>
+        <dt>receipt</dt><dd>${copyable(run.applicationProvenance.receiptDigest, 'the receipt digest')}</dd>
+        <dt>correlation</dt><dd>${copyable(run.applicationProvenance.correlationId, 'the correlation id')}</dd>
       </dl><p class="note">${esc(run.applicationProvenance.note)}</p></section>
       <section><h3>Runtime source</h3><dl class="kv">
-        <dt>runtimeSourceSha</dt><dd>${esc(rp.runtimeSourceSha)}</dd>
+        <dt>runtimeSourceSha</dt><dd>${copyable(rp.runtimeSourceSha, 'the runtime source sha')}</dd>
         <dt>public URL</dt><dd>${esc(rp.runtimeSourceUrl.state)}</dd>
-        <dt>snapshot</dt><dd>${esc(rp.runtimeSourceSnapshotSha256)}</dd>
+        <dt>snapshot</dt><dd>${copyable(rp.runtimeSourceSnapshotSha256, 'the runtime snapshot digest')}</dd>
         <dt>revision</dt><dd>${esc(rp.revisionName)}</dd>
       </dl>
       <div class="unavail">${esc(rp.runtimeSourceUrl.reason)} The public snapshot records the executed source content separately, across ${esc(rp.snapshotFileCount)} files.</div>
-      <p class="note">${esc(rp.revisionNote)}</p></section>`
-      : `<section><h3>Digests</h3><dl class="kv">
-        <dt>publicPacketSha256</dt><dd>${esc(p.publicPacketSha256)}</dd>
-        <dt>sourcePacketSha256</dt><dd>${esc(p.sourcePacketSha256)}</dd>
-        <dt>evidencePublicationSha</dt><dd>${esc(p.evidencePublicationSha)}</dd>
-        <dt>publicationBindingsSha</dt><dd>${esc(p.publicationBindingsSha)}</dd>
+      <p class="note">${esc(rp.revisionNote)}</p></section>`;
+}
+
+function cloudRaw(run) {
+  const p = run.publicationRefs;
+  return `<section><h3>Digests</h3><dl class="kv">
+        <dt>publicPacketSha256</dt><dd>${copyable(p.publicPacketSha256, 'the public packet digest')}</dd>
+        <dt>sourcePacketSha256</dt><dd>${copyable(p.sourcePacketSha256, 'the source packet digest')}</dd>
+        <dt>evidencePublicationSha</dt><dd>${copyable(p.evidencePublicationSha, 'the evidence publication sha')}</dd>
+        <dt>publicationBindingsSha</dt><dd>${copyable(p.publicationBindingsSha, 'the publication bindings sha')}</dd>
       </dl><div class="unavail">${esc(p.sourcePacketNote)}</div></section>
       <section><h3>Negative controls</h3><dl class="kv">
         ${run.negativeControls.map((c) => `<dt>${esc(c.status)}</dt><dd>${esc(c.label)}${c.note ? `<br><span style="opacity:.65">${esc(c.note)}</span>` : ''}</dd>`).join('')}
@@ -520,10 +736,43 @@ function drawerHtml(kind, proof, run) {
         <div class="unavail">${esc(MODEL.reserved.message)} ${esc(MODEL.reserved.rule)}</div>
         <div class="regimes">${MODEL.reserved.regimes.map((r) => `<div class="r"><div class="t">${esc(r)}</div><div class="u">NOT BOUND</div></div>`).join('')}</div>
       </section>`;
+}
+
+/* ---- copy, without a dependency and without a network ---- */
+
+/** Last-resort path for a non-secure context; no library, no remote call. */
+function legacyCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;top:0;left:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  ta.remove();
+  return ok;
+}
+
+async function runCopy(btn) {
+  const src = document.getElementById(btn.dataset.copy);
+  if (!src) return;
+  const text = src.textContent;
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    ok = true;
+  } catch {
+    ok = legacyCopy(text);
   }
-  return `<button class="close" data-close aria-label="Close">×</button>
-    <h2 id="drawer-title">${esc(title)}</h2>
-    <p class="sub">${esc(run.proofLabel)} · ${esc(run.runIdentity)}</p>${body}`;
+  btn.dataset.copied = String(ok);
+  btn.textContent = ok ? 'Copied' : 'Failed';
+  live.textContent = ok ? 'copied to clipboard' : 'copy failed; select the text manually';
+  setTimeout(() => {
+    if (!btn.isConnected) return;
+    btn.dataset.copied = 'false';
+    btn.textContent = 'Copy';
+  }, 1600);
 }
 
 function openDrawer(kind) {
@@ -531,15 +780,17 @@ function openDrawer(kind) {
   lastFocus = document.activeElement;
   drawer.innerHTML = drawerHtml(kind, proof, run);
   drawer.dataset.open = 'true';
+  document.body.dataset.drawer = 'open';
   drawer.removeAttribute('inert');
   // Focus moves into the panel so a keyboard user lands on the new content,
   // but nothing is trapped: Tab walks out of the panel and back into the run.
   drawer.focus();
-  live.textContent = `${kind} panel opened. The run stays visible behind it.`;
+  live.textContent = `${kind} panel opened. The run stays visible beside it.`;
 }
 function closeDrawer() {
   if (drawer.dataset.open !== 'true') return;
   drawer.dataset.open = 'false';
+  document.body.dataset.drawer = 'closed';
   drawer.setAttribute('inert', '');
   drawer.innerHTML = '';
   live.textContent = 'panel closed';
@@ -562,41 +813,71 @@ function renderForcedDegraded(id) {
   return degraded(declared ? id : 'run.missing', `degraded=${id}`);
 }
 
-function resolve() {
-  const q = params();
+/** Steps the three regions an arm change actually moves. Plays once. */
+function markArmChange() {
+  for (const sel of ['.env', '.delta', '.decision', '.results']) {
+    app.querySelector(sel)?.setAttribute('data-il-motion', 'arm');
+  }
+}
+
+/**
+ * Resolve an address to a renderable state, or to the address that earned a
+ * refusal. Returns `{ missing }` — the requested address, echoed back — or
+ * `{ proof, state, armId }`. Every guard here refuses rather than correcting:
+ * a cloud state under the local class is not quietly fixed up, and no branch
+ * falls through to the canonical run.
+ */
+function route(q) {
   const runId = q.get('run') ?? 'hac330-local';
   const proof = q.get('proof') ?? (runId === 'hac340-cloud' ? 'cloud' : 'local');
   let state = q.get('state') ?? (proof === 'cloud' ? 'run.cloud.overview' : 'run.local.overview');
   if (state === 'run.local.overview') state = MODEL.deepLink.aliases['run.local.overview'];
 
   const known = { 'hac330-local': 'local', 'hac340-cloud': 'cloud' };
+  if (!(runId in known)) return { missing: `run=${runId}` };
+  if (known[runId] !== proof) return { missing: `run=${runId}&proof=${proof}` };
+
+  const wantsLocal = state.startsWith('run.local.');
+  const wantsCloud = state.startsWith('run.cloud.');
+  if ((wantsLocal && proof !== 'local') || (wantsCloud && proof !== 'cloud')) {
+    return { missing: `proof=${proof}&state=${state}` };
+  }
+  if (proof === 'cloud') {
+    if (state !== 'run.cloud.overview') return { missing: `state=${state}` };
+    return { proof, state };
+  }
+  const armId = state.replace('run.local.', '');
+  if (!MODEL.runs.local.arms.some((a) => a.armId === armId)) return { missing: `state=${state}` };
+  return { proof, state, armId };
+}
+
+function renderRoute(r) {
+  if (r.proof === 'local') {
+    document.body.dataset.proof = 'local';
+    const changed = lastLocalArm !== null && lastLocalArm !== r.armId;
+    app.innerHTML = renderLocal(MODEL.runs.local, r.armId);
+    if (changed) markArmChange();
+    lastLocalArm = r.armId;
+    return;
+  }
+  document.body.dataset.proof = 'cloud';
+  app.innerHTML = renderCloud(MODEL.runs.cloud);
+  lastLocalArm = null;
+}
+
+function resolve() {
+  const q = params();
   // Deterministic hook for the declared degraded states that no ordinary
   // address reaches. Every state in the view model must be renderable and
   // capturable; a state that can only be described is a state nobody has seen.
   // This is a capture and test affordance, not a navigation entry: it never
   // fires unless explicitly asked for, and it never substitutes a real run.
   if (q.get('degraded')) return renderForcedDegraded(q.get('degraded'));
-  if (!(runId in known)) return degraded('run.missing', `run=${runId}`);
-  if (known[runId] !== proof) return degraded('run.missing', `run=${runId}&proof=${proof}`);
-  // proof and state must agree; a cloud state under the local class is not corrected
-  const wantsLocal = state.startsWith('run.local.');
-  const wantsCloud = state.startsWith('run.cloud.');
-  if ((wantsLocal && proof !== 'local') || (wantsCloud && proof !== 'cloud')) {
-    return degraded('run.missing', `proof=${proof}&state=${state}`);
-  }
-  if (proof === 'local') {
-    const armId = state.replace('run.local.', '');
-    const valid = MODEL.runs.local.arms.some((a) => a.armId === armId);
-    if (!valid) return degraded('run.missing', `state=${state}`);
-    document.body.dataset.proof = 'local';
-    app.innerHTML = renderLocal(MODEL.runs.local, armId);
-  } else {
-    if (state !== 'run.cloud.overview') return degraded('run.missing', `state=${state}`);
-    document.body.dataset.proof = 'cloud';
-    app.innerHTML = renderCloud(MODEL.runs.cloud);
-  }
-  document.documentElement.dataset.semanticState = state;
-  live.textContent = `${current().run.proofLabel} · ${state}`;
+  const r = route(q);
+  if (r.missing) return degraded('run.missing', r.missing);
+  renderRoute(r);
+  document.documentElement.dataset.semanticState = r.state;
+  live.textContent = `${current().run.proofLabel} · ${r.state}`;
 }
 function go(next, replace) {
   const q = params();
@@ -606,8 +887,9 @@ function go(next, replace) {
 }
 
 document.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-arm],[data-proof],[data-drawer],[data-close]');
+  const t = e.target.closest('[data-arm],[data-proof],[data-drawer],[data-close],[data-copy]');
   if (!t) return;
+  if (t.dataset.copy) return runCopy(t);
   if (t.dataset.close !== undefined) return closeDrawer();
   if (t.dataset.drawer) { t.focus(); return openDrawer(t.dataset.drawer); }
   if (t.dataset.arm) return go({ state: `run.local.${t.dataset.arm}` });

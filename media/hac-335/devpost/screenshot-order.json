@@ -38,7 +38,7 @@
     {
       "order": 3,
       "assetId": "IL-COCK-010",
-      "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x507-runhac330local.png",
+      "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x566-runhac330local.png",
       "proofClass": "A",
       "judgeQuestion": "Can I verify this myself?",
       "caption": "The Run — a real capture of the judge verification surface at ?run=hac330-local&proof=local&state=run.local.treatment. Every value is read from the frozen record; nothing executes in the browser."
@@ -54,7 +54,7 @@
     {
       "order": 5,
       "assetId": "IL-COCK-012",
-      "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x619-runilkhac340cloud1786730369123.png",
+      "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x645-runilkhac340cloud1786730369123.png",
       "proofClass": "B",
       "judgeQuestion": "Where does Google end and Interlock begin?",
       "caption": "The same verification surface, switched to the cloud run. Lanes attribute each hop: Google, Interlock, protected target, independent observer. EXECUTED and OBSERVED stay distinct."
@@ -70,7 +70,7 @@
     {
       "order": 7,
       "assetId": "IL-COCK-013",
-      "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x640-runilkhac340cloud1786730369123.png",
+      "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x808-runilkhac340cloud1786730369123.png",
       "proofClass": "B",
       "judgeQuestion": "Where is the immutable evidence, and what is withheld?",
       "caption": "Evidence pinned to a commit rather than a branch, transport provenance kept separate from application provenance, and the runtime source URL rendered as unavailable / non-public rather than fabricated."

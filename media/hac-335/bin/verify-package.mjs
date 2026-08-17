@@ -25,6 +25,7 @@ import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateExportName } from '../../../scripts/export-naming.mjs';
+import { captureSourceDigest, captureSourceFiles } from './lib/capture-source.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..', '..', '..');
@@ -368,6 +369,48 @@ function checkNamingAndFreshness({ root, registry, renderManifest }, fail) {
   }
 }
 
+/* -- captures still show what the cockpit renders -------------------------- */
+
+/**
+ * `capturedFromSha` was recorded and never compared to anything, so editing the
+ * cockpit after a capture left four stale screenshots in the judge package with
+ * no mechanical signal. A commit SHA cannot close that: the capture lands in
+ * the same commit it would have to name. The digest over the render sources can
+ * — it is computable before the commit exists and moves on any byte that can
+ * change a captured pixel.
+ */
+function checkCaptureFreshness({ root, captures }, fail) {
+  const recorded = captures.captureSourceDigest;
+  if (!recorded) {
+    fail('capture manifest records no captureSourceDigest; capture freshness is unprovable');
+    return;
+  }
+  let actual;
+  try {
+    actual = captureSourceDigest(root);
+  } catch (e) {
+    fail(`cannot compute the capture source digest: ${e.message}`);
+    return;
+  }
+  if (actual !== recorded) {
+    fail('cockpit render sources changed since these captures were taken '
+      + `(recorded ${recorded.slice(0, 12)}…, current ${actual.slice(0, 12)}…). `
+      + 'Re-run media/hac-335/bin/capture-cockpit.mjs and commit the new frames.');
+  }
+  // The manifest also states which files the digest covers, so a hand-edited
+  // manifest that narrows the set is visible rather than merely wrong.
+  const declared = captures.captureSourceFiles;
+  if (!Array.isArray(declared) || declared.length === 0) {
+    fail('capture manifest does not record which sources its digest covers');
+    return;
+  }
+  const expected = captureSourceFiles(root);
+  const uncovered = expected.filter((f) => !declared.includes(f));
+  if (uncovered.length) {
+    fail(`capture source coverage narrowed; not declared: ${uncovered.join(', ')}`);
+  }
+}
+
 /* -- 19. every judge-critical asset is registered -------------------------- */
 
 function checkRegistryCoverage({ root, registry, sequence, shots, captures }, fail) {
@@ -500,6 +543,7 @@ const CHECKS = [
   checkRevisions,
   checkEvaluationUnbound,
   checkCaptures,
+  checkCaptureFreshness,
   checkNamingAndFreshness,
   checkRegistryCoverage,
   checkClaimLedger,
