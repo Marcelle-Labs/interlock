@@ -88,7 +88,7 @@ for (const [name, src] of Object.entries(surfaces)) {
 
 const fontsCss = read('assets', 'tokens', 'fonts.css');
 for (const family of ['Geist', 'Geist Mono']) {
-  if (!new RegExp(`font-family:\\s*"${family}"`).test(fontsCss)) {
+  if (!new RegExp(String.raw`font-family:\s*"${family}"`).test(fontsCss)) {
     fail(`assets/tokens/fonts.css declares no @font-face for ${family}`);
   }
 }
@@ -136,7 +136,8 @@ for (const scene of sceneManifest.scenes) {
 /* --- verdict ------------------------------------------------------------- */
 
 if (errors.length) {
-  process.stderr.write(`Interlock identity boundary violated:\n${errors.map((e) => `  - ${e}`).join('\n')}\n`);
+  const detail = errors.map((e) => `  - ${e}`).join('\n');
+  process.stderr.write(`Interlock identity boundary violated:\n${detail}\n`);
   process.exit(1);
 }
 process.stdout.write(

@@ -277,7 +277,7 @@ const STATE_OF = {
 };
 
 const brandHtml = `
-    <div class="brand" data-gate="closed" role="img" aria-label="Interlock">
+    <div class="brand" data-gate="closed">
       <svg class="mark" viewBox="0 0 48 48" width="20" height="20" fill="currentColor" aria-hidden="true">
         <path d="M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z"></path>
         <path d="M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z"></path>
@@ -556,6 +556,12 @@ function current() {
   const run = proof === 'cloud' ? MODEL.runs.cloud : MODEL.runs.local;
   return { proof, run };
 }
+/** Renders a declared degraded state on request. Never substitutes a real run. */
+function renderForcedDegraded(id) {
+  const declared = (MODEL?.degradedStates ?? []).some((d) => d.id === id);
+  return degraded(declared ? id : 'run.missing', `degraded=${id}`);
+}
+
 function resolve() {
   const q = params();
   const runId = q.get('run') ?? 'hac330-local';
@@ -569,13 +575,7 @@ function resolve() {
   // capturable; a state that can only be described is a state nobody has seen.
   // This is a capture and test affordance, not a navigation entry: it never
   // fires unless explicitly asked for, and it never substitutes a real run.
-  const forced = q.get('degraded');
-  if (forced) {
-    const declared = (MODEL?.degradedStates ?? []).some((d) => d.id === forced);
-    return declared
-      ? degraded(forced, `degraded=${forced}`)
-      : degraded('run.missing', `degraded=${forced}`);
-  }
+  if (q.get('degraded')) return renderForcedDegraded(q.get('degraded'));
   if (!(runId in known)) return degraded('run.missing', `run=${runId}`);
   if (known[runId] !== proof) return degraded('run.missing', `run=${runId}&proof=${proof}`);
   // proof and state must agree; a cloud state under the local class is not corrected
