@@ -53,8 +53,8 @@ const RULE_DARK = '#343a3a';
 const PAPER_MUTED = '#9ba2a2';
 
 const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
-const esc = (s) =>
-  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+const esc = (s) => String(s).replaceAll(/[&<>]/g, (c) => ENTITIES[c]);
 
 /** The canonical lockup, embedded rather than redrawn. */
 function lockup(variant, x, y, width, resolveCurrentColor = INK) {
@@ -70,15 +70,17 @@ function lockup(variant, x, y, width, resolveCurrentColor = INK) {
   // `currentColor` has no inherited value to resolve against inside a static
   // board, so bind it rather than letting it default.
   const fill = rootFill === 'currentColor' ? resolveCurrentColor : rootFill;
-  const body = inner.replace(/fill="currentColor"/g, `fill="${fill}"`);
+  const body = inner.replaceAll('fill="currentColor"', `fill="${fill}"`);
   const height = (width * 48) / 190;
   return `<svg x="${x}" y="${y}" width="${width}" height="${height}" viewBox="0 0 190 48" fill="${fill}" overflow="visible">${body}</svg>`;
 }
 
-const text = (x, y, s, { size = 24, weight = 400, fill = INK, family = SANS, anchor = 'start', spacing = 0 } = {}) =>
-  `<text x="${x}" y="${y}" font-family="${family}" font-size="${size}" font-weight="${weight}"`
-  + ` fill="${fill}"${anchor !== 'start' ? ` text-anchor="${anchor}"` : ''}`
-  + `${spacing ? ` letter-spacing="${spacing}"` : ''}>${esc(s)}</text>`;
+function text(x, y, s, { size = 24, weight = 400, fill = INK, family = SANS, anchor = 'start', spacing = 0 } = {}) {
+  const anchorAttr = anchor === 'start' ? '' : ` text-anchor="${anchor}"`;
+  const spacingAttr = spacing ? ` letter-spacing="${spacing}"` : '';
+  return `<text x="${x}" y="${y}" font-family="${family}" font-size="${size}"`
+    + ` font-weight="${weight}" fill="${fill}"${anchorAttr}${spacingAttr}>${esc(s)}</text>`;
+}
 
 /* -- title card ----------------------------------------------------------- */
 
@@ -139,30 +141,25 @@ function endCard() {
 
   columns.forEach((c, i) => {
     const x = colX(i);
-    parts.push(text(x, top + 34, c.kicker, { size: 19, fill: PAPER_MUTED, family: MONO, spacing: 2 }));
-    parts.push(text(x, top + 72, c.issue, { size: 17, fill: MUTED, family: MONO, spacing: 1.6 }));
-    c.lines.forEach((l, j) =>
-      parts.push(text(x, top + 138 + j * 40, l, { size: 30, weight: 500, fill: PAPER })),
+    const divX = x + colW + 28;
+    parts.push(
+      text(x, top + 34, c.kicker, { size: 19, fill: PAPER_MUTED, family: MONO, spacing: 2 }),
+      text(x, top + 72, c.issue, { size: 17, fill: MUTED, family: MONO, spacing: 1.6 }),
+      ...c.lines.map((l, j) => text(x, top + 138 + j * 40, l, { size: 30, weight: 500, fill: PAPER })),
+      ...c.figures.map((f, j) => text(x, top + 258 + j * 46, f, { size: 30, fill: PAPER, family: MONO })),
+      ...(i < columns.length - 1
+        ? [`<line x1="${divX}" y1="${top}" x2="${divX}" y2="${top + 320}" stroke="${RULE_DARK}" stroke-width="1"/>`]
+        : []),
     );
-    c.figures.forEach((f, j) =>
-      parts.push(text(x, top + 258 + j * 46, f, { size: 30, fill: PAPER, family: MONO })),
-    );
-    if (i < columns.length - 1) {
-      parts.push(
-        `<line x1="${x + colW + 28}" y1="${top}" x2="${x + colW + 28}" y2="${top + 320}" stroke="${RULE_DARK}" stroke-width="1"/>`,
-      );
-    }
   });
 
   // Claim boundary, above the caption-safe foot.
   const boundaryY = H - CAPTION_FOOT - 96;
-  parts.push(`<line x1="${SIDE}" y1="${boundaryY - 44}" x2="${W - SIDE}" y2="${boundaryY - 44}" stroke="${RULE_DARK}" stroke-width="1"/>`);
   parts.push(
+    `<line x1="${SIDE}" y1="${boundaryY - 44}" x2="${W - SIDE}" y2="${boundaryY - 44}" stroke="${RULE_DARK}" stroke-width="1"/>`,
     text(SIDE, boundaryY, 'Two runs, two proof classes. Neither is evidence for the other.', {
       size: 26, weight: 500, fill: PAPER,
     }),
-  );
-  parts.push(
     text(SIDE, boundaryY + 40, 'Not on the recorded path — Agent Runtime · Agent Gateway · CONTENT_AUTHZ', {
       size: 20, fill: PAPER_MUTED, family: MONO, spacing: 1,
     }),

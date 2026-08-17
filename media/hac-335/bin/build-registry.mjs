@@ -72,6 +72,17 @@ const IMMUTABLE = {
 const CLOUD_RUN = 'ilk-hac340-cloud-1786730369123';
 const LOCAL_RUN = 'hac330-local';
 
+/** Which issue owns the facts on an asset, by the proof class it carries. */
+const ISSUE_BY_CLASS = { A: 'HAC-330', B: 'HAC-340' };
+
+/** Editorial identity of what HAC-335 itself authored. */
+const CARD_TITLES = {
+  'IL-SCAF-010': 'Video title card',
+  'IL-SCAF-011': 'Video end card',
+  'IL-SOC-010': 'Open-graph card',
+};
+const CARD_PROOF_CLASS = { 'IL-SCAF-010': 'none', 'IL-SCAF-011': 'A+B', 'IL-SOC-010': 'A' };
+
 /**
  * Editorial metadata for the consumed HAC-334 masters. The rows below say what
  * each asset is *for* in this package; the facts on the asset itself remain
@@ -198,7 +209,9 @@ for (const spec of CONSUMED) {
     if (!match) throw new Error(`${spec.id}: HAC-334 declares no ${dims} png export for ${surface}${brief ? ' (5s)' : ''}`);
 
     const slug = match.slug;
-    const file = `media/hac-334/exports/${slug ? `${spec.id}-${slug}` : spec.id}-${dims}${run ? `-run${run.replace(/[^a-z0-9]/g, '')}` : ''}.png`;
+    const stem = slug ? `${spec.id}-${slug}` : spec.id;
+    const runSuffix = run ? `-run${run.replaceAll(/[^a-z0-9]/g, '')}` : '';
+    const file = `media/hac-334/exports/${stem}-${dims}${runSuffix}.png`;
     const abs = join(repoRoot, file);
     if (!existsSync(abs)) throw new Error(`${spec.id}: declared export is missing on disk: ${file}`);
 
@@ -226,7 +239,7 @@ for (const spec of CONSUMED) {
     judgeQuestion: spec.judgeQuestion,
     proofClass: canonical.proofClass,
     proofClassLabel: canonical.proofClassLabel || null,
-    sourceIssue: canonical.proofClass === 'A' ? 'HAC-330' : canonical.proofClass === 'B' ? 'HAC-340' : 'HAC-334',
+    sourceIssue: ISSUE_BY_CLASS[canonical.proofClass] ?? 'HAC-334',
     sourceRun: run,
     correlationId: isCloud ? CLOUD_RUN : null,
     supportedClaim: spec.supportedClaim,
@@ -350,9 +363,9 @@ for (const card of cards.cards) {
 
   rows.push({
     assetId: card.assetId,
-    title: { 'IL-SCAF-010': 'Video title card', 'IL-SCAF-011': 'Video end card', 'IL-SOC-010': 'Open-graph card' }[card.assetId],
+    title: CARD_TITLES[card.assetId],
     judgeQuestion: meta.judgeQuestion,
-    proofClass: card.assetId === 'IL-SCAF-011' ? 'A+B' : card.assetId === 'IL-SOC-010' ? 'A' : 'none',
+    proofClass: CARD_PROOF_CLASS[card.assetId],
     proofClassLabel: null,
     sourceIssue: 'HAC-335',
     derivedFrom: meta.derivedFrom,

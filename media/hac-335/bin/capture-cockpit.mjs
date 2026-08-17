@@ -26,10 +26,10 @@
  *     node media/hac-335/bin/capture-cockpit.mjs [--base http://127.0.0.1:4173]
  */
 
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../../..');
@@ -196,11 +196,53 @@ async function loadPlaywright() {
   process.exit(2);
 }
 
-const gitSha = () =>
-  execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim();
+const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
 
-const sha256 = (buf) =>
-  execFileSync('shasum', ['-a', '256'], { input: buf, encoding: 'utf8' }).split(' ')[0];
+/**
+ * The commit the captured surface was served from, read out of the git
+ * directory rather than by shelling out. Two reasons: a subprocess resolved
+ * through `PATH` is an injection surface in a script that also writes committed
+ * artifacts, and `.git` is a *file* inside a worktree, so the naive read is
+ * wrong exactly where this issue is developed.
+ */
+function gitSha() {
+  let gitDir = join(ROOT, '.git');
+  if (!existsSync(gitDir)) throw new Error('no .git found; cannot record the captured commit');
+
+  // A linked worktree stores `gitdir: <path>` in a plain file where a normal
+  // checkout has a directory.
+  if (statSync(gitDir).isFile()) {
+    const pointer = readFileSync(gitDir, 'utf8').trim();
+    if (!pointer.startsWith('gitdir:')) throw new Error(`unrecognised .git file: ${pointer.slice(0, 40)}`);
+    gitDir = pointer.slice(7).trim();
+  }
+
+  const head = readFileSync(join(gitDir, 'HEAD'), 'utf8').trim();
+  if (!head.startsWith('ref:')) return head;
+  const ref = head.slice(4).trim();
+
+  // A worktree's own gitdir holds HEAD but not the ref store; `commondir`
+  // points at the checkout that does.
+  const commonFile = join(gitDir, 'commondir');
+  const common = existsSync(commonFile)
+    ? resolve(gitDir, readFileSync(commonFile, 'utf8').trim())
+    : gitDir;
+
+  for (const dir of new Set([gitDir, common])) {
+    const loose = join(dir, ref);
+    if (existsSync(loose)) return readFileSync(loose, 'utf8').trim();
+
+    // Packed refs: the common case for a freshly cloned checkout.
+    const packed = join(dir, 'packed-refs');
+    if (existsSync(packed)) {
+      for (const line of readFileSync(packed, 'utf8').split('\n')) {
+        const [sha, name] = line.split(' ');
+        if (name === ref) return sha;
+      }
+    }
+  }
+  throw new Error(`cannot resolve ${ref} to a commit`);
+}
 
 async function main() {
   const { chromium } = await loadPlaywright();
