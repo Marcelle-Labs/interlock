@@ -115,7 +115,7 @@ const CAPTURES = [
       'Google ADK 1.35.1',
       'Cloud Run-hosted agent',
       'Interlock MCP proxy',
-      'ALLOW + authorization receipt',
+      'ALLOW + receipt',
       'EXECUTED',
       'OBSERVED',
       'alpha=45',

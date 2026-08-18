@@ -193,7 +193,7 @@
           "file": "media/hac-334/exports/IL-DIAG-011-cloud-participation-1280x720-runilkhac340cloud1786730369123.png",
           "width": 1280,
           "height": 720,
-          "sha256": "6b4f285b0671a26a1198ae882fc4a26a855022495e392d510e5652bfc31589ae",
+          "sha256": "2720b308afcbe9aad4362337cabd03e6ceb51b4ad6d966f2a7c565b4cb07f717",
           "presentationRole": null
         },
         {
@@ -201,7 +201,7 @@
           "file": "media/hac-334/exports/IL-DIAG-011-cloud-participation-1200x675-runilkhac340cloud1786730369123.png",
           "width": 1200,
           "height": 675,
-          "sha256": "a7690f3aac276a80206657f53c664653daf436cc67e3f9771c7922cf6992b330",
+          "sha256": "5ff9fe713cde70cd7737407dbc4a154dec9be50d8f422790f4ba3aeb7400b587",
           "presentationRole": null
         }
       ],
@@ -259,7 +259,7 @@
           "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png",
           "width": 1920,
           "height": 1080,
-          "sha256": "e7e54989d6906885aa4bbfaa28b694472fa8657230d207c55b082c5724147c21",
+          "sha256": "b10a7951f77fec87df22f48b6da0609539cd551c5f88b29c6bd859f9c00380ea",
           "presentationRole": null
         },
         {
@@ -267,7 +267,7 @@
           "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png",
           "width": 1920,
           "height": 1080,
-          "sha256": "e7e54989d6906885aa4bbfaa28b694472fa8657230d207c55b082c5724147c21",
+          "sha256": "b10a7951f77fec87df22f48b6da0609539cd551c5f88b29c6bd859f9c00380ea",
           "presentationRole": null
         },
         {
@@ -275,7 +275,7 @@
           "file": "media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1200x675-runilkhac340cloud1786730369123.png",
           "width": 1200,
           "height": 675,
-          "sha256": "f0a6032332dd9091e5533203ea07bfd5453f0bf54b5f3c36a9266154abdbb584",
+          "sha256": "8edbd3dd9692c93348a265f5d96ce7a4d8c14632a3ba69ecb8ef635475844d85",
           "presentationRole": null
         }
       ],
@@ -496,7 +496,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -506,7 +506,7 @@
           "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x724-runhac330local.png",
           "width": 1440,
           "height": 724,
-          "sha256": "66b04d62a174081478e890b8d683461dafc9019e8d3f56269b40b4b08efddc34",
+          "sha256": "1c629a77a3753d81abb61a2855bd0491cebb396a5772b8cc60e58841debb923c",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -540,7 +540,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -550,7 +550,7 @@
           "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x866-runhac330local.png",
           "width": 1440,
           "height": 866,
-          "sha256": "4b5637bc7f11fe0165529f2cc39edab7f7fe9e0369702b06bf8e61f76d4ef1b2",
+          "sha256": "87257c8bd33cfbba447ba500665b04b99c59d8fb3db2487262460d2126511b84",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -584,7 +584,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -594,7 +594,7 @@
           "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x653-runilkhac340cloud1786730369123.png",
           "width": 1440,
           "height": 653,
-          "sha256": "f7e997fec739a856f56bd4a33c00a558df949187df4701b2fad0ee3e78bfa627",
+          "sha256": "bb17de71f12be372b75eb2bcfe4f6512d607a1ad6bd0ed96910cbd37db916802",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -644,17 +644,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x804-runilkhac340cloud1786730369123.png",
+          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x817-runilkhac340cloud1786730369123.png",
           "width": 1440,
-          "height": 804,
-          "sha256": "b8af720d00aefc6fa14b5bee4396570c73b37c2951c2ed3b71f26155f8a27830",
+          "height": 817,
+          "sha256": "bb24f64ec7c5ecfc909de64b328954d5e83d987e63564a880b215f082ba8a84e",
           "cropAnchor": "union:main#app,aside#drawer",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }

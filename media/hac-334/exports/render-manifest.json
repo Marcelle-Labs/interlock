@@ -104,7 +104,7 @@
       "asset": "IL-DIAG-011",
       "export": "IL-DIAG-011-cloud-participation-1920x1080-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "masterSha256": "5329723377bee3640fcdd7900beae9e955a98d9de3a4902967abf5d68bf8485a",
       "width": 1920,
       "height": 1080
     },
@@ -112,7 +112,7 @@
       "asset": "IL-DIAG-011",
       "export": "IL-DIAG-011-cloud-participation-2400x1350-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "masterSha256": "5329723377bee3640fcdd7900beae9e955a98d9de3a4902967abf5d68bf8485a",
       "width": 2400,
       "height": 1350
     },
@@ -120,7 +120,7 @@
       "asset": "IL-DIAG-011",
       "export": "IL-DIAG-011-cloud-participation-1280x720-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "masterSha256": "5329723377bee3640fcdd7900beae9e955a98d9de3a4902967abf5d68bf8485a",
       "width": 1280,
       "height": 720
     },
@@ -128,7 +128,7 @@
       "asset": "IL-DIAG-011",
       "export": "IL-DIAG-011-cloud-participation-1200x675-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-011-cloud-participation-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "f1dec84d88f37ffc3e45b13dae2af9c12493cbc081f99c7034c40a532099566b",
+      "masterSha256": "5329723377bee3640fcdd7900beae9e955a98d9de3a4902967abf5d68bf8485a",
       "width": 1200,
       "height": 675
     },
@@ -136,7 +136,7 @@
       "asset": "IL-DIAG-011",
       "export": "IL-DIAG-011-cloud-participation-brief-1920x1080-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-011-cloud-participation-brief-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "39c15db99a7e74c694a966f2b5d8c145c29f7437cfd4f735697fe7874e8c7238",
+      "masterSha256": "8d5e8fcd7ae9ae7294db370789a313bf8c7103d7200f1f8c7e803638e7f42104",
       "width": 1920,
       "height": 1080,
       "presentationRole": "5s"
@@ -145,7 +145,7 @@
       "asset": "IL-DIAG-012",
       "export": "IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "1e4006c0764476256c332371bce3814a9cd1d6a54819bf1d84c1a1facd6e43b2",
+      "masterSha256": "b4e1d9f305ea8a956e593c043921b22fad3120d8d090e1c65462dec7d9089f92",
       "width": 1920,
       "height": 1080
     },
@@ -153,7 +153,7 @@
       "asset": "IL-DIAG-012",
       "export": "IL-DIAG-012-deployment-trust-boundaries-2400x1350-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "1e4006c0764476256c332371bce3814a9cd1d6a54819bf1d84c1a1facd6e43b2",
+      "masterSha256": "b4e1d9f305ea8a956e593c043921b22fad3120d8d090e1c65462dec7d9089f92",
       "width": 2400,
       "height": 1350
     },
@@ -161,7 +161,7 @@
       "asset": "IL-DIAG-012",
       "export": "IL-DIAG-012-deployment-trust-boundaries-1200x675-runilkhac340cloud1786730369123.png",
       "master": "IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg",
-      "masterSha256": "1e4006c0764476256c332371bce3814a9cd1d6a54819bf1d84c1a1facd6e43b2",
+      "masterSha256": "b4e1d9f305ea8a956e593c043921b22fad3120d8d090e1c65462dec7d9089f92",
       "width": 1200,
       "height": 675
     },

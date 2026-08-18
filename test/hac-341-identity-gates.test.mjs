@@ -390,3 +390,85 @@ describe('the evidence panel stays usable', () => {
     expect(r.out).toMatch(/looping animation/);
   });
 });
+
+/**
+ * Pre-freeze cleanup. Two of these guard framing rather than facts: the values
+ * involved are all real evidence, and the defect was where they were shown and
+ * what they were called. That makes them easy to reintroduce by accident, which
+ * is exactly why they need proofs.
+ */
+describe('cloud L1 does not read as a bounded-outcome experiment', () => {
+  const gate = 'media/hac-341/bin/verify-cockpit.mjs';
+
+  it('fails when the mutation invariant returns to cloud L1', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html',
+        '<div class="n">${esc(run.effect.note)}</div>',
+        '<div class="n">${esc(run.effect.invariant)}</div>');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/cloud L1 renders the protected-mutation invariant/);
+  });
+
+  it('fails when the invariant is deleted rather than demoted', () => {
+    const r = perturbed((a) => {
+      const f = 'media/hac-341/cockpit.html';
+      a.write(f, a.read(f).replaceAll('run.effect.invariant', 'run.effect.status'));
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/rendered nowhere; it is recorded evidence/);
+  });
+});
+
+describe('the decision artifact has one name', () => {
+  const gate = 'media/hac-341/bin/verify-cockpit.mjs';
+  const VM = 'media/hac-341/evidence/view-model.json';
+
+  it('fails when the decision hop drifts from "<decision> + receipt"', () => {
+    const r = perturbed((a) => {
+      const m = JSON.parse(a.read(VM));
+      m.runs.cloud.events.find((e) => e.role === 'decision').label = 'ALLOW + authorization receipt';
+      a.write(VM, `${JSON.stringify(m, null, 2)}\n`);
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/must read "ALLOW \+ receipt"/);
+  });
+
+  it('fails when a rendered surface reintroduces "authorization receipt"', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', '<h2>Decision, effect, observation</h2>',
+        '<h2>Decision, effect, observation</h2><!-- authorization receipt -->');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/names the decision artifact "authorization receipt"/);
+  });
+});
+
+describe('semantic state colour clears the text contrast floor', () => {
+  const gate = 'scripts/check-identity.mjs';
+  const TOK = 'assets/tokens/colors.css';
+
+  it('fails when the light coupled state is lightened back over the floor', () => {
+    const r = perturbed((a) => {
+      a.edit(TOK, '--il-state-coupled: oklch(0.52 0.130 250)', '--il-state-coupled: oklch(0.58 0.130 250)');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/is L=0\.58; 0\.52 is the measured ceiling/);
+  });
+
+  it('fails when hue or chroma change without a re-measure', () => {
+    const r = perturbed((a) => {
+      a.edit(TOK, '--il-state-coupled: oklch(0.52 0.130 250)', '--il-state-coupled: oklch(0.52 0.180 265)');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/chroma\/hue changed .* must be re-measured/);
+  });
+
+  it('fails when the cockpit drifts from the token it should follow', () => {
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html', '--coupled:oklch(0.52 0.130 250)', '--coupled:oklch(0.58 0.130 250)');
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/has drifted from the token/);
+  });
+});

@@ -35,7 +35,10 @@
   --n00:#fff;--n05:#f7f8f8;--n10:#eef0f0;--n20:#dde0e0;--n30:#c2c7c7;--n40:#9ba2a2;
   --n50:#737b7b;--n60:#515858;--n70:#343a3a;--n80:#1e2323;--n90:#141818;--n95:#0f1212;
   --ink:#0b0d0e;--paper:#fbfbfa;
-  --coupled:oklch(0.58 0.130 250);--blocked:oklch(0.58 0.150 28);
+  /* COUPLED measured 4.01:1 on the sunken light surface at L=0.58, under the
+     4.5:1 floor for 8.5-10px label text. L=0.52 measures 5.15:1. Hue and chroma
+     are unchanged; the dark peer below is already ~8.6:1 and is left alone. */
+  --coupled:oklch(0.52 0.130 250);--blocked:oklch(0.58 0.150 28);
   --executed:oklch(0.52 0.130 300);--observed:oklch(0.60 0.100 205);
   --failed:oklch(0.46 0.170 22);
   /* Surfaces, so a panel reads as an object rather than an outline on a field. */
@@ -692,6 +695,12 @@ ${brandHtml}
     </div>
     <div class="col">
       <h2>Decision, effect, observation</h2>
+      <!-- Decision and Effect deliberately share the executed hue. The frozen
+           grammar has no ALLOW hue, and the only unused candidate is the
+           authorization green, which would assert a lifecycle these packets
+           never emitted. The label, glyph and card order carry the distinction
+           instead; the shared hue is a documented limitation, not a claim that
+           a decision equals an effect. -->
       <div class="results">
         <div class="res" style="border-left-color:var(--executed)">
           <div class="k">Decision</div><div class="v">${esc(run.decision.value)} + receipt</div>
@@ -699,7 +708,7 @@ ${brandHtml}
         </div>
         <div class="res" style="border-left-color:var(--executed)">
           <div class="k">Effect</div><div class="v">${esc(run.effect.status)}</div>
-          <div class="n">${esc(run.effect.invariant)}</div>
+          <div class="n">${esc(run.effect.note)}</div>
         </div>
         <div class="res" style="border-color:var(--observed);color:var(--observed)">
           <div class="k">Observation</div><div class="v">${esc(run.observation.observed)}</div>
@@ -823,6 +832,12 @@ function cloudVerify(run) {
         <dt>receipt</dt><dd>${copyable(run.applicationProvenance.receiptDigest, 'the receipt digest')}</dd>
         <dt>correlation</dt><dd>${copyable(run.applicationProvenance.correlationId, 'the correlation id')}</dd>
       </dl><p class="note">${esc(run.applicationProvenance.note)}</p></section>
+      <section><h3>Protected mutation</h3><dl class="kv">
+        <dt>status</dt><dd>${esc(run.effect.status)}</dd>
+        <dt>target invariant</dt><dd>${esc(run.effect.invariant)}</dd>
+        <dt>revision before</dt><dd>${copyable(run.effect.revisionBefore, 'the pre-mutation revision')}</dd>
+        <dt>revision after</dt><dd>${copyable(run.effect.revisionAfter, 'the post-mutation revision')}</dd>
+      </dl><p class="note">The protected target's own recorded bound. It is not the HAC-330 joint bound, and this run does not reproduce that experiment.</p></section>
       <section><h3>Runtime source</h3><dl class="kv">
         <dt>runtimeSourceSha</dt><dd>${copyable(rp.runtimeSourceSha, 'the runtime source sha')}</dd>
         <dt>public URL</dt><dd>${esc(rp.runtimeSourceUrl.state)}</dd>
@@ -844,6 +859,9 @@ function cloudRaw(run) {
         <dt>evidencePublicationSha</dt><dd>${copyable(p.evidencePublicationSha, 'the evidence publication sha')}</dd>
         <dt>publicationBindingsSha</dt><dd>${copyable(p.publicationBindingsSha, 'the publication bindings sha')}</dd>
       </dl><div class="unavail">${esc(p.sourcePacketNote)}</div></section>
+      <section><h3>Architecture</h3><dl class="kv">
+        <dt>deployment</dt><dd><a href="../hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png" target="_blank" rel="noreferrer">IL-DIAG-012 — exact deployment and trust boundaries</a></dd>
+      </dl><p class="note">The frozen architecture visual bound to this run. Architecture verifies the result; it is never the first comprehension layer.</p></section>
       <section><h3>Negative controls</h3><dl class="kv">
         ${run.negativeControls.map((c) => `<dt>${esc(c.status)}</dt><dd>${esc(c.label)}${c.note ? `<br><span style="opacity:.65">${esc(c.note)}</span>` : ''}</dd>`).join('')}
       </dl></section>

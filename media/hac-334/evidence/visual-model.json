@@ -370,7 +370,7 @@
           },
           {
             "n": 6,
-            "label": "ALLOW + authorization receipt",
+            "label": "ALLOW + receipt",
             "role": "decision"
           },
           {
@@ -505,7 +505,7 @@
           {
             "zone": "DECISION / RECEIPT",
             "nodes": [
-              "ALLOW + authorization receipt"
+              "ALLOW + receipt"
             ]
           },
           {
