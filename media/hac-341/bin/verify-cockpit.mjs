@@ -11,7 +11,7 @@
  * model from changed evidence moves the expectation with it. Nothing here
  * asserts a constant for its own sake.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
@@ -29,6 +29,37 @@ const bindings = read('experiments', 'hac-342', 'evidence', 'publication-binding
 const errors = [];
 const fail = (m) => errors.push(m);
 const { local, cloud } = model.runs;
+
+/* --- local identity assets must survive constrained preview hosts -------- */
+
+const localIdentity = [
+  ['token entry point', '../../assets/styles.css', ['assets', 'styles.css']],
+  ['Geist face', '../../assets/fonts/geist-variable.woff2', ['assets', 'fonts', 'geist-variable.woff2']],
+  ['Geist Mono face', '../../assets/fonts/geist-mono-variable.woff2', ['assets', 'fonts', 'geist-mono-variable.woff2']],
+];
+for (const [label, href, path] of localIdentity) {
+  if (!cockpit.includes(href)) fail(`cockpit does not link the repository-local ${label}`);
+  if (!existsSync(join(repoRoot, ...path))) fail(`repository-local ${label} is missing`);
+}
+if (!/@font-face\s*\{[\s\S]*?font-family:\s*"Geist"/.test(cockpit)) {
+  fail('cockpit has no direct Geist fallback when a preview host drops CSS imports');
+}
+if (!/@font-face\s*\{[\s\S]*?font-family:\s*"Geist Mono"/.test(cockpit)) {
+  fail('cockpit has no direct Geist Mono fallback when a preview host drops CSS imports');
+}
+for (const [proof, source] of [
+  ['local', 'experiments/hac-330/evidence/arms.json'],
+  ['cloud', 'experiments/hac-342/evidence/cloud-run.public.json'],
+]) {
+  const raw = model.runs[proof].rawProof;
+  if (!raw) { fail(`${proof} run has no build-time raw proof presentation`); continue; }
+  if (raw.source !== source) fail(`${proof} raw proof source is not the frozen evidence file`);
+  if (!raw.json || !raw.html?.includes('shiki')) fail(`${proof} raw proof is not Shiki-highlighted`);
+  if (/https?:\/\//.test(raw.html)) fail(`${proof} raw proof presentation has a runtime network dependency`);
+}
+if (!/run\.rawProof\.html/.test(cockpit) || !/run\.rawProof\.source/.test(cockpit)) {
+  fail('cockpit does not render the build-time highlighted raw proof and source');
+}
 
 /* --- the runs must not merge ------------------------------------------- */
 

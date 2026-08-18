@@ -415,6 +415,7 @@ function checkCaptureFreshness({ root, captures }, fail) {
 
 function checkRegistryCoverage({ root, registry, sequence, shots, captures }, fail) {
   const registered = new Set(registry.assets.map((a) => a.assetId));
+  const currentCapture = new Map(captures.captures.map((c) => [c.assetId, c]));
 
   for (const s of sequence.steps) {
     for (const id of [s.primaryAsset, ...(s.supportingAssets || [])].filter(Boolean)) {
@@ -425,6 +426,14 @@ function checkRegistryCoverage({ root, registry, sequence, shots, captures }, fa
   for (const s of shots.screenshots) {
     if (!registered.has(s.assetId)) fail(`Devpost screenshot ${s.order} uses ${s.assetId}, absent from the registry`);
     if (!existsSync(join(root, s.file))) fail(`Devpost screenshot ${s.order} points at a missing file: ${s.file}`);
+    // A historically valid PNG is not evidence for the current cockpit. The
+    // source digest establishes that the current capture is fresh; bind every
+    // Devpost cockpit slot to that exact capture so an old, still-present file
+    // cannot quietly remain in the upload order after recapture.
+    const current = currentCapture.get(s.assetId);
+    if (current && s.file !== current.file) {
+      fail(`Devpost screenshot ${s.order} uses stale ${s.assetId} file ${s.file}; current capture is ${current.file}`);
+    }
   }
   for (const id of [shots.thumbnail.assetId, shots.architectureUpload.assetId]) {
     if (!registered.has(id)) fail(`Devpost ${id} is absent from the registry`);

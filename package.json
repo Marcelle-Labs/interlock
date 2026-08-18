@@ -16,6 +16,7 @@
     "check:packet:s2": "node experiments/hac-326/bin/verify-packet.mjs",
     "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:visuals && pnpm run check:identity && pnpm run check:package",
     "check:cockpit": "node media/hac-341/bin/verify-cockpit.mjs",
+    "check:cockpit:visual": "node media/hac-341/bin/verify-cockpit-visual.mjs",
     "check:package": "node media/hac-335/bin/verify-package.mjs",
     "package:capture": "node media/hac-335/bin/capture-cockpit.mjs",
     "package:build": "node media/hac-335/bin/build-cards.mjs && node media/hac-335/bin/build-registry.mjs",
@@ -36,6 +37,7 @@
     "@resvg/resvg-js": "2.6.2",
     "@types/node": "22.15.3",
     "@vitest/coverage-v8": "3.2.4",
+    "shiki": "3.15.0",
     "typescript": "5.9.2",
     "vitest": "3.2.4"
   }

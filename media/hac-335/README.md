@@ -81,6 +81,11 @@ hand-narrowed list is visible rather than merely wrong.
 
 The commit SHA stays, as provenance. Freshness is the digest's job.
 
+The Devpost upload order is bound to the current capture-manifest filename for
+every cockpit asset. A previous PNG may remain in the repository as historical
+evidence, but it cannot silently remain in the judge upload list after a
+recapture.
+
 ## Regenerating
 
 Deterministic, no browser:

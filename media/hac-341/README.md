@@ -255,6 +255,20 @@ node media/hac-341/bin/build-view-model.mjs   # rebuild from frozen evidence
 node media/hac-341/bin/verify-cockpit.mjs     # gate
 ```
 
+The browser-level visual contract is separate because the deterministic package
+does not carry a browser dependency. It measures both proof classes at
+**1440×900** and **1280×800**: the local run must show its identity, causal
+claim, all four stages, arm selector and verification actions; the cloud run
+must show its lane-attributed path, decision/effect/observation, controls and
+verification actions. Both retain 48px headroom. It also checks the purposeful
+390×844 mobile first frame, horizontal overflow, drawer focus/escape behavior,
+syntax-rendered raw proof, long recorded values and same-origin requests.
+
+```sh
+PLAYWRIGHT_MODULE=/tmp/il-capture/node_modules/playwright \
+  pnpm run check:cockpit:visual -- --base http://127.0.0.1:4173
+```
+
 The gate fails on: either run gaining the other's fields; an arm total or
 decision drifting from the frozen record; the baseline gaining a decision;
 `EXECUTED` and `OBSERVED` collapsing; a changed negative control; wrong-audience
@@ -309,7 +323,7 @@ Strongest crops, measured at 1440x900:
 
 | Class | Region | Must survive the crop |
 | --- | --- | --- |
-| A · local | header through the actions row, ~top 570px | lockup, `CONTROLLED LOCAL EXPERIMENT`, checks 24/24, both intents, `COUPLED` with `joint bound <= 130`, `WITHHOLD_SERIALIZE`, and `140 > 130` beside `120 <= 130` |
+| A · local | header through the actions row, first 852px | lockup, `CONTROLLED LOCAL EXPERIMENT`, checks 24/24, both intents, `COUPLED` with `joint bound <= 130`, `WITHHOLD_SERIALIZE`, and `140 > 130` beside `120 <= 130` |
 | B · cloud | header through the controls row, ~top 650px | the lane-attributed path from Google to Interlock to protected target to independent observer, `ALLOW + receipt`, `EXECUTED`, `alpha=45`, `403 / 401 / 403`, and the not-on-the-recorded-path strip |
 
 Both crops drop only unused canvas. The lane column in the cloud view is what

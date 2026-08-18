@@ -7,9 +7,30 @@
 <!-- The frozen HAC-332 identity: tokens, grammar and the self-hosted Geist
      faces. Relative and local by design — this surface must render identically
      with networking disabled, or a deterministic capture is not deterministic. -->
+<!-- Keep the faces owned by the cockpit as well as by the token entry point.
+     Some static preview hosts preserve inline CSS but do not follow CSS
+     imports. Without these declarations `var(--font-sans)` is unresolved and
+     the page falls all the way back to the browser's serif default. The font
+     binaries remain the single, repository-local copies under assets/fonts. -->
+<link rel="preload" href="../../assets/fonts/geist-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/geist-mono-variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../assets/styles.css">
 <link rel="icon" href="../../assets/logo/interlock-favicon-light.svg" type="image/svg+xml">
 <style>
+@font-face{
+  font-family:"Geist";
+  src:url("../../assets/fonts/geist-variable.woff2") format("woff2");
+  font-weight:100 900;
+  font-style:normal;
+  font-display:block;
+}
+@font-face{
+  font-family:"Geist Mono";
+  src:url("../../assets/fonts/geist-mono-variable.woff2") format("woff2");
+  font-weight:100 900;
+  font-style:normal;
+  font-display:block;
+}
 :root{
   --n00:#fff;--n05:#f7f8f8;--n10:#eef0f0;--n20:#dde0e0;--n30:#c2c7c7;--n40:#9ba2a2;
   --n50:#737b7b;--n60:#515858;--n70:#343a3a;--n80:#1e2323;--n90:#141818;--n95:#0f1212;
@@ -22,8 +43,8 @@
   /* Resolved from the ported HAC-332 typography tokens, so this surface and the
      storyboard cannot disagree about the family. The faces are vendored; the
      stack after them is a safety net, not the intended rendering. */
-  --sans:var(--font-sans);
-  --mono:var(--font-mono);
+  --sans:var(--font-sans, Geist, "Geist Sans", "Helvetica Neue", Helvetica, Arial, sans-serif);
+  --mono:var(--font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
   /* One source for the panel width: the drawer is sized from it and the run
      yields exactly that much space when the panel opens. */
   --drawer-w:min(560px,50vw);
@@ -351,6 +372,88 @@ html[data-static="true"] main.frame{transition:none!important}
 .results[data-il-motion="arm"]{animation-delay:calc(var(--delay-step,90ms) * 2)}
 html[data-static="true"] [data-il-motion]{animation:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── refined evidence-review composition ────────────────────────────────
+   The rail is the page's signature: independent intents visibly converge on
+   frozen evidence, which owns the decision and the result. Cards support the
+   chain; they do not become the visual language themselves. */
+body[data-proof="local"]{background:var(--n10)}
+body[data-proof="cloud"]{background:var(--n95)}
+.frame{max-width:var(--width-wide,76rem);background:var(--paper);min-height:100vh}
+body[data-proof="cloud"] .frame{background:var(--ink)}
+.run-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;padding:16px 24px 12px}
+.run-header__identity{display:flex;align-items:center;gap:14px;min-width:0;overflow-x:auto}
+.run-header__identity .eyebrow{border-right:1px solid var(--border-default);padding-right:14px}
+.run-header__facts{grid-column:1/-1;gap:20px;padding-top:8px;border-top:1px solid var(--border-hair);font-size:10px}
+.run-header__facts .k{font-size:8.5px}.run-header__facts .v{font-size:10px}
+.run-header .switch{justify-self:end}
+.run-thesis{padding:8px 24px;background:var(--surface-sunken);border-bottom:1px solid var(--border-hair);align-items:flex-start}
+.run-thesis .tag{margin-top:2px}.run-thesis p{max-width:72ch;font-size:15px;line-height:1.45}
+.causal-layout{padding:16px 24px 18px;display:grid;gap:0}
+.stage-head{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:baseline;margin-bottom:10px;font-family:var(--mono);text-transform:uppercase}
+.stage-head h2{font-size:10px;font-weight:600;letter-spacing:.12em;overflow-x:auto}.stage-head>span:last-child{font-size:8.5px;letter-spacing:.1em;opacity:.52}
+.stage-no{font-size:10px;color:var(--coupled);font-weight:600;letter-spacing:.04em}
+.causal-stage{max-width:44rem}
+.intents{gap:12px}.intent-card{display:grid;gap:5px;padding:10px 14px;min-height:78px}
+.intent-card .intent-id{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--n50)}
+.intent-card h3{font-size:15px;line-height:1.15}.intent-card .chip{justify-self:start;margin:0}
+.causal-stage .cxn{width:calc(100% - 48px);margin-left:24px;height:22px}
+.evidence-band{position:relative;max-width:58rem;padding:0;margin-top:-1px;border-left-width:3px;background:var(--surface-sunken)}
+.evidence-band::before{content:"";position:absolute;inset:0;pointer-events:none;background:var(--grid-fine);opacity:var(--grid-fine-opacity)}
+.evidence-band .stage-head,.evidence-band .env__body,.evidence-band .delta{position:relative}
+.evidence-band .stage-head{padding:9px 16px 0;margin-bottom:6px}.evidence-band .env__body{padding:0 16px 10px}
+.evidence-band .attr{max-width:70ch}.evidence-ledger{display:flex;gap:8px 18px;flex-wrap:wrap;margin-top:7px;padding-top:7px;border-top:1px solid var(--border-default);font-family:var(--mono);font-size:9px;line-height:1.45;opacity:.75}
+.evidence-ledger b{text-transform:uppercase;letter-spacing:.09em;font-size:8px;opacity:.7}.evidence-band .delta{margin:0;border-width:1px;border-left:0;border-right:0;border-bottom:0;border-radius:0;padding:10px 16px}
+.evidence-band .delta .dtext{max-width:76ch}.causal-drop{width:2px;height:24px;margin:0 0 0 28px}.causal-drop svg{width:2px}
+.resolution-grid{display:grid;grid-template-columns:minmax(17rem,.85fr) minmax(22rem,1.15fr);gap:18px;align-items:stretch}
+.decision-bar{display:flex;flex-direction:column;margin:0;border-left-width:3px;padding:14px 16px;background:var(--surface-card)}
+.decision-bar .stage-head{margin-bottom:16px}.decision-bar .tok{font-size:clamp(20px,2.1vw,28px);line-height:1.05}.decision-bar .why{margin-top:8px;line-height:1.45}.decision__body{margin-top:auto}
+.outcome-stage{border-left:1px solid var(--border-hair);padding-left:18px}.outcome-stage .stage-head{margin-bottom:8px}
+.results{gap:8px}.res{padding:11px 14px;transition:border-color var(--dur-base,220ms) var(--ease-standard)}
+.res[data-selected="false"]{background:var(--surface-sunken);opacity:.7}.res[data-selected="false"] .v{font-size:28px}
+.res[data-selected="true"]{border-width:2px;border-left-width:4px;padding:12px 16px;box-shadow:var(--elev-1)}
+.res[data-selected="true"] .v{font-size:clamp(38px,3.7vw,48px)}.res[data-selected="true"] .k{opacity:.8}
+.arm-switcher{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 20px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border-hair)}
+.arm-switcher .arms{margin:0}.arm-switcher .armnote{grid-column:1/-1;margin:0}.arm-switcher .actions{margin:0;justify-self:end}.arms button{min-height:var(--tap-target,44px);padding:7px 9px}.actions button{min-height:var(--tap-target,44px)}
+.proof-source{font-family:var(--mono);font-size:9px;letter-spacing:.05em;opacity:.62;margin:-1px 0 7px;overflow-wrap:anywhere}
+pre.shiki-proof{padding:0;background:var(--surface-code);border:1px solid var(--border-default);font-size:10px;line-height:1.55;white-space:pre;overflow:auto}
+pre.shiki-proof code{display:block;padding:12px 14px;font-family:var(--mono);overflow-x:auto}
+pre.shiki-proof .line{min-height:1.55em}body[data-proof="cloud"] pre.shiki-proof{border-color:var(--border-default)}
+@media (min-width:901px){
+  .run-header{padding-top:13px;padding-bottom:10px}.run-header__facts{padding-top:6px}
+  .causal-layout{padding-top:13px;padding-bottom:12px}.intent-card{min-height:70px}
+  .causal-stage .cxn{height:18px}.causal-drop{height:19px}
+  .arm-switcher{margin-top:8px;padding-top:8px}
+}
+/* The first desktop read has a compact, explicit contract: identity, causal
+   chain, recorded comparison and verification controls all fit in an 800px
+   high browser with breathing room. This is density only; no evidence is
+   removed or hidden. Taller viewports retain the more generous review rhythm. */
+@media (min-width:901px) and (max-height:900px){
+  .run-header{padding-top:10px;padding-bottom:8px;gap:6px 20px}.run-header__facts{padding-top:5px;gap:15px}
+  .run-thesis{padding-top:5px;padding-bottom:5px}.run-thesis p{font-size:13px;line-height:1.3}
+  .causal-layout{padding-top:10px;padding-bottom:12px}.stage-head{margin-bottom:6px}
+  .intent-card{min-height:60px;gap:3px;padding:7px 11px}.intent-card h3{font-size:13px}.intent-card .intent-id{font-size:8px}
+  .chip{font-size:8.5px;padding:1px 5px}.causal-stage .cxn{height:14px}
+  .evidence-band .stage-head{padding-top:6px;margin-bottom:3px}.evidence-band .env__body{padding-bottom:6px}
+  .env .attr{margin-top:3px;line-height:1.25}.evidence-ledger{margin-top:4px;padding-top:4px}
+  .causal-drop{height:14px}.decision-bar{padding:9px 12px}.decision-bar .stage-head{margin-bottom:8px}
+  .decision-bar .tok{font-size:20px}.decision-bar .why{margin-top:4px}.decision-bar .frozen{margin-top:2px}
+  .outcome-stage .stage-head{margin-bottom:5px}.results{gap:5px}.res{padding:7px 10px}.res .cause{margin-bottom:2px}
+  .res[data-selected="false"] .v{font-size:22px}.res[data-selected="true"]{padding:8px 12px}.res[data-selected="true"] .v{font-size:34px}
+  .res .n{font-size:10px;margin-top:1px}.arm-switcher{margin-top:7px;padding-top:7px;gap:4px 14px}
+  .arms button,.actions button{min-height:36px}.arms button{padding:4px 7px}.actions button{padding:4px 8px;font-size:10.5px}
+  .armnote{font-size:9px;line-height:1.25}
+}
+@media (max-width:900px){
+  .run-header{grid-template-columns:1fr}.run-header .switch{justify-self:start;grid-row:3}.run-header__facts{grid-column:auto;grid-row:2}
+  .resolution-grid{grid-template-columns:1fr}.outcome-stage{border-left:0;border-top:1px solid var(--border-hair);padding:16px 0 0}.arm-switcher{grid-template-columns:1fr}.arm-switcher .actions{justify-self:start}
+}
+@media (max-width:640px){
+  .frame{max-width:100%}.run-header,.run-thesis,.causal-layout{padding-left:16px;padding-right:16px}.run-header__identity{flex-wrap:wrap;gap:9px}.run-header__identity .eyebrow{padding-right:9px}
+  .ptitle{font-size:11px;padding-left:9px}.switch .btns{max-width:100%;overflow:auto}.switch button{white-space:normal;min-height:44px}.stage-head{grid-template-columns:22px 1fr}.stage-head>span:last-child{display:none}
+  .intents{flex-direction:column}.intent-card{min-height:auto}.causal-stage .cxn{display:none}.evidence-band{margin-top:14px}.resolution-grid{margin-top:14px}.arm-switcher .arms{flex-direction:column}.arm-switcher .actions{width:100%}.arm-switcher .actions button{flex:1}
+}
 </style>
 </head>
 <body data-proof="local">
@@ -372,7 +475,7 @@ const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');
 
 const live = document.getElementById('live');
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const short = (s, n = 12) => (s ? `${String(s).slice(0, n)}…` : '');
 
 /* The canonical Interlock lockup: the frozen mark geometry plus a live wordmark
@@ -467,8 +570,8 @@ function deltaHtml(v) {
     </div>`;
 }
 
-const outcomeCard = (row) => `
-      <div class="res" data-holds="${row.outcome.holds}" data-row="${esc(row.key)}" data-arm="${esc(row.armId)}">
+const outcomeCard = (row, selectedArm) => `
+      <div class="res" data-holds="${row.outcome.holds}" data-row="${esc(row.key)}" data-arm="${esc(row.armId)}" data-selected="${row.armId === selectedArm}">
         <div class="cause"><span class="cxl" aria-hidden="true"></span>
           <span class="sr">Cause:</span><span class="ctok">${esc(row.cause)}</span></div>
         <div class="k">${esc(row.label)}</div>
@@ -479,49 +582,60 @@ const outcomeCard = (row) => `
 function renderLocal(run, armId) {
   const v = armView(run, armId);
   const isBaseline = v.arm.armId === v.baseline?.armId;
+  const coupling = v.evidence.couplings[0];
+  const evidenceState = v.coupled ? 'COUPLED' : 'NO QUALIFYING COUPLING';
   return `
-  <header>
-${brandHtml}
-    <h1 class="ptitle">${esc(run.proofLabel)}</h1>
-    <div class="pin">
+  <header class="run-header">
+    <div class="run-header__identity">${brandHtml}<h1 class="ptitle">${esc(run.proofLabel)}</h1></div>
+    ${switchHtml('local')}
+    <div class="pin run-header__facts">
       <div><span class="k">Run</span><span class="v">${esc(run.runIdentity)}</span></div>
       <div><span class="k">Issue</span><span class="v">${esc(run.sourceIssue)}</span></div>
       <div><span class="k">State</span><span class="v">FROZEN</span></div>
       <div><span class="k">Checks</span><span class="v">${esc(run.checks.label)}</span></div>
     </div>
-    ${switchHtml('local')}
   </header>
-  <div class="verdict"><span class="tag">EDITORIAL</span><p>${esc(run.editorial.verdict)}</p></div>
-  <div class="grid" id="main">
-    <div class="col">
-      <h2>What changed?</h2>
+  <div class="verdict run-thesis"><span class="tag">CAUSAL CLAIM</span><p>${esc(run.editorial.verdict)}</p></div>
+  <div class="causal-layout" id="main">
+    <section class="causal-stage" aria-labelledby="inputs-title">
+      <div class="stage-head"><span class="stage-no">01</span><h2 id="inputs-title">Locally valid inputs</h2><span>independent scopes</span></div>
       <div class="intents">
-        <div class="card"><h3>Intent A</h3><span class="chip" data-s="local" data-glyph="∙">Locally valid</span></div>
-        <div class="card"><h3>Intent B</h3><span class="chip" data-s="local" data-glyph="∙">Locally valid</span></div>
+        <div class="card intent-card"><span class="intent-id">Intent A</span><h3>Reservation change</h3><span class="chip" data-s="local" data-glyph="∙">Locally valid</span></div>
+        <div class="card intent-card"><span class="intent-id">Intent B</span><h3>Reservation change</h3><span class="chip" data-s="local" data-glyph="∙">Locally valid</span></div>
       </div>
       <div class="cxn" aria-hidden="true"><svg viewBox="0 0 100 26" preserveAspectRatio="none" focusable="false">
         <path class="e-intent" d="M25 1 L25 13 L75 13 L75 1"></path>
         <path class="e-couple" d="M50 13 L50 25"></path></svg></div>
-      <div class="env" data-coupled="${v.coupled}">
+    </section>
+    <section class="evidence-band env" data-coupled="${v.coupled}" aria-labelledby="evidence-title">
+      <div class="stage-head"><span class="stage-no">02</span><h2 id="evidence-title">Revision-bound evidence</h2><span>frozen basis</span></div>
+      <div class="env__body">
         <div class="row"><span class="lbl">Shared environment</span>
           ${v.coupled ? '<span class="chip" data-s="coupled" data-glyph="⧉">Coupled</span>' : ''}
           <span class="bound">joint bound &lt;= ${esc(v.constraint.bound)}</span></div>
         <div class="attr">${evidenceLine(v)}</div>
+        <div class="evidence-ledger"><span><b>finding</b> ${esc(evidenceState)}</span>${coupling ? `<span><b>files</b> ${esc(coupling.files.join(' · '))}</span>` : '<span><b>effect</b> evidence does not establish coupling</span>'}</div>
       </div>
       ${deltaHtml(v)}
-      <div class="cxn short" aria-hidden="true"><svg viewBox="0 0 100 20" preserveAspectRatio="none" focusable="false">
+    </section>
+    <div class="cxn short causal-drop" aria-hidden="true"><svg viewBox="0 0 100 20" preserveAspectRatio="none" focusable="false">
         <path class="e-couple" d="M50 0 L50 19"></path></svg></div>
-      <div class="decision">
+    <div class="resolution-grid">
+      <section class="decision decision-bar" aria-labelledby="decision-title">
+        <div class="stage-head"><span class="stage-no">03</span><h2 id="decision-title">Coordination decision</h2><span>recorded, not recomputed</span></div>
+        <div class="decision__body">
         <div class="dk">Interlock decision · deterministic</div>
         <div class="tok">${esc(v.arm.decision ?? 'no decision — Interlock disabled')}</div>
         ${v.arm.decisionReason ? `<div class="why">${esc(v.arm.decisionReason)}</div>` : ''}
         <div class="frozen">FROZEN ARM · NOT RECOMPUTED</div>
-        <div class="outflow" aria-hidden="true"><span class="ol"></span><span>joint outcome →</span></div>
-      </div>
+        </div>
+      </section>
+      <section class="outcome-stage" aria-labelledby="outcome-title">
+        <div class="stage-head"><span class="stage-no">04</span><h2 id="outcome-title">Bounded joint outcome</h2><span>baseline vs selected arm</span></div>
+        <div class="results">${v.comparison.map((row) => outcomeCard(row, v.arm.armId)).join('')}</div>
+      </section>
     </div>
-    <div class="col">
-      <h2>Bounded joint outcome</h2>
-      <div class="results">${v.comparison.map(outcomeCard).join('')}</div>
+    <section class="arm-switcher">
       ${isBaseline ? `<p class="armnote lead">Interlock was disabled in this arm, so no coordination
         occurred and there is no second result to compare it against. Select
         <b>Treatment · original evidence</b> or <b>Perturbed evidence</b> to see what the
@@ -530,12 +644,12 @@ ${brandHtml}
         ${run.arms.map((a) => `<button data-arm="${esc(a.armId)}" aria-pressed="${a.armId === v.arm.armId}">${esc(a.label)}</button>`).join('')}
       </div>
       <p class="armnote">Each arm is a recorded result. Selecting an arm changes which recorded arm is displayed. Nothing is executed in the browser.</p>
-      <div class="actions">
+      <div class="actions" aria-label="Verification actions">
         <button data-drawer="verify">Verify this decision</button>
         <button data-drawer="raw">Show me the raw proof</button>
         <button data-drawer="claim">What is not claimed?</button>
       </div>
-    </div>
+    </section>
   </div>`;
 }
 
@@ -596,7 +710,7 @@ ${brandHtml}
         ${run.negativeControls.map((c) => `<div class="c"><div class="s">${esc(c.status)}</div><div class="l">${esc(c.label)}</div></div>`).join('')}
       </div>
       <p class="note">${esc(run.negativeControlsNote)}</p>
-      <div class="actions">
+      <div class="actions" aria-label="Verification actions">
         <button data-drawer="verify">Verify this run</button>
         <button data-drawer="raw">Show me the raw proof</button>
         <button data-drawer="claim">What is not claimed?</button>
@@ -685,7 +799,8 @@ function localVerify(run) {
 
 function localRaw(run) {
   return `<section><h3>Frozen arms <button class="copy" data-copy="cp-arms" aria-label="Copy the frozen arms JSON">Copy</button></h3>
-           <pre id="cp-arms">${esc(JSON.stringify(run.arms, null, 1))}</pre></section>
+           <p class="proof-source">Source · ${esc(run.rawProof.source)}</p>
+           <pre class="shiki-proof" id="cp-arms">${run.rawProof.html}</pre></section>
          <section><h3>Not present in this run</h3>
            <div class="unavail">No receipt, protected target, independent observer, cloud runtime or Cloud Logging exists in HAC-330. These fields are absent, not empty.</div></section>`;
 }
@@ -720,7 +835,10 @@ function cloudVerify(run) {
 
 function cloudRaw(run) {
   const p = run.publicationRefs;
-  return `<section><h3>Digests</h3><dl class="kv">
+  return `<section><h3>Frozen public packet <button class="copy" data-copy="cp-cloud" aria-label="Copy the frozen public packet JSON">Copy</button></h3>
+      <p class="proof-source">Source · ${esc(run.rawProof.source)}</p>
+      <pre class="shiki-proof" id="cp-cloud">${run.rawProof.html}</pre></section>
+      <section><h3>Digests</h3><dl class="kv">
         <dt>publicPacketSha256</dt><dd>${copyable(p.publicPacketSha256, 'the public packet digest')}</dd>
         <dt>sourcePacketSha256</dt><dd>${copyable(p.sourcePacketSha256, 'the source packet digest')}</dd>
         <dt>evidencePublicationSha</dt><dd>${copyable(p.evidencePublicationSha, 'the evidence publication sha')}</dd>

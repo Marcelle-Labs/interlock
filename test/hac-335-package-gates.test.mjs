@@ -500,4 +500,15 @@ describe('cockpit captures cannot silently go stale', () => {
     expect(r.code).not.toBe(0);
     expect(r.out).toMatch(/capture source coverage narrowed/);
   });
+
+  it('fails when Devpost still names a previous cockpit capture', () => {
+    const r = perturbed((a) => {
+      const order = a.json('media/hac-335/devpost/screenshot-order.json');
+      const shot = order.screenshots.find((s) => s.assetId === 'IL-COCK-010');
+      shot.file = 'media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x566-runhac330local.png';
+      a.writeJson('media/hac-335/devpost/screenshot-order.json', order);
+    });
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/uses stale IL-COCK-010 file/);
+  });
 });
