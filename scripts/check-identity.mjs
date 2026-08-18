@@ -145,7 +145,10 @@ if (!lightCoupled) {
   if (Number(L) > 0.52) {
     fail(`light --il-state-coupled is L=${L}; 0.52 is the measured ceiling that clears 4.5:1 on the sunken light surface (0.58 measured 4.01:1)`);
   }
-  if (Number(C) !== 0.13 || Number(H) !== 250) {
+  // Compared with a tolerance rather than `!==`: these are parsed decimals, and
+  // exact float equality would be fragile against harmless reformatting.
+  const near = (a, b) => Math.abs(Number(a) - b) < 1e-9;
+  if (!near(C, 0.13) || !near(H, 250)) {
     fail(`light --il-state-coupled chroma/hue changed to ${C}/${H}; the contrast floor was measured at 0.130/250 and must be re-measured in a browser`);
   }
   // The cockpit re-declares the state hues for its own field. They may not drift
