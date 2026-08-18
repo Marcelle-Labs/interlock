@@ -215,6 +215,61 @@ if (/\bdata-il-motion\b/.test(cockpit) && !/il-step-in/.test(cockpit)) {
   fail('cockpit animates without using a frozen motion keyframe');
 }
 
+/* --- the cloud L1 must not read as a bounded-outcome experiment --------- */
+
+/**
+ * `effect.invariant` is real evidence: the protected target's own recorded
+ * bound. Rendering it in cloud L1 put an inequality against the same bound 130
+ * directly beneath EXECUTED, one proof-class switch away from the local class's
+ * `120 <= 130`. A reader scanning quickly can chain the two into "same
+ * experiment, confirmed on cloud" — exactly the reading the claim boundary
+ * denies, and the one SB-06 works hardest to prevent.
+ *
+ * The check asks *where the field is consumed*, not what its current value is,
+ * so changing the number cannot evade it. The value stays reachable in L2.
+ */
+function fnSource(src, name) {
+  const start = src.indexOf(`function ${name}(`);
+  if (start < 0) return '';
+  const rest = src.slice(start);
+  const end = rest.slice(1).search(/\n(?:function |const [A-Za-z]|\/\* -)/);
+  return end < 0 ? rest : rest.slice(0, end + 1);
+}
+const cloudL1 = fnSource(cockpit, 'renderCloud');
+if (!cloudL1) {
+  fail('cannot locate renderCloud; the cloud L1 bounded-outcome check cannot run');
+} else if (/effect\.invariant/.test(cloudL1)) {
+  fail('cloud L1 renders the protected-mutation invariant; an inequality against the same bound as the HAC-330 joint constraint reads as a continuation of that experiment');
+}
+// It is recorded evidence, so demoting it must not mean deleting it.
+if (!/effect\.invariant/.test(cockpit)) {
+  fail('the protected-mutation invariant is rendered nowhere; it is recorded evidence and belongs in L2 or L3');
+}
+
+/* --- one name for the decision artifact --------------------------------- */
+
+/**
+ * The adapter labelled hop 6 "ALLOW + authorization receipt" while the decision
+ * card and the storyboard both said "ALLOW + receipt". The longer phrase is not
+ * false — the receipt genuinely is an authorization receipt, and
+ * `src/authorization/receipt.ts` calls it that — but two names for one artifact
+ * on one surface invites reading the longer one as a lifecycle state this run
+ * never emitted. Prose describing the artifact is unaffected; this governs
+ * rendered labels.
+ */
+const decisionHop = cloud.events.find((e) => e.role === 'decision');
+const expectedLabel = `${cloud.decision.value} + receipt`;
+if (!decisionHop) fail('the cloud path records no decision hop');
+else if (decisionHop.label !== expectedLabel) {
+  fail(`the cloud decision hop is labelled "${decisionHop.label}"; it must read "${expectedLabel}", matching the decision card and the storyboard`);
+}
+const storyboardHtml = readFileSync(join(repoRoot, 'media', 'hac-333', 'storyboard.html'), 'utf8');
+for (const [name, src] of Object.entries({ cockpit, 'storyboard.html': storyboardHtml })) {
+  if (/authorization receipt/i.test(src)) {
+    fail(`${name} names the decision artifact "authorization receipt"; both rendered surfaces use "${expectedLabel}"`);
+  }
+}
+
 /* --- class B derives from the published packet ------------------------- */
 
 if (cloud.decision.value !== cloudPacket.decision) fail('cloud decision does not match the published packet');

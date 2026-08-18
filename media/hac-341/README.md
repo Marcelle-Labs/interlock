@@ -232,6 +232,29 @@ the identity port — and driving it from `WITHHOLD_SERIALIZE`, which withholds,
 would imply a lifecycle this run does not have. The unreachable
 `[data-gate="open"]` rule it left behind has been removed.
 
+## Two documented colour limitations
+
+**Decision and Effect share the executed hue** in the cloud class. The frozen
+grammar has no ALLOW hue, and the only unused candidate is the authorization
+green — which would assert a lifecycle these packets never emitted, and which
+`verify-cockpit.mjs` refuses outright. The label, the glyph and the card order
+carry the distinction instead. This is a limitation, recorded here rather than
+resolved by inventing a semantic colour; `EXECUTED` and `OBSERVED` remain
+separate fields and separate states regardless.
+
+**The light COUPLED state was under the text contrast floor.** At L 0.58 it
+measured **4.01:1** against the sunken light surface, below the 4.5:1 floor for
+the 8.5–10px label and chip text that carries it. It is now L 0.52, measuring
+**5.15:1** on sunken and **5.48:1** on card, with hue and chroma unchanged so
+the state still reads as the same blue. The dark peer was already ~8.6:1 and was
+left alone. `check-identity.mjs` pins the lightness and fails if hue or chroma
+move without a fresh browser measurement, and fails if the cockpit's own
+re-declaration drifts from the token.
+
+Redundant glyph and stroke channels do not excuse insufficient text contrast —
+the three-channel rule exists so state survives greyscale, not so colour can be
+unreadable.
+
 ## Accessibility
 
 Skip link; focusables in reading order, each with an accessible name; H1 → H2 →

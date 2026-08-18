@@ -122,6 +122,41 @@ for (const token of ['vercel/geist-font', 'v1.7.2', 'OFL', 'a73329da8fc62afc917f
   if (!harvest.includes(token)) fail(`assets/HARVEST.md does not record font provenance: ${token}`);
 }
 
+/* --- semantic state colour must clear the text contrast floor ------------ */
+
+/**
+ * The light COUPLED state measured **4.01:1** against the sunken light surface,
+ * under the 4.5:1 floor for the 8.5-10px label and chip text that carries it.
+ * Lightness is what moved it: L 0.52 measures 5.15:1 on sunken and 5.48:1 on
+ * card. Hue and chroma are unchanged, so the state still reads as the same
+ * blue, and the dark peer (~8.6:1) is deliberately untouched.
+ *
+ * This guards the lightness rather than recomputing the ratio. Converting oklch
+ * to sRGB here would duplicate colour science the browser already does, and a
+ * subtly wrong implementation would be worse than no check at all — so the
+ * measured input is pinned instead, and hue/chroma drift forces a re-measure.
+ */
+const colorsCss = read('assets', 'tokens', 'colors.css');
+const lightCoupled = /--il-state-coupled:\s*oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/.exec(colorsCss);
+if (!lightCoupled) {
+  fail('cannot read the light --il-state-coupled token; the contrast floor cannot be checked');
+} else {
+  const [, L, C, H] = lightCoupled;
+  if (Number(L) > 0.52) {
+    fail(`light --il-state-coupled is L=${L}; 0.52 is the measured ceiling that clears 4.5:1 on the sunken light surface (0.58 measured 4.01:1)`);
+  }
+  if (Number(C) !== 0.13 || Number(H) !== 250) {
+    fail(`light --il-state-coupled chroma/hue changed to ${C}/${H}; the contrast floor was measured at 0.130/250 and must be re-measured in a browser`);
+  }
+  // The cockpit re-declares the state hues for its own field. They may not drift
+  // from the token that is supposed to be the authority for them.
+  const cockpitLight = /--coupled:oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/.exec(cockpit);
+  if (!cockpitLight) fail('the cockpit declares no light --coupled value');
+  else if (cockpitLight[1] !== L || cockpitLight[2] !== C || cockpitLight[3] !== H) {
+    fail(`the cockpit light --coupled (${cockpitLight.slice(1).join(' ')}) has drifted from the token (${L} ${C} ${H})`);
+  }
+}
+
 /* --- no manifest may cite an identity asset that is not here ------------- */
 
 for (const scene of sceneManifest.scenes) {

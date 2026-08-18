@@ -157,7 +157,7 @@ const cloudRun = {
     hop(3, `Vertex AI ${cloud.resources.vertexLocation} access`, 'model-access'),
     hop(4, `Cloud Run-hosted agent · ${cloud.resources.region}`, 'host'),
     hop(5, 'Interlock MCP proxy', 'control'),
-    hop(6, 'ALLOW + authorization receipt', 'decision', cloud.receiptDigest),
+    hop(6, 'ALLOW + receipt', 'decision', cloud.receiptDigest),
     hop(7, 'Protected target mutation', 'effect', cloud.protectedMutation.status),
     hop(8, 'Independently authenticated read-back', 'observation', `alpha=${cloud.observation.state.services.alpha}`),
     hop(9, 'Cloud Logging correlated by run id', 'correlation', logEntry.resource.labels.revision_name),

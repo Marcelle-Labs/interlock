@@ -353,7 +353,7 @@
         },
         {
           "n": 6,
-          "label": "ALLOW + authorization receipt",
+          "label": "ALLOW + receipt",
           "role": "decision",
           "detail": "sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234"
         },

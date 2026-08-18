@@ -496,7 +496,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -506,7 +506,7 @@
           "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x724-runhac330local.png",
           "width": 1440,
           "height": 724,
-          "sha256": "66b04d62a174081478e890b8d683461dafc9019e8d3f56269b40b4b08efddc34",
+          "sha256": "1c629a77a3753d81abb61a2855bd0491cebb396a5772b8cc60e58841debb923c",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -540,7 +540,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -550,7 +550,7 @@
           "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x866-runhac330local.png",
           "width": 1440,
           "height": 866,
-          "sha256": "4b5637bc7f11fe0165529f2cc39edab7f7fe9e0369702b06bf8e61f76d4ef1b2",
+          "sha256": "87257c8bd33cfbba447ba500665b04b99c59d8fb3db2487262460d2126511b84",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -584,7 +584,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -594,7 +594,7 @@
           "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x653-runilkhac340cloud1786730369123.png",
           "width": 1440,
           "height": 653,
-          "sha256": "f7e997fec739a856f56bd4a33c00a558df949187df4701b2fad0ee3e78bfa627",
+          "sha256": "bb17de71f12be372b75eb2bcfe4f6512d607a1ad6bd0ed96910cbd37db916802",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -644,17 +644,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "0fb79458c5a1eb40fa147d27d75a0fb2f10b4547",
+      "capturedFromSha": "2f742a42fbb1410fa47ec6a0e758be2c12818ec1",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x804-runilkhac340cloud1786730369123.png",
+          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x817-runilkhac340cloud1786730369123.png",
           "width": 1440,
-          "height": 804,
-          "sha256": "b8af720d00aefc6fa14b5bee4396570c73b37c2951c2ed3b71f26155f8a27830",
+          "height": 817,
+          "sha256": "bb24f64ec7c5ecfc909de64b328954d5e83d987e63564a880b215f082ba8a84e",
           "cropAnchor": "union:main#app,aside#drawer",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
