@@ -34,11 +34,34 @@ import {
 export const ARMS = Object.freeze(['A1_uncoordinated', 'A2_global_lock', 'A3_per_target_lock', 'A4_interlock']);
 
 /**
+ * Every intent must arrive carrying a stable id.
+ *
+ * The frozen corpus declares intents without one, because an id is an artifact
+ * of execution rather than of the scenario. The caller assigns `i0`, `i1` from
+ * each scenario's canonical intent order, so an id stays attached to its intent
+ * when the execution order is permuted — which is what lets a decision signature
+ * be compared across the two orders without the permutation itself looking like
+ * a difference.
+ *
+ * Asserted rather than defaulted: an undefined id would silently collapse both
+ * intents onto one record and the phase-2 replay would apply the wrong write.
+ */
+function assertIdentified(intents) {
+  for (const intent of intents) {
+    if (typeof intent.id !== 'string' || intent.id === '') {
+      throw new Error(`intent is missing a stable id: ${JSON.stringify(intent)}`);
+    }
+  }
+  const ids = new Set(intents.map((i) => i.id));
+  if (ids.size !== intents.length) throw new Error('intent ids are not unique within the scenario');
+}
+
+/**
  * Lock key policy. `A1` gives every intent its own key, which is the same thing
  * as holding no lock: distinct keys never contend.
  */
-function lockKeyFor(arm, intent, index) {
-  if (arm === 'A1_uncoordinated') return `NONE#${index}`;
+function lockKeyFor(arm, intent) {
+  if (arm === 'A1_uncoordinated') return `NONE#${intent.id}`;
   if (arm === 'A2_global_lock') return 'GLOBAL';
   if (arm === 'A3_per_target_lock') return intent.path;
   throw new Error(`lockKeyFor: ${arm} does not use lock keys`);
@@ -55,14 +78,15 @@ function lockKeyFor(arm, intent, index) {
  * lost-update composition, which is the point.
  */
 function runLocked(repo, family, intents, arm) {
+  assertIdentified(intents);
   resetWorktree(repo);
 
   const groups = new Map();
-  intents.forEach((intent, index) => {
-    const key = lockKeyFor(arm, intent, index);
+  for (const intent of intents) {
+    const key = lockKeyFor(arm, intent);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(intent);
-  });
+  }
 
   const outcomes = [];
   for (const [key, groupIntents] of groups) {
@@ -101,7 +125,7 @@ function pendingIntents(scenario, intents) {
   const base = Date.UTC(2026, 0, 1, 0, 0, 0);
   return intents.map((intent, index) => ({
     correlationId: `ilk-${sha256(`${scenario.id}#${intent.id}`).slice(0, 24)}`,
-    agent: `agent-${index + 1}`,
+    agent: `agent-${intent.id}`,
     operation: intent.op,
     targets: [intent.path],
     intentDigest: `sha256:${sha256(JSON.stringify(intent))}`,
@@ -111,6 +135,7 @@ function pendingIntents(scenario, intents) {
 }
 
 function runInterlock(repo, family, scenario, intents, { evidence, sourceRevision }) {
+  assertIdentified(intents);
   resetWorktree(repo);
 
   const pending = pendingIntents(scenario, intents);

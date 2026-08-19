@@ -52,6 +52,14 @@ function composeFromBase(repo, family, intents) {
 
 const scenario = (id) => SCENARIOS.find((s) => s.id === id);
 
+/**
+ * Tag intents with the same stable ids the runner assigns.
+ *
+ * arms.mjs asserts rather than defaults them: an undefined id would collapse
+ * both intents onto one record and replay the wrong write in phase 2.
+ */
+const identify = (s) => s.intents.map((intent, index) => ({ ...intent, id: `i${index}` }));
+
 describe('the oracle can fail — verifier discrimination', () => {
   describe.each([
     {
@@ -109,28 +117,28 @@ describe('the lock baselines actually lock', () => {
   const crossTarget = SCENARIOS.filter((s) => s.label === 'COUPLED' || s.label === 'INDEPENDENT');
 
   it.each(sameTarget.map((s) => [s.id, s]))('A2 serializes %s', (_id, s) => {
-    const run = runArm({ arm: 'A2_global_lock', repo: repos[s.family], family: s.family, scenario: s, intents: s.intents });
+    const run = runArm({ arm: 'A2_global_lock', repo: repos[s.family], family: s.family, scenario: s, intents: identify(s) });
 
     expect(run.concurrent).toBe(false);
     expect(run.lockGroups).toEqual(['GLOBAL']);
   });
 
   it.each(crossTarget.map((s) => [s.id, s]))('A2 serializes %s too — the lock is global, not per target', (_id, s) => {
-    const run = runArm({ arm: 'A2_global_lock', repo: repos[s.family], family: s.family, scenario: s, intents: s.intents });
+    const run = runArm({ arm: 'A2_global_lock', repo: repos[s.family], family: s.family, scenario: s, intents: identify(s) });
 
     expect(run.concurrent).toBe(false);
     expect(run.lockGroups).toEqual(['GLOBAL']);
   });
 
   it.each(sameTarget.map((s) => [s.id, s]))('A3 serializes %s — same target, one lock key', (_id, s) => {
-    const run = runArm({ arm: 'A3_per_target_lock', repo: repos[s.family], family: s.family, scenario: s, intents: s.intents });
+    const run = runArm({ arm: 'A3_per_target_lock', repo: repos[s.family], family: s.family, scenario: s, intents: identify(s) });
 
     expect(run.lockGroups).toHaveLength(1);
     expect(run.concurrent).toBe(false);
   });
 
   it.each(crossTarget.map((s) => [s.id, s]))('A3 parallelises %s — distinct targets, distinct lock keys', (_id, s) => {
-    const run = runArm({ arm: 'A3_per_target_lock', repo: repos[s.family], family: s.family, scenario: s, intents: s.intents });
+    const run = runArm({ arm: 'A3_per_target_lock', repo: repos[s.family], family: s.family, scenario: s, intents: identify(s) });
 
     // The other half of the gate: an A3 that serialized everything would be a
     // global lock wearing a per-target label, and its blindness to cross-target
@@ -151,7 +159,7 @@ describe('the lock baselines actually lock', () => {
     // projected 40+60+20 = 120, fitted, applied, and overshot to 140 — which is
     // exactly the strawman a lock baseline must not be.
     const s = scenario('budget/coupled/alpha-beta');
-    const run = runArm({ arm: 'A2_global_lock', repo: repos.budget, family: 'budget', scenario: s, intents: s.intents });
+    const run = runArm({ arm: 'A2_global_lock', repo: repos.budget, family: 'budget', scenario: s, intents: identify(s) });
 
     expect(run.outcomes).toHaveLength(2);
     expect(run.outcomes[0].applied).toBe(true);
@@ -170,7 +178,7 @@ describe('the lock baselines actually lock', () => {
     // contend for it. Both fit here, so both apply and the last write wins —
     // what is being asserted is that the second ran inside the section at all.
     const s = scenario('budget/same-target/alpha-alpha');
-    const run = runArm({ arm: 'A3_per_target_lock', repo: repos.budget, family: 'budget', scenario: s, intents: s.intents });
+    const run = runArm({ arm: 'A3_per_target_lock', repo: repos.budget, family: 'budget', scenario: s, intents: identify(s) });
 
     expect(run.lockGroups).toHaveLength(1);
     expect(run.outcomes.every((o) => o.applied)).toBe(true);
