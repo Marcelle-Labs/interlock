@@ -1,0 +1,796 @@
+{
+  "experiment": "HAC-343",
+  "kind": "results",
+  "metricDefinitionsSha256": "2cfff5b19812d9805d5c5a129bb8e8ac7009ae8b5d21a10a85bb31863bc79700",
+  "corpusSha256": "68c60b38087de00886338de78b9a8b673c1467bf056adaf057c4fd211929575c",
+  "executionSemanticsSha256": "eca7fac8c0e74eda0af7199cca16ac3d06d3808a14f2e603b6b0c1a380ff97cc",
+  "rawResultsSha256": "6f737d44c3b33c298b59d1bf84d028d6c56524ba14ce34c7db82e3f5dddec9eb",
+  "report": {
+    "completeness": {
+      "expected": 128,
+      "observed": 128,
+      "missing": []
+    },
+    "lockValidity": {
+      "A1_uncoordinated": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0,
+        "display": "0/2 (0.0%)"
+      },
+      "A2_global_lock": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1,
+        "display": "2/2 (100.0%)"
+      },
+      "A3_per_target_lock": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1,
+        "display": "2/2 (100.0%)"
+      },
+      "A4_interlock": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0,
+        "display": "0/2 (0.0%)"
+      }
+    },
+    "perFamily": {
+      "budget": {
+        "A1_uncoordinated": {
+          "lockValidity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "permit": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1,
+            "display": "8/8 (100.0%)"
+          },
+          "falseBlock": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0,
+            "display": "0/4 (0.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "qualified": false,
+            "rendering": "SPR 1/1 (100.0%) at unsafe-joint-state rate 1/1 (100.0%) — UNSAFE, not safe parallelism"
+          }
+        },
+        "A2_global_lock": {
+          "lockValidity": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "permit": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1,
+            "display": "8/8 (100.0%)"
+          },
+          "falseBlock": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0,
+            "display": "0/4 (0.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 0,
+              "denominator": 1,
+              "rate": 0,
+              "display": "0/1 (0.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 0,
+              "denominator": 1,
+              "rate": 0,
+              "display": "0/1 (0.0%)"
+            },
+            "qualified": true,
+            "rendering": "SPR 0/1 (0.0%) at unsafe-joint-state rate 0/1 (0.0%)"
+          }
+        },
+        "A3_per_target_lock": {
+          "lockValidity": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "permit": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1,
+            "display": "8/8 (100.0%)"
+          },
+          "falseBlock": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0,
+            "display": "0/4 (0.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "qualified": false,
+            "rendering": "SPR 1/1 (100.0%) at unsafe-joint-state rate 1/1 (100.0%) — UNSAFE, not safe parallelism"
+          }
+        },
+        "A4_interlock": {
+          "lockValidity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "permit": {
+            "numerator": 4,
+            "denominator": 8,
+            "rate": 0.5,
+            "display": "4/8 (50.0%)"
+          },
+          "falseBlock": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 3,
+            "denominator": 4,
+            "rate": 0.75,
+            "display": "3/4 (75.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 0,
+              "denominator": 1,
+              "rate": 0,
+              "display": "0/1 (0.0%)"
+            },
+            "qualified": true,
+            "rendering": "SPR 1/1 (100.0%) at unsafe-joint-state rate 0/1 (0.0%)"
+          }
+        }
+      },
+      "registry": {
+        "A1_uncoordinated": {
+          "lockValidity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "permit": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1,
+            "display": "8/8 (100.0%)"
+          },
+          "falseBlock": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0,
+            "display": "0/4 (0.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "qualified": false,
+            "rendering": "SPR 1/1 (100.0%) at unsafe-joint-state rate 1/1 (100.0%) — UNSAFE, not safe parallelism"
+          }
+        },
+        "A2_global_lock": {
+          "lockValidity": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "permit": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1,
+            "display": "8/8 (100.0%)"
+          },
+          "falseBlock": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0,
+            "display": "0/4 (0.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 0,
+              "denominator": 1,
+              "rate": 0,
+              "display": "0/1 (0.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 0,
+              "denominator": 1,
+              "rate": 0,
+              "display": "0/1 (0.0%)"
+            },
+            "qualified": true,
+            "rendering": "SPR 0/1 (0.0%) at unsafe-joint-state rate 0/1 (0.0%)"
+          }
+        },
+        "A3_per_target_lock": {
+          "lockValidity": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "permit": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1,
+            "display": "8/8 (100.0%)"
+          },
+          "falseBlock": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 0,
+            "denominator": 4,
+            "rate": 0,
+            "display": "0/4 (0.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "qualified": false,
+            "rendering": "SPR 1/1 (100.0%) at unsafe-joint-state rate 1/1 (100.0%) — UNSAFE, not safe parallelism"
+          }
+        },
+        "A4_interlock": {
+          "lockValidity": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "permit": {
+            "numerator": 4,
+            "denominator": 8,
+            "rate": 0.5,
+            "display": "4/8 (50.0%)"
+          },
+          "falseBlock": {
+            "numerator": 0,
+            "denominator": 1,
+            "rate": 0,
+            "display": "0/1 (0.0%)"
+          },
+          "evidenceSensitivity": {
+            "numerator": 1,
+            "denominator": 1,
+            "rate": 1,
+            "display": "1/1 (100.0%)"
+          },
+          "refusalCorrectness": {
+            "numerator": 3,
+            "denominator": 4,
+            "rate": 0.75,
+            "display": "3/4 (75.0%)"
+          },
+          "spr": {
+            "safeParallelismRetained": {
+              "numerator": 1,
+              "denominator": 1,
+              "rate": 1,
+              "display": "1/1 (100.0%)"
+            },
+            "unsafeJointState": {
+              "numerator": 0,
+              "denominator": 1,
+              "rate": 0,
+              "display": "0/1 (0.0%)"
+            },
+            "qualified": true,
+            "rendering": "SPR 1/1 (100.0%) at unsafe-joint-state rate 0/1 (0.0%)"
+          }
+        }
+      }
+    },
+    "aggregate": {
+      "A1_uncoordinated": {
+        "lockValidity": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "unsafeJointState": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1,
+          "display": "2/2 (100.0%)"
+        },
+        "permit": {
+          "numerator": 16,
+          "denominator": 16,
+          "rate": 1,
+          "display": "16/16 (100.0%)"
+        },
+        "falseBlock": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "evidenceSensitivity": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "refusalCorrectness": {
+          "numerator": 0,
+          "denominator": 8,
+          "rate": 0,
+          "display": "0/8 (0.0%)"
+        },
+        "spr": {
+          "safeParallelismRetained": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1,
+            "display": "2/2 (100.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1,
+            "display": "2/2 (100.0%)"
+          },
+          "qualified": false,
+          "rendering": "SPR 2/2 (100.0%) at unsafe-joint-state rate 2/2 (100.0%) — UNSAFE, not safe parallelism"
+        }
+      },
+      "A2_global_lock": {
+        "lockValidity": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1,
+          "display": "2/2 (100.0%)"
+        },
+        "unsafeJointState": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "permit": {
+          "numerator": 16,
+          "denominator": 16,
+          "rate": 1,
+          "display": "16/16 (100.0%)"
+        },
+        "falseBlock": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1,
+          "display": "2/2 (100.0%)"
+        },
+        "evidenceSensitivity": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "refusalCorrectness": {
+          "numerator": 0,
+          "denominator": 8,
+          "rate": 0,
+          "display": "0/8 (0.0%)"
+        },
+        "spr": {
+          "safeParallelismRetained": {
+            "numerator": 0,
+            "denominator": 2,
+            "rate": 0,
+            "display": "0/2 (0.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 0,
+            "denominator": 2,
+            "rate": 0,
+            "display": "0/2 (0.0%)"
+          },
+          "qualified": true,
+          "rendering": "SPR 0/2 (0.0%) at unsafe-joint-state rate 0/2 (0.0%)"
+        }
+      },
+      "A3_per_target_lock": {
+        "lockValidity": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1,
+          "display": "2/2 (100.0%)"
+        },
+        "unsafeJointState": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1,
+          "display": "2/2 (100.0%)"
+        },
+        "permit": {
+          "numerator": 16,
+          "denominator": 16,
+          "rate": 1,
+          "display": "16/16 (100.0%)"
+        },
+        "falseBlock": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "evidenceSensitivity": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "refusalCorrectness": {
+          "numerator": 0,
+          "denominator": 8,
+          "rate": 0,
+          "display": "0/8 (0.0%)"
+        },
+        "spr": {
+          "safeParallelismRetained": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1,
+            "display": "2/2 (100.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1,
+            "display": "2/2 (100.0%)"
+          },
+          "qualified": false,
+          "rendering": "SPR 2/2 (100.0%) at unsafe-joint-state rate 2/2 (100.0%) — UNSAFE, not safe parallelism"
+        }
+      },
+      "A4_interlock": {
+        "lockValidity": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "unsafeJointState": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "permit": {
+          "numerator": 8,
+          "denominator": 16,
+          "rate": 0.5,
+          "display": "8/16 (50.0%)"
+        },
+        "falseBlock": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "display": "0/2 (0.0%)"
+        },
+        "evidenceSensitivity": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1,
+          "display": "2/2 (100.0%)"
+        },
+        "refusalCorrectness": {
+          "numerator": 6,
+          "denominator": 8,
+          "rate": 0.75,
+          "display": "6/8 (75.0%)"
+        },
+        "spr": {
+          "safeParallelismRetained": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1,
+            "display": "2/2 (100.0%)"
+          },
+          "unsafeJointState": {
+            "numerator": 0,
+            "denominator": 2,
+            "rate": 0,
+            "display": "0/2 (0.0%)"
+          },
+          "qualified": true,
+          "rendering": "SPR 2/2 (100.0%) at unsafe-joint-state rate 0/2 (0.0%)"
+        }
+      }
+    },
+    "orderEffects": [
+      {
+        "scenarioId": "budget/coupled/alpha-beta",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "budget/perturbed/alpha-beta",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "budget/inadmissible/absent",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "budget/inadmissible/shallow",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "budget/inadmissible/noRepository",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "budget/inadmissible/misattributed",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "registry/coupled/retire-vs-route",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "registry/perturbed/retire-vs-route",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "registry/inadmissible/absent",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "registry/inadmissible/shallow",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "registry/inadmissible/noRepository",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      },
+      {
+        "scenarioId": "registry/inadmissible/misattributed",
+        "arm": "A2_global_lock",
+        "signatures": [
+          "i0:applied,i1:rejected",
+          "i0:rejected,i1:applied"
+        ]
+      }
+    ],
+    "defects": []
+  }
+}
