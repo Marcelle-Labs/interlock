@@ -1,0 +1,110 @@
+{
+  "experiment": "HAC-330",
+  "fixture": "baseline",
+  "producer": {
+    "repository": "workspacejson/cli",
+    "remote": "https://github.com/workspacejson/cli.git",
+    "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "observedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+    "checkoutClean": true,
+    "package": "@workspacejson/mining-core",
+    "version": "0.0.0",
+    "published": false,
+    "entrypoint": "packages/mining-core/dist/index.js",
+    "bundleSha256": "7aa5ae231d6713449d6c1790f0b19a509e82ec0c84d67a8a6a52ff492ec27bb8",
+    "pipeline": "mine -> score -> select",
+    "l1ProjectionUsed": false,
+    "l1ProjectionNote": "project() is exported by the package but is deliberately not called: L1 emission onto generated.coChange is step 3 of the A-009 staged transition and the package does not authorize it."
+  },
+  "source": {
+    "repository": "experiments/hac-343/.work/fixtures/baseline",
+    "revision": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+    "tree": "b57f883c20fa06246799e610eed88b90d160dfc5",
+    "commitCount": 18,
+    "toplevel": "experiments/hac-343/.work/fixtures/baseline",
+    "isRequestedRepository": true
+  },
+  "historyBasis": {
+    "basisRevision": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+    "weightingVersion": "META-289 v2.2.1",
+    "availableTransitions": 18,
+    "extractedTransitions": 18,
+    "windowTruncated": false
+  },
+  "completeness": {
+    "state": "QUALIFYING_RELATIONSHIP_OBSERVED",
+    "reason": "MINED",
+    "detail": "2 pair(s) at support >= 3; 2 emitted under a cap of 50"
+  },
+  "receipt": {
+    "minSupport": 3,
+    "pairsBeforeCap": 2,
+    "pairsEmitted": 2,
+    "cap": 50,
+    "rankingRule": "support DESC, then occurrences ASC, then files[0] ASC by UTF-8 bytes, then files[1] ASC by UTF-8 bytes",
+    "capBound": false
+  },
+  "artifact": {
+    "serialization": "serializeSelection",
+    "bytes": 1201,
+    "sha256": "9973221981f938af9dc6f8e046e1ad27148bbffc577b6ed947117ba3dc60759f"
+  },
+  "selection": {
+    "l0SelectionVersion": 1,
+    "completeness": {
+      "state": "QUALIFYING_RELATIONSHIP_OBSERVED",
+      "reason": "MINED",
+      "detail": "2 pair(s) at support >= 3; 2 emitted under a cap of 50"
+    },
+    "basisWindow": {
+      "basisRevision": "HEAD",
+      "basisCommit": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+      "windowTransitions": 500,
+      "availableTransitions": 18,
+      "extractedTransitions": 18,
+      "windowTruncated": false
+    },
+    "scoringBasis": {
+      "weightingVersion": "META-289 v2.2.1",
+      "sizeWeightNumerator": 10,
+      "positionDecayHalfLife": 250,
+      "maxScoredFileCount": 50,
+      "basisRevision": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+      "windowOldestCommit": "31d5febab9b764879e34543bd327a98d134abc64",
+      "windowNewestCommit": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+      "decayOriginPosition": 17
+    },
+    "exclusions": {
+      "maxFileCount": 50,
+      "scoredEventCount": 18,
+      "excludedEventCount": 0,
+      "excludedCommits": []
+    },
+    "receipt": {
+      "minSupport": 3,
+      "pairsBeforeCap": 2,
+      "pairsEmitted": 2,
+      "cap": 50,
+      "rankingRule": "support DESC, then occurrences ASC, then files[0] ASC by UTF-8 bytes, then files[1] ASC by UTF-8 bytes",
+      "capBound": false
+    },
+    "pairs": [
+      {
+        "files": [
+          "registry/services.json",
+          "routing/routes.json"
+        ],
+        "support": 9,
+        "occurrences": 13
+      },
+      {
+        "files": [
+          "docs/runbook.md",
+          "observability/dashboards.json"
+        ],
+        "support": 5,
+        "occurrences": 5
+      }
+    ]
+  }
+}
