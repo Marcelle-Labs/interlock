@@ -1,13 +1,17 @@
 {
   "contract": "HAC-341 normalized cockpit view model",
-  "revision": "r01",
+  "revision": "r02",
   "generatedFrom": [
     "experiments/hac-330/evidence/arms.json",
     "experiments/hac-330/evidence/results.json",
     "experiments/hac-342/evidence/cloud-run.public.json",
     "experiments/hac-342/evidence/publication-bindings.json",
     "experiments/hac-342/evidence/redaction-manifest.json",
-    "experiments/hac-342/evidence/runtime-source-snapshot.json"
+    "experiments/hac-342/evidence/runtime-source-snapshot.json",
+    "experiments/hac-343/evidence/results.json",
+    "experiments/hac-343/evidence/execution-semantics.json",
+    "experiments/hac-343/evidence/metric-definitions.json",
+    "experiments/hac-343/evidence/judge-export.json"
   ],
   "fieldClassification": {
     "universalRequired": [
@@ -63,6 +67,21 @@
     "aliases": {
       "run.local.overview": "run.local.treatment"
     },
+    "guideParam": "guide",
+    "guideStates": [
+      "guide.local.choice",
+      "guide.local.validity",
+      "guide.local.shared-environment",
+      "guide.local.evidence-decision",
+      "guide.local.outcome",
+      "guide.local.ablation",
+      "guide.local.handoff",
+      "guide.local.free"
+    ],
+    "guideDefault": "guide.local.choice",
+    "guideProofClass": "local",
+    "unknownGuideState": "run.missing",
+    "guideUnderWrongProofClass": "run.missing",
     "invalidRun": "run.missing",
     "unreadableEvidence": "run.unavailable",
     "mismatchedProofAndState": "run.missing",
@@ -493,6 +512,297 @@
         "html": "<pre class=\"shiki shiki-themes github-light github-dark\" style=\"--shiki-light:#24292e;--shiki-dark:#e1e4e8;--shiki-light-bg:#fff;--shiki-dark-bg:#24292e\" tabindex=\"0\"><code><span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">{</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"packetKind\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"judge-safe redacted derivative\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"notice\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"Redacted derivative of the frozen HAC-340 cloud packet. NOT byte-identical to the source packet. sourcePacketSha256 is a cryptographic commitment to the frozen source bytes, which are deliberately not published; a logged-out reader cannot and is not expected to recompute it. publicPacketSha256 verifies these bytes and is the digest a reader can check. The two are never equal.\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"sourcePacketPath\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"experiments/hac-340/evidence/cloud-run.json\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"sourcePacketSha256\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"794befb86b37d862dfbfa86070a2948cb7ddf53836fbb14748611126403188d0\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"redactionPolicyVersion\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"2.0.0\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"redactionManifest\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"experiments/hac-342/evidence/redaction-manifest.json\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"commitSha\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"model\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"gemini-3.5-flash\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"adkPath\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"Google ADK 1.35.1 / Vertex AI\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"resources\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"projectId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:cloud-project-identifier]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"region\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"us-central1\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"vertexLocation\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"global\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentUrl\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"proxyUrl\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"targetUrl\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentServiceAccount\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"serviceAccount:[REDACTED:principal-1]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"proxyServiceAccount\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"serviceAccount:[REDACTED:principal-2]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"targetServiceAccount\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"serviceAccount:[REDACTED:principal-3]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"observerPrincipal\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"user:[REDACTED:principal-4]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"nodeImage\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:registry-path]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentImage\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:registry-path]\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">  },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"correlationId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"ilk-hac340-cloud-1786730369123\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"decision\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"ALLOW\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"receiptId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"rcpt-023dbf13-54d7-4a89-8c54-9a79953bb567\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"receiptDigest\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"sha256:9d0fa49385d17feaa2fd53e87b340eed0ccf50997eba78356ff9d2cdbaa05234\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"protectedMutation\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"status\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"EXECUTED\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"correlationId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"ilk-hac340-cloud-1786730369123\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"receiptId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"rcpt-023dbf13-54d7-4a89-8c54-9a79953bb567\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"revisionBefore\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"sha256:c78fe996446426339788c38a6a6edaf6b1b8ab72f984c9c72786637148615a10\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"revisionAfter\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"state\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"totalReservable\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">130</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"services\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"alpha\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">45</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"beta\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">40</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"gamma\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">20</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">      }</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">    },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"invariant\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"holds\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">true</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"total\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">105</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"totalReservable\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">130</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"detail\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"total 105 &#x3C;= 130\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">    }</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">  },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"observation\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"revision\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"state\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"totalReservable\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">130</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">      \"services\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"alpha\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">45</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"beta\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">40</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"gamma\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">20</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">      }</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">    }</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">  },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"runtimeProof\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"proxyLogEntries\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: [</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">      {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"insertId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"6a7f5784000e89ca1d56aee1\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"jsonPayload\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"correlationId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"ilk-hac340-cloud-1786730369123\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"event\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"proxy.request\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"identity\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:principal-1]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"identitySource\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"oidc-id-token/platform-verified:email\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"transport\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"mcp\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">        },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"labels\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"instanceId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:runtime-instance-identifier]\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">        },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"logName\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:cloud-project-identifier]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"receiveTimestamp\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"2026-08-14T17:59:32.961344960Z\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"resource\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"labels\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">            \"configuration_name\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"interlock-hac340-proxy\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">            \"location\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"us-central1\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">            \"project_id\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:cloud-project-identifier]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">            \"revision_name\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"interlock-hac340-proxy-00002-wzf\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">            \"service_name\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"interlock-hac340-proxy\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">          },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">          \"type\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"cloud_run_revision\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">        },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">        \"timestamp\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"2026-08-14T17:59:32.952778Z\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">      }</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">    ],</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentHttpStatus\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">200</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">  },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"expectedConfiguration\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"projectId\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:cloud-project-identifier]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"region\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"us-central1\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"vertexLocation\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"global\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentUrl\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"proxyUrl\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"targetUrl\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentServiceAccount\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"serviceAccount:[REDACTED:principal-1]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"proxyServiceAccount\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"serviceAccount:[REDACTED:principal-2]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"targetServiceAccount\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"serviceAccount:[REDACTED:principal-3]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"observerPrincipal\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"user:[REDACTED:principal-4]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"nodeImage\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:registry-path]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentImage\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:registry-path]\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">  },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"observedConfiguration\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"agentRevision\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"proxyRevision\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"targetRevision\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"[REDACTED:deployment-endpoint]\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">  },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"controls\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: {</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"forgedHeaderStatus\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">403</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"wrongAudienceStatus\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">401</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">,</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">    \"directBypassStatus\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">403</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">  },</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">  \"teardown\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">: </span><span style=\"--shiki-light:#032F62;--shiki-dark:#9ECBFF\">\"pending\"</span></span>\n<span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">}</span></span></code></pre>"
       }
     }
+  },
+  "guide": {
+    "proofClass": "A",
+    "states": [
+      "guide.local.choice",
+      "guide.local.validity",
+      "guide.local.shared-environment",
+      "guide.local.evidence-decision",
+      "guide.local.outcome",
+      "guide.local.ablation",
+      "guide.local.handoff",
+      "guide.local.free"
+    ],
+    "choiceState": "guide.local.choice",
+    "freeState": "guide.local.free",
+    "steps": [
+      {
+        "no": "01",
+        "stateId": "guide.local.validity",
+        "name": "Local validity"
+      },
+      {
+        "no": "02",
+        "stateId": "guide.local.shared-environment",
+        "name": "Shared bound"
+      },
+      {
+        "no": "03",
+        "stateId": "guide.local.evidence-decision",
+        "name": "Coupling evidence"
+      },
+      {
+        "no": "04",
+        "stateId": "guide.local.outcome",
+        "name": "Bounded outcome"
+      },
+      {
+        "no": "05",
+        "stateId": "guide.local.ablation",
+        "name": "Ablation"
+      },
+      {
+        "no": "06",
+        "stateId": "guide.local.handoff",
+        "name": "Handoff"
+      }
+    ],
+    "classification": "EDITORIAL — an attention layer over the recorded run; it adds no arm, value or claim",
+    "rule": "Guided steps change emphasis only. Every control the free cockpit offers stays reachable at every step, and no step recomputes anything."
+  },
+  "comparison": {
+    "title": "Coordination strategies",
+    "sourceIssue": "HAC-343",
+    "sourceIssueSource": "experiments/hac-343/evidence/judge-export.json#experiment",
+    "separateExperiment": "A different experiment from the run on screen. HAC-343 evaluates four coordination strategies over its own sixteen-scenario corpus; HAC-330 is the single bounded counterfactual beside it. No value is carried between them.",
+    "artifacts": [
+      "experiments/hac-343/evidence/results.json",
+      "experiments/hac-343/evidence/execution-semantics.json",
+      "experiments/hac-343/evidence/metric-definitions.json",
+      "experiments/hac-343/evidence/judge-export.json"
+    ],
+    "canonicalResultCommit": "7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0",
+    "scopeNote": "COUPLED and INDEPENDENT scenarios only. Evidence-ablation scenarios are Panel 2; inadmissible-evidence scenarios are reported under limitations.",
+    "dimensions": [
+      "Safety result",
+      "Concurrency cost",
+      "Scope of coordination",
+      "Evidence sensitivity",
+      "Recorded outcome",
+      "Limitation"
+    ],
+    "captions": [
+      {
+        "dimension": "Safety result",
+        "value": "How often does an arm allow a composition that violates the target invariant?",
+        "source": "experiments/hac-343/evidence/metric-definitions.json#metrics.unsafeJointStateRate.question",
+        "resolved": true
+      },
+      {
+        "dimension": "Concurrency cost",
+        "value": "How often does the arm withhold work that was safe to run concurrently?",
+        "source": "experiments/hac-343/evidence/metric-definitions.json#metrics.falseBlockRate.question",
+        "resolved": true
+      },
+      {
+        "dimension": "Scope of coordination",
+        "value": "Every lock-bearing arm uses the identical critical section: acquire(key) -> read current state -> re-evaluate the action's ordinary local precondition against that state -> mutate or reject -> release(key).",
+        "source": "experiments/hac-343/evidence/execution-semantics.json#concurrencyModel.criticalSection.rule",
+        "resolved": true
+      },
+      {
+        "dimension": "Evidence sensitivity",
+        "value": "Does the decision change when the evidence changes, holding the intents fixed?",
+        "source": "experiments/hac-343/evidence/metric-definitions.json#metrics.evidenceSensitivityRate.question",
+        "resolved": true
+      },
+      {
+        "dimension": "Recorded outcome",
+        "value": "How much work does the arm let through at all?",
+        "source": "experiments/hac-343/evidence/metric-definitions.json#metrics.permitRate.question",
+        "resolved": true
+      },
+      {
+        "dimension": "Limitation",
+        "value": "Sixteen scenarios across two hazard families. Every rate is a property of this corpus and is not a population estimate. No confidence intervals: the decision core is deterministic and the corpus is enumerated exhaustively, so there is no sampling process.",
+        "source": "experiments/hac-343/evidence/judge-export.json#limitations.corpusBound",
+        "resolved": true
+      }
+    ],
+    "strategies": [
+      {
+        "armId": "A1_uncoordinated",
+        "label": "Uncoordinated",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.0.label",
+        "cells": [
+          {
+            "dimension": "Safety result",
+            "value": "2/2 (100.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A1_uncoordinated.unsafeJointState.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Concurrency cost",
+            "value": "SPR 2/2 (100.0%) at unsafe-joint-state rate 2/2 (100.0%) — UNSAFE, not safe parallelism",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A1_uncoordinated.spr.rendering",
+            "resolved": true
+          },
+          {
+            "dimension": "Scope of coordination",
+            "value": "no critical section; both intents read the base snapshot",
+            "source": "experiments/hac-343/evidence/execution-semantics.json#arms.A1_uncoordinated.note",
+            "resolved": true
+          },
+          {
+            "dimension": "Evidence sensitivity",
+            "value": "0/2 (0.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A1_uncoordinated.evidenceSensitivity.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Recorded outcome",
+            "value": "16/16 (100.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A1_uncoordinated.permit.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Limitation",
+            "value": "If A1 produces no unsafe joint state on a coupled scenario, the scenario does not encode a real composition hazard and is reported as a corpus defect, not as an Interlock success.",
+            "source": "experiments/hac-343/evidence/metric-definitions.json#arms.A1_uncoordinated.canFail",
+            "resolved": true
+          }
+        ]
+      },
+      {
+        "armId": "A2_global_lock",
+        "label": "Global lock",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.1.label",
+        "cells": [
+          {
+            "dimension": "Safety result",
+            "value": "0/2 (0.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A2_global_lock.unsafeJointState.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Concurrency cost",
+            "value": "SPR 0/2 (0.0%) at unsafe-joint-state rate 0/2 (0.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A2_global_lock.spr.rendering",
+            "resolved": true
+          },
+          {
+            "dimension": "Scope of coordination",
+            "value": "every intent contends; the critical section is entered one at a time regardless of what is written",
+            "source": "experiments/hac-343/evidence/execution-semantics.json#arms.A2_global_lock.note",
+            "resolved": true
+          },
+          {
+            "dimension": "Evidence sensitivity",
+            "value": "0/2 (0.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A2_global_lock.evidenceSensitivity.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Recorded outcome",
+            "value": "16/16 (100.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A2_global_lock.permit.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Limitation",
+            "value": "Safe Parallelism Retained is zero for this arm by construction, not by measurement. Reporting A4 as beating A2 on parallelism alone is therefore a tautology and is not permitted as a headline claim. A2 exists to establish the safety ceiling and the concurrency floor.",
+            "source": "experiments/hac-343/evidence/metric-definitions.json#arms.A2_global_lock.knownWeakness",
+            "resolved": true
+          }
+        ]
+      },
+      {
+        "armId": "A3_per_target_lock",
+        "label": "Per-target lock",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.2.label",
+        "cells": [
+          {
+            "dimension": "Safety result",
+            "value": "2/2 (100.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A3_per_target_lock.unsafeJointState.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Concurrency cost",
+            "value": "SPR 2/2 (100.0%) at unsafe-joint-state rate 2/2 (100.0%) — UNSAFE, not safe parallelism",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A3_per_target_lock.spr.rendering",
+            "resolved": true
+          },
+          {
+            "dimension": "Scope of coordination",
+            "value": "same critical section as A2, keyed by target. Same-target intents contend and serialize; different-target intents take different locks and proceed concurrently.",
+            "source": "experiments/hac-343/evidence/execution-semantics.json#arms.A3_per_target_lock.note",
+            "resolved": true
+          },
+          {
+            "dimension": "Evidence sensitivity",
+            "value": "0/2 (0.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A3_per_target_lock.evidenceSensitivity.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Recorded outcome",
+            "value": "16/16 (100.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A3_per_target_lock.permit.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Limitation",
+            "value": "A3 is NEVER described as a 'safe baseline'. It is safe against same-target contention and may remain blind to composition hazards spanning distinct targets. Any rendering that calls A3 simply safe or simply unsafe, without naming the hazard class, is a claim defect.",
+            "source": "experiments/hac-343/evidence/metric-definitions.json#arms.A3_per_target_lock.namingRule",
+            "resolved": true
+          }
+        ]
+      },
+      {
+        "armId": "A4_interlock",
+        "label": "Interlock",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.3.label",
+        "cells": [
+          {
+            "dimension": "Safety result",
+            "value": "0/2 (0.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A4_interlock.unsafeJointState.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Concurrency cost",
+            "value": "SPR 2/2 (100.0%) at unsafe-joint-state rate 0/2 (0.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A4_interlock.spr.rendering",
+            "resolved": true
+          },
+          {
+            "dimension": "Scope of coordination",
+            "value": "arbitrate() decides parallel, serialized or refused; execution then follows the concurrency model above",
+            "source": "experiments/hac-343/evidence/execution-semantics.json#arms.A4_interlock.note",
+            "resolved": true
+          },
+          {
+            "dimension": "Evidence sensitivity",
+            "value": "2/2 (100.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A4_interlock.evidenceSensitivity.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Recorded outcome",
+            "value": "8/16 (50.0%)",
+            "source": "experiments/hac-343/evidence/results.json#report.aggregate.A4_interlock.permit.display",
+            "resolved": true
+          },
+          {
+            "dimension": "Limitation",
+            "value": "A4 must not be described as globally 0% unsafe, and the sixteen-scenario corpus must not be collapsed into a single unsafe-rate denominator. The 0/2 in Panel 1 is bounded to COUPLED scenarios and means nothing without Panel 2 beside it.",
+            "source": "experiments/hac-343/evidence/judge-export.json#panel2.forbiddenRendering",
+            "resolved": true
+          }
+        ]
+      }
+    ],
+    "perTargetLockCredibility": {
+      "display": "2/2",
+      "note": "It locked exactly what a lock can see. A composition hazard spanning two lock keys is not visible to any per-key discipline."
+    },
+    "unresolved": [],
+    "resolved": true,
+    "unresolvedLabel": "Unresolved binding scaffold · not evidence",
+    "unresolvedNote": "HAC-343 has no readable frozen artifact at this read. The unresolved dimensions render as bindings; no substitute value is derived from HAC-330 or from any other run."
   },
   "reserved": {
     "semanticStateId": "evaluation.unbound",

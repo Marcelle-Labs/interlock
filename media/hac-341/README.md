@@ -12,6 +12,8 @@ simulation. Nothing here executes; every value is a recorded result.
 | --- | --- |
 | `cockpit.html` | The Run. Renders the view model; derives no meaning of its own. |
 | `lib/arm-view.mjs` | What one *selected arm* shows. Pure, so the gate can assert it without a browser. |
+| `lib/guide.mjs` | The guided walk: six beats, and what the ablation held constant versus changed. Pure, for the same reason. |
+| `lib/comparison.mjs` | The coordination-strategy comparison, bound field-by-field to HAC-343. |
 | `evidence/view-model.json` | Normalized view model, generated — not hand-written. |
 | `bin/build-view-model.mjs` | Adapter. Derives the view model from frozen evidence. |
 | `bin/verify-cockpit.mjs` | Mechanical gate. |
@@ -144,10 +146,200 @@ reporting changed evidence, or if an arm records a coupling its own
 `decisionReason` denies. Those are bindings, not strings: rewiring the
 derivation fails them, and so does editing the frozen arms.
 
+## Walk the proof — an attention layer, not a second cockpit
+
+A judge arriving cold has to answer *what changed because Interlock existed?*
+before they can decide whether to check it. The cockpit answers that in one
+frame, but it answers it all at once. **Walk the proof** is an optional guided
+pass over the same geometry: same shell, same four-stage spine, same controls in
+the same places. It moves emphasis and adds two things — the entry choice, and
+the ablation's held-constant / changed markers. It adds no run, no arm, no value
+and no claim.
+
+On local entry the reader is offered both paths and **neither is preselected**:
+
+> **Inspect the run**
+> Two actions can be valid alone and unsafe together. Follow the recorded proof,
+> or inspect everything yourself.
+>
+> `Walk the proof`  ·  `Explore freely`
+
+`Walk the proof` takes ordinary primary emphasis. `Explore freely` keeps a
+full-weight border and the same tap target, because it is the expert path rather
+than a decline. The module is not modal, and it does not sit over run identity,
+frozen state, the checks or the proof-class switch.
+
+The six beats:
+
+| Step | State | What it emphasises |
+| --- | --- | --- |
+| 01 | `guide.local.validity` | both intents, equally |
+| 02 | `guide.local.shared-environment` | the intents and the bounded environment they converge on |
+| 03 | `guide.local.evidence-decision` | the frozen coupling evidence and the decision it produced |
+| 04 | `guide.local.outcome` | the decision beside the baseline and treatment outcomes |
+| 05 | `guide.local.ablation` | evidence, decision, outcome, and the arm control |
+| 06 | `guide.local.handoff` | nothing — the run returns to full emphasis |
+
+### Emphasis is positive, and it is not paid for out of legibility
+
+The first implementation receded non-current stages with `opacity: 0.62`. It was
+wrong twice over, and only measurement showed it. `opacity` composites *text*
+toward whatever is behind it, and it **multiplies through every ancestor that
+also sets it** — this surface already muted small labels at `.6`, inside rows at
+`.7`. Composed, `Baseline · no coordination` rendered at an effective 0.26 and
+measured **1.81:1** against a 4.5:1 floor, on text that is still content. Twelve
+labels that passed AA in the free cockpit failed inside the walk.
+
+No opacity floor fixes that. Measured across the range, `0.95` still introduced a
+failure and only `1.0` — no recession at all — reached zero, because the worst
+affected label sits at 4.60:1 unrecessed and any multiplier pushes it under.
+
+So the mechanism was replaced rather than tuned. The current stage is marked
+**up**; the others are simply unmarked:
+
+| Channel | Current stage | Other stages |
+| --- | --- | --- |
+| Accent edge | 3px inset shadow in the coupled hue | none |
+| Surface | card | sunken |
+| Border | left edge in the coupled hue | `--border-default` |
+| Stage number | filled chip | plain numeral |
+| Lift | `0 1px 3px` | none |
+| Connector | full stroke, coupled hue, only when *both* joined stages are current | grammar default |
+
+Every one of those is colour, background or `box-shadow`. None participates in
+layout, so **no step moves anything** — asserted in a browser by comparing the
+box of all five stages across all six steps. Text colour is untouched at every
+step, so a non-current stage reads exactly as well as the current one.
+
+The gate refuses the whole mechanism, not a particular value of it: no `opacity`
+and no `filter` may appear in any `[data-guide-em]` rule, at any value; nothing
+may be hidden or made unreachable; and nothing may change a layout property.
+
+### One floor for the whole surface
+
+Hierarchy is carried by two measured colour tiers rather than by opacity, which
+cannot be measured once and trusted because it depends on every ancestor:
+
+| Tier | Light field | Dark field |
+| --- | --- | --- |
+| `--text-body` | `--ink` | `--paper` |
+| `--text-muted` | `--n60` — **6.84:1** on sunken, 7.27:1 on card | `--n40` — **6.89:1** on sunken, 7.25:1 on card |
+
+There is deliberately no third tier: `--n50` was the natural next step down and
+measures **4.07:1** on the sunken surface, under the floor. The gate fails if it
+colours text again.
+
+The audit that produced those numbers found eight failures already present in the
+free cockpit before any of this work — down to 2.81:1 — and one more in a place
+nobody had measured: **the Google Cloud raw-proof panel rendered paper text on
+`--surface-code`, a light surface, at 1.03:1.** The L3 packet was on screen and
+could not be read. The code surface now follows its field.
+
+Resolving colour by string was itself a defect in the audit harness: `fillStyle`
+round-trips `oklch()` unchanged and this design is oklch throughout, so the first
+run silently mis-measured every semantic state colour. Colour is now resolved by
+painting a pixel and reading it back.
+
+Current state, measured across **13,344 text nodes in 136 scenarios** — both
+modes, every step, every arm, both proof classes, every panel, the degraded
+states, 1440px and 320px, and both reduced-motion resolutions:
+
+```
+muted by opacity   0
+AA failures        0
+min ratio          5.15 : 1
+```
+
+### The step owns its action
+
+While the walk runs, the persistent verification row is **demoted** — 1px chrome
+and normal weight instead of 2px and semibold — so the step's own action leads.
+Its text colour, tap target and tab position are unchanged: a demoted control is
+quieter, never less readable.
+
+On the handoff step the two actions the step panel itself offers are dropped from
+that row outright; the same control twice, eighty pixels apart, reads as two
+different things. The row is never emptied — `Show me the raw proof` and `What is
+not claimed?` appear in no step panel, and no step may take away the expert path.
+
+Nothing auto-advances: the gate fails on a timer that moves a step. No step
+change scrolls — focus is restored with `preventScroll`, and `scrollIntoView` is
+refused outright.
+
+### The ablation is a claim, so it is derived
+
+Step 5 states that four things were held constant and four changed. That is the
+load-bearing sentence of the whole walk, and it is the one a reader cannot check
+by eye across a state change. So it is not a sentence: `ablationDelta` in
+`lib/guide.mjs` reads **both frozen arms** and reports what actually moved.
+
+| Held constant | Read from |
+| --- | --- |
+| Intent A, Intent B | `run.actors` — properties of the experiment |
+| Shared environment | `environmentEvidence[0].source` |
+| Joint bound `130` | each arm's own `outcome.bound` |
+
+| Changed | Treatment | Perturbed |
+| --- | --- | --- |
+| Evidence basis | `eb67a6f5…` | `db8a63ec…` |
+| Evidence finding | `COUPLED` | `NO QUALIFYING COUPLING` |
+| Coordination decision | `WITHHOLD_SERIALIZE` | `ALLOW_PARALLEL` |
+| Bounded outcome | `120 <= 130` | `140 > 130` |
+
+The bound is deliberately read off each arm rather than off the shared
+constraint. Read off the constraint it is held constant by construction and the
+marker proves nothing; read off the arms it is a claim that both arms were
+judged against the same bound, and editing one arm's `outcome.bound` fails the
+gate. A marker whose claim stops matching the record is **dropped rather than
+drawn**, and refused by `verify-cockpit.mjs`.
+
+`Remove or perturb the evidence` selects the recorded perturbed arm. It does not
+edit, delete or recompute anything, and `Restore the original evidence` names
+the action it will perform in the other direction. The rail's own disclaimer —
+*each arm is a recorded result … nothing is executed in the browser* — stays on
+screen throughout.
+
+### Motion
+
+The walk reuses the one explanatory transition this surface already had:
+switching arms steps evidence → decision → outcome so a reader sees which parts
+moved together. `--dur-base` at delays `0`, `--delay-step`, `2 × --delay-step` is
+**400ms**, and the gate derives that from `assets/tokens/motion.css` and fails if
+it passes the `--dur-hold` 700ms budget. No new keyframe, no new dependency, no
+Lottie, nothing pre-rendered.
+
+Reduced motion is resolved, not toggled:
+
+- **The system asks for it** → the manual control is *withdrawn* and replaced by
+  a non-interactive `Reduced motion · system preference` status. Offering an
+  `Enable motion` button the preference would immediately override is a lie
+  about who is in charge, and the gate fails on one.
+- **The system does not** → the control names the action available:
+  `Reduce motion`, or `Enable motion` once manually reduced, with `aria-pressed`.
+
+Either way the substitution is transitions for immediate state changes. The step
+sequence, the copy, the changed and held-constant markers, the selected arm and
+the announcements are identical — asserted by comparing the two derivations
+field for field. The preference is **not persisted**: this repository has no
+preference-storage pattern, and inventing one would put a second invisible
+authority beside the OS setting.
+
+### Keyboard
+
+Tab and Shift+Tab reach everything; Enter and Space activate. **Back and Next are
+the universal path and never depend on an arrow key.** Escape is the only key
+bound globally, because closing the open panel is the only action that makes
+sense wherever focus is.
+
+Left/Right/Home/End are scoped to two roving-tabindex groups — the step rail and
+the strategy control — by asking where the event came from *first*. They do not
+move a step from inside a scrollable proof block, a code sample or any other
+control. The gate fails if that guard is removed.
+
 ## Deep links
 
 ```
-?run=<hac330-local|hac340-cloud>&proof=<local|cloud>&state=<semanticStateId>
+?run=<hac330-local|hac340-cloud>&proof=<local|cloud>&state=<semanticStateId>[&guide=<guideStateId>]
 ```
 
 `run.local.overview` aliases to `run.local.treatment` and is the default. Rules,
@@ -166,6 +358,78 @@ three.
 
 Cockpit-specific additions: `run.missing`, `run.unavailable`,
 `run.cloud.partial`, `run.evidence.invalid-link`, `evaluation.unbound`.
+
+The guided layer is a **second axis on the same address**, not a second address
+space: `state` still names the recorded arm and `guide` names which beat is
+emphasised, so the two compose. `guide.local.choice` is the default, and
+`guide.local.free` is the expert path — declared rather than left implicit, so
+an unknown value can be refused instead of resolving to something. An unknown
+guided state renders `run.missing`; so does a guided state asked for under the
+cloud proof class. Both echo the address that earned the refusal, and neither is
+corrected to step one.
+
+## Coordination strategies — bound to HAC-343, not transcribed
+
+The judge's next question after *what changed?* is *compared with what?*. The
+approved prototype rendered that panel as a scaffold, because HAC-343 had no
+frozen artifact when it was drawn. **It does now**, so the panel binds rather
+than scaffolds — every cell reads a named field out of a frozen HAC-343 artifact
+and renders the path it came from beside the value.
+
+Six dimensions × four strategies. Strategy labels come from
+`judge-export.json#panel1.rows[].label` rather than being written here.
+
+| Dimension | Bound to |
+| --- | --- |
+| Safety result | `results.json#report.aggregate.<arm>.unsafeJointState.display` |
+| Concurrency cost | `results.json#report.aggregate.<arm>.spr.rendering` |
+| Scope of coordination | `execution-semantics.json#arms.<arm>.note` |
+| Evidence sensitivity | `results.json#report.aggregate.<arm>.evidenceSensitivity.display` |
+| Recorded outcome | `results.json#report.aggregate.<arm>.permit.display` |
+| Limitation | per arm — see below |
+
+`Limitation` is the one asymmetric row, because HAC-343 records each arm's
+limitation under the key that fits that arm: `canFail` for the arms that could
+have falsified the thesis, `knownWeakness` where the weakness is structural,
+`namingRule` for the arm most likely to be mis-described, and the export's own
+`forbiddenRendering` for Interlock. Flattening them to one key would have meant
+writing three sentences HAC-343 never wrote.
+
+| Arm | Limitation field |
+| --- | --- |
+| `A1_uncoordinated` | `metric-definitions.json#arms.A1_uncoordinated.canFail` |
+| `A2_global_lock` | `metric-definitions.json#arms.A2_global_lock.knownWeakness` |
+| `A3_per_target_lock` | `metric-definitions.json#arms.A3_per_target_lock.namingRule` |
+| `A4_interlock` | `judge-export.json#panel2.forbiddenRendering` |
+
+Each dimension also carries the question it answers, bound to
+`metric-definitions.json#metrics.*.question` — a bare `2/2 (100.0%)` does not say
+whether two out of two is good.
+
+**A3 is not renamed "credible".** HAC-343's own `namingRule` forbids describing
+that arm loosely, so the panel shows the frozen figure that earns the word
+instead: same-target contention serialized
+`judge-export.json#panel1.perTargetLockCredibility.serializedSameTargetContention`.
+A skeptical judge can see the lock was real before reading what it missed.
+
+**Two experiments, two panels.** HAC-343 evaluates four strategies over its own
+sixteen-scenario corpus; HAC-330 is the single bounded counterfactual on screen
+beside it. No value crosses. The gate fails if `140 > 130`, `120 <= 130`,
+`WITHHOLD_SERIALIZE` or `hac330` appears inside the comparison — the same
+refusal that keeps the two proof classes apart, applied to a third experiment.
+
+### When it cannot bind
+
+The adapter reads the HAC-343 artifacts optionally, so this surface builds
+without them. Absent, every cell they fed renders as
+`[BIND: experiments/hac-343/evidence/<file>.json#<path>]`, the panel labels
+itself `Unresolved binding scaffold · not evidence`, and no substitute value is
+derived from HAC-330 or anywhere else. The banner is conditional in both
+directions: it may not appear over bound evidence, and it may not be missing
+when something is genuinely unbound. `verify-cockpit.mjs` rebuilds the
+comparison from the artifacts it cites and fails if the committed one is not
+what they produce — so a hand-edited cell fails whether it was edited toward a
+plausible value or away from one.
 
 ## Public evidence
 
@@ -278,6 +542,26 @@ node media/hac-341/bin/build-view-model.mjs   # rebuild from frozen evidence
 node media/hac-341/bin/verify-cockpit.mjs     # gate
 ```
 
+This surface now binds twenty-four comparison cells into HAC-343, so the packet
+those cells come from is verified in the same pass — `check:packet:eval` was
+added to `pnpm run check`, ahead of `check:cockpit`, so the evidence is checked
+before the surface that renders it. That gate builds first: unlike the other
+packet verifiers, `experiments/hac-343/lib/arms.mjs` loads the compiled decision
+core from `dist/`, so it cannot assume a clean checkout has one.
+
+```sh
+pnpm run check:packet:eval                    # HAC-343 packet, then the cockpit gate
+```
+
+The seam is proved in both directions in `test/hac-343-check-wiring.test.mjs`:
+an invalid HAC-343 packet fails `check:packet:eval`, and a HAC-343 field moving
+*underneath* the committed view model fails `check:cockpit`. One boundary is
+pinned rather than assumed there — `check:packet:eval` reports an absent
+`results.json` as *machinery verified; the experiment has not been executed* and
+exits zero, which is correct for HAC-343 alone and insufficient for anything
+binding to it. The cockpit gate is what refuses that case, and both run in
+`check`.
+
 The browser-level visual contract is separate because the deterministic package
 does not carry a browser dependency. It measures both proof classes at
 **1440×900** and **1280×800**: the local run must show its identity, causal
@@ -321,6 +605,23 @@ looping animation.
 **20 negative cases** were confirmed to fire on the original gate; the identity
 and evidence-panel invariants add **16 more**, and the corrective pass adds
 **17 more**, in `test/hac-341-identity-gates.test.mjs`.
+
+The guided layer adds **71 tests** in `test/hac-341-guided-walk.test.mjs`: the
+derivations directly, and **31 negative cases** proving each new gate bites —
+emphasis paid for out of text opacity or a filter, emphasis that starts moving
+the run between steps, a label returning to opacity or to the sub-floor grey, the
+cloud field losing its muted tier, the cloud raw-proof surface un-following its
+field, the walk failing to demote the persistent row, the handoff duplicating its
+own actions, demotion dimming control text —
+a held-constant marker that stops matching the arms, a perturbation that stops
+perturbing, an entry that preselects a path, a step that hides the cockpit or
+advances on its own, an arrow key that escapes its group, a second side panel,
+a motion control that survives the system preference, an unbound cell dressed up
+as a value, and a binding placeholder escaping the comparison scaffold.
+
+The browser gate adds the guided walk, the ablation, the side panels, both
+reduced-motion resolutions and a **320 CSS px** frame to the viewports it
+measures.
 
 ## Downstream use — this is a verification surface, not the hero
 

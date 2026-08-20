@@ -104,7 +104,17 @@ jobs:
     name: test
     runs-on: ubuntu-24.04
     steps:
+      # Full history, not the default depth-1 clone. HAC-343 froze three
+      # contracts before any arm produced a result, and
+      # experiments/hac-343/bin/verify-packet.mjs proves that by resolving each
+      # freeze commit and comparing the bytes on disk to the blob that commit
+      # recorded. A shallow checkout has neither the commits nor the blobs, so
+      # the verifier fails with `path exists on disk, but not in <sha>` and
+      # test/hac-343-check-wiring.test.mjs fails with it. Measured: exit 1 at
+      # depth 1, exit 0 with full history.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Pinned for the same reason as codecov-action below: a third-party action
       # on a mutable tag. Sonar did not flag this one only because it is not new
@@ -513,6 +523,87 @@ jobs:
             echo "the story, do not relax the proof-class separation to fit a transition, and"
             echo "do not delete a non-claim to silence a vocabulary check. If the evidence"
             echo "genuinely changed, that is a claim change and belongs on HAC-333."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  evaluation-gate:
+    name: Evaluation gate
+    runs-on: ubuntu-24.04
+    steps:
+      # Full history, not the default depth-1 clone. HAC-343 froze three
+      # contracts before any arm produced a result, and the verifier proves
+      # that by resolving each freeze commit and comparing the bytes on disk
+      # to the blob that commit recorded. A shallow checkout has neither the
+      # commits nor the blobs: the verifier fails with `path exists on disk,
+      # but not in <sha>`. Measured: exit 1 at depth 1, exit 0 with history.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # `check:packet:eval` builds first: alone among the packet verifiers,
+      # experiments/hac-343/lib/arms.mjs loads the compiled decision core from
+      # dist/, because the experiment measures the real arbitrate() rather than
+      # a reimplementation of it.
+      - name: Verify the HAC-343 evaluation packet
+        run: pnpm run check:packet:eval
+
+      # The seam, in both directions: an invalid packet must fail this gate,
+      # and a HAC-343 field moving underneath the committed view model must
+      # fail the cockpit gate.
+      - name: The cockpit's HAC-343 bindings fail when the packet moves
+        run: pnpm vitest run test/hac-343-check-wiring.test.mjs
+
+      # `judge-export.json` is a *derived* presentation artifact: the verifier
+      # above recomputes the report from the raw records, but it never rebuilt
+      # the export. Ten judge-facing values reach the comparison panel through
+      # that file alone — all four strategy labels, the per-target-lock
+      # credibility figure, and the canonical result commit — so a hand edit
+      # there reached a judge with every gate green.
+      #
+      # Rebuild and assertion are two steps on purpose. An enforcement step's
+      # `run` must be exactly one expected command, because a multi-line body is
+      # a shell script and no amount of reading it tells you which lines
+      # actually execute: `if false; then`, a heredoc and an open quote all put
+      # a command at the start of a line without running it. One command per
+      # step is a shape that can be checked instead of inferred.
+      - name: Rebuild the derived judge export
+        run: node experiments/hac-343/bin/build-judge-export.mjs
+
+      - name: The judge export is byte-identical to its rebuild
+        run: git diff --exit-code -- experiments/hac-343/evidence/judge-export.json
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Evaluation gate failed"
+            echo
+            echo "**Invariant.** Every metric in \`experiments/hac-343/evidence/results.json\`"
+            echo "is recomputed from the raw records rather than read back from the summary,"
+            echo "and the three contracts frozen before the run — metric definitions, corpus"
+            echo "and execution semantics — are still byte-identical to the blobs their freeze"
+            echo "commits recorded."
+            echo
+            echo "**Why it matters.** The judge cockpit binds twenty-four comparison cells"
+            echo "into this packet. A packet that no longer verifies is a packet whose numbers"
+            echo "a judge is nonetheless reading, and \"frozen before results\" stops being"
+            echo "checkable by anyone who was not there."
+            echo
+            echo "**Authority.** Repository CI, reported as \`Evaluation gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:packet:eval\` passing on this commit,"
+            echo "and \`test/hac-343-check-wiring.test.mjs\` green."
+            echo
+            echo "**Do not weaken.** Do not re-freeze a contract to match an edit, do not read"
+            echo "a metric out of the summary to make the recomputation agree, and do not drop"
+            echo "\`fetch-depth: 0\` to make the freeze-commit checks stop resolving. If the"
+            echo "experiment genuinely changed, it is a new run, not an edited one."
           } >> "$GITHUB_STEP_SUMMARY"
 
   cockpit-contract-gate:

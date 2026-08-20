@@ -29,6 +29,15 @@ const NEEDED = [
   'experiments/hac-330/evidence/results.json',
   'experiments/hac-342/evidence/cloud-run.public.json',
   'experiments/hac-342/evidence/publication-bindings.json',
+  // The cockpit gate re-reads the HAC-343 artifacts the comparison cites and
+  // refuses a comparison that is not what they produce, so a scratch copy
+  // without them is not a copy of this repository.
+  'experiments/hac-343/evidence',
+  // The cockpit gate reads the HAC-343 verifier and the workflow to confirm
+  // every cited artifact is covered — the derived judge export by being
+  // reproduced in CI, the rest by the packet verifier.
+  'experiments/hac-343/bin',
+  '.github',
 ];
 
 let pristine;
@@ -202,8 +211,8 @@ describe('the evidence panel preserves causal context', () => {
 
   it('fails when the run is made inert while the panel is open', () => {
     const r = perturbed((a) => {
-      a.edit('media/hac-341/cockpit.html', '  drawer.focus();',
-        "  app.setAttribute('inert', '');\n  drawer.focus();");
+      a.edit('media/hac-341/cockpit.html', '  drawer.focus({ preventScroll: true });',
+        "  app.setAttribute('inert', '');\n  drawer.focus({ preventScroll: true });");
     }, gate);
     expect(r.code).not.toBe(0);
     expect(r.out).toMatch(/run is made inert while the panel is open/);

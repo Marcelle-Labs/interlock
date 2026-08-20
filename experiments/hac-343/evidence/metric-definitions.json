@@ -1,0 +1,179 @@
+{
+  "experiment": "HAC-343",
+  "kind": "metric definitions",
+  "status": "FROZEN_BEFORE_RESULTS",
+  "frozenRule": "This file defines every arm, label and metric before any result exists. It is committed in its own commit, ahead of the commit that adds results.json. A metric that is defined after its value is known is not a measurement, and the packet's central claim is reproducibility. If a definition here proves unworkable during the run, the correct repair is a new revision of this file with the reason recorded in supersedes[], never an edit in place once a result has been generated against it.",
+  "revision": "r01",
+  "supersedes": [],
+
+  "boundedClaim": {
+    "statement": "Global locking can preserve safety by sacrificing concurrency; per-target locking preserves concurrency but can miss hazards spanning distinct targets; Interlock tests whether composition evidence can preserve both on this frozen corpus.",
+    "rule": "This is the only claim shape the experiment may support. No arm is described as simply 'safe' or 'unsafe' without naming the hazard class it was tested against, and no result is generalised beyond this corpus.",
+    "notAClaim": "That per-target locking is a poor engineering practice. It is correct for the hazard it addresses — same-target contention — and this experiment tests a different hazard class."
+  },
+
+  "scopeBoundary": {
+    "usesOnly": "Semantics already proven by HAC-330 and HAC-326 and present in the deterministic decision core at src/broker/pairing/arbitrate.ts.",
+    "notClaimed": [
+      "HAC-317 joint human authorization",
+      "exactly-once execution",
+      "restart safety or recovery",
+      "production readiness",
+      "Agent Runtime or Agent Gateway participation",
+      "any lifecycle state not present in the frozen evidence"
+    ],
+    "boundedTo": "The frozen corpus enumerated in corpus.json. Every rate below is a property of that corpus and is not a population estimate."
+  },
+
+  "decisionCore": {
+    "module": "dist/broker/pairing/arbitrate.js",
+    "source": "src/broker/pairing/arbitrate.ts",
+    "rationale": "arbitrate.ts is the only core that emits ALLOW_SERIALIZED. experiments/hac-330/lib/decide.mjs answers a different question (a fixed set submitted together) and collapses every coupled outcome to WITHHOLD_SERIALIZE, which would pin Safe Parallelism Retained at zero for every coupled scenario and make the Interlock arm indistinguishable from arm A2 by construction. Binding the evaluation to decide.mjs would therefore produce a null result that looked like a finding.",
+    "buildCommand": "pnpm run build"
+  },
+
+  "arms": {
+    "A1_uncoordinated": {
+      "label": "Uncoordinated baseline",
+      "mechanism": "No composition-aware decision. Every intent proceeds as soon as it arrives.",
+      "expectedRole": "Establishes that the hazard is real and that each intent is individually valid.",
+      "canFail": "If A1 produces no unsafe joint state on a coupled scenario, the scenario does not encode a real composition hazard and is reported as a corpus defect, not as an Interlock success."
+    },
+    "A2_global_lock": {
+      "label": "Naive safe baseline — global serialization",
+      "mechanism": "A single coarse lock over the whole target. Exactly one intent mutates at a time; every other intent waits regardless of what it writes or what evidence exists.",
+      "specifiedBy": "HAC-343 'Required arms' item 2.",
+      "expectedRole": "The simplest mechanism that prevents concurrent mutation outright.",
+      "knownWeakness": "Safe Parallelism Retained is zero for this arm by construction, not by measurement. Reporting A4 as beating A2 on parallelism alone is therefore a tautology and is not permitted as a headline claim. A2 exists to establish the safety ceiling and the concurrency floor.",
+      "validityGate": {
+        "rule": "A2 must serialize every scenario without exception, including those labelled INDEPENDENT and SAME_TARGET_CONTENTION. A single concurrent permit means the global lock is not global and the run FAILS.",
+        "rationale": "Same reason as A3's gate: a baseline that did not actually lock would make every downstream comparison meaningless."
+      }
+    },
+    "A3_per_target_lock": {
+      "label": "Credible per-target locking baseline",
+      "mechanism": "A lock per written path. Two intents proceed concurrently when their target path sets are disjoint, and serialize only when they share a path.",
+      "specifiedBy": "HAC-319 'Do not weaken the naive baseline to make Interlock look good. It should be the strongest simple alternative a skeptical judge would reasonably propose.' HAC-343 r02 adopts the four-arm design so the child agrees with the parent.",
+      "namingRule": "A3 is NEVER described as a 'safe baseline'. It is safe against same-target contention and may remain blind to composition hazards spanning distinct targets. Any rendering that calls A3 simply safe or simply unsafe, without naming the hazard class, is a claim defect.",
+      "expectedRole": "The coordination discipline a skeptical judge proposes instead of Interlock. It has no access to co-change evidence.",
+      "validityGate": {
+        "rule": "A3 must serialize every scenario labelled SAME_TARGET_CONTENTION. If it does not, it is a defective lock rather than a blind one, and the run FAILS rather than reporting A3 as unsafe.",
+        "rationale": "Without this gate an allow-all implementation would produce the same unsafe result as a real per-target lock, and the finding would be worthless — a skeptical judge would correctly dismiss it as a strawman that never locked anything. The gate is what makes an unsafe A3 result mean 'per-target locking cannot see this hazard' rather than 'their baseline was broken'."
+      },
+      "canFail": "If A3 withholds the cross-target coupled composition, Interlock's distinguishing claim is false on this corpus and the finding is reported as such. This arm is included precisely because it is capable of defeating or narrowing the product thesis."
+    },
+    "A4_interlock": {
+      "label": "Interlock treatment",
+      "mechanism": "arbitrate() over the frozen co-change evidence envelope, pending-intent set, and source revision.",
+      "outcomeMapping": {
+        "ALLOW_PARALLEL": "proceeds concurrently; counts as retained parallelism",
+        "ALLOW_SERIALIZED": "proceeds alone while coupled peers withhold; safe progress but NOT parallelism",
+        "WITHHOLD_SERIALIZE": "withheld pending the leading intent; not parallelism",
+        "INSUFFICIENT_EVIDENCE": "refused fail-closed; excluded from parallelism metrics and counted under refusal"
+      }
+    }
+  },
+
+  "groundTruthLabels": {
+    "rule": "Every scenario carries exactly one label, assigned by construction of the fixture history and independent of any arm's output.",
+    "COUPLED": "CROSS-TARGET by construction: the two intents write DISTINCT paths, and the fixture history contains a qualifying co-change pair spanning those paths at support >= couplingMinSupport. Composing both intents violates the target invariant. Distinct paths are required — a coupling within one path would be visible to per-target locking and would not test the distinction this experiment exists to measure.",
+    "INDEPENDENT": "The two intents write distinct paths and the fixture history contains no qualifying pair spanning them. Composing both intents preserves the target invariant.",
+    "SAME_TARGET_CONTENTION": "Both intents write the SAME path. Every lock arm must serialize these; A4 is not required to, because the target's own revision check already refuses the second write. Present solely to prove A2 and A3 are real locks rather than allow-all implementations, and therefore that an unsafe A3 result on COUPLED scenarios is blindness rather than absence of a lock.",
+    "EVIDENCE_PERTURBED": "Identical intents and identical final tree, but a history in which the coupling is absent. Used to test that the decision follows the evidence rather than the intents.",
+    "EVIDENCE_INADMISSIBLE": "The evidence envelope is absent, malformed, unmined, shallow, misattributed, or pinned to a different revision. The correct behavior is explicit refusal, never a permit."
+  },
+
+  "metrics": {
+    "unsafeJointStateRate": {
+      "question": "How often does an arm allow a composition that violates the target invariant?",
+      "numerator": "scenarios in which the arm permitted both intents and the resulting target state failed the invariant sum(services[].reserved) <= budget.totalReservable",
+      "denominator": "all scenarios labelled COUPLED",
+      "excluded": "scenarios labelled EVIDENCE_INADMISSIBLE, which are scored under refusalCorrectness instead; the exclusion count is reported alongside the rate",
+      "direction": "lower is better; 0 is the safety bar"
+    },
+    "permitRate": {
+      "question": "How much work does the arm let through at all?",
+      "numerator": "scenarios in which at least one intent proceeded",
+      "denominator": "all scenarios",
+      "note": "Reported per arm without judgement. A high permit rate is only a virtue when unsafeJointStateRate is 0."
+    },
+    "falseBlockRate": {
+      "question": "How often does the arm withhold work that was safe to run concurrently?",
+      "numerator": "scenarios labelled INDEPENDENT in which the arm did not permit both intents to proceed concurrently",
+      "denominator": "all scenarios labelled INDEPENDENT with admissible evidence",
+      "excluded": "EVIDENCE_INADMISSIBLE scenarios; a fail-closed refusal on unreadable evidence is correct behavior and must not be scored as a false block",
+      "direction": "lower is better"
+    },
+    "evidenceSensitivityRate": {
+      "question": "Does the decision change when the evidence changes, holding the intents fixed?",
+      "numerator": "EVIDENCE_PERTURBED scenarios in which the arm's decision differs from its decision on the corresponding COUPLED scenario",
+      "denominator": "all EVIDENCE_PERTURBED scenarios",
+      "note": "A1, A2 and A3 consume no evidence and are expected to score 0. That is the point: it demonstrates their decisions are not evidence-driven. A non-zero score for A1/A2/A3 indicates a harness defect and fails the run."
+    },
+    "lockValidity": {
+      "question": "Did the lock arms actually lock?",
+      "numerator": "SAME_TARGET_CONTENTION scenarios the arm serialized",
+      "denominator": "all SAME_TARGET_CONTENTION scenarios",
+      "appliesTo": ["A2_global_lock", "A3_per_target_lock"],
+      "gate": "Anything below 100% for A2 or A3 fails the run outright. This is a precondition on the harness, not a score to compare arms on, and it is reported before any other metric so a reader can see the baselines were real before reading what they missed.",
+      "note": "A1 is expected to score 0 — it has no lock — and A4 is not scored here; its refusal of a second same-path write comes from the target revision check, not from a lock."
+    },
+    "refusalCorrectness": {
+      "question": "Does inadmissible evidence produce an explicit refusal rather than a permit?",
+      "numerator": "EVIDENCE_INADMISSIBLE scenarios refused with a machine-readable reason code",
+      "denominator": "all EVIDENCE_INADMISSIBLE scenarios",
+      "note": "Only A4 can score above 0; the lock arms have no evidence input and will permit. Reported to make that asymmetry visible rather than to flatter A4."
+    }
+  },
+
+  "headlineKpi": {
+    "name": "Safe Parallelism Retained",
+    "abbreviation": "SPR",
+    "informalStatement": "Of the concurrent actions that were genuinely independent, what fraction did this arm allow to run in parallel — while withholding every unsafe composition?",
+    "numerator": "scenarios labelled INDEPENDENT in which the arm permitted both intents to proceed concurrently",
+    "denominator": "all scenarios labelled INDEPENDENT with admissible evidence",
+    "excludedFromDenominator": [
+      "EVIDENCE_INADMISSIBLE scenarios — refusal there is correct and scoring it as lost parallelism would penalise fail-closed behavior",
+      "COUPLED scenarios — withholding there is the safety property, not lost parallelism"
+    ],
+    "safetyPrecondition": {
+      "rule": "SPR is reported ONLY as an ordered pair with unsafeJointStateRate, never as a bare number.",
+      "rationale": "An arm that permits everything scores SPR = 100% and is unsafe. Publishing SPR alone would make the worst arm look best. The canonical rendering is 'SPR X% at unsafe-joint-state rate Y%'.",
+      "qualifiedClaim": "An arm may be described as retaining safe parallelism only when its unsafeJointStateRate is 0. Otherwise the SPR figure is reported with the qualifier 'unsafe' attached."
+    },
+    "ambiguousCases": {
+      "ALLOW_SERIALIZED": "counts as permitted but NOT as parallel; it appears in permitRate, not in the SPR numerator",
+      "INSUFFICIENT_EVIDENCE": "excluded from both numerator and denominator; counted under refusalCorrectness",
+      "rule": "No scenario may be silently dropped. Every exclusion is counted and printed next to the metric it was excluded from."
+    },
+    "replacementClause": "If SPR proves misleading during the run, it is replaced in a new revision of this file with the reason recorded, before results are generated. A decorative metric is not preserved."
+  },
+
+  "corpusRequirements": {
+    "rule": "The corpus is invalid, and the run fails, unless every requirement below holds. Checked mechanically by run-experiment.mjs before any arm executes.",
+    "mustContain": [
+      "at least one COUPLED scenario whose two intents write DISTINCT paths — without cross-target coupling the experiment cannot test the distinction between per-target locking and composition evidence, which is its entire subject",
+      "at least one INDEPENDENT scenario, or SPR and falseBlockRate have empty denominators and report n/a",
+      "at least one SAME_TARGET_CONTENTION scenario, or the A2 and A3 validity gates cannot be evaluated and the baselines are unproven",
+      "at least one EVIDENCE_PERTURBED scenario, or evidenceSensitivityRate has an empty denominator",
+      "at least one EVIDENCE_INADMISSIBLE scenario per distinct refusal reason the core can emit and the corpus can produce"
+    ],
+    "balanceRule": "Scenario counts per label are recorded in corpus.json and printed with the results. The corpus is not tuned after seeing any arm's output; a corpus change invalidates existing results and requires a rerun.",
+    "noOptimisation": "No scenario is added or removed to move a metric. Scenarios are derived from the fixture histories, which are generated before any arm runs."
+  },
+
+  "reportingConvention": {
+    "intervals": "No confidence intervals are reported. The decision function is deterministic and the corpus is a frozen finite enumeration evaluated exhaustively, so there is no sampling process and no sampling variability. Attaching an interval would imply a population and a draw that do not exist. Exact counts are reported instead.",
+    "denominators": "Every rate is printed as numerator/denominator, never as a bare percentage.",
+    "zeroDenominator": "A metric whose denominator is 0 is reported as 'n/a (0 cases)' and never as 0%, 100%, or a passing green state.",
+    "negativeFindings": "Results that contradict the product thesis are retained in results.json and in the judge-safe summary. If A4 does not materially outperform A3 on SPR at equal safety, that is the reported finding and the product claim is narrowed.",
+    "promotion": "No value from this experiment appears on any judge-facing surface (HAC-335, HAC-336, cockpit) until results.json is committed and verify-packet.mjs passes."
+  },
+
+  "reproduction": {
+    "buildCommand": "pnpm run build",
+    "runCommand": "WORKSPACEJSON_CLI=<path-to-pinned-cli-checkout> node experiments/hac-343/bin/run-experiment.mjs",
+    "verifyCommand": "node experiments/hac-343/bin/verify-packet.mjs",
+    "checkoutNote": "run-experiment.mjs refuses to start unless the pinned workspacejson/cli and workspacejson/standard checkouts match experiments/hac-330/evidence/pins.json and are clean. Resolution walks up for a sibling 'cli' directory; set WORKSPACEJSON_CLI when this checkout is not inside the documented interlock-workspace layout."
+  }
+}

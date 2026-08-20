@@ -1,0 +1,554 @@
+{
+  "experiment": "HAC-343",
+  "kind": "corpus manifest",
+  "status": "FROZEN_BEFORE_RESULTS",
+  "revision": "r01",
+  "supersedes": [],
+  "frozenRule": "Committed in its own commit, after metric-definitions.json and before any arm implementation or results.json. Scenario counts, labels and intents are fixed here. A corpus change after any result exists invalidates that result and requires a rerun, per metric-definitions.json corpusRequirements.noOptimisation.",
+  "metricDefinitions": {
+    "file": "experiments/hac-343/evidence/metric-definitions.json",
+    "revision": "r01",
+    "sha256": "2cfff5b19812d9805d5c5a129bb8e8ac7009ae8b5d21a10a85bb31863bc79700"
+  },
+  "breadthRationale": "Two structurally different hazard classes, so a result is not one topology repeated. budget is arithmetic (composed increases overshoot a ceiling); registry is referential (one intent removes a referent the other points at). Both carry all five ground-truth classes, so a per-family divergence is about hazard shape rather than uneven class coverage.",
+  "families": {
+    "budget": {
+      "hazardClass": "arithmetic",
+      "invariant": "sum(services[].reserved) <= budget.totalReservable",
+      "source": "experiments/hac-330 — reused verbatim, not rebuilt",
+      "subjectPaths": {
+        "left": "services/alpha/reservation.json",
+        "right": "services/beta/reservation.json",
+        "independent": "services/gamma/reservation.json"
+      },
+      "fixtures": {
+        "totalReservable": 130,
+        "baseline": {
+          "repo": "experiments/hac-330/.work/fixtures/baseline",
+          "head": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+          "tree": "fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+          "commitCount": 17
+        },
+        "perturbed": {
+          "repo": "experiments/hac-330/.work/fixtures/perturbed",
+          "head": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+          "tree": "fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+          "commitCount": 17
+        }
+      }
+    },
+    "registry": {
+      "hazardClass": "referential",
+      "invariant": "every route.service and alias target resolves in registry/services.json",
+      "source": "experiments/hac-343/lib/families/registry.mjs — built by this script",
+      "subjectPaths": {
+        "left": "registry/services.json",
+        "right": "routing/routes.json",
+        "independent": "observability/dashboards.json"
+      },
+      "fixtures": {
+        "baseline": {
+          "repo": "/Users/user1/dev/interlock/experiments/hac-343/.work/fixtures/baseline",
+          "head": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+          "tree": "b57f883c20fa06246799e610eed88b90d160dfc5",
+          "commitCount": 18
+        },
+        "perturbed": {
+          "repo": "/Users/user1/dev/interlock/experiments/hac-343/.work/fixtures/perturbed",
+          "head": "f50ecbe40530af357750952235bb262948f9e84e",
+          "tree": "b57f883c20fa06246799e610eed88b90d160dfc5",
+          "commitCount": 18
+        }
+      },
+      "qualifyingPairs": {
+        "baseline": [
+          {
+            "files": [
+              "registry/services.json",
+              "routing/routes.json"
+            ],
+            "support": 9,
+            "occurrences": 13
+          },
+          {
+            "files": [
+              "docs/runbook.md",
+              "observability/dashboards.json"
+            ],
+            "support": 5,
+            "occurrences": 5
+          }
+        ],
+        "perturbed": [
+          {
+            "files": [
+              "docs/runbook.md",
+              "observability/dashboards.json"
+            ],
+            "support": 5,
+            "occurrences": 5
+          },
+          {
+            "files": [
+              "registry/aliases.json",
+              "routing/routes.json"
+            ],
+            "support": 5,
+            "occurrences": 11
+          },
+          {
+            "files": [
+              "registry/aliases.json",
+              "registry/services.json"
+            ],
+            "support": 5,
+            "occurrences": 13
+          }
+        ]
+      },
+      "controls": {
+        "sharedFinalTree": "b57f883c20fa06246799e610eed88b90d160dfc5",
+        "commitCount": 18,
+        "note": "Same four controls as HAC-330: identical final tree, identical commit count, commit i touching the same number of files in both, and the invariant holding at every commit (asserted in planCommits)."
+      }
+    }
+  },
+  "counts": {
+    "total": 16,
+    "byLabel": {
+      "COUPLED": 2,
+      "INDEPENDENT": 2,
+      "SAME_TARGET_CONTENTION": 2,
+      "EVIDENCE_PERTURBED": 2,
+      "EVIDENCE_INADMISSIBLE": 8
+    },
+    "byFamily": {
+      "budget": 8,
+      "registry": 8
+    },
+    "byFamilyAndLabel": {
+      "budget": {
+        "COUPLED": 1,
+        "INDEPENDENT": 1,
+        "SAME_TARGET_CONTENTION": 1,
+        "EVIDENCE_PERTURBED": 1,
+        "EVIDENCE_INADMISSIBLE": 4
+      },
+      "registry": {
+        "COUPLED": 1,
+        "INDEPENDENT": 1,
+        "SAME_TARGET_CONTENTION": 1,
+        "EVIDENCE_PERTURBED": 1,
+        "EVIDENCE_INADMISSIBLE": 4
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "id": "budget/coupled/alpha-beta",
+      "family": "budget",
+      "label": "COUPLED",
+      "fixture": "baseline",
+      "rationale": "alpha and beta are historical counterparties at support 8. Each raise is valid alone (120 <= 130); composed they reach 140 > 130.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/beta/reservation.json",
+          "service": "beta",
+          "reserved": 60
+        }
+      ],
+      "composeViolatesInvariant": true
+    },
+    {
+      "id": "budget/independent/alpha-gamma",
+      "family": "budget",
+      "label": "INDEPENDENT",
+      "fixture": "baseline",
+      "rationale": "alpha and gamma never appear in one commit in the baseline history. Composed they reach 128 <= 130, so permitting both is correct.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/gamma/reservation.json",
+          "service": "gamma",
+          "reserved": 28
+        }
+      ],
+      "composeViolatesInvariant": false
+    },
+    {
+      "id": "budget/same-target/alpha-alpha",
+      "family": "budget",
+      "label": "SAME_TARGET_CONTENTION",
+      "fixture": "baseline",
+      "rationale": "Both intents write services/alpha/reservation.json. Any real lock must serialize this; it exists to prove the lock arms lock.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 55
+        }
+      ],
+      "composeViolatesInvariant": false
+    },
+    {
+      "id": "budget/perturbed/alpha-beta",
+      "family": "budget",
+      "label": "EVIDENCE_PERTURBED",
+      "fixture": "perturbed",
+      "rationale": "Identical intents and identical final tree to budget/coupled/alpha-beta, against a history where alpha and beta never co-occur. The composition is still arithmetically unsafe; only the evidence changed.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/beta/reservation.json",
+          "service": "beta",
+          "reserved": 60
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "perturbationOf": "budget/coupled/alpha-beta"
+    },
+    {
+      "id": "budget/inadmissible/absent",
+      "family": "budget",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against absent evidence. Correct behavior is explicit refusal with reason EVIDENCE_ABSENT, never a permit.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/beta/reservation.json",
+          "service": "beta",
+          "reserved": 60
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "absent",
+      "expectedRefusalReason": "EVIDENCE_ABSENT"
+    },
+    {
+      "id": "budget/inadmissible/shallow",
+      "family": "budget",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against shallow evidence. Correct behavior is explicit refusal with reason HISTORY_NOT_MINED, never a permit.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/beta/reservation.json",
+          "service": "beta",
+          "reserved": 60
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "shallow",
+      "expectedRefusalReason": "HISTORY_NOT_MINED"
+    },
+    {
+      "id": "budget/inadmissible/noRepository",
+      "family": "budget",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against noRepository evidence. Correct behavior is explicit refusal with reason HISTORY_EVIDENCE_UNAVAILABLE, never a permit.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/beta/reservation.json",
+          "service": "beta",
+          "reserved": 60
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "noRepository",
+      "expectedRefusalReason": "HISTORY_EVIDENCE_UNAVAILABLE"
+    },
+    {
+      "id": "budget/inadmissible/misattributed",
+      "family": "budget",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against misattributed evidence. Correct behavior is explicit refusal with reason EVIDENCE_REPOSITORY_MISMATCH, never a permit.",
+      "intents": [
+        {
+          "op": "set-reservation",
+          "path": "services/alpha/reservation.json",
+          "service": "alpha",
+          "reserved": 60
+        },
+        {
+          "op": "set-reservation",
+          "path": "services/beta/reservation.json",
+          "service": "beta",
+          "reserved": 60
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "misattributed",
+      "expectedRefusalReason": "EVIDENCE_REPOSITORY_MISMATCH"
+    },
+    {
+      "id": "registry/coupled/retire-vs-route",
+      "family": "registry",
+      "label": "COUPLED",
+      "fixture": "baseline",
+      "rationale": "services and routes are historical counterparties at support 9. Retiring the unrouted legacy-pricing service is valid alone; routing to it is valid alone; composed the route dangles.",
+      "intents": [
+        {
+          "op": "remove-service",
+          "path": "registry/services.json",
+          "service": "legacy-pricing"
+        },
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/pricing",
+          "service": "legacy-pricing"
+        }
+      ],
+      "composeViolatesInvariant": true
+    },
+    {
+      "id": "registry/independent/route-vs-dashboards",
+      "family": "registry",
+      "label": "INDEPENDENT",
+      "fixture": "baseline",
+      "rationale": "dashboards co-changes only with the runbook, never with services or routes. Adding a route to an existing service and bumping a dashboard revision compose safely.",
+      "intents": [
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/health",
+          "service": "checkout"
+        },
+        {
+          "op": "bump-dashboards",
+          "path": "observability/dashboards.json",
+          "revision": 99
+        }
+      ],
+      "composeViolatesInvariant": false
+    },
+    {
+      "id": "registry/same-target/route-vs-route",
+      "family": "registry",
+      "label": "SAME_TARGET_CONTENTION",
+      "fixture": "baseline",
+      "rationale": "Both intents write routing/routes.json. Any real lock must serialize this; it exists to prove the lock arms lock.",
+      "intents": [
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/a",
+          "service": "checkout"
+        },
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/b",
+          "service": "inventory"
+        }
+      ],
+      "composeViolatesInvariant": false
+    },
+    {
+      "id": "registry/perturbed/retire-vs-route",
+      "family": "registry",
+      "label": "EVIDENCE_PERTURBED",
+      "fixture": "perturbed",
+      "rationale": "Identical intents and identical final tree to registry/coupled/retire-vs-route, against a history where services and routes never co-occur. The composition still dangles; only the evidence changed.",
+      "intents": [
+        {
+          "op": "remove-service",
+          "path": "registry/services.json",
+          "service": "legacy-pricing"
+        },
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/pricing",
+          "service": "legacy-pricing"
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "perturbationOf": "registry/coupled/retire-vs-route"
+    },
+    {
+      "id": "registry/inadmissible/absent",
+      "family": "registry",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against absent evidence. Correct behavior is explicit refusal with reason EVIDENCE_ABSENT, never a permit.",
+      "intents": [
+        {
+          "op": "remove-service",
+          "path": "registry/services.json",
+          "service": "legacy-pricing"
+        },
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/pricing",
+          "service": "legacy-pricing"
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "absent",
+      "expectedRefusalReason": "EVIDENCE_ABSENT"
+    },
+    {
+      "id": "registry/inadmissible/shallow",
+      "family": "registry",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against shallow evidence. Correct behavior is explicit refusal with reason HISTORY_NOT_MINED, never a permit.",
+      "intents": [
+        {
+          "op": "remove-service",
+          "path": "registry/services.json",
+          "service": "legacy-pricing"
+        },
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/pricing",
+          "service": "legacy-pricing"
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "shallow",
+      "expectedRefusalReason": "HISTORY_NOT_MINED"
+    },
+    {
+      "id": "registry/inadmissible/noRepository",
+      "family": "registry",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against noRepository evidence. Correct behavior is explicit refusal with reason HISTORY_EVIDENCE_UNAVAILABLE, never a permit.",
+      "intents": [
+        {
+          "op": "remove-service",
+          "path": "registry/services.json",
+          "service": "legacy-pricing"
+        },
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/pricing",
+          "service": "legacy-pricing"
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "noRepository",
+      "expectedRefusalReason": "HISTORY_EVIDENCE_UNAVAILABLE"
+    },
+    {
+      "id": "registry/inadmissible/misattributed",
+      "family": "registry",
+      "label": "EVIDENCE_INADMISSIBLE",
+      "fixture": "baseline",
+      "rationale": "The coupled intents against misattributed evidence. Correct behavior is explicit refusal with reason EVIDENCE_REPOSITORY_MISMATCH, never a permit.",
+      "intents": [
+        {
+          "op": "remove-service",
+          "path": "registry/services.json",
+          "service": "legacy-pricing"
+        },
+        {
+          "op": "add-route",
+          "path": "routing/routes.json",
+          "route": "/pricing",
+          "service": "legacy-pricing"
+        }
+      ],
+      "composeViolatesInvariant": true,
+      "evidenceOverride": "misattributed",
+      "expectedRefusalReason": "EVIDENCE_REPOSITORY_MISMATCH"
+    }
+  ],
+  "validation": {
+    "corpusRequirements": "PASS",
+    "checksRun": [
+      "PIN-CLI",
+      "PIN-STD",
+      "F1-REUSED",
+      "F1-TREE",
+      "F2-TREE",
+      "F2-SHAPE",
+      "F2-COUPLED",
+      "F2-PERTURBED",
+      "F2-INDEP",
+      "CORPUS-VALID",
+      "CORPUS-BREADTH"
+    ]
+  },
+  "reproduction": {
+    "buildCommand": "WORKSPACEJSON_CLI=<pinned-cli-checkout> node experiments/hac-343/bin/build-corpus.mjs",
+    "pins": {
+      "workspacejson-cli": {
+        "id": "workspacejson-cli",
+        "repository": "workspacejson/cli",
+        "remote": "https://github.com/workspacejson/cli.git",
+        "disposition": "EXECUTE_READ_ONLY",
+        "pinnedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+        "observedSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+        "clean": true,
+        "matches": true,
+        "problems": []
+      },
+      "workspacejson-standard": {
+        "id": "workspacejson-standard",
+        "repository": "workspacejson/standard",
+        "remote": "https://github.com/workspacejson/standard.git",
+        "disposition": "READ_ONLY_PINNED",
+        "pinnedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+        "observedSha": "a3caece60bde12c41105a9987f50afa9e33dcb7b",
+        "clean": true,
+        "matches": true,
+        "problems": []
+      }
+    }
+  }
+}

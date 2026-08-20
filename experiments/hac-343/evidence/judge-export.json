@@ -1,0 +1,244 @@
+{
+  "experiment": "HAC-343",
+  "kind": "judge export (derived, presentation only)",
+  "derivedFrom": {
+    "canonicalResultCommit": "7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0",
+    "modifiesNothingFrozen": true
+  },
+  "generator": "experiments/hac-343/bin/build-judge-export.mjs",
+  "boundedClaim": "On a frozen sixteen-scenario corpus spanning two structurally different hazard classes — an arithmetic budget ceiling and a referential service registry — global locking preserved safety by eliminating concurrency, per-target locking preserved concurrency but missed every composition hazard spanning distinct targets, and Interlock withheld both hazardous compositions while retaining both safe parallel opportunities. Interlock’s safety is evidence-derived: with the co-change evidence deliberately removed and the intents unchanged, its decision reversed and both invariants failed. Bounded to this corpus; no claim is made about exactly-once execution, restart behaviour, target-side atomicity, or production readiness.",
+  "panel1": {
+    "question": "Under the co-change evidence that was available, how do the four coordination strategies compare?",
+    "scope": "COUPLED and INDEPENDENT scenarios only. Evidence-ablation scenarios are Panel 2; inadmissible-evidence scenarios are reported under limitations.",
+    "rows": [
+      {
+        "arm": "A1_uncoordinated",
+        "label": "Uncoordinated",
+        "coupledUnsafe": {
+          "numerator": 2,
+          "denominator": 2,
+          "display": "2/2",
+          "percent": 100,
+          "derivedFrom": "results.json report.aggregate.A1_uncoordinated.unsafeJointState"
+        },
+        "safeParallelism": {
+          "numerator": 2,
+          "denominator": 2,
+          "display": "2/2",
+          "percent": 100,
+          "derivedFrom": "results.json report.aggregate.A1_uncoordinated.spr.safeParallelismRetained"
+        }
+      },
+      {
+        "arm": "A2_global_lock",
+        "label": "Global lock",
+        "coupledUnsafe": {
+          "numerator": 0,
+          "denominator": 2,
+          "display": "0/2",
+          "percent": 0,
+          "derivedFrom": "results.json report.aggregate.A2_global_lock.unsafeJointState"
+        },
+        "safeParallelism": {
+          "numerator": 0,
+          "denominator": 2,
+          "display": "0/2",
+          "percent": 0,
+          "derivedFrom": "results.json report.aggregate.A2_global_lock.spr.safeParallelismRetained"
+        }
+      },
+      {
+        "arm": "A3_per_target_lock",
+        "label": "Per-target lock",
+        "coupledUnsafe": {
+          "numerator": 2,
+          "denominator": 2,
+          "display": "2/2",
+          "percent": 100,
+          "derivedFrom": "results.json report.aggregate.A3_per_target_lock.unsafeJointState"
+        },
+        "safeParallelism": {
+          "numerator": 2,
+          "denominator": 2,
+          "display": "2/2",
+          "percent": 100,
+          "derivedFrom": "results.json report.aggregate.A3_per_target_lock.spr.safeParallelismRetained"
+        }
+      },
+      {
+        "arm": "A4_interlock",
+        "label": "Interlock",
+        "coupledUnsafe": {
+          "numerator": 0,
+          "denominator": 2,
+          "display": "0/2",
+          "percent": 0,
+          "derivedFrom": "results.json report.aggregate.A4_interlock.unsafeJointState"
+        },
+        "safeParallelism": {
+          "numerator": 2,
+          "denominator": 2,
+          "display": "2/2",
+          "percent": 100,
+          "derivedFrom": "results.json report.aggregate.A4_interlock.spr.safeParallelismRetained"
+        }
+      }
+    ],
+    "reading": "Global locking preserved safety by eliminating concurrency. Per-target locking preserved concurrency but missed every cross-target composition hazard. Interlock is the only arm in both left-hand columns at once on this corpus.",
+    "perTargetLockCredibility": {
+      "claim": "A3 is a real lock, so its misses are blindness rather than absence of a lock.",
+      "serializedSameTargetContention": {
+        "numerator": 2,
+        "denominator": 2,
+        "display": "2/2",
+        "percent": 100,
+        "derivedFrom": "results.json report.lockValidity.A3_per_target_lock"
+      },
+      "parallelisedCrossTarget": {
+        "numerator": 4,
+        "denominator": 4,
+        "display": "4/4",
+        "percent": 100,
+        "derivedFrom": "raw-results.json records[A3, cross-target].concurrent"
+      },
+      "missedCrossTargetHazards": {
+        "numerator": 2,
+        "denominator": 2,
+        "display": "2/2",
+        "percent": 100,
+        "derivedFrom": "results.json report.aggregate.A3_per_target_lock.unsafeJointState"
+      },
+      "note": "It locked exactly what a lock can see. A composition hazard spanning two lock keys is not visible to any per-key discipline."
+    }
+  },
+  "panel2": {
+    "question": "Is Interlock’s safety derived from the evidence, or from something else?",
+    "design": "The perturbed fixtures hold the intents and the final tree identical to their coupled counterparts and change only the commit history, so the coupling is absent from the mined evidence while the composition remains genuinely hazardous.",
+    "rows": [
+      {
+        "condition": "Interlock + coupling evidence present",
+        "invalidOutcomes": {
+          "numerator": 0,
+          "denominator": 2,
+          "display": "0/2",
+          "percent": 0,
+          "derivedFrom": "raw-results.json records[A4, COUPLED].oracle.holds"
+        },
+        "decision": [
+          "ALLOW_SERIALIZED",
+          "WITHHOLD_SERIALIZE"
+        ]
+      },
+      {
+        "condition": "Interlock + coupling evidence removed",
+        "invalidOutcomes": {
+          "numerator": 2,
+          "denominator": 2,
+          "display": "2/2",
+          "percent": 100,
+          "derivedFrom": "raw-results.json records[A4, EVIDENCE_PERTURBED].oracle.holds"
+        },
+        "decision": [
+          "ALLOW_PARALLEL"
+        ]
+      }
+    ],
+    "reading": "Interlock’s safety is evidence-derived. With revision-bound composition evidence present it withheld both hazardous compositions while retaining both safe parallel opportunities. When that evidence was deliberately removed, the decision reversed and both invariants failed.",
+    "forbiddenRendering": "A4 must not be described as globally 0% unsafe, and the sixteen-scenario corpus must not be collapsed into a single unsafe-rate denominator. The 0/2 in Panel 1 is bounded to COUPLED scenarios and means nothing without Panel 2 beside it."
+  },
+  "limitations": {
+    "inadmissibleEvidence": {
+      "failedClosed": {
+        "numerator": 8,
+        "denominator": 8,
+        "display": "8/8",
+        "percent": 100,
+        "derivedFrom": "raw-results.json records[A4, EVIDENCE_INADMISSIBLE].outcomes[].applied"
+      },
+      "exactReasonAgreement": {
+        "numerator": 6,
+        "denominator": 8,
+        "display": "6/8",
+        "percent": 75,
+        "derivedFrom": "results.json report.aggregate.A4_interlock.refusalCorrectness"
+      },
+      "mismatches": [
+        {
+          "scenario": "budget/inadmissible/noRepository",
+          "expected": "HISTORY_EVIDENCE_UNAVAILABLE",
+          "observed": "HISTORY_NOT_MINED",
+          "matches": false
+        },
+        {
+          "scenario": "registry/inadmissible/noRepository",
+          "expected": "HISTORY_EVIDENCE_UNAVAILABLE",
+          "observed": "HISTORY_NOT_MINED",
+          "matches": false
+        }
+      ],
+      "statement": "Every inadmissible-evidence scenario failed closed and applied no mutation. Exact refusal-reason agreement with the frozen corpus was lower: two scenarios refused with HISTORY_NOT_MINED where the corpus predicted HISTORY_EVIDENCE_UNAVAILABLE. The envelope’s completeness state is NOT_MINED, so the decision core took the correct branch and the corpus expectation was mistaken. Neither mismatch permitted a mutation. The corpus is frozen and stays wrong on the record."
+    },
+    "outsideScope": [
+      "same-target atomicity and target-side compare-and-set",
+      "exactly-once execution",
+      "restart and recovery behaviour",
+      "joint human authorization",
+      "Agent Runtime and Agent Gateway participation"
+    ],
+    "outsideScopeNote": "HAC-343 measures a deterministic coordination decision. It does not model a target-side CAS, so A4 permitting two writes to one path is outside what this experiment tested rather than evidence that it is safe. Those belong to HAC-317 and HAC-327.",
+    "corpusBound": "Sixteen scenarios across two hazard families. Every rate is a property of this corpus and is not a population estimate. No confidence intervals: the decision core is deterministic and the corpus is enumerated exhaustively, so there is no sampling process."
+  },
+  "orderEffects": {
+    "count": 12,
+    "allSameArm": [
+      "A2_global_lock"
+    ],
+    "statement": "Every order disagreement is A2 under a single global lock, where whichever intent enters the critical section first wins and the other is rejected. Real and expected. Safety held under both orders for every arm, so the aggregation absorbs it without hiding it.",
+    "derivedFrom": "results.json report.orderEffects"
+  },
+  "mustNotClaim": [
+    "Interlock is 0% unsafe — it produced invalid joint states in the two evidence-ablation scenarios by design.",
+    "Interlock prevents composition hazards — it withheld the hazardous compositions present in this corpus, given evidence that described them.",
+    "Interlock is safer than locking — it is safe against a hazard class per-key locking cannot see; per-target locking is correct for the hazard it addresses.",
+    "A 100% / 0% headline over all sixteen scenarios — the corpus is heterogeneous and must not share one denominator.",
+    "Statistically significant, or any interval — the corpus is an exhaustive deterministic enumeration, not a sample.",
+    "Production-ready, exactly-once, or restart-safe — none were tested here."
+  ],
+  "provenance": {
+    "canonicalResultCommit": "7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0",
+    "frozenCommits": {
+      "experiments/hac-343/evidence/metric-definitions.json": "0a6babbc5d1a3f69b057f98093108ee508072e48",
+      "experiments/hac-343/evidence/corpus.json": "dbdcaa940933f90091a838f5f183031c7556afad",
+      "experiments/hac-343/evidence/execution-semantics.json": "276750ba7a4a51461fb2447b361d69be5e2a020b"
+    },
+    "digests": {
+      "metric-definitions.json": "2cfff5b19812d9805d5c5a129bb8e8ac7009ae8b5d21a10a85bb31863bc79700",
+      "corpus.json": "68c60b38087de00886338de78b9a8b673c1467bf056adaf057c4fd211929575c",
+      "execution-semantics.json": "eca7fac8c0e74eda0af7199cca16ac3d06d3808a14f2e603b6b0c1a380ff97cc",
+      "raw-results.json": "6f737d44c3b33c298b59d1bf84d028d6c56524ba14ce34c7db82e3f5dddec9eb",
+      "results.json": "49a3fd7eb5f960c023ff64f74a264fdda66f74bc1a966dea63c225ecdb44d1fb"
+    },
+    "matrix": {
+      "numerator": 128,
+      "denominator": 128,
+      "display": "128/128",
+      "percent": 100,
+      "derivedFrom": "raw-results.json records.length"
+    },
+    "families": [
+      "budget",
+      "registry"
+    ],
+    "perFamilyIdentical": true,
+    "evidenceProducer": {
+      "note": "The evidence consumed by the run is frozen in git and records its own producer. @workspacejson/cli@0.6.2 was present at execution but provably not loaded: nothing in the runner’s import graph reaches the miner, and the run plans identically with WORKSPACEJSON_CLI unset or pointing at a nonexistent path. It is reproduction tooling, not an input.",
+      "pinnedCliSha": "defac1e5dce6fb692a48e775fb44854b371cbca4",
+      "miningCoreBundleSha256": "7aa5ae231d6713449d6c1790f0b19a509e82ec0c84d67a8a6a52ff492ec27bb8"
+    },
+    "npmIntegrity": {
+      "@workspacejson/cli@0.6.2": "sha512-DyXe4oY4s6paN9lgLkFnhj9x46Excg3GSSQfcF3VBTzGj2LUeosaM3iZ5NgM1was8hQWhxibyS1a7YOq5OxI5Q==",
+      "@workspacejson/spec@0.5.0": "sha512-KpsUxvLXFHHHKY6F58tWBnqsx5REJjK99Kum1+ATU4b8oUGlStfVkWyphNQ+nFZU3hy/ckNLZTxs4mpOeWGQLA==",
+      "@workspacejson/rules@0.5.0": "sha512-UlJUnDdc1In4oAMCNMFbFnCAVUGSb1HR0MeP3Pa6Db3uHrH/OvXPyQCqGXLDe9ii3D+6Ua/OHAJMeocKv2bL1Q=="
+    }
+  }
+}
