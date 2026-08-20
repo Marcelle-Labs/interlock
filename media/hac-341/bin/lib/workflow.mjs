@@ -347,6 +347,63 @@ export function workflowEnvDefect(yaml) {
   return null;
 }
 
+/** Every top-level key the workflow declares, in order. */
+export const workflowKeys = (yaml) => uncommented(yaml).split('\n')
+  .filter((line) => indentOf(line) === 0 && /^[a-zA-Z-]+:/.test(line))
+  .map((line) => /^([a-zA-Z-]+):/.exec(line)[1]);
+
+/**
+ * The lines of one top-level block, by indentation.
+ *
+ * Used to project `on:`, `permissions:` and `concurrency:` exactly rather than
+ * accept whatever they happen to say.
+ */
+export function workflowBlock(yaml, key) {
+  const lines = uncommented(yaml).split('\n');
+  const start = lines.findIndex((l) => indentOf(l) === 0 && new RegExp(String.raw`^${key}:`).test(l));
+  if (start < 0) return null;
+  const out = [];
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() === '') continue;
+    if (indentOf(line) === 0) break;
+    out.push(line);
+  }
+  return out;
+}
+
+/**
+ * Why the workflow's execution contract departs from the canonical one, or
+ * `null`.
+ *
+ * The job and its steps can be exactly right and never run. A workflow whose
+ * trigger is narrowed to `workflow_dispatch` still contains a perfectly valid
+ * evaluation gate, and enforcement on the submission path is simply gone. So
+ * the top level is pinned the same way everything below it is: an allowlist of
+ * keys, and an exact projection of the blocks that decide when and with what
+ * the gate runs. Nothing here interprets an event or an expression — the lines
+ * either match the canonical ones or they do not.
+ */
+export function workflowShapeDefects(yaml, expected) {
+  const out = [];
+  const keys = workflowKeys(yaml);
+  const extra = keys.filter((k) => !expected.keys.includes(k));
+  if (extra.length) {
+    out.push(`the workflow declares \`${extra.join('`, `')}\`; the accepted shape declares only \`${expected.keys.join('`, `')}\``);
+  }
+  for (const key of expected.keys) {
+    if (!keys.includes(key)) out.push(`the workflow does not declare \`${key}\``);
+  }
+  for (const [key, lines] of Object.entries(expected.blocks ?? {})) {
+    const actual = workflowBlock(yaml, key);
+    if (actual === null) { out.push(`the workflow has no \`${key}\` block`); continue; }
+    const normalise = (xs) => xs.map((l) => l.trimEnd()).join('\n');
+    if (normalise(actual) !== normalise(lines)) {
+      out.push(`the workflow's \`${key}\` block is \`${actual.map((l) => l.trim()).join(' ')}\`; the accepted shape is \`${lines.map((l) => l.trim()).join(' ')}\``);
+    }
+  }
+  return out;
+}
+
 /**
  * Compare a job's steps against an exact expected sequence.
  *

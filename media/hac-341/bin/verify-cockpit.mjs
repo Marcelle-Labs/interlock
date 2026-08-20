@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE } from '../lib/guide.mjs';
 import { jobSteps, jobControls, jobEnforcementDefect, jobKeyDefect, workflowEnvDefect,
-  runDefaultsDefect, checkoutDefect, shapeDefects } from './lib/workflow.mjs';
+  runDefaultsDefect, checkoutDefect, shapeDefects, workflowShapeDefects } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -852,6 +852,34 @@ else {
       }
       if (SHAPE.at(-1).conditional !== 'failure()') {
         fail('the accepted shape does not end with the failure explanation');
+      }
+
+      /**
+       * The trigger, pinned like everything below it.
+       *
+       * The job and its nine steps can be exactly right and never run. A
+       * workflow narrowed to `workflow_dispatch` still contains a perfectly
+       * valid evaluation gate while enforcement on the submission path is
+       * simply gone — so the top level is an allowlist of keys plus an exact
+       * projection of the blocks that decide when the gate runs and with what.
+       * Nothing here interprets an event or an expression; the lines either
+       * match the canonical ones or they do not.
+       *
+       *     workflow trigger -> exact job -> exact ordered steps -> exact commands
+       */
+      const WORKFLOW = {
+        keys: ['name', 'on', 'permissions', 'concurrency', 'jobs'],
+        blocks: {
+          on: ['  pull_request:', '  push:', '    branches: [main]'],
+          permissions: ['  contents: read'],
+          concurrency: [
+            '  group: ci-${{ github.workflow }}-${{ github.ref }}',
+            "  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}",
+          ],
+        },
+      };
+      for (const defect of workflowShapeDefects(ci, WORKFLOW)) {
+        fail(`the workflow's execution contract has changed: ${defect}`);
       }
 
       /**

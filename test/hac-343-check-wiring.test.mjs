@@ -33,7 +33,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { jobSteps, enforcementStep, stepEnforcementDefect, jobControls, jobEnforcementDefect,
-  jobKeyDefect, jobKeys, workflowEnvDefect, runDefaultsDefect, checkoutDefect, checkoutSteps } from '../media/hac-341/bin/lib/workflow.mjs';
+  jobKeyDefect, jobKeys, workflowEnvDefect, workflowKeys, workflowBlock,
+  runDefaultsDefect, checkoutDefect, checkoutSteps } from '../media/hac-341/bin/lib/workflow.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EVAL_GATE = 'experiments/hac-343/bin/verify-packet.mjs';
@@ -314,6 +315,31 @@ describe('the check path now covers the packet the cockpit reads', () => {
     ['the job declares an otherwise harmless `timeout-minutes`',
       (a) => a.edit(CI, JOB, `${JOB}\n    timeout-minutes: 30`),
       /the job declares `timeout-minutes`/],
+    /**
+     * The trigger is the level above the job. Everything below can be exactly
+     * right and never run.
+     */
+    ['the pull_request trigger is removed',
+      (a) => a.edit(CI, 'on:\n  pull_request:\n  push:\n    branches: [main]', 'on:\n  push:\n    branches: [main]'),
+      /`on` block is/],
+    ['the push trigger is removed',
+      (a) => a.edit(CI, 'on:\n  pull_request:\n  push:\n    branches: [main]', 'on:\n  pull_request:'),
+      /`on` block is/],
+    ['the trigger is narrowed to workflow_dispatch only',
+      (a) => a.edit(CI, 'on:\n  pull_request:\n  push:\n    branches: [main]', 'on:\n  workflow_dispatch:'),
+      /`on` block is/],
+    ['the push trigger is narrowed to another branch',
+      (a) => a.edit(CI, '  push:\n    branches: [main]', '  push:\n    branches: [nonexistent]'),
+      /`on` block is/],
+    ['an unexpected top-level execution key is added',
+      (a) => a.edit(CI, '\njobs:\n', '\nrun-name: manual\n\njobs:\n'),
+      /the workflow declares `run-name`/],
+    ['permissions are widened',
+      (a) => a.edit(CI, 'permissions:\n  contents: read', 'permissions:\n  contents: write'),
+      /`permissions` block is/],
+    ['concurrency starts cancelling main', 
+      (a) => a.edit(CI, "  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}", '  cancel-in-progress: true'),
+      /`concurrency` block is/],
     ['an action step passes an unprojected `with` input',
       (a) => a.editJob(CI, 'evaluation-gate', '          fetch-depth: 0',
         '          fetch-depth: 0\n          submodules: true'),
@@ -342,6 +368,11 @@ describe('the check path now covers the packet the cockpit reads', () => {
     expect(jobKeyDefect(ci, 'evaluation-gate', ['name', 'runs-on', 'steps'])).toBeNull();
     expect(jobKeys(ci, 'evaluation-gate')).toEqual(['name', 'runs-on', 'steps']);
     expect(workflowEnvDefect(ci)).toBeNull();
+    // The level above the job: the trigger that decides whether it runs at all.
+    expect(workflowKeys(ci)).toEqual(['name', 'on', 'permissions', 'concurrency', 'jobs']);
+    expect(workflowBlock(ci, 'on').map((l) => l.trim()))
+      .toEqual(['pull_request:', 'push:', 'branches: [main]']);
+    expect(workflowBlock(ci, 'permissions').map((l) => l.trim())).toEqual(['contents: read']);
     // Each step declares exactly the keys its position allows.
     const declared = jobSteps(ci, 'evaluation-gate').map((x) => x.keys.join(','));
     expect(declared).toEqual([
