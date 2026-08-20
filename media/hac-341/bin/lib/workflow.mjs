@@ -21,11 +21,13 @@
  * runs at all and whether its failure counts — and it strips comment-only
  * lines first, so a commented command is invisible to every accessor below.
  *
- * Reading `run:` was not enough on its own. A step's text can be present while
- * the step is inert (`if: false`) or while its failure is swallowed
- * (`continue-on-error: true`), and a required command can appear inside another
- * command's arguments — `echo "pnpm run check:packet:eval"` is prose, not an
- * invocation. Both distinctions are made here rather than in each caller.
+ * It does not try to decide which lines of a shell script execute, because that
+ * is not decidable by reading: `if false; then`, a heredoc and an open quoted
+ * string each put a command at the start of a line without running it, and a
+ * line-anchored match accepted all three. The contract is a *shape* instead —
+ * one enforcement operation per step, whose `run` is exactly the expected
+ * command — and this module reports the shape rather than guessing at
+ * semantics. Callers assert; nothing here evaluates a GitHub expression.
  */
 
 /** Lines with a `#` in the first non-space position carry no configuration. */
@@ -37,7 +39,10 @@ const uncommented = (yaml) => yaml
 const indentOf = (line) => line.length - line.trimStart().length;
 
 /** Keys that belong to the step itself, never to its `with:` inputs. */
-const STEP_KEYS = ['uses', 'name', 'run', 'if', 'continue-on-error'];
+const STEP_KEYS = ['uses', 'name', 'run', 'if', 'continue-on-error', 'shell', 'working-directory'];
+
+/** Job-level keys that decide whether a job runs, or whether its failure counts. */
+const JOB_KEYS = ['if', 'continue-on-error', 'needs', 'runs-on'];
 
 /**
  * The shell lines a `run:` body actually executes.
@@ -91,7 +96,10 @@ export function jobSteps(yaml, jobName) {
     }
     const item = /^(\s*)-\s+(.*)$/.exec(line);
     if (item) {
-      current = { uses: null, name: null, run: null, with: {}, if: null, continueOnError: null };
+      current = {
+        uses: null, name: null, run: null, with: {},
+        if: null, continueOnError: null, shell: null, workingDirectory: null,
+      };
       steps.push(current);
       const rest = item[2];
       const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(rest);
@@ -117,6 +125,10 @@ export function jobSteps(yaml, jobName) {
     // failure can reach the job, which is the whole point of asserting on it.
     if (key === 'if') { step.if = value; step.inWith = false; return; }
     if (key === 'continue-on-error') { step.continueOnError = value; step.inWith = false; return; }
+    // A custom shell or a different working directory changes what the command
+    // means; an enforcement step must run the command as written, where written.
+    if (key === 'shell') { step.shell = value; step.inWith = false; return; }
+    if (key === 'working-directory') { step.workingDirectory = value; step.inWith = false; return; }
     if (key !== 'run') return;
     step.inWith = false;
     if (value === '|' || value === '|-' || value === '>') {
@@ -134,33 +146,90 @@ export const runCommands = (yaml, jobName) => (jobSteps(yaml, jobName) ?? [])
   .filter((r) => typeof r === 'string' && r.trim() !== '');
 
 /**
- * The step that actually invokes `command`, or `null`.
+ * The step whose entire `run` payload is `command`, or `null`.
  *
- * `command` is anchored to the beginning of an executable line, so a mention
- * inside another command's arguments does not qualify. Returns the whole step
- * so the caller can also ask whether it is allowed to fail.
+ * Equality after trimming, not a search. A step that runs the command plus
+ * anything else is not an enforcement step: whether the rest of the script
+ * reaches the command cannot be read off the text, which is exactly how
+ * `if false; then`, a heredoc and an open quoted string each defeated a
+ * line-anchored match.
  */
 export function enforcementStep(yaml, jobName, command) {
-  const anchored = new RegExp(`^${command.source ?? command}`);
   return (jobSteps(yaml, jobName) ?? [])
-    .find((step) => executableLines(step.run).some((line) => anchored.test(line))) ?? null;
+    .find((step) => typeof step.run === 'string' && step.run.trim() === command) ?? null;
+}
+
+/** `continue-on-error` is trustworthy only when absent or the literal `false`. */
+function continueOnErrorDefect(value, subject) {
+  if (value === null || value === undefined) return null;
+  if (String(value).trim() === 'false') return null;
+  return `${subject} sets \`continue-on-error: ${value}\`; only an absent or literally \`false\` value can be trusted`;
 }
 
 /**
  * Why a step could fail to enforce what it appears to enforce, or `null`.
  *
- * Deliberately not an expression evaluator: a gate that carries evidence should
- * be unconditional and should propagate its failure, so *any* `if:` is refused
- * rather than interpreted. The explanatory step that runs `if: failure()` is not
- * an enforcement step and never reaches this.
+ * Deliberately not an expression evaluator. An evidence gate should be
+ * unconditional, should run its command as written and where written, and
+ * should propagate its failure — so any `if:`, any `shell:`, any
+ * `working-directory:` and any non-literal-`false` `continue-on-error:` is
+ * refused rather than interpreted. The explanatory step that runs
+ * `if: failure()` is not an enforcement step and never reaches this.
  */
 export function stepEnforcementDefect(step) {
-  if (!step) return 'the step does not exist';
+  if (!step) return 'no step runs exactly that command';
   if (step.if !== null && step.if !== undefined) {
     return `the step is conditional on \`if: ${step.if}\`; an evidence gate must be unconditional`;
   }
-  if (String(step.continueOnError) === 'true') {
-    return 'the step sets `continue-on-error: true`; its failure would not reach the job';
+  const coe = continueOnErrorDefect(step.continueOnError, 'the step');
+  if (coe) return coe;
+  if (step.shell !== null && step.shell !== undefined) {
+    return `the step sets \`shell: ${step.shell}\`; an enforcement step must run its command as written`;
+  }
+  if (step.workingDirectory !== null && step.workingDirectory !== undefined) {
+    return `the step sets \`working-directory: ${step.workingDirectory}\`; an enforcement step must run where written`;
+  }
+  return null;
+}
+
+/**
+ * The job-level controls.
+ *
+ * Every step can be unconditional and failure-propagating while the job around
+ * them is skipped (`if: false`) or has its failure discarded
+ * (`continue-on-error: true`). Both leave every step-level assertion satisfied
+ * and enforce nothing.
+ */
+export function jobControls(yaml, jobName) {
+  const block = jobBlock(yaml, jobName);
+  if (!block) return null;
+  const out = { if: null, continueOnError: null, needs: null, runsOn: null };
+  for (const line of block) {
+    // Job-level keys sit at exactly four spaces; deeper belongs to a step.
+    if (indentOf(line) !== 4) continue;
+    const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(line.trim());
+    if (!kv || !JOB_KEYS.includes(kv[1])) continue;
+    if (kv[1] === 'if') out.if = kv[2];
+    if (kv[1] === 'continue-on-error') out.continueOnError = kv[2];
+    if (kv[1] === 'needs') out.needs = kv[2];
+    if (kv[1] === 'runs-on') out.runsOn = kv[2];
+  }
+  return out;
+}
+
+/** Why the job could fail to enforce what its steps enforce, or `null`. */
+export function jobEnforcementDefect(controls, expectedRunner) {
+  if (!controls) return 'the job does not exist';
+  if (controls.if !== null && controls.if !== undefined) {
+    return `the job is conditional on \`if: ${controls.if}\`; an evidence gate must be unconditional`;
+  }
+  const coe = continueOnErrorDefect(controls.continueOnError, 'the job');
+  if (coe) return coe;
+  if (controls.needs !== null && controls.needs !== undefined) {
+    return `the job declares \`needs: ${controls.needs}\`; a skipped or failed dependency would silently skip this gate`;
+  }
+  if (controls.runsOn !== expectedRunner) {
+    return `the job runs on \`${controls.runsOn}\`, not \`${expectedRunner}\``;
   }
   return null;
 }

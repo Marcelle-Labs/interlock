@@ -32,7 +32,8 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { jobSteps, runCommands, checkoutDepth, enforcementStep, stepEnforcementDefect, executableLines } from '../media/hac-341/bin/lib/workflow.mjs';
+import { jobSteps, checkoutDepth, enforcementStep, stepEnforcementDefect,
+  jobControls, jobEnforcementDefect } from '../media/hac-341/bin/lib/workflow.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EVAL_GATE = 'experiments/hac-343/bin/verify-packet.mjs';
@@ -68,26 +69,46 @@ const run = (dir, script) => {
   return { code: r.status, out: `${r.stdout}${r.stderr}` };
 };
 
+/**
+ * Mutate a disposable copy and run a gate against it.
+ *
+ * `changed` is the number of files whose bytes actually moved. Every case
+ * asserts it before asserting the gate refused: an `anchor not found` throw, or
+ * a replacement that silently matched nothing, is a broken fixture — and a
+ * broken fixture that happens to make the gate fail reads exactly like a
+ * successful rejection.
+ */
 function broken(mutate, script = EVAL_GATE) {
   const dir = mkdtempSync(join(tmpdir(), 'hac343-case-'));
   scratch.push(dir);
   cpSync(pristine, dir, { recursive: true });
+  const touched = new Map();
+  const snapshot = (f) => {
+    if (!touched.has(f)) touched.set(f, readFileSync(join(dir, f), 'utf8'));
+  };
   mutate({
     dir,
     json(f, fn) {
+      snapshot(f);
       const v = JSON.parse(readFileSync(join(dir, f), 'utf8'));
       fn(v);
       writeFileSync(join(dir, f), JSON.stringify(v, null, 2) + '\n');
     },
-    rm: (f) => rmSync(join(dir, f), { force: true }),
-    write: (f, body) => writeFileSync(join(dir, f), body),
+    rm: (f) => { snapshot(f); rmSync(join(dir, f), { force: true }); },
+    write: (f, body) => { snapshot(f); writeFileSync(join(dir, f), body); },
     edit(f, from, to) {
+      snapshot(f);
       const body = readFileSync(join(dir, f), 'utf8');
       if (!body.includes(from)) throw new Error(`anchor not found in ${f}: ${from.slice(0, 60)}`);
       writeFileSync(join(dir, f), body.replace(from, to));
     },
   });
-  return run(dir, script);
+  let changed = 0;
+  for (const [f, before] of touched) {
+    const after = existsSync(join(dir, f)) ? readFileSync(join(dir, f), 'utf8') : null;
+    if (after !== before) changed += 1;
+  }
+  return { ...run(dir, script), changed };
 }
 
 describe('the check path now covers the packet the cockpit reads', () => {
@@ -103,31 +124,7 @@ describe('the check path now covers the packet the cockpit reads', () => {
     expect(order.indexOf('check:packet:eval')).toBeLessThan(order.indexOf('check:cockpit'));
   });
 
-  it('gives the evaluation gate its own CI job, at full depth', () => {
-    const ci = readFileSync(join(repoRoot, '.github', 'workflows', 'ci.yml'), 'utf8');
-    expect(jobSteps(ci, 'evaluation-gate')).not.toBeNull();
-    // The freeze-commit checks resolve real history; a shallow checkout fails them.
-    expect(String(checkoutDepth(ci, 'evaluation-gate'))).toBe('0');
-    const cmds = runCommands(ci, 'evaluation-gate');
-    expect(cmds.some((c) => /pnpm run check:packet:eval\b/.test(c))).toBe(true);
-    expect(cmds.some((c) => /hac-343-check-wiring\.test\.mjs/.test(c))).toBe(true);
-    // A derived artifact is verified by reproducing it.
-    expect(cmds.some((c) => /(^|\n)\s*node experiments\/hac-343\/bin\/build-judge-export\.mjs/.test(c))).toBe(true);
-  });
 
-  it('reads the workflow structurally, so a comment cannot satisfy it', () => {
-    const ci = readFileSync(join(repoRoot, '.github', 'workflows', 'ci.yml'), 'utf8');
-    const commented = ci.replace(
-      '          node experiments/hac-343/bin/build-judge-export.mjs',
-      '          # node experiments/hac-343/bin/build-judge-export.mjs',
-    );
-    expect(commented).not.toBe(ci);
-    // The naive check this replaced would still pass on the commented file.
-    expect(commented.includes('experiments/hac-343/bin/build-judge-export.mjs')).toBe(true);
-    // The structural reader must not.
-    const cmds = runCommands(commented, 'evaluation-gate');
-    expect(cmds.some((c) => /(^|\n)\s*node experiments\/hac-343\/bin\/build-judge-export\.mjs/.test(c))).toBe(false);
-  });
 
   /**
    * A required command must *begin an executable line*, not merely appear.
@@ -138,52 +135,131 @@ describe('the check path now covers the packet the cockpit reads', () => {
    * ways a step can be present and enforce nothing.
    */
   const CI = '.github/workflows/ci.yml';
+  const REBUILD = '        run: node experiments/hac-343/bin/build-judge-export.mjs';
+  const EVAL = '        run: pnpm run check:packet:eval';
+  const WIRING = '        run: pnpm vitest run test/hac-343-check-wiring.test.mjs';
+  const JOB = '  evaluation-gate:\n    name: Evaluation gate\n    runs-on: ubuntu-24.04';
+
+  /**
+   * Every way an enforcement step or its job can be present and enforce
+   * nothing. The first three are why the contract is exact-equality on a
+   * single-command `run:` rather than a search: each puts the command at the
+   * start of a line without executing it, and no amount of reading the script
+   * distinguishes them from an invocation.
+   */
   const CI_BYPASSES = [
-    ['check:packet:eval replaced by an echo, name kept in failure prose',
-      (a) => a.edit(CI, '        run: pnpm run check:packet:eval', '        run: echo skipped'),
+    ['the command sits inside `if false; then`',
+      (a) => a.edit(CI, EVAL, '        run: |\n          if false; then\n          pnpm run check:packet:eval\n          fi'),
+      /no step runs exactly that command/],
+    ['the command sits inside a heredoc',
+      (a) => a.edit(CI, EVAL, '        run: |\n          cat <<\'EOF\' >/dev/null\n          pnpm run check:packet:eval\n          EOF\n          echo done'),
+      /no step runs exactly that command/],
+    ['the command sits inside an open quoted string',
+      (a) => a.edit(CI, EVAL, '        run: |\n          echo "disabled:\n          pnpm run check:packet:eval\n          "'),
+      /no step runs exactly that command/],
+    ['check:packet:eval is replaced by an echo, name kept in failure prose',
+      (a) => a.edit(CI, EVAL, '        run: echo skipped'),
       /no enforcing step verifying the HAC-343 packet/],
-    ['wiring-test execution removed, filename kept in failure prose',
-      (a) => a.edit(CI, '        run: pnpm vitest run test/hac-343-check-wiring.test.mjs', '        run: echo skipped'),
+    ['the wiring-test execution is removed, filename kept in failure prose',
+      (a) => a.edit(CI, WIRING, '        run: echo skipped'),
       /no enforcing step running the HAC-343 wiring test/],
-    ['enforcement step gains `if: false`',
-      (a) => a.edit(CI, '      - name: The judge export is derived, not hand-edited',
-        '      - name: The judge export is derived, not hand-edited\n        if: false'),
-      /an evidence gate must be unconditional/],
-    ['enforcement step gains `continue-on-error: true`',
-      (a) => a.edit(CI, '      - name: The judge export is derived, not hand-edited',
-        '      - name: The judge export is derived, not hand-edited\n        continue-on-error: true'),
-      /its failure would not reach the job/],
-    ['required command exists only as quoted text inside another command',
-      (a) => a.edit(CI, '        run: pnpm run check:packet:eval',
-        '        run: echo "pnpm run check:packet:eval"'),
+    ['a required command exists only as quoted text inside another command',
+      (a) => a.edit(CI, EVAL, '        run: echo "pnpm run check:packet:eval"'),
       /no enforcing step verifying the HAC-343 packet/],
+    ['the rebuild step is commented out',
+      (a) => a.edit(CI, REBUILD, '        # run: node experiments/hac-343/bin/build-judge-export.mjs'),
+      /no enforcing step rebuilding/],
+    ['the byte assertion is removed',
+      (a) => a.edit(CI, '        run: git diff --exit-code -- experiments/hac-343/evidence/judge-export.json',
+        '        run: echo skipped'),
+      /byte-identical to its rebuild/],
+    ['a step gains a literal `if: false`',
+      (a) => a.edit(CI, '      - name: Rebuild the derived judge export', `${'      - name: Rebuild the derived judge export'}\n        if: false`),
+      /an evidence gate must be unconditional/],
+    ['a step gains `continue-on-error: true`',
+      (a) => a.edit(CI, '      - name: Rebuild the derived judge export', `${'      - name: Rebuild the derived judge export'}\n        continue-on-error: true`),
+      /only an absent or literally `false` value can be trusted/],
+    ['a step gains `continue-on-error: ${{ true }}`',
+      (a) => a.edit(CI, '      - name: Rebuild the derived judge export', `${'      - name: Rebuild the derived judge export'}\n        continue-on-error: \${{ true }}`),
+      /only an absent or literally `false` value can be trusted/],
+    ['a step gains a custom `shell:`',
+      (a) => a.edit(CI, '      - name: Rebuild the derived judge export', `${'      - name: Rebuild the derived judge export'}\n        shell: python`),
+      /must run its command as written/],
+    ['a step gains a `working-directory:`',
+      (a) => a.edit(CI, '      - name: Rebuild the derived judge export', `${'      - name: Rebuild the derived judge export'}\n        working-directory: /tmp`),
+      /must run where written/],
+    ['the job gains `if: false`',
+      (a) => a.edit(CI, JOB, '  evaluation-gate:\n    name: Evaluation gate\n    if: false\n    runs-on: ubuntu-24.04'),
+      /the job is conditional/],
+    ['the job gains `continue-on-error: true`',
+      (a) => a.edit(CI, JOB, `${JOB}\n    continue-on-error: true`),
+      /the job sets .continue-on-error/],
+    ['the job gains `needs:`',
+      (a) => a.edit(CI, JOB, `${JOB}\n    needs: [test]`),
+      /a skipped or failed dependency would silently skip this gate/],
+    ['the job changes runner',
+      (a) => a.edit(CI, JOB, '  evaluation-gate:\n    name: Evaluation gate\n    runs-on: self-hosted'),
+      /the job runs on/],
+    ['fetch-depth: 0 is removed',
+      (a) => a.edit(CI, '      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - uses: pnpm/action-setup',
+        '      - uses: actions/checkout@v4\n      - uses: pnpm/action-setup'),
+      /fetch-depth: 0/],
   ];
   for (const [label, mutate, expected] of CI_BYPASSES) {
     it(`fails when ${label}`, () => {
       const r = broken(mutate, COCKPIT_GATE);
+      // The fixture must have moved before the refusal means anything.
+      expect(r.changed).toBe(1);
       expect(r.code).not.toBe(0);
       expect(r.out).toMatch(expected);
     }, 30_000);
   }
 
-  it('anchors required commands to the start of an executable line', () => {
-    // Unit-level, so the distinction is stated where it is implemented.
-    expect(executableLines('echo "pnpm run check:packet:eval"')).toEqual(['echo "pnpm run check:packet:eval"']);
-    expect(executableLines('# pnpm run check:packet:eval')).toEqual([]);
-    expect(executableLines('set -euo pipefail\n\npnpm run check:packet:eval\n'))
-      .toEqual(['set -euo pipefail', 'pnpm run check:packet:eval']);
+
+
+  it('gives the evaluation gate a job and step shape the gate can check', () => {
+    const ci = readFileSync(join(repoRoot, CI), 'utf8');
+    // Job: able to run, able to fail, on the runner the gate expects.
+    expect(jobEnforcementDefect(jobControls(ci, 'evaluation-gate'), 'ubuntu-24.04')).toBeNull();
+    expect(String(checkoutDepth(ci, 'evaluation-gate'))).toBe('0');
+    // Each enforcement operation is one step whose run is exactly the command.
+    for (const command of [
+      'pnpm run check:packet:eval',
+      'pnpm vitest run test/hac-343-check-wiring.test.mjs',
+      'node experiments/hac-343/bin/build-judge-export.mjs',
+      'git diff --exit-code -- experiments/hac-343/evidence/judge-export.json',
+    ]) {
+      const step = enforcementStep(ci, 'evaluation-gate', command);
+      expect(step, `no step runs exactly: ${command}`).not.toBeNull();
+      expect(step.run.trim()).toBe(command);
+      expect(stepEnforcementDefect(step)).toBeNull();
+    }
   });
 
-  it('reads the two step controls that decide whether a step enforces anything', () => {
+  it('accepts only an absent or literally false continue-on-error', () => {
     const ci = readFileSync(join(repoRoot, CI), 'utf8');
     const step = enforcementStep(ci, 'evaluation-gate', 'pnpm run check:packet:eval');
-    expect(step).not.toBeNull();
-    expect(stepEnforcementDefect(step)).toBeNull();
-    expect(stepEnforcementDefect({ ...step, if: 'false' })).toMatch(/must be unconditional/);
-    expect(stepEnforcementDefect({ ...step, continueOnError: 'true' })).toMatch(/would not reach the job/);
-    // Absent or explicitly false is fine.
     expect(stepEnforcementDefect({ ...step, continueOnError: 'false' })).toBeNull();
-    expect(stepEnforcementDefect(null)).toMatch(/does not exist/);
+    expect(stepEnforcementDefect({ ...step, continueOnError: 'true' })).toMatch(/can be trusted/);
+    // No GitHub expression is evaluated; a non-literal value is a defect.
+    expect(stepEnforcementDefect({ ...step, continueOnError: '${{ true }}' })).toMatch(/can be trusted/);
+    expect(stepEnforcementDefect({ ...step, continueOnError: '${{ false }}' })).toMatch(/can be trusted/);
+    expect(jobEnforcementDefect({ if: null, continueOnError: '${{ true }}', needs: null, runsOn: 'ubuntu-24.04' }, 'ubuntu-24.04'))
+      .toMatch(/can be trusted/);
+  });
+
+  it('requires the whole run payload to be the command, not to contain it', () => {
+    const ci = readFileSync(join(repoRoot, CI), 'utf8');
+    // A body that merely contains the command is not an enforcement step.
+    for (const body of [
+      'if false; then\npnpm run check:packet:eval\nfi',
+      'echo "pnpm run check:packet:eval"',
+      'cat <<EOF\npnpm run check:packet:eval\nEOF',
+    ]) {
+      expect(body.trim()).not.toBe('pnpm run check:packet:eval');
+    }
+    expect(enforcementStep(ci, 'evaluation-gate', 'pnpm run check:packet:eval').run.trim())
+      .toBe('pnpm run check:packet:eval');
   });
 
   it('leaves the explanatory step free to run on failure', () => {
@@ -198,13 +274,6 @@ describe('the check path now covers the packet the cockpit reads', () => {
     }
   });
 
-  it('fails the cockpit gate when the CI run step is replaced by a comment', () => {
-    const r = broken((a) => a.edit('.github/workflows/ci.yml',
-      '          node experiments/hac-343/bin/build-judge-export.mjs',
-      '          # node experiments/hac-343/bin/build-judge-export.mjs'), COCKPIT_GATE);
-    expect(r.code).not.toBe(0);
-    expect(r.out).toMatch(/no enforcing step reproducing/);
-  }, 30_000);
 
   it('fails the cockpit gate when the evaluation gate loses full-depth checkout', () => {
     const r = broken((a) => a.edit('.github/workflows/ci.yml',

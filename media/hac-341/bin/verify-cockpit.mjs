@@ -16,7 +16,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE } from '../lib/guide.mjs';
-import { checkoutDepth, jobSteps, enforcementStep, stepEnforcementDefect } from './lib/workflow.mjs';
+import { checkoutDepth, jobSteps, enforcementStep, stepEnforcementDefect,
+  jobControls, jobEnforcementDefect } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -796,9 +797,15 @@ else {
         continue;
       }
       /**
-       * Structurally, not by substring. `ci.includes('<command>')` is satisfied
-       * by a comment: commenting out one line disabled the only enforcement of
-       * this artifact while every gate stayed green.
+       * A shape that can be checked, not a script that must be interpreted.
+       *
+       * Searching a `run:` body for a command does not work and cannot be made
+       * to work by reading harder: `if false; then`, a heredoc and an open
+       * quoted string each place a command at the start of a line without
+       * executing it. So the contract is one enforcement operation per step,
+       * whose `run` is exactly the expected command — which is why the
+       * judge-export rebuild and its byte assertion are two steps rather than
+       * one script.
        */
       if (jobSteps(ci, 'evaluation-gate') === null) {
         fail('the evaluation-gate job does not exist; the HAC-343 packet runs in no CI job of its own');
@@ -807,25 +814,19 @@ else {
       if (String(checkoutDepth(ci, 'evaluation-gate')) !== '0') {
         fail('evaluation-gate does not check out at fetch-depth: 0; the freeze-commit checks cannot resolve');
       }
-      /**
-       * Each required command must begin an executable line of some step, and
-       * that step must be able to fail the job.
-       *
-       * Anchoring is what separates running a command from naming one: the
-       * failure-summary step documents every command required here, and an
-       * unanchored substring test was satisfied by that documentation while the
-       * real invocation had been replaced by `echo skipped`. `if:` and
-       * `continue-on-error:` are the other two ways a step can be present and
-       * inert.
-       */
+      // Every step can be unconditional and failure-propagating while the job
+      // around them is skipped or has its failure discarded.
+      const jobDefect = jobEnforcementDefect(jobControls(ci, 'evaluation-gate'), 'ubuntu-24.04');
+      if (jobDefect) fail(`evaluation-gate cannot enforce anything: ${jobDefect}`);
+
       const REQUIRED = [
         ['pnpm run check:packet:eval', 'verifying the HAC-343 packet'],
-        [String.raw`pnpm vitest run [^\n]*hac-343-check-wiring\.test\.mjs`, 'running the HAC-343 wiring test'],
-        [`node ${DERIVED_ARTIFACTS[rel].replace(/[/.]/g, '\\$&')}`, `reproducing ${rel}`],
+        ['pnpm vitest run test/hac-343-check-wiring.test.mjs', 'running the HAC-343 wiring test'],
+        [`node ${DERIVED_ARTIFACTS[rel]}`, `rebuilding ${rel}`],
+        [`git diff --exit-code -- ${rel}`, `asserting ${rel} is byte-identical to its rebuild`],
       ];
       for (const [command, purpose] of REQUIRED) {
-        const step = enforcementStep(ci, 'evaluation-gate', command);
-        const defect = stepEnforcementDefect(step);
+        const defect = stepEnforcementDefect(enforcementStep(ci, 'evaluation-gate', command));
         if (defect) fail(`evaluation-gate has no enforcing step ${purpose}: ${defect}`);
       }
       continue;

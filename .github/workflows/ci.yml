@@ -553,26 +553,30 @@ jobs:
       - name: Verify the HAC-343 evaluation packet
         run: pnpm run check:packet:eval
 
-      # `judge-export.json` is a *derived* presentation artifact: the verifier
-      # above recomputes the report from the raw records, but it never rebuilt
-      # the export. Ten judge-facing values reach the comparison panel through
-      # that file alone — all four strategy labels, the per-target-lock
-      # credibility figure, and the canonical result commit — so a hand edit
-      # there reached a judge with every gate green. Reproducing it and diffing
-      # the bytes closes that, exactly as cockpit-contract-gate does for the
-      # view model.
-      - name: The judge export is derived, not hand-edited
-        run: |
-          set -euo pipefail
-          cp experiments/hac-343/evidence/judge-export.json /tmp/committed-judge-export.json
-          node experiments/hac-343/bin/build-judge-export.mjs
-          diff -u /tmp/committed-judge-export.json experiments/hac-343/evidence/judge-export.json
-
       # The seam, in both directions: an invalid packet must fail this gate,
       # and a HAC-343 field moving underneath the committed view model must
       # fail the cockpit gate.
       - name: The cockpit's HAC-343 bindings fail when the packet moves
         run: pnpm vitest run test/hac-343-check-wiring.test.mjs
+
+      # `judge-export.json` is a *derived* presentation artifact: the verifier
+      # above recomputes the report from the raw records, but it never rebuilt
+      # the export. Ten judge-facing values reach the comparison panel through
+      # that file alone — all four strategy labels, the per-target-lock
+      # credibility figure, and the canonical result commit — so a hand edit
+      # there reached a judge with every gate green.
+      #
+      # Rebuild and assertion are two steps on purpose. An enforcement step's
+      # `run` must be exactly one expected command, because a multi-line body is
+      # a shell script and no amount of reading it tells you which lines
+      # actually execute: `if false; then`, a heredoc and an open quote all put
+      # a command at the start of a line without running it. One command per
+      # step is a shape that can be checked instead of inferred.
+      - name: Rebuild the derived judge export
+        run: node experiments/hac-343/bin/build-judge-export.mjs
+
+      - name: The judge export is byte-identical to its rebuild
+        run: git diff --exit-code -- experiments/hac-343/evidence/judge-export.json
 
       - name: Explain the failure
         if: failure()
