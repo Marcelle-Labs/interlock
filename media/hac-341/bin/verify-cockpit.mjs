@@ -16,8 +16,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE } from '../lib/guide.mjs';
-import { checkoutDepth, jobSteps, enforcementStep, stepEnforcementDefect,
-  jobControls, jobEnforcementDefect } from './lib/workflow.mjs';
+import { jobSteps, enforcementStep, stepEnforcementDefect,
+  jobControls, jobEnforcementDefect, runDefaultsDefect, checkoutDefect } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -811,13 +811,21 @@ else {
         fail('the evaluation-gate job does not exist; the HAC-343 packet runs in no CI job of its own');
         continue;
       }
-      if (String(checkoutDepth(ci, 'evaluation-gate')) !== '0') {
-        fail('evaluation-gate does not check out at fetch-depth: 0; the freeze-commit checks cannot resolve');
-      }
+      // Exactly one checkout, at full depth. Reading the first one let a later
+      // shallow re-checkout leave the workspace at depth 1 while the first
+      // still declared 0.
+      const checkout = checkoutDefect(ci, 'evaluation-gate');
+      if (checkout) fail(`evaluation-gate checkout cannot support the freeze checks: ${checkout}`);
+
       // Every step can be unconditional and failure-propagating while the job
       // around them is skipped or has its failure discarded.
       const jobDefect = jobEnforcementDefect(jobControls(ci, 'evaluation-gate'), 'ubuntu-24.04');
       if (jobDefect) fail(`evaluation-gate cannot enforce anything: ${jobDefect}`);
+
+      // A step can carry no `shell:` and no `working-directory:` of its own and
+      // still inherit both from a `defaults.run` map it never mentions.
+      const inherited = runDefaultsDefect(ci, 'evaluation-gate');
+      if (inherited) fail(`evaluation-gate steps do not run as written: ${inherited}`);
 
       const REQUIRED = [
         ['pnpm run check:packet:eval', 'verifying the HAC-343 packet'],

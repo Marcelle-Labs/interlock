@@ -234,8 +234,81 @@ export function jobEnforcementDefect(controls, expectedRunner) {
   return null;
 }
 
-/** The checkout depth a job requests, or `undefined` when it takes the default. */
-export function checkoutDepth(yaml, jobName) {
-  const step = (jobSteps(yaml, jobName) ?? []).find((s) => String(s.uses ?? '').includes('actions/checkout'));
-  return step?.with?.['fetch-depth'];
+/**
+ * A `defaults.run` map's `shell` and `working-directory`, at one indent level.
+ *
+ * Read, never resolved. GitHub inherits these into every `run` step of every
+ * job in scope, so a step can carry no `shell:` and no `working-directory:` of
+ * its own and still run under a different shell in a different directory — the
+ * step-level assertions all pass and the guarantee is gone. This grammar does
+ * not model that precedence; it forbids the keys outright for this gate.
+ */
+function inheritedRunDefaults(lines, baseIndent) {
+  const out = { shell: null, workingDirectory: null };
+  const start = lines.findIndex((l) => indentOf(l) === baseIndent && l.trim() === 'defaults:');
+  if (start < 0) return out;
+  let runIndent = null;
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() === '') continue;
+    const ind = indentOf(line);
+    if (ind <= baseIndent) break;
+    const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(line.trim());
+    if (!kv) continue;
+    if (runIndent === null) {
+      if (kv[1] === 'run') runIndent = ind;
+      continue;
+    }
+    if (ind <= runIndent) break;
+    if (kv[1] === 'shell') out.shell = kv[2];
+    if (kv[1] === 'working-directory') out.workingDirectory = kv[2];
+  }
+  return out;
+}
+
+/**
+ * Why an inherited `defaults.run` could change what a required step does, or
+ * `null`. Both the workflow-level and the job-level map are refused; which one
+ * would win is precedence this grammar deliberately does not compute.
+ */
+export function runDefaultsDefect(yaml, jobName) {
+  const documentLines = uncommented(yaml).split('\n');
+  const scopes = [
+    ['the workflow', inheritedRunDefaults(documentLines, 0)],
+    ['the job', inheritedRunDefaults(jobBlock(yaml, jobName) ?? [], 4)],
+  ];
+  for (const [scope, defaults] of scopes) {
+    if (defaults.shell !== null) {
+      return `${scope} sets \`defaults.run.shell: ${defaults.shell}\`; every required step would inherit it`;
+    }
+    if (defaults.workingDirectory !== null) {
+      return `${scope} sets \`defaults.run.working-directory: ${defaults.workingDirectory}\`; every required step would inherit it`;
+    }
+  }
+  return null;
+}
+
+/** Every `actions/checkout` step in a job, in order. */
+export const checkoutSteps = (yaml, jobName) => (jobSteps(yaml, jobName) ?? [])
+  .filter((s) => String(s.uses ?? '').includes('actions/checkout'));
+
+/**
+ * Why the job's checkout could leave the workspace at the wrong depth, or
+ * `null`.
+ *
+ * Exactly one checkout, at `fetch-depth: 0`. Reading the *first* checkout was
+ * not enough: a later re-checkout at depth 1 leaves the workspace shallow while
+ * the first still declares 0, so the count is part of the invariant rather than
+ * an afterthought. A second checkout is a defect whatever depth it asks for —
+ * the grammar does not model which one wins.
+ */
+export function checkoutDefect(yaml, jobName) {
+  const steps = checkoutSteps(yaml, jobName);
+  if (steps.length !== 1) {
+    return `the job runs ${steps.length} checkout step(s); an evidence gate must check out exactly once, at a known depth`;
+  }
+  const depth = steps[0].with?.['fetch-depth'];
+  if (String(depth) !== '0') {
+    return `the checkout requests \`fetch-depth: ${depth ?? '(absent)'}\`; the freeze-commit checks cannot resolve`;
+  }
+  return null;
 }

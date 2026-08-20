@@ -32,8 +32,8 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { jobSteps, checkoutDepth, enforcementStep, stepEnforcementDefect,
-  jobControls, jobEnforcementDefect } from '../media/hac-341/bin/lib/workflow.mjs';
+import { jobSteps, enforcementStep, stepEnforcementDefect, jobControls,
+  jobEnforcementDefect, runDefaultsDefect, checkoutDefect, checkoutSteps } from '../media/hac-341/bin/lib/workflow.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EVAL_GATE = 'experiments/hac-343/bin/verify-packet.mjs';
@@ -139,6 +139,10 @@ describe('the check path now covers the packet the cockpit reads', () => {
   const EVAL = '        run: pnpm run check:packet:eval';
   const WIRING = '        run: pnpm vitest run test/hac-343-check-wiring.test.mjs';
   const JOB = '  evaluation-gate:\n    name: Evaluation gate\n    runs-on: ubuntu-24.04';
+  const JOB_STEPS = '  evaluation-gate:\n    name: Evaluation gate\n    runs-on: ubuntu-24.04\n    steps:';
+  const JOB_DEFAULTS = '  evaluation-gate:\n    name: Evaluation gate\n    runs-on: ubuntu-24.04\n    defaults:\n      run:\n';
+  const VERIFY_STEP = '      - name: Verify the HAC-343 evaluation packet';
+  const SECOND_CHECKOUT = '      - uses: actions/checkout@v4\n        with:\n';
 
   /**
    * Every way an enforcement step or its job can be present and enforce
@@ -203,7 +207,31 @@ describe('the check path now covers the packet the cockpit reads', () => {
     ['fetch-depth: 0 is removed',
       (a) => a.edit(CI, '      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - uses: pnpm/action-setup',
         '      - uses: actions/checkout@v4\n      - uses: pnpm/action-setup'),
-      /fetch-depth: 0/],
+      /fetch-depth/],
+    // A step can carry no `shell:` and no `working-directory:` of its own and
+    // still inherit both from a `defaults.run` map it never mentions. Refused
+    // at both scopes; which one would win is precedence this grammar does not
+    // compute.
+    ['the job inherits `defaults.run.working-directory`',
+      (a) => a.edit(CI, JOB_STEPS, `${JOB_DEFAULTS}        working-directory: /tmp\n    steps:`),
+      /the job sets `defaults.run.working-directory/],
+    ['the job inherits `defaults.run.shell`',
+      (a) => a.edit(CI, JOB_STEPS, `${JOB_DEFAULTS}        shell: python\n    steps:`),
+      /the job sets `defaults.run.shell/],
+    ['the workflow inherits `defaults.run.working-directory`',
+      (a) => a.edit(CI, '\njobs:\n', '\ndefaults:\n  run:\n    working-directory: /tmp\n\njobs:\n'),
+      /the workflow sets `defaults.run.working-directory/],
+    ['the workflow inherits `defaults.run.shell`',
+      (a) => a.edit(CI, '\njobs:\n', '\ndefaults:\n  run:\n    shell: python\n\njobs:\n'),
+      /the workflow sets `defaults.run.shell/],
+    // A second checkout is a defect whatever depth it asks for: the first still
+    // declares 0 while the workspace ends up wherever the last one left it.
+    ['a second checkout re-checks out shallow',
+      (a) => a.edit(CI, VERIFY_STEP, `${SECOND_CHECKOUT}          fetch-depth: 1\n${VERIFY_STEP}`),
+      /must check out exactly once/],
+    ['a second checkout re-checks out deep',
+      (a) => a.edit(CI, VERIFY_STEP, `${SECOND_CHECKOUT}          fetch-depth: 0\n${VERIFY_STEP}`),
+      /must check out exactly once/],
   ];
   for (const [label, mutate, expected] of CI_BYPASSES) {
     it(`fails when ${label}`, () => {
@@ -221,7 +249,10 @@ describe('the check path now covers the packet the cockpit reads', () => {
     const ci = readFileSync(join(repoRoot, CI), 'utf8');
     // Job: able to run, able to fail, on the runner the gate expects.
     expect(jobEnforcementDefect(jobControls(ci, 'evaluation-gate'), 'ubuntu-24.04')).toBeNull();
-    expect(String(checkoutDepth(ci, 'evaluation-gate'))).toBe('0');
+    // Exactly one checkout, at full depth, and no inherited run behaviour.
+    expect(checkoutSteps(ci, 'evaluation-gate')).toHaveLength(1);
+    expect(checkoutDefect(ci, 'evaluation-gate')).toBeNull();
+    expect(runDefaultsDefect(ci, 'evaluation-gate')).toBeNull();
     // Each enforcement operation is one step whose run is exactly the command.
     for (const command of [
       'pnpm run check:packet:eval',
@@ -275,13 +306,6 @@ describe('the check path now covers the packet the cockpit reads', () => {
   });
 
 
-  it('fails the cockpit gate when the evaluation gate loses full-depth checkout', () => {
-    const r = broken((a) => a.edit('.github/workflows/ci.yml',
-      '      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - uses: pnpm/action-setup',
-      '      - uses: actions/checkout@v4\n      - uses: pnpm/action-setup'), COCKPIT_GATE);
-    expect(r.code).not.toBe(0);
-    expect(r.out).toMatch(/fetch-depth: 0/);
-  }, 30_000);
 
   it('passes on the packet as committed', () => {
     const r = run(pristine, EVAL_GATE);
