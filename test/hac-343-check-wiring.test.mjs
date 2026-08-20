@@ -33,7 +33,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { jobSteps, enforcementStep, stepEnforcementDefect, jobControls, jobEnforcementDefect,
-  jobModifierDefect, runDefaultsDefect, checkoutDefect, checkoutSteps, shapeDefects } from '../media/hac-341/bin/lib/workflow.mjs';
+  jobKeyDefect, jobKeys, workflowEnvDefect, runDefaultsDefect, checkoutDefect, checkoutSteps } from '../media/hac-341/bin/lib/workflow.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EVAL_GATE = 'experiments/hac-343/bin/verify-packet.mjs';
@@ -101,6 +101,26 @@ function broken(mutate, script = EVAL_GATE) {
       const body = readFileSync(join(dir, f), 'utf8');
       if (!body.includes(from)) throw new Error(`anchor not found in ${f}: ${from.slice(0, 60)}`);
       writeFileSync(join(dir, f), body.replace(from, to));
+    },
+    /**
+     * Replace inside one job only.
+     *
+     * Twelve jobs carry a step named `Explain the failure`, and two carry the
+     * same checkout block verbatim, so a whole-file anchor can land in the
+     * wrong job — the file changes, `changed === 1` holds, and the gate
+     * correctly passes a workflow whose evaluation-gate was never touched.
+     */
+    editJob(f, jobName, from, to) {
+      snapshot(f);
+      const body = readFileSync(join(dir, f), 'utf8');
+      const start = body.indexOf(`\n  ${jobName}:\n`);
+      if (start < 0) throw new Error(`job not found in ${f}: ${jobName}`);
+      const after = body.slice(start + 1);
+      const rel = after.slice(1).search(/\n {2}[a-z][a-z0-9-]*:\n/);
+      const end = rel < 0 ? body.length : start + 2 + rel;
+      const job = body.slice(start, end);
+      if (!job.includes(from)) throw new Error(`anchor not found in ${jobName}: ${from.slice(0, 60)}`);
+      writeFileSync(join(dir, f), body.slice(0, start) + job.replace(from, to) + body.slice(end));
     },
   });
   let changed = 0;
@@ -276,7 +296,28 @@ describe('the check path now covers the packet the cockpit reads', () => {
       /declares `container`/],
     ['the job declares `services`',
       (a) => a.edit(CI, JOB, `${JOB}\n    services:\n      db:\n        image: postgres`),
-      /declares `services`/],
+      /the job declares `services`/],
+    /**
+     * Allowlisted, so a key nobody thought to forbid is refused by default.
+     * `timeout-minutes` is harmless; that is the point — the rule is the shape,
+     * not a judgement about what the key does.
+     */
+    ['the workflow declares `env`',
+      (a) => a.edit(CI, '\njobs:\n', '\nenv:\n  CI: "1"\n\njobs:\n'),
+      /the workflow declares `env`/],
+    ['the job declares `env`',
+      (a) => a.edit(CI, JOB, `${JOB}\n    env:\n      CI: "1"`),
+      /the job declares `env`/],
+    ['a required step declares `env`',
+      (a) => a.edit(CI, REBUILD_STEP, `${REBUILD_STEP}\n        env:\n          CI: "1"`),
+      /declares `env`; the shape declares only/],
+    ['the job declares an otherwise harmless `timeout-minutes`',
+      (a) => a.edit(CI, JOB, `${JOB}\n    timeout-minutes: 30`),
+      /the job declares `timeout-minutes`/],
+    ['an action step passes an unprojected `with` input',
+      (a) => a.editJob(CI, 'evaluation-gate', '          fetch-depth: 0',
+        '          fetch-depth: 0\n          submodules: true'),
+      /passes `with.submodules`, which the shape does not project/],
   ];
   for (const [label, mutate, expected] of CI_BYPASSES) {
     it(`fails when ${label}`, () => {
@@ -298,7 +339,16 @@ describe('the check path now covers the packet the cockpit reads', () => {
     expect(checkoutSteps(ci, 'evaluation-gate')).toHaveLength(1);
     expect(checkoutDefect(ci, 'evaluation-gate')).toBeNull();
     expect(runDefaultsDefect(ci, 'evaluation-gate')).toBeNull();
-    expect(jobModifierDefect(ci, 'evaluation-gate')).toBeNull();
+    expect(jobKeyDefect(ci, 'evaluation-gate', ['name', 'runs-on', 'steps'])).toBeNull();
+    expect(jobKeys(ci, 'evaluation-gate')).toEqual(['name', 'runs-on', 'steps']);
+    expect(workflowEnvDefect(ci)).toBeNull();
+    // Each step declares exactly the keys its position allows.
+    const declared = jobSteps(ci, 'evaluation-gate').map((x) => x.keys.join(','));
+    expect(declared).toEqual([
+      'uses,with', 'uses', 'uses,with',
+      'name,run', 'name,run', 'name,run', 'name,run', 'name,run',
+      'name,if,run',
+    ]);
     // The sequence itself, and the adjacency the whole class turned on.
     const steps = jobSteps(ci, 'evaluation-gate');
     expect(steps).toHaveLength(9);

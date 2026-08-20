@@ -16,7 +16,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE } from '../lib/guide.mjs';
-import { jobSteps, jobControls, jobEnforcementDefect, jobModifierDefect,
+import { jobSteps, jobControls, jobEnforcementDefect, jobKeyDefect, workflowEnvDefect,
   runDefaultsDefect, checkoutDefect, shapeDefects } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
 
@@ -828,18 +828,21 @@ else {
        */
       const SETUP_PNPM = 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4';
       const JUDGE_EXPORT = 'experiments/hac-343/evidence/judge-export.json';
+      // `keys` is an allowlist: a step declares exactly these and nothing else.
+      const ACTION = ['uses', 'with'];
+      const RUN_STEP = ['name', 'run'];
       const SHAPE = [
-        { uses: 'actions/checkout@v4', with: { 'fetch-depth': '0' } },
-        { uses: SETUP_PNPM },
-        { uses: 'actions/setup-node@v4', with: { 'node-version': "'22.19.0'", cache: 'pnpm' } },
-        { name: 'Install dependencies', run: 'pnpm install --frozen-lockfile --ignore-scripts' },
-        { name: 'Verify the HAC-343 evaluation packet', run: 'pnpm run check:packet:eval' },
-        { name: "The cockpit's HAC-343 bindings fail when the packet moves", run: 'pnpm vitest run test/hac-343-check-wiring.test.mjs' },
-        { name: 'Rebuild the derived judge export', run: `node ${DERIVED_ARTIFACTS[rel]}` },
-        { name: 'The judge export is byte-identical to its rebuild', run: `git diff --exit-code -- ${rel}` },
+        { uses: 'actions/checkout@v4', with: { 'fetch-depth': '0' }, keys: ACTION },
+        { uses: SETUP_PNPM, keys: ['uses'] },
+        { uses: 'actions/setup-node@v4', with: { 'node-version': "'22.19.0'", cache: 'pnpm' }, keys: ACTION },
+        { name: 'Install dependencies', run: 'pnpm install --frozen-lockfile --ignore-scripts', keys: RUN_STEP },
+        { name: 'Verify the HAC-343 evaluation packet', run: 'pnpm run check:packet:eval', keys: RUN_STEP },
+        { name: "The cockpit's HAC-343 bindings fail when the packet moves", run: 'pnpm vitest run test/hac-343-check-wiring.test.mjs', keys: RUN_STEP },
+        { name: 'Rebuild the derived judge export', run: `node ${DERIVED_ARTIFACTS[rel]}`, keys: RUN_STEP },
+        { name: 'The judge export is byte-identical to its rebuild', run: `git diff --exit-code -- ${rel}`, keys: RUN_STEP },
         // The one permitted conditional, and it must be last: it reports, and
         // a reporting step that ran earlier could report on nothing.
-        { name: 'Explain the failure', conditional: 'failure()' },
+        { name: 'Explain the failure', conditional: 'failure()', keys: ['name', 'if', 'run'] },
       ];
       // Named so the adjacency the whole class turned on is not merely implied.
       const rebuildAt = SHAPE.findIndex((x) => x.run === `node ${DERIVED_ARTIFACTS[rel]}`);
@@ -851,8 +854,19 @@ else {
         fail('the accepted shape does not end with the failure explanation');
       }
 
-      const modifier = jobModifierDefect(ci, 'evaluation-gate');
-      if (modifier) fail(`evaluation-gate is outside the accepted grammar: ${modifier}`);
+      /**
+       * Allowlisted, not blacklisted. A list of forbidden keys is only ever as
+       * complete as the last review that extended it — `defaults`, `strategy`,
+       * `container` and `services` were each added after someone found them —
+       * and the next one is whatever nobody has thought of yet.
+       */
+      const jobKeyProblem = jobKeyDefect(ci, 'evaluation-gate', ['name', 'runs-on', 'steps']);
+      if (jobKeyProblem) fail(`evaluation-gate is outside the accepted grammar: ${jobKeyProblem}`);
+
+      // Inherited from above the job, and carried by every step without being
+      // named in any of them.
+      const wfEnv = workflowEnvDefect(ci);
+      if (wfEnv) fail(`evaluation-gate steps do not run as written: ${wfEnv}`);
 
       const jobDefect = jobEnforcementDefect(jobControls(ci, 'evaluation-gate'), 'ubuntu-24.04');
       if (jobDefect) fail(`evaluation-gate cannot enforce anything: ${jobDefect}`);

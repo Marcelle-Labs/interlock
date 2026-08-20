@@ -99,22 +99,32 @@ export function jobSteps(yaml, jobName) {
       current = {
         uses: null, name: null, run: null, with: {},
         if: null, continueOnError: null, shell: null, workingDirectory: null,
+        // Every key the step declares, so the caller can allowlist rather than
+        // enumerate what to forbid. `keyIndent` is where a step's own keys sit;
+        // anything deeper under `with:` is an input, not a step key.
+        keys: [], keyIndent: item[1].length + 2,
       };
       steps.push(current);
-      const rest = item[2];
-      const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(rest);
-      if (kv) applyKey(kv[1], kv[2], current, indentOf(line), (b) => { blockScalar = b; });
+      const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(item[2]);
+      if (kv) {
+        current.keys.push(kv[1]);
+        applyKey(kv[1], kv[2], current, indentOf(line), (b) => { blockScalar = b; });
+      }
       continue;
     }
     if (!current) continue;
     const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(trimmed);
     if (!kv) continue;
-    if (kv[1] === 'with') { current.inWith = true; continue; }
-    if (current.inWith && !STEP_KEYS.includes(kv[1])) {
+    const ind = indentOf(line);
+    if (current.inWith && ind > current.keyIndent) {
       current.with[kv[1]] = kv[2];
       continue;
     }
-    applyKey(kv[1], kv[2], current, indentOf(line), (b) => { blockScalar = b; });
+    if (ind !== current.keyIndent) continue;
+    current.keys.push(kv[1]);
+    if (kv[1] === 'with') { current.inWith = true; continue; }
+    current.inWith = false;
+    applyKey(kv[1], kv[2], current, ind, (b) => { blockScalar = b; });
   }
   return steps;
 
@@ -287,24 +297,52 @@ export function runDefaultsDefect(yaml, jobName) {
   return null;
 }
 
-/**
- * Execution modifiers that are simply not part of the accepted job.
- *
- * Not interpreted — refused. Each of these can change whether the job runs, how
- * many times, where, or whether its failure counts, and an evidence gate that
- * has to reason about any of them has already lost.
- */
-const FORBIDDEN_JOB_KEYS = ['if', 'needs', 'continue-on-error', 'defaults', 'strategy', 'container', 'services'];
-
-/** Why the job carries a modifier outside the accepted grammar, or `null`. */
-export function jobModifierDefect(yaml, jobName) {
+/** Every key the job declares, in order. */
+export function jobKeys(yaml, jobName) {
   const block = jobBlock(yaml, jobName);
-  if (!block) return 'the job does not exist';
+  if (!block) return null;
+  const keys = [];
   for (const line of block) {
     if (indentOf(line) !== 4) continue;
     const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(line.trim());
-    if (!kv || !FORBIDDEN_JOB_KEYS.includes(kv[1])) continue;
-    return `the job declares \`${kv[1]}\`, which is not part of the accepted evaluation-gate shape`;
+    if (kv) keys.push(kv[1]);
+  }
+  return keys;
+}
+
+/**
+ * Why the job declares a key outside the accepted grammar, or `null`.
+ *
+ * An allowlist, not a blacklist. A list of forbidden keys is only ever as
+ * complete as the last review that extended it — `defaults`, `strategy`,
+ * `container` and `services` were each added after someone found them — and the
+ * next one is whatever nobody has thought of yet. The canonical job declares
+ * three keys; anything else is a defect whether or not its effect is understood.
+ */
+export function jobKeyDefect(yaml, jobName, allowed) {
+  const keys = jobKeys(yaml, jobName);
+  if (keys === null) return 'the job does not exist';
+  const extra = keys.filter((k) => !allowed.includes(k));
+  if (extra.length) {
+    return `the job declares \`${extra.join('`, `')}\`; the accepted shape declares only \`${allowed.join('`, `')}\``;
+  }
+  for (const key of allowed) {
+    if (!keys.includes(key)) return `the job does not declare \`${key}\``;
+  }
+  return null;
+}
+
+/**
+ * Why the workflow inherits state into the job from above it, or `null`.
+ *
+ * `env` is refused for the same reason `defaults.run` is: the job's steps would
+ * carry it without naming it, and an evidence gate that has to reason about
+ * what it inherited has already lost.
+ */
+export function workflowEnvDefect(yaml) {
+  for (const line of uncommented(yaml).split('\n')) {
+    if (indentOf(line) !== 0) continue;
+    if (/^env:\s*/.test(line.trim())) return 'the workflow declares `env`, which every job would inherit';
   }
   return null;
 }
@@ -347,6 +385,23 @@ export function shapeDefects(steps, expected) {
       if (step.with?.[key] !== value) {
         out.push(`step ${i + 1} sets \`${key}: ${step.with?.[key] ?? '(absent)'}\`; the shape expects \`${value}\``);
       }
+    }
+    // The `with` projection is exact: an extra input is as much a departure as
+    // a wrong one.
+    for (const key of Object.keys(step.with ?? {})) {
+      if (!(key in (want.with ?? {}))) {
+        out.push(`step ${i + 1} passes \`with.${key}\`, which the shape does not project`);
+      }
+    }
+    // And the step declares exactly the keys the shape names — allowlisted, so
+    // a key nobody has thought to forbid is refused by default.
+    const wantKeys = want.keys ?? [];
+    const extraKeys = (step.keys ?? []).filter((k) => !wantKeys.includes(k));
+    if (extraKeys.length) {
+      out.push(`step ${i + 1} declares \`${extraKeys.join('`, `')}\`; the shape declares only \`${wantKeys.join('`, `')}\``);
+    }
+    for (const key of wantKeys) {
+      if (!(step.keys ?? []).includes(key)) out.push(`step ${i + 1} does not declare \`${key}\``);
     }
     const wantIf = want.conditional ?? null;
     if ((step.if ?? null) !== wantIf) {
