@@ -287,6 +287,79 @@ export function runDefaultsDefect(yaml, jobName) {
   return null;
 }
 
+/**
+ * Execution modifiers that are simply not part of the accepted job.
+ *
+ * Not interpreted — refused. Each of these can change whether the job runs, how
+ * many times, where, or whether its failure counts, and an evidence gate that
+ * has to reason about any of them has already lost.
+ */
+const FORBIDDEN_JOB_KEYS = ['if', 'needs', 'continue-on-error', 'defaults', 'strategy', 'container', 'services'];
+
+/** Why the job carries a modifier outside the accepted grammar, or `null`. */
+export function jobModifierDefect(yaml, jobName) {
+  const block = jobBlock(yaml, jobName);
+  if (!block) return 'the job does not exist';
+  for (const line of block) {
+    if (indentOf(line) !== 4) continue;
+    const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(line.trim());
+    if (!kv || !FORBIDDEN_JOB_KEYS.includes(kv[1])) continue;
+    return `the job declares \`${kv[1]}\`, which is not part of the accepted evaluation-gate shape`;
+  }
+  return null;
+}
+
+/**
+ * Compare a job's steps against an exact expected sequence.
+ *
+ * Presence-based verification was not enough: every required step could be
+ * exact, unconditional and failure-propagating while the byte assertion ran
+ * *before* the rebuild it asserts about, or while an interposed step undid the
+ * rebuild first. Both left all four operations present and one of them vacuous.
+ * A sequence has no gaps to hide in — and `rebuild index + 1 === assertion
+ * index` falls out of it rather than being a rule of its own.
+ *
+ * Each expectation may pin `uses`, `name`, an exact `run`, `with` entries, and
+ * `conditional` (the only permitted `if`). Anything the shape does not name is
+ * refused by position: an extra step is a step the shape has no slot for.
+ */
+export function shapeDefects(steps, expected) {
+  const out = [];
+  const label = (step, i) => `step ${i + 1}` + (step ? ` (${step.uses ?? step.name ?? 'unnamed'})` : '');
+  if (steps.length !== expected.length) {
+    out.push(`the job has ${steps.length} step(s); the accepted shape has exactly ${expected.length}`);
+  }
+  for (let i = 0; i < Math.max(steps.length, expected.length); i += 1) {
+    const step = steps[i];
+    const want = expected[i];
+    if (!want) { out.push(`${label(step, i)} is not part of the accepted shape`); continue; }
+    if (!step) { out.push(`step ${i + 1} is missing; the shape expects ${want.uses ?? want.name}`); continue; }
+    if (want.uses && step.uses !== want.uses) {
+      out.push(`${label(step, i)} uses \`${step.uses}\`; the shape expects \`${want.uses}\``);
+    }
+    if (want.name && step.name !== want.name) {
+      out.push(`step ${i + 1} is named \`${step.name}\`; the shape expects \`${want.name}\``);
+    }
+    if (want.run !== undefined && String(step.run ?? '').trim() !== want.run) {
+      out.push(`step ${i + 1} runs \`${String(step.run ?? '(none)').trim().slice(0, 52)}\`; the shape expects exactly \`${want.run}\``);
+    }
+    for (const [key, value] of Object.entries(want.with ?? {})) {
+      if (step.with?.[key] !== value) {
+        out.push(`step ${i + 1} sets \`${key}: ${step.with?.[key] ?? '(absent)'}\`; the shape expects \`${value}\``);
+      }
+    }
+    const wantIf = want.conditional ?? null;
+    if ((step.if ?? null) !== wantIf) {
+      out.push(wantIf
+        ? `step ${i + 1} is conditional on \`${step.if ?? '(absent)'}\`; the shape expects \`${wantIf}\``
+        : `step ${i + 1} is conditional on \`if: ${step.if}\`; only the failure explanation may be conditional`);
+    }
+    const control = stepEnforcementDefect({ ...step, if: null });
+    if (control) out.push(`step ${i + 1}: ${control}`);
+  }
+  return out;
+}
+
 /** Every `actions/checkout` step in a job, in order. */
 export const checkoutSteps = (yaml, jobName) => (jobSteps(yaml, jobName) ?? [])
   .filter((s) => String(s.uses ?? '').includes('actions/checkout'));

@@ -32,8 +32,8 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { jobSteps, enforcementStep, stepEnforcementDefect, jobControls,
-  jobEnforcementDefect, runDefaultsDefect, checkoutDefect, checkoutSteps } from '../media/hac-341/bin/lib/workflow.mjs';
+import { jobSteps, enforcementStep, stepEnforcementDefect, jobControls, jobEnforcementDefect,
+  jobModifierDefect, runDefaultsDefect, checkoutDefect, checkoutSteps, shapeDefects } from '../media/hac-341/bin/lib/workflow.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EVAL_GATE = 'experiments/hac-343/bin/verify-packet.mjs';
@@ -108,7 +108,13 @@ function broken(mutate, script = EVAL_GATE) {
     const after = existsSync(join(dir, f)) ? readFileSync(join(dir, f), 'utf8') : null;
     if (after !== before) changed += 1;
   }
-  return { ...run(dir, script), changed };
+  const result = { ...run(dir, script), changed };
+  // Reclaim the copy as soon as its gate has run. Thirty-odd full repository
+  // copies held until teardown timed the afterAll hook out; nothing reads the
+  // directory after this point.
+  rmSync(dir, { recursive: true, force: true });
+  scratch.splice(scratch.indexOf(dir), 1);
+  return result;
 }
 
 describe('the check path now covers the packet the cockpit reads', () => {
@@ -143,6 +149,13 @@ describe('the check path now covers the packet the cockpit reads', () => {
   const JOB_DEFAULTS = '  evaluation-gate:\n    name: Evaluation gate\n    runs-on: ubuntu-24.04\n    defaults:\n      run:\n';
   const VERIFY_STEP = '      - name: Verify the HAC-343 evaluation packet';
   const SECOND_CHECKOUT = '      - uses: actions/checkout@v4\n        with:\n';
+  const REBUILD_STEP = '      - name: Rebuild the derived judge export\n'
+    + '        run: node experiments/hac-343/bin/build-judge-export.mjs';
+  const ASSERT_STEP = '      - name: The judge export is byte-identical to its rebuild\n'
+    + '        run: git diff --exit-code -- experiments/hac-343/evidence/judge-export.json';
+  // `Explain the failure` appears in twelve jobs; anchor through the step
+  // before it so the edit lands in evaluation-gate and nowhere else.
+  const EXPLAIN_STEP = ASSERT_STEP + '\n\n      - name: Explain the failure';
 
   /**
    * Every way an enforcement step or its job can be present and enforce
@@ -154,32 +167,32 @@ describe('the check path now covers the packet the cockpit reads', () => {
   const CI_BYPASSES = [
     ['the command sits inside `if false; then`',
       (a) => a.edit(CI, EVAL, '        run: |\n          if false; then\n          pnpm run check:packet:eval\n          fi'),
-      /no step runs exactly that command/],
+      /departs from its accepted shape/],
     ['the command sits inside a heredoc',
       (a) => a.edit(CI, EVAL, '        run: |\n          cat <<\'EOF\' >/dev/null\n          pnpm run check:packet:eval\n          EOF\n          echo done'),
-      /no step runs exactly that command/],
+      /departs from its accepted shape/],
     ['the command sits inside an open quoted string',
       (a) => a.edit(CI, EVAL, '        run: |\n          echo "disabled:\n          pnpm run check:packet:eval\n          "'),
-      /no step runs exactly that command/],
+      /departs from its accepted shape/],
     ['check:packet:eval is replaced by an echo, name kept in failure prose',
       (a) => a.edit(CI, EVAL, '        run: echo skipped'),
-      /no enforcing step verifying the HAC-343 packet/],
+      /departs from its accepted shape/],
     ['the wiring-test execution is removed, filename kept in failure prose',
       (a) => a.edit(CI, WIRING, '        run: echo skipped'),
-      /no enforcing step running the HAC-343 wiring test/],
+      /departs from its accepted shape/],
     ['a required command exists only as quoted text inside another command',
       (a) => a.edit(CI, EVAL, '        run: echo "pnpm run check:packet:eval"'),
-      /no enforcing step verifying the HAC-343 packet/],
+      /departs from its accepted shape/],
     ['the rebuild step is commented out',
       (a) => a.edit(CI, REBUILD, '        # run: node experiments/hac-343/bin/build-judge-export.mjs'),
-      /no enforcing step rebuilding/],
+      /departs from its accepted shape/],
     ['the byte assertion is removed',
       (a) => a.edit(CI, '        run: git diff --exit-code -- experiments/hac-343/evidence/judge-export.json',
         '        run: echo skipped'),
-      /byte-identical to its rebuild/],
+      /departs from its accepted shape/],
     ['a step gains a literal `if: false`',
       (a) => a.edit(CI, '      - name: Rebuild the derived judge export', `${'      - name: Rebuild the derived judge export'}\n        if: false`),
-      /an evidence gate must be unconditional/],
+      /departs from its accepted shape/],
     ['a step gains `continue-on-error: true`',
       (a) => a.edit(CI, '      - name: Rebuild the derived judge export', `${'      - name: Rebuild the derived judge export'}\n        continue-on-error: true`),
       /only an absent or literally `false` value can be trusted/],
@@ -232,6 +245,38 @@ describe('the check path now covers the packet the cockpit reads', () => {
     ['a second checkout re-checks out deep',
       (a) => a.edit(CI, VERIFY_STEP, `${SECOND_CHECKOUT}          fetch-depth: 0\n${VERIFY_STEP}`),
       /must check out exactly once/],
+    /**
+     * Presence was not enough. Each of these leaves all four operations
+     * present, exact, unconditional and failure-propagating, and makes one of
+     * them vacuous — so the contract is an exact sequence, and the rule is
+     * structural: a harmless `echo` in a forbidden position fails exactly as a
+     * malicious one would.
+     */
+    ['the assertion is ordered before the rebuild',
+      (a) => a.edit(CI, `${REBUILD_STEP}\n\n${ASSERT_STEP}`, `${ASSERT_STEP}\n\n${REBUILD_STEP}`),
+      /departs from its accepted shape/],
+    ['a step is interposed between rebuild and assertion',
+      (a) => a.edit(CI, ASSERT_STEP, `      - name: tidy\n        run: echo harmless\n${ASSERT_STEP}`),
+      /departs from its accepted shape/],
+    ['a step is interposed between packet verification and the rebuild',
+      (a) => a.edit(CI, REBUILD_STEP, `      - name: touch the tree\n        run: echo harmless\n${REBUILD_STEP}`),
+      /departs from its accepted shape/],
+    ['an extra step precedes the enforcement block',
+      (a) => a.edit(CI, VERIFY_STEP, `      - name: preamble\n        run: echo harmless\n${VERIFY_STEP}`),
+      /departs from its accepted shape/],
+    ['an extra step follows the assertion',
+      (a) => a.edit(CI, EXPLAIN_STEP,
+        `${ASSERT_STEP}\n\n      - name: postscript\n        run: echo harmless\n      - name: Explain the failure`),
+      /departs from its accepted shape/],
+    ['the job declares `strategy.matrix: []`',
+      (a) => a.edit(CI, JOB, `${JOB.replace('    runs-on: ubuntu-24.04', '    strategy:\n      matrix:\n        shard: []\n    runs-on: ubuntu-24.04')}`),
+      /declares `strategy`/],
+    ['the job declares a `container`',
+      (a) => a.edit(CI, JOB, `${JOB}\n    container: node:22`),
+      /declares `container`/],
+    ['the job declares `services`',
+      (a) => a.edit(CI, JOB, `${JOB}\n    services:\n      db:\n        image: postgres`),
+      /declares `services`/],
   ];
   for (const [label, mutate, expected] of CI_BYPASSES) {
     it(`fails when ${label}`, () => {
@@ -253,6 +298,19 @@ describe('the check path now covers the packet the cockpit reads', () => {
     expect(checkoutSteps(ci, 'evaluation-gate')).toHaveLength(1);
     expect(checkoutDefect(ci, 'evaluation-gate')).toBeNull();
     expect(runDefaultsDefect(ci, 'evaluation-gate')).toBeNull();
+    expect(jobModifierDefect(ci, 'evaluation-gate')).toBeNull();
+    // The sequence itself, and the adjacency the whole class turned on.
+    const steps = jobSteps(ci, 'evaluation-gate');
+    expect(steps).toHaveLength(9);
+    const at = (run) => steps.findIndex((x) => String(x.run ?? '').trim() === run);
+    const rebuild = at('node experiments/hac-343/bin/build-judge-export.mjs');
+    const assertion = at('git diff --exit-code -- experiments/hac-343/evidence/judge-export.json');
+    expect(rebuild).toBeGreaterThan(-1);
+    expect(assertion).toBe(rebuild + 1);
+    expect(steps.at(-1).name).toBe('Explain the failure');
+    expect(steps.at(-1).if).toBe('failure()');
+    // Only the last step may be conditional.
+    expect(steps.slice(0, -1).every((x) => x.if === null)).toBe(true);
     // Each enforcement operation is one step whose run is exactly the command.
     for (const command of [
       'pnpm run check:packet:eval',

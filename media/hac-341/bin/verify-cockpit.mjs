@@ -16,8 +16,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE } from '../lib/guide.mjs';
-import { jobSteps, enforcementStep, stepEnforcementDefect,
-  jobControls, jobEnforcementDefect, runDefaultsDefect, checkoutDefect } from './lib/workflow.mjs';
+import { jobSteps, jobControls, jobEnforcementDefect, jobModifierDefect,
+  runDefaultsDefect, checkoutDefect, shapeDefects } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -811,31 +811,62 @@ else {
         fail('the evaluation-gate job does not exist; the HAC-343 packet runs in no CI job of its own');
         continue;
       }
-      // Exactly one checkout, at full depth. Reading the first one let a later
-      // shallow re-checkout leave the workspace at depth 1 while the first
-      // still declared 0.
-      const checkout = checkoutDefect(ci, 'evaluation-gate');
-      if (checkout) fail(`evaluation-gate checkout cannot support the freeze checks: ${checkout}`);
+      /**
+       * One canonical sequence, compared position by position.
+       *
+       * Presence-based verification was not enough. Every required step could
+       * be exact, unconditional and failure-propagating while the byte
+       * assertion ran *before* the rebuild it asserts about, or while an
+       * interposed step reverted the rebuild first — both left all four
+       * operations present and one of them vacuous. A sequence has no gaps to
+       * hide in, and `rebuild index + 1 === assertion index` falls out of it
+       * instead of being a rule of its own.
+       *
+       * The shape is written out rather than derived: an evidence gate whose
+       * expected form is inferred from the file it is checking proves nothing.
+       * Changing the job legitimately means changing this list, on purpose.
+       */
+      const SETUP_PNPM = 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4';
+      const JUDGE_EXPORT = 'experiments/hac-343/evidence/judge-export.json';
+      const SHAPE = [
+        { uses: 'actions/checkout@v4', with: { 'fetch-depth': '0' } },
+        { uses: SETUP_PNPM },
+        { uses: 'actions/setup-node@v4', with: { 'node-version': "'22.19.0'", cache: 'pnpm' } },
+        { name: 'Install dependencies', run: 'pnpm install --frozen-lockfile --ignore-scripts' },
+        { name: 'Verify the HAC-343 evaluation packet', run: 'pnpm run check:packet:eval' },
+        { name: "The cockpit's HAC-343 bindings fail when the packet moves", run: 'pnpm vitest run test/hac-343-check-wiring.test.mjs' },
+        { name: 'Rebuild the derived judge export', run: `node ${DERIVED_ARTIFACTS[rel]}` },
+        { name: 'The judge export is byte-identical to its rebuild', run: `git diff --exit-code -- ${rel}` },
+        // The one permitted conditional, and it must be last: it reports, and
+        // a reporting step that ran earlier could report on nothing.
+        { name: 'Explain the failure', conditional: 'failure()' },
+      ];
+      // Named so the adjacency the whole class turned on is not merely implied.
+      const rebuildAt = SHAPE.findIndex((x) => x.run === `node ${DERIVED_ARTIFACTS[rel]}`);
+      const assertAt = SHAPE.findIndex((x) => x.run === `git diff --exit-code -- ${rel}`);
+      if (rebuildAt < 0 || assertAt !== rebuildAt + 1) {
+        fail('the accepted shape does not assert the judge export immediately after rebuilding it');
+      }
+      if (SHAPE.at(-1).conditional !== 'failure()') {
+        fail('the accepted shape does not end with the failure explanation');
+      }
 
-      // Every step can be unconditional and failure-propagating while the job
-      // around them is skipped or has its failure discarded.
+      const modifier = jobModifierDefect(ci, 'evaluation-gate');
+      if (modifier) fail(`evaluation-gate is outside the accepted grammar: ${modifier}`);
+
       const jobDefect = jobEnforcementDefect(jobControls(ci, 'evaluation-gate'), 'ubuntu-24.04');
       if (jobDefect) fail(`evaluation-gate cannot enforce anything: ${jobDefect}`);
+
+      const checkout = checkoutDefect(ci, 'evaluation-gate');
+      if (checkout) fail(`evaluation-gate checkout cannot support the freeze checks: ${checkout}`);
 
       // A step can carry no `shell:` and no `working-directory:` of its own and
       // still inherit both from a `defaults.run` map it never mentions.
       const inherited = runDefaultsDefect(ci, 'evaluation-gate');
       if (inherited) fail(`evaluation-gate steps do not run as written: ${inherited}`);
 
-      const REQUIRED = [
-        ['pnpm run check:packet:eval', 'verifying the HAC-343 packet'],
-        ['pnpm vitest run test/hac-343-check-wiring.test.mjs', 'running the HAC-343 wiring test'],
-        [`node ${DERIVED_ARTIFACTS[rel]}`, `rebuilding ${rel}`],
-        [`git diff --exit-code -- ${rel}`, `asserting ${rel} is byte-identical to its rebuild`],
-      ];
-      for (const [command, purpose] of REQUIRED) {
-        const defect = stepEnforcementDefect(enforcementStep(ci, 'evaluation-gate', command));
-        if (defect) fail(`evaluation-gate has no enforcing step ${purpose}: ${defect}`);
+      for (const defect of shapeDefects(jobSteps(ci, 'evaluation-gate') ?? [], SHAPE)) {
+        fail(`evaluation-gate departs from its accepted shape: ${defect}`);
       }
       continue;
     }
