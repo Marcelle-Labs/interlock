@@ -43,6 +43,19 @@ import { ARMS } from '../lib/arms.mjs';
 import { FROZEN_COMMITS, ORDERS } from '../lib/aggregate.mjs';
 import { GIT } from '../../hac-330/lib/exec.mjs';
 
+/**
+ * Default `.sort()` order, stated explicitly.
+ *
+ * `Array#sort` with no comparator stringifies and compares UTF-16 code units.
+ * These arrays are already strings, so `<` and `>` reproduce that order exactly
+ * — which is the point: this is an evidence-chain artifact, and `localeCompare`
+ * would make the committed result depend on the runner's locale.
+ */
+const byCodeUnit = (a, b) => {
+  if (a < b) return -1;
+  return a > b ? 1 : 0;
+};
+
 const EXPERIMENT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const REPO_ROOT = resolve(EXPERIMENT_DIR, '..', '..');
 const EVIDENCE_DIR = join(EXPERIMENT_DIR, 'evidence');
@@ -172,7 +185,7 @@ const panel2 = {
         coupledScenarios.length,
         'raw-results.json records[A4, COUPLED].oracle.holds',
       ),
-      decision: [...new Set(coupledScenarios.flatMap((s) => recordsFor(s.id, 'A4_interlock').flatMap((r) => (r.verdicts ?? []).map((v) => v.decision))))].sort(),
+      decision: [...new Set(coupledScenarios.flatMap((s) => recordsFor(s.id, 'A4_interlock').flatMap((r) => (r.verdicts ?? []).map((v) => v.decision))))].sort(byCodeUnit),
     },
     {
       condition: 'Interlock + coupling evidence removed',
@@ -181,7 +194,7 @@ const panel2 = {
         perturbedScenarios.length,
         'raw-results.json records[A4, EVIDENCE_PERTURBED].oracle.holds',
       ),
-      decision: [...new Set(perturbedScenarios.flatMap((s) => recordsFor(s.id, 'A4_interlock').flatMap((r) => (r.verdicts ?? []).map((v) => v.decision))))].sort(),
+      decision: [...new Set(perturbedScenarios.flatMap((s) => recordsFor(s.id, 'A4_interlock').flatMap((r) => (r.verdicts ?? []).map((v) => v.decision))))].sort(byCodeUnit),
     },
   ],
   reading:
@@ -265,7 +278,11 @@ const provenance = {
     '@workspacejson/spec@0.5.0': 'sha512-KpsUxvLXFHHHKY6F58tWBnqsx5REJjK99Kum1+ATU4b8oUGlStfVkWyphNQ+nFZU3hy/ckNLZTxs4mpOeWGQLA==',
     '@workspacejson/rules@0.5.0': 'sha512-UlJUnDdc1In4oAMCNMFbFnCAVUGSb1HR0MeP3Pa6Db3uHrH/OvXPyQCqGXLDe9ii3D+6Ua/OHAJMeocKv2bL1Q==',
   },
-  toolchain: { node: process.version, platform: `${process.platform} ${process.arch}` },
+  // No toolchain block. It used to record process.version/platform, which is the
+  // *builder's* machine, not the frozen run's — so it sat in provenance asserting
+  // a fact about an environment that never produced this evidence, and it made the
+  // export reproducible only on the OS that first built it. The frozen artifacts do
+  // not record the run's environment, so there is nothing here to bind to.
 };
 
 // Every integrity string must be a complete sha512 base64 digest. Line-wrapped

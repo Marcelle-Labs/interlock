@@ -239,10 +239,6 @@
       "@workspacejson/cli@0.6.2": "sha512-DyXe4oY4s6paN9lgLkFnhj9x46Excg3GSSQfcF3VBTzGj2LUeosaM3iZ5NgM1was8hQWhxibyS1a7YOq5OxI5Q==",
       "@workspacejson/spec@0.5.0": "sha512-KpsUxvLXFHHHKY6F58tWBnqsx5REJjK99Kum1+ATU4b8oUGlStfVkWyphNQ+nFZU3hy/ckNLZTxs4mpOeWGQLA==",
       "@workspacejson/rules@0.5.0": "sha512-UlJUnDdc1In4oAMCNMFbFnCAVUGSb1HR0MeP3Pa6Db3uHrH/OvXPyQCqGXLDe9ii3D+6Ua/OHAJMeocKv2bL1Q=="
-    },
-    "toolchain": {
-      "node": "v22.19.0",
-      "platform": "darwin arm64"
     }
   }
 }

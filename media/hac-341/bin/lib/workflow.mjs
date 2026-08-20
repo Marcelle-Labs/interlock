@@ -38,11 +38,27 @@ const uncommented = (yaml) => yaml
 
 const indentOf = (line) => line.length - line.trimStart().length;
 
-/** Keys that belong to the step itself, never to its `with:` inputs. */
-const STEP_KEYS = ['uses', 'name', 'run', 'if', 'continue-on-error', 'shell', 'working-directory'];
+/**
+ * A `key: value` line.
+ *
+ * The value group starts at a non-space, so it cannot re-consume what the
+ * separator already matched: `\\s*` and `\\S` are disjoint and there is no
+ * backtracking left to be super-linear about. The group is undefined for a bare
+ * `key:`, which every use site coalesces to ''.
+ */
+const KV = /^([a-zA-Z-]+):\s*(\S.*)?$/;
+
+/** `KV`, with the optional value normalised to '' so callers read `m[2]` as before. */
+const kvExec = (line) => { const m = KV.exec(line); if (m) m[2] ??= ''; return m; };
+
+/** A `- ` list item and its payload, disjoint for the same reason. */
+const ITEM = /^(\s*)-\s+(\S.*)?$/;
+
+/** `ITEM`, normalised the same way. */
+const itemExec = (line) => { const m = ITEM.exec(line); if (m) m[2] ??= ''; return m; };
 
 /** Job-level keys that decide whether a job runs, or whether its failure counts. */
-const JOB_KEYS = ['if', 'continue-on-error', 'needs', 'runs-on'];
+const JOB_KEYS = new Set(['if', 'continue-on-error', 'needs', 'runs-on']);
 
 /**
  * The shell lines a `run:` body actually executes.
@@ -94,7 +110,7 @@ export function jobSteps(yaml, jobName) {
       if (trimmed !== '' && indentOf(line) <= blockScalar.indent) blockScalar = null;
       else { current.run += `${trimmed}\n`; continue; }
     }
-    const item = /^(\s*)-\s+(.*)$/.exec(line);
+    const item = itemExec(line);
     if (item) {
       current = {
         uses: null, name: null, run: null, with: {},
@@ -105,7 +121,7 @@ export function jobSteps(yaml, jobName) {
         keys: [], keyIndent: item[1].length + 2,
       };
       steps.push(current);
-      const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(item[2]);
+      const kv = kvExec(item[2]);
       if (kv) {
         current.keys.push(kv[1]);
         applyKey(kv[1], kv[2], current, indentOf(line), (b) => { blockScalar = b; });
@@ -113,7 +129,7 @@ export function jobSteps(yaml, jobName) {
       continue;
     }
     if (!current) continue;
-    const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(trimmed);
+    const kv = kvExec(trimmed);
     if (!kv) continue;
     const ind = indentOf(line);
     if (current.inWith && ind > current.keyIndent) {
@@ -127,27 +143,27 @@ export function jobSteps(yaml, jobName) {
     applyKey(kv[1], kv[2], current, ind, (b) => { blockScalar = b; });
   }
   return steps;
+}
 
-  function applyKey(key, value, step, indent, setBlock) {
-    if (key === 'uses') { step.uses = value; return; }
-    if (key === 'name') { step.name = value; return; }
-    // A step control, never a `with:` input: both decide whether the step's
-    // failure can reach the job, which is the whole point of asserting on it.
-    if (key === 'if') { step.if = value; step.inWith = false; return; }
-    if (key === 'continue-on-error') { step.continueOnError = value; step.inWith = false; return; }
-    // A custom shell or a different working directory changes what the command
-    // means; an enforcement step must run the command as written, where written.
-    if (key === 'shell') { step.shell = value; step.inWith = false; return; }
-    if (key === 'working-directory') { step.workingDirectory = value; step.inWith = false; return; }
-    if (key !== 'run') return;
-    step.inWith = false;
-    if (value === '|' || value === '|-' || value === '>') {
-      step.run = '';
-      setBlock({ indent });
-      return;
-    }
-    step.run = value;
+function applyKey(key, value, step, indent, setBlock) {
+  if (key === 'uses') { step.uses = value; return; }
+  if (key === 'name') { step.name = value; return; }
+  // A step control, never a `with:` input: both decide whether the step's
+  // failure can reach the job, which is the whole point of asserting on it.
+  if (key === 'if') { step.if = value; step.inWith = false; return; }
+  if (key === 'continue-on-error') { step.continueOnError = value; step.inWith = false; return; }
+  // A custom shell or a different working directory changes what the command
+  // means; an enforcement step must run the command as written, where written.
+  if (key === 'shell') { step.shell = value; step.inWith = false; return; }
+  if (key === 'working-directory') { step.workingDirectory = value; step.inWith = false; return; }
+  if (key !== 'run') return;
+  step.inWith = false;
+  if (value === '|' || value === '|-' || value === '>') {
+    step.run = '';
+    setBlock({ indent });
+    return;
   }
+  step.run = value;
 }
 
 /** Every command a job actually executes — never anything it merely mentions. */
@@ -217,8 +233,8 @@ export function jobControls(yaml, jobName) {
   for (const line of block) {
     // Job-level keys sit at exactly four spaces; deeper belongs to a step.
     if (indentOf(line) !== 4) continue;
-    const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(line.trim());
-    if (!kv || !JOB_KEYS.includes(kv[1])) continue;
+    const kv = kvExec(line.trim());
+    if (!kv || !JOB_KEYS.has(kv[1])) continue;
     if (kv[1] === 'if') out.if = kv[2];
     if (kv[1] === 'continue-on-error') out.continueOnError = kv[2];
     if (kv[1] === 'needs') out.needs = kv[2];
@@ -262,7 +278,7 @@ function inheritedRunDefaults(lines, baseIndent) {
     if (line.trim() === '') continue;
     const ind = indentOf(line);
     if (ind <= baseIndent) break;
-    const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(line.trim());
+    const kv = kvExec(line.trim());
     if (!kv) continue;
     if (runIndent === null) {
       if (kv[1] === 'run') runIndent = ind;
@@ -283,10 +299,10 @@ function inheritedRunDefaults(lines, baseIndent) {
 export function runDefaultsDefect(yaml, jobName) {
   const documentLines = uncommented(yaml).split('\n');
   const scopes = [
-    ['the workflow', inheritedRunDefaults(documentLines, 0)],
-    ['the job', inheritedRunDefaults(jobBlock(yaml, jobName) ?? [], 4)],
+    { scope: 'the workflow', defaults: inheritedRunDefaults(documentLines, 0) },
+    { scope: 'the job', defaults: inheritedRunDefaults(jobBlock(yaml, jobName) ?? [], 4) },
   ];
-  for (const [scope, defaults] of scopes) {
+  for (const { scope, defaults } of scopes) {
     if (defaults.shell !== null) {
       return `${scope} sets \`defaults.run.shell: ${defaults.shell}\`; every required step would inherit it`;
     }
@@ -304,7 +320,7 @@ export function jobKeys(yaml, jobName) {
   const keys = [];
   for (const line of block) {
     if (indentOf(line) !== 4) continue;
-    const kv = /^([a-zA-Z-]+):\s*(.*)$/.exec(line.trim());
+    const kv = kvExec(line.trim());
     if (kv) keys.push(kv[1]);
   }
   return keys;
@@ -360,7 +376,7 @@ export const workflowKeys = (yaml) => uncommented(yaml).split('\n')
  */
 export function workflowBlock(yaml, key) {
   const lines = uncommented(yaml).split('\n');
-  const start = lines.findIndex((l) => indentOf(l) === 0 && new RegExp(String.raw`^${key}:`).test(l));
+  const start = lines.findIndex((l) => indentOf(l) === 0 && new RegExp(`^${key}:`).test(l));
   if (start < 0) return null;
   const out = [];
   for (const line of lines.slice(start + 1)) {

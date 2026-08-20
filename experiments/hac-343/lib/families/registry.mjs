@@ -79,7 +79,20 @@ const IDENTITY = {
 
 const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
 
-const services = (list) => json({ services: [...list].sort() });
+/**
+ * Default `.sort()` order, stated explicitly.
+ *
+ * `Array#sort` with no comparator stringifies and compares UTF-16 code units.
+ * These arrays are already strings, so `<` and `>` reproduce that order exactly
+ * — which is the point: this is an evidence-chain artifact, and `localeCompare`
+ * would make the committed result depend on the runner's locale.
+ */
+const byCodeUnit = (a, b) => {
+  if (a < b) return -1;
+  return a > b ? 1 : 0;
+};
+
+const services = (list) => json({ services: [...list].sort(byCodeUnit) });
 const routes = (list) => json({ routes: [...list].sort((a, b) => (a.path < b.path ? -1 : 1)) });
 const aliases = (map) =>
   json(Object.fromEntries(Object.entries(map).sort(([a], [b]) => (a < b ? -1 : 1))));
@@ -317,9 +330,9 @@ function planCommits(steps) {
   // share a final tree and a downstream difference would be the state rather
   // than the evidence.
   const settled =
-    [...state.services].sort().join() === [...SERVICES_FINAL].sort().join() &&
-    [...state.routes.keys()].sort().join() === ROUTES_FINAL.map((r) => r.path).sort().join() &&
-    [...state.aliases.keys()].sort().join() === Object.keys(ALIASES_FINAL).sort().join();
+    [...state.services].sort(byCodeUnit).join() === [...SERVICES_FINAL].sort(byCodeUnit).join() &&
+    [...state.routes.keys()].sort(byCodeUnit).join() === ROUTES_FINAL.map((r) => r.path).sort(byCodeUnit).join() &&
+    [...state.aliases.keys()].sort(byCodeUnit).join() === Object.keys(ALIASES_FINAL).sort(byCodeUnit).join();
   if (!settled) {
     throw new Error('fixture plan does not settle at the shared final state');
   }

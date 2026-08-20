@@ -529,7 +529,7 @@ describe('the gate refuses a walk that has stopped being an attention layer', ()
 
   it('fails when the cloud raw-proof surface stops following its field', () => {
     const r = broken((a) => a.edit(COCKPIT,
-      'body[data-proof="cloud"] pre.shiki-proof{background:var(--n95)}', ''));
+      'body[data-proof="cloud"] pre.shiki-proof{background:var(--n95);border-color:var(--border-default)}', ''));
     expect(r.code).not.toBe(0);
     expect(r.out).toMatch(/cloud raw-proof surface does not follow the dark field/);
   });

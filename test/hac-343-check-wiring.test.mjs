@@ -597,3 +597,56 @@ describe('the cockpit gate fails when a bound HAC-343 field moves underneath it'
     expect(r.out).toMatch(/not what its cited HAC-343 artifacts produce|misreports whether it resolved/);
   }, 30_000);
 });
+
+/**
+ * The judge export is asserted byte-identical to its own rebuild, which is only
+ * a real property if the builder reads nothing but frozen artifacts. It did not:
+ * `provenance.toolchain` recorded `process.version` and `process.platform`, so
+ * the export could only reproduce on the OS that first built it, and — worse —
+ * it sat inside `provenance` asserting a machine that never ran the experiment.
+ * CI caught it, but only because the runner happened to be linux while the
+ * committed file was built on darwin. A same-platform push would have sailed
+ * through with the same defect intact, so presence is asserted at the source.
+ */
+describe('the judge export derives from frozen artifacts, not from the builder', () => {
+  const BUILDER = 'experiments/hac-343/bin/build-judge-export.mjs';
+
+  // Anything whose value depends on where or when the build ran. A field sourced
+  // from one of these cannot be byte-reproducible for a judge on another machine.
+  const AMBIENT = [
+    [/process\.platform/, 'process.platform'],
+    [/process\.arch/, 'process.arch'],
+    [/process\.version\b/, 'process.version'],
+    [/process\.env\b/, 'process.env'],
+    [/process\.cwd\s*\(/, 'process.cwd()'],
+    [/\bDate\.now\s*\(/, 'Date.now()'],
+    [/new\s+Date\s*\(\s*\)/, 'new Date()'],
+    [/\bhostname\s*\(/, 'os.hostname()'],
+    [/\bMath\.random\s*\(/, 'Math.random()'],
+  ];
+
+  // Scan executable code, not prose. The comment that records *why* there is no
+  // toolchain block names the very calls this forbids, and a guard that cannot
+  // tell a mention from a read is the same defect the CI grammar rounds closed.
+  // Block comments and whole-line `//` comments come out; a trailing comment on
+  // a line of code stays, so the failure direction is a spurious catch, never a
+  // silent miss.
+  const source = readFileSync(join(repoRoot, BUILDER), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split('\n')
+    .filter((line) => !/^\s*\/\//.test(line))
+    .join('\n');
+
+  for (const [pattern, name] of AMBIENT) {
+    it(`does not read ${name}`, () => {
+      expect(source).not.toMatch(pattern);
+    });
+  }
+
+  it('rebuilds byte-identically in place', () => {
+    const before = readFileSync(join(repoRoot, EXPORT));
+    const r = spawnSync(process.execPath, [BUILDER], { cwd: repoRoot, encoding: 'utf8' });
+    expect(r.status).toBe(0);
+    expect(readFileSync(join(repoRoot, EXPORT)).equals(before)).toBe(true);
+  }, 30_000);
+});

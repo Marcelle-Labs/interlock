@@ -146,7 +146,7 @@ verify('no record is missing', missing.length === 0, missing.slice(0, 3).join(',
 
 verify(
   'every record carries its oracle evidence or an explicit error',
-  raw.records.every((r) => r.error != null || (r.oracle && typeof r.oracle.exitCode !== 'undefined' && /^[0-9a-f]{64}$/.test(r.oracle.verifierSha256))),
+  raw.records.every((r) => r.error != null || (r.oracle?.exitCode !== undefined && /^[0-9a-f]{64}$/.test(r.oracle.verifierSha256))),
 );
 
 // ---------------------------------------------------------------------------
@@ -174,7 +174,7 @@ if (recomputed) {
     'no SPR figure is present without its unsafe-joint-state rate',
     ARMS.every((arm) => {
       const spr = recomputed.aggregate[arm]?.spr;
-      return spr && spr.safeParallelismRetained && spr.unsafeJointState && typeof spr.rendering === 'string';
+      return spr?.safeParallelismRetained && spr.unsafeJointState && typeof spr.rendering === 'string';
     }),
   );
 

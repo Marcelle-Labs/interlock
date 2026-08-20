@@ -15,7 +15,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
-import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE } from '../lib/guide.mjs';
+import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS } from '../lib/guide.mjs';
 import { jobSteps, jobControls, jobEnforcementDefect, jobKeyDefect, workflowEnvDefect,
   runDefaultsDefect, checkoutDefect, shapeDefects, workflowShapeDefects } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
@@ -387,7 +387,7 @@ else {
   }
 }
 for (const id of GUIDE_STATES) {
-  if (!/^guide\.local\./.test(id)) fail(`guided state ${id} is not namespaced to the local proof class`);
+  if (!id.startsWith('guide.local.')) fail(`guided state ${id} is not namespaced to the local proof class`);
 }
 if (GUIDE_STEPS.length !== 6) fail(`the walk has ${GUIDE_STEPS.length} steps; the approved sequence has six`);
 if (model.deepLink.unknownGuideState !== 'run.missing') fail('an unknown guided state is not refused');
@@ -531,10 +531,32 @@ const INACTIVE_CONTROL_OPACITY = new Set(['.guide-bar__controls button[disabled]
 // be read as part of its selector.
 const styleBlock = (/<style>([\s\S]*?)<\/style>/.exec(cockpit)?.[1] ?? '')
   .replace(/\/\*[\s\S]*?\*\//g, '');
-for (const rule of styleBlock.match(/[^{}]+\{[^}]*\}/g) ?? []) {
-  const [selector, body] = [rule.slice(0, rule.indexOf('{')).trim(), rule.slice(rule.indexOf('{'))];
+/**
+ * Every `selector { … }` rule, scanned once left to right.
+ *
+ * This replaces `[^{}]+\{[^}]*\}`, whose leading run rescans the remainder from
+ * every failed start position. The slices are the ones that pattern produced:
+ * the selector is the brace-free run before `{`, and the body runs from `{` to
+ * the first `}`, so a nested at-rule still yields its header.
+ */
+function* cssRules(css) {
+  let i = 0;
+  while (i < css.length) {
+    const open = css.indexOf('{', i);
+    if (open < 0) return;
+    const close = css.indexOf('}', open + 1);
+    if (close < 0) return;
+    let start = open;
+    while (start > i && css[start - 1] !== '{' && css[start - 1] !== '}') start -= 1;
+    const selector = css.slice(start, open).trim();
+    // The old pattern required at least one character before `{`.
+    if (selector) yield { selector, body: css.slice(open, close + 1) };
+    i = close + 1;
+  }
+}
+for (const { selector, body } of cssRules(styleBlock)) {
   if (!/(^|[^-\w])opacity\s*:/.test(body)) continue;
-  if (/^@/.test(selector) || /^:root/.test(selector)) continue;
+  if (selector.startsWith('@') || selector.startsWith(':root')) continue;
   const selectors = selector.split(',').map((x) => x.trim());
   if (selectors.every((x) => NON_TEXT_OPACITY.has(x))) continue;
   if (selectors.every((x) => INACTIVE_CONTROL_OPACITY.has(x))) {
@@ -546,15 +568,17 @@ for (const rule of styleBlock.match(/[^{}]+\{[^}]*\}/g) ?? []) {
 }
 // --n50 measured 4.07:1 on the sunken surface and 4.33:1 on card: it is under
 // the floor on both, so it may not colour text again.
-for (const rule of styleBlock.match(/[^{}]+\{[^}]*\}/g) ?? []) {
-  const body = rule.slice(rule.indexOf('{'));
+for (const { selector, body } of cssRules(styleBlock)) {
   if (/(^|[^-\w])color\s*:\s*var\(--n50\)/.test(body)) {
-    fail(`\`${rule.slice(0, rule.indexOf('{')).trim()}\` colours text with --n50, which is under the contrast floor`);
+    fail(`\`${selector}\` colours text with --n50, which is under the contrast floor`);
   }
 }
 // The raw-proof surface must follow its field. A light code surface under the
 // cloud class rendered paper text at 1.03:1 — present, and unreadable.
-if (!/body\[data-proof="cloud"\] pre\.shiki-proof\{background:var\(--n95\)\}/.test(cockpit)) {
+// Scoped to the declaration, not the whole rule text: what matters is that this
+// selector puts the dark-field background on the proof surface, not that the rule
+// happens to carry no other declaration beside it.
+if (!/body\[data-proof="cloud"\] pre\.shiki-proof\{[^}]*background:var\(--n95\)/.test(cockpit)) {
   fail('the cloud raw-proof surface does not follow the dark field; the packet renders unreadable');
 }
 // Inline styles are part of the same contract: the stylesheet sweep above
@@ -662,7 +686,7 @@ if (/localStorage|sessionStorage/.test(cockpit)) {
  * millisecond sequence as a three-hundred millisecond one.
  */
 const motionTokens = readFileSync(join(repoRoot, 'assets', 'tokens', 'motion.css'), 'utf8');
-const tokenMs = (name) => Number(new RegExp(String.raw`${name}:\s*(\d+)ms`).exec(motionTokens)?.[1] ?? NaN);
+const tokenMs = (name) => Number(new RegExp(String.raw`${name}:\s*(\d+)ms`).exec(motionTokens)?.[1] ?? Number.NaN);
 const [durBase, delayStep, durHold] = ['--dur-base', '--delay-step', '--dur-hold'].map(tokenMs);
 if ([durBase, delayStep, durHold].some(Number.isNaN)) fail('the frozen motion tokens could not be read');
 else {
@@ -827,7 +851,6 @@ else {
        * Changing the job legitimately means changing this list, on purpose.
        */
       const SETUP_PNPM = 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4';
-      const JUDGE_EXPORT = 'experiments/hac-343/evidence/judge-export.json';
       // `keys` is an allowlist: a step declares exactly these and nothing else.
       const ACTION = ['uses', 'with'];
       const RUN_STEP = ['name', 'run'];
@@ -973,12 +996,12 @@ else {
     fail('the comparison renders a value without the field it was read from');
   }
   // The panel identifies the experiment it shows, not the run it was opened from.
-  if (!/kind === 'compare'\s*\n?\s*\? `\$\{esc\(c\.sourceIssue\)\}/.test(cockpit)) {
+  if (!/kind === 'compare'\s*\? `\$\{esc\(c\.sourceIssue\)\}/.test(cockpit)) {
     fail('the comparison panel does not derive its own provenance from the comparison model');
   }
   // Only the `compare` branch of the ternary; the other branch names the run
   // it is explaining, which is correct for verification and raw proof.
-  const compareBranch = /kind === 'compare'\s*\n?\s*\?\s*`([^`]*)`/.exec(cockpit)?.[1] ?? '';
+  const compareBranch = /kind === 'compare'\s*\?\s*`([^`]*)`/.exec(cockpit)?.[1] ?? '';
   if (!compareBranch) fail('cannot locate the comparison panel subtitle');
   else if (/\brun\./.test(compareBranch)) {
     fail("the comparison panel labels itself with the HAC-330 run's identity");

@@ -460,7 +460,13 @@ const MEASURE = () => {
   const ratio = (a, b) => { const l1 = lum(a), l2 = lum(b); const [hi, lo] = l1 > l2 ? [l1, l2] : [l2, l1]; return (hi + 0.05) / (lo + 0.05); };
   const pageBg = parse(getComputedStyle(document.body).backgroundColor) || { r: 255, g: 255, b: 255, a: 1 };
   // Opacity composites the whole subtree, so it accumulates down the ancestry.
-  const chain = (el) => { let o = 1; for (let n = el; n && n !== document.documentElement; n = n.parentElement) o *= Number(getComputedStyle(n).opacity); return o; };
+  const chain = (el) => {
+    let o = 1;
+    for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+      o *= Number(getComputedStyle(n).opacity);
+    }
+    return o;
+  };
   const backdrop = (el) => {
     for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
       const c = parse(getComputedStyle(n).backgroundColor);
@@ -479,7 +485,7 @@ const MEASURE = () => {
     if (el.closest('[inert]') || el.matches(':disabled') || el.closest('button:disabled')) continue;
     const fg = parse(cs.color);
     if (!fg) continue;
-    const fs = parseFloat(cs.fontSize);
+    const fs = Number.parseFloat(cs.fontSize);
     const weight = Number(cs.fontWeight) || 400;
     const total = chain(el);
     const bd = backdrop(el);
