@@ -710,7 +710,8 @@ import { armView } from './lib/arm-view.mjs';
    and a claim like that has to be checked against the frozen arms rather than
    typed into markup. `ablationDelta` reads both arms and reports what actually
    moved, so a marker that has stopped being true fails the gate. */
-import { guideView, guideRoute, stateOfStep, stepOfState, GUIDE_STEPS } from './lib/guide.mjs';
+import { guideView, guideRoute, stateOfStep, stepOfState, GUIDE_STEPS,
+  GUIDE_FREE_STATE } from './lib/guide.mjs';
 
 const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');

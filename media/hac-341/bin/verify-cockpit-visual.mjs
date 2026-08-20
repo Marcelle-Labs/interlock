@@ -165,6 +165,36 @@ async function assertLongValues(page, name) {
  * the walk is still operable, and that a step change did not scroll the
  * evidence away.
  */
+/**
+ * Leaving the walk actually leaves it.
+ *
+ * Three controls share one branch: "Explore freely" on the entry choice, and
+ * "Exit to cockpit" / "Explore the complete cockpit" inside the walk. All three
+ * must land on the free state with the walk closed.
+ */
+async function assertGuidedExit(page, name) {
+  for (const [from, selector, label] of [
+    ['guide.local.choice', '[data-guide-free]', 'Explore freely'],
+    ['guide.local.validity', '[data-guide-exit]', 'Exit to cockpit'],
+  ]) {
+    await gotoGuided(page, from);
+    await page.locator(selector).first().click();
+    await page.waitForFunction(
+      () => document.documentElement.dataset.guideState === 'guide.local.free',
+      null,
+      { timeout: 5000 },
+    ).catch(() => {});
+    const state = await page.evaluate(() => document.documentElement.dataset.guideState);
+    assert(state === 'guide.local.free',
+      `${name}: "${label}" left the document on ${state}, not the free state`);
+    assert(await page.locator('.guide-bar').count() === 0,
+      `${name}: "${label}" left the guide bar on screen`);
+    // The cockpit that remains is the complete one.
+    assert(await page.locator('.arm-switcher').isVisible(),
+      `${name}: "${label}" did not leave the full cockpit behind`);
+  }
+}
+
 async function assertGuidedWalk(page, name) {
   // The entry offers a choice and preselects neither path.
   await goto(page);
@@ -556,6 +586,23 @@ async function assertContrastFloor(browser) {
 async function main() {
   const { chromium } = await loadPlaywright();
   const browser = await chromium.launch({ headless: true });
+  /**
+   * Uncaught exceptions, from every page this gate opens.
+   *
+   * A handler that throws leaves the DOM exactly as it was, so a gate that only
+   * reads the DOM sees a control that "did nothing" and cannot tell that apart
+   * from a control that is wired correctly. A dropped import made the three exit
+   * controls throw `GUIDE_FREE_STATE is not defined` on every click and the whole
+   * suite stayed green. Wrapping the factory catches the class, not just the
+   * controls someone remembered to click.
+   */
+  const pageErrors = [];
+  const openPage = browser.newPage.bind(browser);
+  browser.newPage = async (...args) => {
+    const opened = await openPage(...args);
+    opened.on('pageerror', (error) => pageErrors.push(`${opened.url()}: ${error.message}`));
+    return opened;
+  };
   const failures = [];
   try {
     for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 800 }]) {
@@ -576,6 +623,7 @@ async function main() {
         await goto(page);
         await assertRawProof(page, name);
         await assertGuidedWalk(page, `${name} walk`);
+        await assertGuidedExit(page, `${name} exit`);
         await assertAblation(page, `${name} ablation`);
         await assertPanels(page, `${name} panels`);
         assert(offOrigin.length === 0, `${name}: unexpected off-origin request(s): ${offOrigin.join(', ')}`);
@@ -609,6 +657,7 @@ async function main() {
   } finally {
     await browser.close();
   }
+  for (const error of pageErrors) failures.push(`uncaught page error — ${error}`);
   if (failures.length) throw new Error(`Cockpit visual contract failed:\n- ${failures.join('\n- ')}`);
   console.log('HAC-341 cockpit visual contract verified (1440x900, 1280x800, 390x844, 320x900),'
     + '\n  including the guided walk, the ablation, the side panels and both reduced-motion resolutions.');
