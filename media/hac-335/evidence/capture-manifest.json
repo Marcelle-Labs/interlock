@@ -2,11 +2,11 @@
   "manifestId": "HAC-335-capture-manifest",
   "issue": "HAC-335",
   "generator": "media/hac-335/bin/capture-cockpit.mjs",
-  "capturedFromSha": "f907fc7be05d88827189dba3fd9712dd2304149d",
+  "capturedFromSha": "c4654821b6e1a443ab4ef6218ddde4daaf1ee20c",
   "capturedSurface": "media/hac-341/cockpit.html (merged executable surface)",
   "servedFrom": "repository root — the cockpit resolves shared identity from /assets",
   "viewport": "1440x900",
-  "captureSourceDigest": "aa8114986b45668eb9374ebde7ae25f09ee8fac52818465b012ea20cd05badfd",
+  "captureSourceDigest": "ee99ad43269d0b20b25ac9972a39d4e663e44d60f79bdda7031fc5acad6337b8",
   "captureSourceFiles": [
     "assets/fonts/geist-mono-variable.woff2",
     "assets/fonts/geist-variable.woff2",
@@ -22,8 +22,7 @@
     "media/hac-341/evidence/view-model.json",
     "media/hac-341/lib/arm-view.mjs",
     "media/hac-341/lib/comparison.mjs",
-    "media/hac-341/lib/guide.mjs",
-    "media/hac-341/lib/workflow.mjs"
+    "media/hac-341/lib/guide.mjs"
   ],
   "note": "Real captures of the merged cockpit. Pixels inside each frame are unmodified. Crops drop unused canvas only; the crop height is the measured bounding box of main#app, never a hand-typed number. captureSourceDigest binds these frames to the render sources they came from; verify-package.mjs fails if they drift apart.",
   "captures": [

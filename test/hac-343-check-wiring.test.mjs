@@ -32,7 +32,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { jobSteps, runCommands, checkoutDepth } from '../media/hac-341/lib/workflow.mjs';
+import { jobSteps, runCommands, checkoutDepth, enforcementStep, stepEnforcementDefect, executableLines } from '../media/hac-341/bin/lib/workflow.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const EVAL_GATE = 'experiments/hac-343/bin/verify-packet.mjs';
@@ -129,12 +129,81 @@ describe('the check path now covers the packet the cockpit reads', () => {
     expect(cmds.some((c) => /(^|\n)\s*node experiments\/hac-343\/bin\/build-judge-export\.mjs/.test(c))).toBe(false);
   });
 
+  /**
+   * A required command must *begin an executable line*, not merely appear.
+   *
+   * The failure-summary step documents every command this gate requires, so an
+   * unanchored substring test was satisfied by that documentation while the
+   * real invocation had been replaced by `echo skipped`. These five are the
+   * ways a step can be present and enforce nothing.
+   */
+  const CI = '.github/workflows/ci.yml';
+  const CI_BYPASSES = [
+    ['check:packet:eval replaced by an echo, name kept in failure prose',
+      (a) => a.edit(CI, '        run: pnpm run check:packet:eval', '        run: echo skipped'),
+      /no enforcing step verifying the HAC-343 packet/],
+    ['wiring-test execution removed, filename kept in failure prose',
+      (a) => a.edit(CI, '        run: pnpm vitest run test/hac-343-check-wiring.test.mjs', '        run: echo skipped'),
+      /no enforcing step running the HAC-343 wiring test/],
+    ['enforcement step gains `if: false`',
+      (a) => a.edit(CI, '      - name: The judge export is derived, not hand-edited',
+        '      - name: The judge export is derived, not hand-edited\n        if: false'),
+      /an evidence gate must be unconditional/],
+    ['enforcement step gains `continue-on-error: true`',
+      (a) => a.edit(CI, '      - name: The judge export is derived, not hand-edited',
+        '      - name: The judge export is derived, not hand-edited\n        continue-on-error: true'),
+      /its failure would not reach the job/],
+    ['required command exists only as quoted text inside another command',
+      (a) => a.edit(CI, '        run: pnpm run check:packet:eval',
+        '        run: echo "pnpm run check:packet:eval"'),
+      /no enforcing step verifying the HAC-343 packet/],
+  ];
+  for (const [label, mutate, expected] of CI_BYPASSES) {
+    it(`fails when ${label}`, () => {
+      const r = broken(mutate, COCKPIT_GATE);
+      expect(r.code).not.toBe(0);
+      expect(r.out).toMatch(expected);
+    }, 30_000);
+  }
+
+  it('anchors required commands to the start of an executable line', () => {
+    // Unit-level, so the distinction is stated where it is implemented.
+    expect(executableLines('echo "pnpm run check:packet:eval"')).toEqual(['echo "pnpm run check:packet:eval"']);
+    expect(executableLines('# pnpm run check:packet:eval')).toEqual([]);
+    expect(executableLines('set -euo pipefail\n\npnpm run check:packet:eval\n'))
+      .toEqual(['set -euo pipefail', 'pnpm run check:packet:eval']);
+  });
+
+  it('reads the two step controls that decide whether a step enforces anything', () => {
+    const ci = readFileSync(join(repoRoot, CI), 'utf8');
+    const step = enforcementStep(ci, 'evaluation-gate', 'pnpm run check:packet:eval');
+    expect(step).not.toBeNull();
+    expect(stepEnforcementDefect(step)).toBeNull();
+    expect(stepEnforcementDefect({ ...step, if: 'false' })).toMatch(/must be unconditional/);
+    expect(stepEnforcementDefect({ ...step, continueOnError: 'true' })).toMatch(/would not reach the job/);
+    // Absent or explicitly false is fine.
+    expect(stepEnforcementDefect({ ...step, continueOnError: 'false' })).toBeNull();
+    expect(stepEnforcementDefect(null)).toMatch(/does not exist/);
+  });
+
+  it('leaves the explanatory step free to run on failure', () => {
+    // `if: failure()` is correct there: it reports, it does not enforce.
+    const ci = readFileSync(join(repoRoot, CI), 'utf8');
+    const explain = (jobSteps(ci, 'evaluation-gate') ?? []).find((x) => x.name === 'Explain the failure');
+    expect(explain).toBeTruthy();
+    expect(explain.if).toBe('failure()');
+    // And it must not be mistaken for an enforcement step for any required command.
+    for (const cmd of ['pnpm run check:packet:eval', 'node experiments/hac-343/bin/build-judge-export\\.mjs']) {
+      expect(enforcementStep(ci, 'evaluation-gate', cmd)).not.toBe(explain);
+    }
+  });
+
   it('fails the cockpit gate when the CI run step is replaced by a comment', () => {
     const r = broken((a) => a.edit('.github/workflows/ci.yml',
       '          node experiments/hac-343/bin/build-judge-export.mjs',
       '          # node experiments/hac-343/bin/build-judge-export.mjs'), COCKPIT_GATE);
     expect(r.code).not.toBe(0);
-    expect(r.out).toMatch(/no run step reproducing/);
+    expect(r.out).toMatch(/no enforcing step reproducing/);
   }, 30_000);
 
   it('fails the cockpit gate when the evaluation gate loses full-depth checkout', () => {

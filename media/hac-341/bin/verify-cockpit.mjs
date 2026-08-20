@@ -16,7 +16,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE } from '../lib/guide.mjs';
-import { runCommands, checkoutDepth, jobSteps } from '../lib/workflow.mjs';
+import { checkoutDepth, jobSteps, enforcementStep, stepEnforcementDefect } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -800,23 +800,33 @@ else {
        * by a comment: commenting out one line disabled the only enforcement of
        * this artifact while every gate stayed green.
        */
-      const gateCommands = runCommands(ci, 'evaluation-gate');
-      const invoked = (re) => gateCommands.some((c) => re.test(c));
       if (jobSteps(ci, 'evaluation-gate') === null) {
         fail('the evaluation-gate job does not exist; the HAC-343 packet runs in no CI job of its own');
-      } else {
-        if (String(checkoutDepth(ci, 'evaluation-gate')) !== '0') {
-          fail('evaluation-gate does not check out at fetch-depth: 0; the freeze-commit checks cannot resolve');
-        }
-        if (!invoked(/pnpm run check:packet:eval\b/)) {
-          fail('evaluation-gate has no run step invoking `pnpm run check:packet:eval`');
-        }
-        if (!invoked(/hac-343-check-wiring\.test\.mjs/)) {
-          fail('evaluation-gate has no run step invoking the HAC-343 wiring test');
-        }
-        if (!invoked(new RegExp(String.raw`(^|\n)\s*node ${DERIVED_ARTIFACTS[rel].replace(/[/.]/g, '\\$&')}`))) {
-          fail(`evaluation-gate has no run step reproducing ${rel} from ${DERIVED_ARTIFACTS[rel]}`);
-        }
+        continue;
+      }
+      if (String(checkoutDepth(ci, 'evaluation-gate')) !== '0') {
+        fail('evaluation-gate does not check out at fetch-depth: 0; the freeze-commit checks cannot resolve');
+      }
+      /**
+       * Each required command must begin an executable line of some step, and
+       * that step must be able to fail the job.
+       *
+       * Anchoring is what separates running a command from naming one: the
+       * failure-summary step documents every command required here, and an
+       * unanchored substring test was satisfied by that documentation while the
+       * real invocation had been replaced by `echo skipped`. `if:` and
+       * `continue-on-error:` are the other two ways a step can be present and
+       * inert.
+       */
+      const REQUIRED = [
+        ['pnpm run check:packet:eval', 'verifying the HAC-343 packet'],
+        [String.raw`pnpm vitest run [^\n]*hac-343-check-wiring\.test\.mjs`, 'running the HAC-343 wiring test'],
+        [`node ${DERIVED_ARTIFACTS[rel].replace(/[/.]/g, '\\$&')}`, `reproducing ${rel}`],
+      ];
+      for (const [command, purpose] of REQUIRED) {
+        const step = enforcementStep(ci, 'evaluation-gate', command);
+        const defect = stepEnforcementDefect(step);
+        if (defect) fail(`evaluation-gate has no enforcing step ${purpose}: ${defect}`);
       }
       continue;
     }
@@ -841,10 +851,25 @@ else {
       fail(`comparison.${field} is not what its cited HAC-343 artifacts produce`);
     }
   }
-  // A field the panel renders may not sit outside the projection.
-  for (const key of ['perTargetLockCredibility', 'scopeNote', 'canonicalResultCommit', 'captions', 'strategies', 'resolved', 'sourceIssue']) {
-    if (!JUDGE_FACING_FIELDS.includes(key)) fail(`${key} is rendered but absent from the judge-facing projection`);
+  /**
+   * Coverage derived from the renderer, not from a second hand-written list.
+   *
+   * The previous version compared one literal array against another literal
+   * array in this same file, which cannot falsify anything. This reads the
+   * comparison markup and asks which fields it actually touches, so rendering a
+   * new field without adding it to the projection — the exact way the A3
+   * credibility figure went unguarded — fails here.
+   */
+  const comparisonMarkup = (/function comparisonHtml\(\)[\s\S]*?\n}/.exec(cockpit)?.[0] ?? '')
+    + (/const sub = kind === 'compare'[\s\S]*?;\n/.exec(cockpit)?.[0] ?? '');
+  if (!comparisonMarkup) fail('cannot locate the comparison renderer; its field coverage cannot be checked');
+  const rendered = new Set([...comparisonMarkup.matchAll(/\bc\.([a-zA-Z][a-zA-Z0-9]*)/g)].map((m) => m[1]));
+  for (const field of rendered) {
+    if (!JUDGE_FACING_FIELDS.includes(field)) {
+      fail(`the comparison renders c.${field}, which the judge-facing projection does not carry`);
+    }
   }
+  if (rendered.size < 8) fail(`only ${rendered.size} comparison fields were detected; the coverage scan is not reading the renderer`);
   // The scaffold banner is a claim too: it may not appear over bound evidence,
   // and it may not be missing when something is genuinely unbound.
   const banner = /\$\{c\.resolved \? '' : `<p class="cmp-head"><span class="cmp-scaffold">/.test(cockpit);
