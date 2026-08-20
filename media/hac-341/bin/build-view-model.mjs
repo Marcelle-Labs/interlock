@@ -19,9 +19,34 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeToHtml } from 'shiki';
+import { buildComparison } from '../lib/comparison.mjs';
+import { GUIDE_STATES, GUIDE_CHOICE_STATE, GUIDE_FREE_STATE, GUIDE_STEPS } from '../lib/guide.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = (...p) => JSON.parse(readFileSync(join(repoRoot, ...p), 'utf8'));
+/**
+ * A sibling experiment's artifact, or `undefined` when it is not in the tree.
+ *
+ * HAC-343 is a separate experiment on a separate branch cadence, so this
+ * surface has to build with or without it. Absent, every cell it would have
+ * bound renders as a visible `[BIND: ...]` rather than as a plausible value —
+ * which is the same refusal the degraded states make everywhere else.
+ */
+const readOptional = (...p) => {
+  try {
+    return read(...p);
+  } catch (error) {
+    // Absent is a legitimate state: HAC-343 is a separate experiment and this
+    // surface has to build without it. Corrupt is not. A truncated or malformed
+    // artifact took the same branch and silently unbound ten judge-facing
+    // values — four of them the strategy labels — while every gate stayed
+    // green. Only ENOENT may pass; anything else is a build defect and says so.
+    if (error?.code !== 'ENOENT') {
+      throw new Error(`${p.join('/')} exists but could not be read as JSON: ${error.message}`, { cause: error });
+    }
+    return undefined;
+  }
+};
 
 const arms = read('experiments', 'hac-330', 'evidence', 'arms.json');
 const results = read('experiments', 'hac-330', 'evidence', 'results.json');
@@ -259,9 +284,44 @@ const reserved = {
   rule: 'Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen evaluation packet.',
 };
 
+/* --- coordination-strategy comparison: bound to HAC-343 ---------------- */
+
+/**
+ * A different experiment from the run this cockpit shows. Bound here rather
+ * than transcribed, and left visibly unbound when the packet is absent.
+ */
+const hac343 = Object.fromEntries(
+  [
+    'experiments/hac-343/evidence/results.json',
+    'experiments/hac-343/evidence/execution-semantics.json',
+    'experiments/hac-343/evidence/metric-definitions.json',
+    'experiments/hac-343/evidence/judge-export.json',
+  ]
+    .map((rel) => [rel, readOptional(...rel.split('/'))])
+    .filter(([, value]) => value !== undefined),
+);
+const comparison = buildComparison(hac343);
+
+/* --- the guided inspection layer -------------------------------------- */
+
+/**
+ * Declared here so the routing contract has one home. The copy lives with the
+ * derivation in `lib/guide.mjs`; what the view model owns is the *vocabulary* —
+ * which addresses exist, so an address that is not one of them can be refused.
+ */
+const guide = {
+  proofClass: 'A',
+  states: GUIDE_STATES,
+  choiceState: GUIDE_CHOICE_STATE,
+  freeState: GUIDE_FREE_STATE,
+  steps: GUIDE_STEPS.map((s) => ({ no: s.no, stateId: s.stateId, name: s.name })),
+  classification: 'EDITORIAL — an attention layer over the recorded run; it adds no arm, value or claim',
+  rule: 'Guided steps change emphasis only. Every control the free cockpit offers stays reachable at every step, and no step recomputes anything.',
+};
+
 const model = {
   contract: 'HAC-341 normalized cockpit view model',
-  revision: 'r01',
+  revision: 'r02',
   generatedFrom: [
     'experiments/hac-330/evidence/arms.json',
     'experiments/hac-330/evidence/results.json',
@@ -269,6 +329,7 @@ const model = {
     'experiments/hac-342/evidence/publication-bindings.json',
     'experiments/hac-342/evidence/redaction-manifest.json',
     'experiments/hac-342/evidence/runtime-source-snapshot.json',
+    ...comparison.artifacts.filter((a) => a in hac343),
   ],
   fieldClassification: {
     universalRequired: ['runIdentity', 'proofClass', 'proofLabel', 'frozen', 'editorial', 'claimBoundary'],
@@ -283,12 +344,23 @@ const model = {
     runIds: ['hac330-local', 'hac340-cloud'],
     proofClasses: ['local', 'cloud'],
     aliases: { 'run.local.overview': 'run.local.treatment' },
+    // The guided layer is addressable on its own axis: `state` still names the
+    // recorded arm, and `guide` names which beat of the walk is emphasised. An
+    // unknown value on either axis is refused rather than corrected.
+    guideParam: 'guide',
+    guideStates: GUIDE_STATES,
+    guideDefault: GUIDE_CHOICE_STATE,
+    guideProofClass: 'local',
+    unknownGuideState: 'run.missing',
+    guideUnderWrongProofClass: 'run.missing',
     invalidRun: 'run.missing',
     unreadableEvidence: 'run.unavailable',
     mismatchedProofAndState: 'run.missing',
     silentSubstitution: 'forbidden',
   },
   runs: { local, cloud: cloudRun },
+  guide,
+  comparison,
   reserved,
   degradedStates: [
     { id: 'run.loading', message: 'Loading frozen evidence.', forbiddenInference: 'that a run exists or passed' },
@@ -307,5 +379,7 @@ mkdirSync(join(repoRoot, 'media', 'hac-341', 'evidence'), { recursive: true });
 writeFileSync(join(repoRoot, 'media', 'hac-341', 'evidence', 'view-model.json'), JSON.stringify(model, null, 2) + '\n');
 process.stdout.write(
   `cockpit view model built\n  local  arms ${local.arms.length}, checks ${local.checks.label}, receipt ${local.receipt ? 'PRESENT' : 'absent'}\n`
-  + `  cloud  hops ${cloudRun.events.length}, controls ${cloudRun.negativeControls.map((c) => c.status).join('/')}, arms ${cloudRun.arms ? 'PRESENT' : 'absent'}\n`,
+  + `  cloud  hops ${cloudRun.events.length}, controls ${cloudRun.negativeControls.map((c) => c.status).join('/')}, arms ${cloudRun.arms ? 'PRESENT' : 'absent'}\n`
+  + `  guide  ${guide.steps.length} steps, ${guide.states.length} addressable states\n`
+  + `  compare HAC-343 ${comparison.resolved ? 'bound' : `UNBOUND (${comparison.unresolved.length} bindings)`}, ${comparison.strategies.length} strategies x ${comparison.dimensions.length} dimensions\n`,
 );
