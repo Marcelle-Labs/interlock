@@ -13,10 +13,12 @@
  * summary to itself would pass on any summary. `aggregate()` is a pure function,
  * so the same raw records must reproduce the committed report byte for byte.
  *
- * It also pins the three freeze commits. Each frozen contract must still be the
- * file its freeze commit introduced: if `metric-definitions.json` is edited
- * later, its last-touching commit stops being 0a6babb and this fails. That is
- * what makes "frozen before results" checkable by someone who was not there.
+ * It also proves the three freeze commits, through tags rather than through the
+ * history of whatever branch is checked out. Each contract must still carry the
+ * bytes its freeze commit introduced, and that commit must be an ancestor of the
+ * canonical result — frozen before the result existed, not merely different from
+ * it. That is what makes "frozen before results" checkable by someone who was
+ * not there, on a trunk whose merges are squashes.
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -26,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 
 import { SCENARIOS, FAMILIES } from '../lib/corpus.mjs';
 import { ARMS } from '../lib/arms.mjs';
-import { aggregate, FROZEN_COMMITS, ORDERS } from '../lib/aggregate.mjs';
+import { aggregate, FROZEN_COMMITS, FREEZE_TAGS, CANONICAL_RESULT_COMMIT, CANONICAL_RESULT_TAG, ORDERS } from '../lib/aggregate.mjs';
 import { GIT } from '../../hac-330/lib/exec.mjs';
 
 const EXPERIMENT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -48,33 +50,58 @@ const section = (title) => console.log(`\n── ${title} ${'─'.repeat(Math.ma
 
 // ---------------------------------------------------------------------------
 
-section('Freeze commits');
+section('Freeze anchors');
+
+/** `git` output, or null when the object is not present in this checkout. */
+const gitText = (args) => {
+  try {
+    return execFileSync(GIT, ['-C', REPO_ROOT, ...args], { encoding: 'utf8' }).trim();
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * The freeze commits are proved through tags rather than through history.
+ *
+ * The old check asked `git log -1 -- <contract>` whether the freeze commit was
+ * still the last to touch the file. That answers about the branch that happens
+ * to be checked out, and this repository squash-merges: on `main` every contract
+ * appears to have been introduced by the squash commit, so all three checks
+ * failed there while nothing was actually wrong with the evidence.
+ *
+ * A tag is a ref, so it survives any merge style and keeps its commit reachable
+ * even after the branch is deleted. Three things are asserted per contract, and
+ * together they carry the original claim:
+ *
+ *   1. the tag resolves to the pinned freeze commit — the anchor is the right one;
+ *   2. the bytes at that commit are the bytes on disk — nothing was edited after;
+ *   3. the freeze commit is an ancestor of the canonical result — it was frozen
+ *      *before* the result existed, which is the part a judge cannot take on trust.
+ */
+const resultCommit = gitText(['rev-list', '-n', '1', CANONICAL_RESULT_TAG]);
+verify(
+  `${CANONICAL_RESULT_TAG} anchors the canonical result commit`,
+  resultCommit === CANONICAL_RESULT_COMMIT,
+  resultCommit ? `resolves to ${resultCommit.slice(0, 12)}, expected ${CANONICAL_RESULT_COMMIT.slice(0, 12)}` : 'tag not present in this checkout',
+);
 
 for (const [file, expectedSha] of Object.entries(FROZEN_COMMITS)) {
-  let lastTouching = null;
-  try {
-    lastTouching = execFileSync(GIT, ['-C', REPO_ROOT, 'log', '-1', '--format=%H', '--', file], {
-      encoding: 'utf8',
-    }).trim();
-  } catch (error) {
-    lastTouching = `<git failed: ${error.message}>`;
-  }
+  const tag = FREEZE_TAGS[file];
+  const anchored = gitText(['rev-list', '-n', '1', tag]);
   verify(
-    `${file} is still the file its freeze commit introduced`,
-    lastTouching === expectedSha,
-    `last touched by ${lastTouching.slice(0, 12)}, expected ${expectedSha.slice(0, 12)}`,
+    `${tag} anchors the commit that froze ${file.split('/').pop()}`,
+    anchored === expectedSha,
+    anchored ? `resolves to ${anchored.slice(0, 12)}, expected ${expectedSha.slice(0, 12)}` : 'tag not present in this checkout',
   );
 
-  // `git log` answers about committed history only, so an uncommitted edit to a
-  // frozen contract would pass the check above. Compare the bytes on disk to the
-  // blob the freeze commit recorded, which closes that door.
   let frozenBytes = null;
   try {
     frozenBytes = execFileSync(GIT, ['-C', REPO_ROOT, 'show', `${expectedSha}:${file}`], {
       encoding: 'buffer',
       maxBuffer: 32 * 1024 * 1024,
     });
-  } catch (error) {
+  } catch {
     frozenBytes = null;
   }
   const onDisk = existsSync(join(REPO_ROOT, file)) ? readFileSync(join(REPO_ROOT, file)) : null;
@@ -82,6 +109,22 @@ for (const [file, expectedSha] of Object.entries(FROZEN_COMMITS)) {
     `${file} on disk is byte-identical to its frozen blob`,
     frozenBytes !== null && onDisk !== null && sha256(frozenBytes) === sha256(onDisk),
     frozenBytes && onDisk ? `sha256 ${sha256(onDisk).slice(0, 12)}` : 'could not read one side',
+  );
+
+  // `--is-ancestor` exits 0 only when the first commit really precedes the
+  // second in the graph. It is topological, so it cannot be fooled by a rewritten
+  // author date the way a timestamp comparison could.
+  let frozenFirst = false;
+  try {
+    execFileSync(GIT, ['-C', REPO_ROOT, 'merge-base', '--is-ancestor', expectedSha, CANONICAL_RESULT_COMMIT], { stdio: 'ignore' });
+    frozenFirst = true;
+  } catch {
+    frozenFirst = false;
+  }
+  verify(
+    `${file.split('/').pop()} was frozen before the canonical result existed`,
+    frozenFirst,
+    `${expectedSha.slice(0, 12)} precedes ${CANONICAL_RESULT_COMMIT.slice(0, 12)}`,
   );
 }
 
