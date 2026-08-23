@@ -435,9 +435,11 @@ const registry = {
     {
       assetId: 'IL-DIAG-013',
       reason:
-        'HAC-319 evaluation is not bound. The asset stays in the HAC-334 registry as the reserved '
-        + 'evaluation shell and is deliberately absent from every judge-facing surface here, so an '
-        + 'unavailable evaluation cannot be read as a pending result. The integration seam is preserved.',
+        'HAC-319 proper — precision, recall, fleet-scale behaviour — is not bound. The asset stays in '
+        + 'the HAC-334 registry as the reserved shell for that evaluation and is deliberately absent '
+        + 'from every judge-facing surface here, so an unavailable evaluation cannot be read as a '
+        + 'pending result. The bounded HAC-343 four-arm evaluation IS bound and is rendered from its '
+        + 'frozen judge export; it is a child of HAC-319, not a substitute. The seam is preserved.',
       seamPreserved: true,
     },
     {

@@ -133,8 +133,11 @@ fails.
   into `evidencePublicationSha`;
 - `sourcePacketSha256` is never described as reader-recomputable;
 - no unevidenced deployment revision is named;
-- HAC-319 is unbound: no metric, no value, and `IL-DIAG-013` is out of the
-  judge-facing registry and sequence with its seam recorded;
+- every HAC-343 figure matches a frozen `display` value in the judge export,
+  Panel 1 never travels without Panel 2, the A3 credibility strip is present,
+  and every `mustNotClaim` reading is refused;
+- HAC-319 proper stays unbound: no precision, recall or fleet-scale value, and
+  `IL-DIAG-013` stays out of the judge-facing registry with its seam recorded;
 - every capture's proof class agrees with its URL and its semantic state;
 - every filename passes the frozen HAC-332 naming grammar;
 - no derivative is stale relative to its source, checked by digest and PNG
@@ -147,13 +150,31 @@ fails.
 **33 negative cases** in `test/hac-335-package-gates.test.mjs` prove each of
 these still fails when violated.
 
-## HAC-319
+## The evaluation: HAC-343 bound, HAC-319 still not
 
-Not bound. No SPR, precision, recall, false-block or useful-concurrency value
-appears anywhere in this package. `IL-DIAG-013` stays in the HAC-334 registry as
-the reserved evaluation shell and is deliberately excluded here, recorded in
-both the sequence and the registry with `seamPreserved: true`, so binding it
-later is an addition rather than an excavation.
+These are two different things and the package keeps them apart.
+
+**HAC-343 is bound.** The bounded four-arm evaluation has a frozen canonical
+result at `7ede0f9`, and every judge-facing figure in this package is read from
+`experiments/hac-343/evidence/judge-export.json` — never recalculated here.
+HAC-335 authors no evaluation facts; it decides where the comparison sits in the
+judge path and what it is allowed to claim.
+
+The gate enforces four properties that prose alone cannot hold:
+
+- every HAC-343 figure in judge-facing copy matches a frozen `display` value in
+  the export, so a number cannot drift or be invented;
+- Panel 1 never appears without Panel 2 in the same file — the four-strategy
+  comparison and the evidence ablation travel together, because Panel 1 alone
+  reads as "Interlock is the safe one" and the export forbids that reading;
+- the A3 credibility strip (`2/2`, `4/4`, `2/2`) is present wherever the
+  comparison is, so the per-target lock cannot be quietly reduced to a straw man;
+- every entry in the export's own `mustNotClaim` list is checked against the
+  prose, so the forbidden readings fail the build rather than a review.
+
+**HAC-319 is still not bound.** Precision, recall and fleet-scale behaviour have
+no frozen packet. HAC-343 is a bounded child of HAC-319, not a substitute, and
+the package says so rather than letting the bound child imply the unbound parent.
 
 ## Still open
 

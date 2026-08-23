@@ -164,6 +164,36 @@ joint outcome.
 Cloud Run traversal through Interlock, a receipt-bound protected mutation,
 independently read back and correlated in Cloud Logging.
 
+**Bounded operational utility (HAC-343)** — one frozen sixteen-scenario corpus
+run through four coordination strategies. Exact counts, because the corpus is an
+exhaustive enumeration rather than a sample:
+
+| Strategy | Hazards unsafe | Independent opportunities parallel |
+| --- | --- | --- |
+| Uncoordinated | 2/2 | 2/2 |
+| Global lock | 0/2 | 0/2 |
+| Per-target lock | 2/2 | 2/2 |
+| Interlock | 0/2 | 2/2 |
+
+The per-target lock is a real lock, not a straw man: it serialized same-target
+contention 2/2 and parallelised cross-target pairs 4/4, and still missed
+cross-target hazards 2/2 — a composition hazard spanning two lock keys is
+invisible to any per-key discipline.
+
+The safety is the evidence's, not the engine's. Removing the coupling evidence
+reverses the decision:
+
+| Condition | Invalid outcomes |
+| --- | --- |
+| Interlock + coupling evidence present | 0/2 |
+| Interlock + coupling evidence removed | 2/2 |
+
+Interlock is **not** 0% unsafe — it produced invalid joint states in both
+ablation scenarios by design — and it is **not** "safer than locking": per-target
+locking is correct for the hazard it addresses. Every figure is read from
+[`experiments/hac-343/evidence/judge-export.json`](./experiments/hac-343/evidence/judge-export.json),
+anchored at canonical result `7ede0f9`.
+
 **Not claimed.** HAC-330 did not run on Google Cloud, and HAC-340 does not
 reproduce the 140/120 counterfactual there. Agent Runtime and Agent Gateway did
 not participate. Wrong-audience token rejection is controlled local parity
@@ -173,9 +203,8 @@ evidence, not a cloud result. `ALLOW` is not `VERIFIED`; `OBSERVED` is not
 guarantee. No safety, security, verification or production-readiness guarantee.
 No fleet-scale readiness and no universal collision prevention.
 
-Evaluation (HAC-319) is **not yet bound**: no SPR, precision, recall,
-false-block or useful-concurrency number exists in this package, and none is
-shown.
+The broader evaluation (HAC-319) — precision, recall, fleet-scale behaviour — is
+**not bound**. HAC-343 below is a bounded child of it, not a substitute.
 
 [`DISCLOSURE.md`](./DISCLOSURE.md) is the full provenance statement.
 

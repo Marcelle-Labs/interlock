@@ -251,12 +251,48 @@
     },
     {
       "id": "CL-025",
-      "text": "HAC-319 evaluation is not bound. No SPR, precision, recall, false-block or useful-concurrency value exists in this package.",
+      "text": "HAC-319 proper — precision, recall and fleet-scale behaviour — is not bound. No such value exists in this package. HAC-343 is a bounded child of HAC-319, not a substitute for it.",
       "classification": "NOT YET BOUND",
       "proofClass": "none",
-      "proofSource": "media/hac-341/evidence/view-model.json (reserved); media/hac-334/masters/IL-DIAG-013-evaluation-shell.svg",
+      "proofSource": "media/hac-334/masters/IL-DIAG-013-evaluation-shell.svg (reserved shell, excluded from the judge path)",
       "surfaces": ["readme", "devpost-limitations"],
       "status": "OPEN — awaiting a frozen HAC-319 evaluation packet"
+    },
+    {
+      "id": "CL-028",
+      "text": "On a frozen sixteen-scenario corpus, four coordination strategies compare as: Uncoordinated 2/2 hazards unsafe and 2/2 independent opportunities parallel; Global lock 0/2 and 0/2; Per-target lock 2/2 and 2/2; Interlock 0/2 and 2/2.",
+      "classification": "EVIDENCED",
+      "proofClass": "controlled local evaluation (HAC-343)",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows",
+      "surfaces": ["readme", "devpost-narrative", "cockpit-compare-drawer"],
+      "status": "FROZEN — canonical result 7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0"
+    },
+    {
+      "id": "CL-029",
+      "text": "The per-target lock baseline is credible rather than a straw man: it serialized same-target contention 2/2, parallelised cross-target pairs 4/4, and missed cross-target hazards 2/2. A composition hazard spanning two lock keys is not visible to any per-key discipline.",
+      "classification": "EVIDENCED",
+      "proofClass": "controlled local evaluation (HAC-343)",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#panel1.perTargetLockCredibility",
+      "surfaces": ["readme", "devpost-narrative", "cockpit-compare-drawer"],
+      "status": "FROZEN — canonical result 7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0"
+    },
+    {
+      "id": "CL-030",
+      "text": "Interlock's safety in this corpus is evidence-derived: with coupling evidence present it produced 0/2 invalid outcomes, and with that evidence removed the same core produced 2/2 invalid outcomes.",
+      "classification": "EVIDENCED",
+      "proofClass": "controlled local evaluation (HAC-343)",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows",
+      "surfaces": ["readme", "devpost-narrative", "cockpit-compare-drawer"],
+      "status": "FROZEN — canonical result 7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0"
+    },
+    {
+      "id": "CL-031",
+      "text": "Interlock is not 0% unsafe, is not safer than locking, and the sixteen-scenario corpus is not collapsed into one denominator. No interval or statistical significance is claimed, and no exactly-once, restart-safety or production-readiness result was tested.",
+      "classification": "NOT CLAIMED",
+      "proofClass": "controlled local evaluation (HAC-343)",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#mustNotClaim",
+      "surfaces": ["readme", "devpost-narrative", "devpost-limitations"],
+      "status": "ENFORCED — media/hac-335/bin/verify-package.mjs checkEvaluationBound"
     },
     {
       "id": "CL-026",

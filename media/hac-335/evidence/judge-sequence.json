@@ -128,7 +128,7 @@
   "excludedFromJudgePath": [
     {
       "assetId": "IL-DIAG-013",
-      "reason": "HAC-319 evaluation is not bound. The shell stays in the internal registry as EVALUATION NOT YET BOUND and is deliberately kept out of README, Devpost and video assets so no judge reads an unavailable evaluation as a pending result.",
+      "reason": "HAC-319 proper — precision, recall, fleet-scale behaviour — is not bound. The shell stays in the internal registry as EVALUATION NOT YET BOUND and is deliberately kept out of README, Devpost and video assets so no judge reads an unavailable evaluation as a pending result. The bounded HAC-343 four-arm evaluation IS bound and appears in the judge path, rendered from its frozen judge export.",
       "seamPreserved": true
     },
     {

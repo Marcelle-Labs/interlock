@@ -42,14 +42,31 @@ timeline links their events.
 - No universal collision prevention.
 - No complete co-change coupling recall.
 
-## Not yet bound
+## What the evaluation does and does not establish
 
-**Evaluation (HAC-319)** has no frozen packet. There is no SPR, precision,
-recall, false-block rate or useful-concurrency number in this submission, and
-none is shown — not as a value, not as a bar, not as proportional geometry. The
-surface is reserved and labelled `EVALUATION NOT YET BOUND`; it is deliberately
-kept out of the judge-facing sequence so that an unavailable evaluation cannot
-read as a pending result.
+**The bounded evaluation (HAC-343)** is frozen and rerunnable. Its metric
+definitions, corpus and execution semantics were each committed and tagged
+before any result existed, and the canonical result is anchored at
+`7ede0f9`. Every judge-facing figure is read from its deterministic judge
+export rather than restated.
+
+What it does not establish:
+
+- **It is not a general result.** Sixteen scenarios across two fixture
+  families. Every count is a property of that corpus and does not extrapolate.
+- **Interlock is not 0% unsafe.** It produced invalid joint states in both
+  evidence-ablation scenarios by design — that is the point of Panel 2.
+- **It is not "safer than locking".** Per-target locking is correct for the
+  same-target hazard it addresses. Interlock is safe against a hazard class
+  per-key locking cannot see. Those are different statements.
+- **No interval, no significance.** The corpus is an exhaustive deterministic
+  enumeration, not a sample, so no confidence interval is meaningful.
+- **No lifecycle claim.** Exactly-once, restart safety, target-side atomicity
+  and production readiness were not tested and are not claimed.
+
+**The broader evaluation (HAC-319)** — precision, recall and fleet-scale
+behaviour — remains unbound. HAC-343 is a bounded child of it, not a
+substitute for it.
 
 ## Scale of the evidence
 

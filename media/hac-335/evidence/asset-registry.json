@@ -42,7 +42,7 @@
   "excluded": [
     {
       "assetId": "IL-DIAG-013",
-      "reason": "HAC-319 evaluation is not bound. The asset stays in the HAC-334 registry as the reserved evaluation shell and is deliberately absent from every judge-facing surface here, so an unavailable evaluation cannot be read as a pending result. The integration seam is preserved.",
+      "reason": "HAC-319 proper — precision, recall, fleet-scale behaviour — is not bound. The asset stays in the HAC-334 registry as the reserved shell for that evaluation and is deliberately absent from every judge-facing surface here, so an unavailable evaluation cannot be read as a pending result. The bounded HAC-343 four-arm evaluation IS bound and is rendered from its frozen judge export; it is a child of HAC-319, not a substitute. The seam is preserved.",
       "seamPreserved": true
     },
     {
@@ -496,7 +496,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "c4654821b6e1a443ab4ef6218ddde4daaf1ee20c",
+      "capturedFromSha": "7d62f6fe169cf354a548447dae0ce1ea7e210a08",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -540,7 +540,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "c4654821b6e1a443ab4ef6218ddde4daaf1ee20c",
+      "capturedFromSha": "7d62f6fe169cf354a548447dae0ce1ea7e210a08",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -584,7 +584,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "c4654821b6e1a443ab4ef6218ddde4daaf1ee20c",
+      "capturedFromSha": "7d62f6fe169cf354a548447dae0ce1ea7e210a08",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -644,7 +644,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "c4654821b6e1a443ab4ef6218ddde4daaf1ee20c",
+      "capturedFromSha": "7d62f6fe169cf354a548447dae0ce1ea7e210a08",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
