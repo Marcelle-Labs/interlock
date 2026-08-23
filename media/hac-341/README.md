@@ -664,6 +664,11 @@ The issue's acceptance requires real human falsification. **No human cold-read
 has been performed and none is claimed.** The protocol below is prepared; the
 results are not.
 
+The runnable kit is [`cold-read/`](./cold-read/) — a moderator script to read
+verbatim and a per-reader response sheet. Use the **public custom domain**
+`https://interlock.marcellelabs.io`; every `*.vercel.app` URL is behind Vercel
+SSO and will send a cold reader to a login page.
+
 Deterministic URLs for testers:
 
 ```

@@ -329,10 +329,24 @@ describe('the selected arm drives its own evidence', () => {
 
   it('fails when the cockpit stops consuming the shared derivation', () => {
     const r = perturbed((a) => {
-      a.edit('media/hac-341/cockpit.html', "import { armView } from './lib/arm-view.mjs';", '');
+      a.edit('media/hac-341/cockpit.html', "import { armView } from '/media/hac-341/lib/arm-view.mjs';", '');
     }, gate);
     expect(r.code).not.toBe(0);
     expect(r.out).toMatch(/does not consume the shared arm-view derivation/);
+  });
+
+  it('fails when a reference goes document-relative and breaks the rewrite', () => {
+    // vercel.json rewrites `/` and `/cockpit` onto cockpit.html without
+    // changing the request URL, so a `./` specifier resolves against the
+    // request and 404s. The page still returns 200 and renders blank, and the
+    // visual gate cannot see it because it loads the file path directly.
+    const r = perturbed((a) => {
+      a.edit('media/hac-341/cockpit.html',
+        "await fetch('/media/hac-341/evidence/view-model.json'",
+        "await fetch('./evidence/view-model.json'");
+    }, gate);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/document-relative reference .* breaks under the vercel\.json rewrite/);
   });
 
   it('fails when the cockpit reads a basis off the environment again', () => {
