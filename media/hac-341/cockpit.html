@@ -1227,8 +1227,18 @@ function comparisonHtml() {
       <p class="cmp-src">${esc(cell.source)}</p>
     </div>`).join('')}</dl>
     ${s.armId === 'A3_per_target_lock' ? `<section><h3>Is this lock credible?</h3>
-      <p class="note">Same-target contention serialized ${esc(c.perTargetLockCredibility.display)}.
-        ${esc(c.perTargetLockCredibility.note)}</p></section>` : ''}
+      <dl class="kv">
+        <dt>same-target contention serialized</dt><dd>${esc(c.perTargetLockCredibility.serializedSameTargetContention)}</dd>
+        <dt>cross-target pairs parallelised</dt><dd>${esc(c.perTargetLockCredibility.parallelisedCrossTarget)}</dd>
+        <dt>cross-target hazards missed</dt><dd>${esc(c.perTargetLockCredibility.missedCrossTargetHazards)}</dd>
+      </dl>
+      <p class="note">${esc(c.perTargetLockCredibility.claim)} ${esc(c.perTargetLockCredibility.note)}</p></section>` : ''}
+    <section><h3>${esc(c.evidenceAblation.question)}</h3>
+      <dl class="kv">
+        ${c.evidenceAblation.rows.map((r) => `<dt>${esc(r.condition)}</dt><dd>${esc(r.invalidOutcomes)} invalid</dd>`).join('')}
+      </dl>
+      <p class="note">${esc(c.evidenceAblation.reading)}</p>
+      <p class="note">${esc(c.evidenceAblation.forbiddenRendering)}</p></section>
     <section><h3>Scope</h3><p class="note">${esc(c.scopeNote)}</p></section>
     <section><h3>Source</h3><dl class="kv">
       ${c.artifacts.map((a) => `<dt>artifact</dt><dd>${esc(a)}</dd>`).join('')}

@@ -79,6 +79,10 @@ function loadContext(root) {
     sequence: readJson('media/hac-335/evidence/judge-sequence.json'),
     captures: readJson('media/hac-335/evidence/capture-manifest.json'),
     cockpit: readJson('media/hac-341/evidence/view-model.json'),
+    /* The sole source of every HAC-343 figure this package renders. Read here
+       so the gate compares prose against the frozen export rather than against
+       a number somebody typed twice. */
+    judgeExport: readJson('experiments/hac-343/evidence/judge-export.json'),
     shots,
     prose,
     allProse: Object.values(prose).join('\n'),
@@ -265,27 +269,129 @@ function checkRevisions({ cloud, prose, registry }, fail) {
   }
 }
 
-/* -- 13/14. HAC-319 stays unbound and unrendered --------------------------- */
+/* -- 13/14. the HAC-343 evaluation is bound, and stays bounded ------------- */
 
-function checkEvaluationUnbound({ prose, registry, sequence }, fail) {
-  const metrics = /\bSPR\b|useful[- ]concurrency|false[- ]block/gi;
+/**
+ * HAC-343 went from "no packet exists" to a frozen canonical result, so the
+ * rule this gate enforces inverted. It used to prove the evaluation was absent.
+ * Absence is no longer the truth, and a gate that still enforced it would keep
+ * the package stating something false — which is exactly what it did until this
+ * check was rewritten.
+ *
+ * What replaces it is stricter, not looser. "No number" is trivially checkable;
+ * "every number is the frozen one, and none of them travels alone" is the
+ * property that actually protects a judge, and it needs the export in hand.
+ */
+function checkEvaluationBound({ prose, judgeExport, registry, sequence }, fail) {
+  const p1 = judgeExport.panel1.rows;
+  const cred = judgeExport.panel1.perTargetLockCredibility;
+  const p2 = judgeExport.panel2.rows;
+
+  /* Every count the export blesses. A count-shaped token inside a file that
+     renders the comparison must be one of these, so a figure cannot be
+     mistyped, rounded, or quietly recomputed from the raw records. */
+  const frozen = new Set([
+    ...p1.flatMap((r) => [r.coupledUnsafe.display, r.safeParallelism.display]),
+    cred.serializedSameTargetContention.display,
+    cred.parallelisedCrossTarget.display,
+    cred.missedCrossTargetHazards.display,
+    ...p2.map((r) => r.invalidOutcomes.display),
+    judgeExport.provenance.matrix.display,
+  ]);
+  /* Counts this package already renders for other, separately gated evidence.
+     Listed rather than pattern-matched so adding one is a deliberate edit. */
+  const OTHER_EVIDENCE = new Set([
+    '24/24', '9/9', '3/3', '2/3',
+    /* HAC-330's counterfactual is written "the 140/120 counterfactual". It is a
+       pair of bound values from a different experiment, not a count, and
+       checkNumerals already holds it against the frozen arms. */
+    '140/120',
+  ]);
+
+  /* A file "renders the comparison" when it names every strategy the export
+     names. Anything less is prose mentioning an arm, not a comparison table. */
+  const labels = p1.map((r) => r.label);
+  const rendersComparison = (text) => labels.every((l) => text.includes(l));
+
   for (const [file, text] of Object.entries(prose)) {
-    for (const m of text.matchAll(metrics)) {
-      if (!disclaimed(text, m.index, /not|no |none|unbound|not yet bound|withheld/i, 200)) {
-        fail(`${file}: mentions a HAC-319 metric without marking it unbound`);
+    if (!rendersComparison(text)) continue;
+
+    for (const m of text.matchAll(/\b\d+\/\d+\b/g)) {
+      if (!frozen.has(m[0]) && !OTHER_EVIDENCE.has(m[0])) {
+        fail(`${file}: renders ${m[0]}, which is not a frozen HAC-343 display value`);
       }
-      // A metric adjacent to a number is a rendered value, disclaimed or not.
-      if (new RegExp(String.raw`${m[0]}[^.\n]{0,24}\d`, 'i').test(text.slice(m.index))) {
-        fail(`${file}: a HAC-319 metric appears next to a numeric value`);
+    }
+
+    /* Panel 1 alone reads as "Interlock is the safe one". The export forbids
+       that reading, and the only thing that refutes it is Panel 2 in the same
+       place a judge is already looking. */
+    for (const row of p2) {
+      if (!text.includes(row.condition)) {
+        fail(`${file}: shows the four-strategy comparison without the evidence-ablation condition "${row.condition}"`);
+      }
+    }
+
+    /* Without the strip, A3 is a straw man: a lock that missed the hazards and
+       is never shown to have locked anything. */
+    for (const [name, fig] of [
+      ['same-target contention serialized', cred.serializedSameTargetContention.display],
+      ['cross-target pairs parallelised', cred.parallelisedCrossTarget.display],
+      ['cross-target hazards missed', cred.missedCrossTargetHazards.display],
+    ]) {
+      if (!text.includes(fig)) {
+        fail(`${file}: shows the comparison without the A3 credibility figure for ${name} (${fig})`);
+      }
+    }
+
+    if (!/sixteen|16[- ]scenario/i.test(text)) {
+      fail(`${file}: renders the comparison without stating the corpus it is bounded to`);
+    }
+  }
+
+  /* The export names the readings it must never produce. Each one is checked
+     against the assembled judge-facing copy, so a forbidden claim fails the
+     build rather than a reviewer's attention. */
+  /* Every occurrence, not the first. These phrases legitimately appear in this
+     package as the negations the export requires ("Interlock is **not** 0%
+     unsafe"), so a check that stopped at the first match would find the
+     disclaimed one, pass, and never look at the undisclaimed claim below it. */
+  const FORBIDDEN = [
+    [/\b(0|zero)\s*%?\s*unsafe\b/gi, 'describes Interlock as 0% unsafe'],
+    [/safer than (locking|locks|a lock)/gi, 'claims Interlock is safer than locking'],
+    [/prevents (all )?(composition|collision)/gi, 'claims Interlock prevents composition hazards'],
+    [/statistical(ly)? significan|confidence interval|\bp\s*<\s*0\./gi, 'claims statistical significance'],
+  ];
+  for (const [file, text] of Object.entries(prose)) {
+    for (const [re, why] of FORBIDDEN) {
+      for (const m of text.matchAll(re)) {
+        if (!disclaimed(text, m.index, /\*\*not\*\*|is not|are not|never|must not|cannot|no confidence interval|no interval|not a sample|exhaustive/i, 90)) {
+          fail(`${file}: ${why} — forbidden by judge-export mustNotClaim`);
+        }
       }
     }
   }
+
+  /* The statements this package used to make. They are false now, and a revert
+     that reintroduced one would otherwise pass every other check here. */
+  const STALE = [
+    [/no SPR[^.]{0,90}(exists|appears|is shown)/i, 'asserts no SPR value exists'],
+    [/evaluation is \*\*not yet bound\*\*/i, 'asserts the evaluation is not yet bound'],
+    [/HAC-343[^.]{0,40}not bound/i, 'asserts HAC-343 is not bound'],
+  ];
+  for (const [file, text] of Object.entries(prose)) {
+    for (const [re, why] of STALE) {
+      if (re.test(text)) fail(`${file}: ${why}, contradicting the frozen HAC-343 result`);
+    }
+  }
+
+  /* HAC-319 proper is still unbound, and the bound child must not be allowed to
+     imply the unbound parent. IL-DIAG-013 is HAC-319's reserved shell. */
   if (registry.assets.some((a) => a.assetId === 'IL-DIAG-013')) {
-    fail('IL-DIAG-013 is in the judge-facing registry; the evaluation shell is not bound');
+    fail('IL-DIAG-013 is in the judge-facing registry; HAC-319 proper is still unbound');
   }
   for (const s of sequence.steps) {
     if ([s.primaryAsset, ...(s.supportingAssets || [])].includes('IL-DIAG-013')) {
-      fail(`judge sequence step ${s.stepId} points at the unbound evaluation shell`);
+      fail(`judge sequence step ${s.stepId} points at the unbound HAC-319 shell`);
     }
   }
   if (!sequence.excludedFromJudgePath.some((e) => e.assetId === 'IL-DIAG-013' && e.seamPreserved)) {
@@ -550,7 +656,7 @@ const CHECKS = [
   checkEvidenceUrls,
   checkWithheldEvidence,
   checkRevisions,
-  checkEvaluationUnbound,
+  checkEvaluationBound,
   checkCaptures,
   checkCaptureFreshness,
   checkNamingAndFreshness,
@@ -597,5 +703,6 @@ if (invokedDirectly) {
   console.log(`  judge sequence ${sequence.steps.length} steps, hero ${sequence.steps[0].primaryAsset}, reset at step ${resetStep.order}`);
   console.log(`  registry ${registry.assets.length} assets, ${exportCount} exports, naming contract clean`);
   console.log(`  claim ledger ${ledger.claims.length} claims, every cited id resolved`);
-  console.log('  proof classes separate, evidence links commit-pinned, HAC-319 unbound and unrendered');
+  console.log('  proof classes separate, evidence links commit-pinned');
+  console.log('  HAC-343 bound to the frozen judge export, panels adjacent; HAC-319 proper still unbound');
 }

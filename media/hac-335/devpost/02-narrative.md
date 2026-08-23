@@ -108,8 +108,45 @@ No exactly-once, restart-safety or recovery guarantee. No safety, security,
 verification or production-readiness guarantee. No fleet-scale readiness, and no
 universal collision prevention.
 
-Evaluation is **not yet bound**: no SPR, precision, recall, false-block or
-useful-concurrency number exists in this submission, and none is shown.
+## Compared with what?
+
+A bounded four-arm evaluation (HAC-343) runs one frozen sixteen-scenario corpus
+through four mechanically distinct coordination strategies. Exact counts, not
+percentages — the corpus is an exhaustive enumeration, not a sample.
+
+| Strategy | Hazards unsafe | Independent opportunities parallel |
+| --- | --- | --- |
+| Uncoordinated | 2/2 | 2/2 |
+| Global lock | 0/2 | 0/2 |
+| Per-target lock | 2/2 | 2/2 |
+| Interlock | 0/2 | 2/2 |
+
+Global locking bought safety by eliminating concurrency. Per-target locking kept
+the concurrency and missed both hazards.
+
+**Is that per-target lock credible?** It has to be, or the comparison is a straw
+man. It serialized same-target contention 2/2, parallelised cross-target pairs
+4/4, and still missed cross-target hazards 2/2. It locked exactly what a lock can
+see; a composition hazard spanning two lock keys is invisible to any per-key
+discipline.
+
+**Is the safety from the evidence, or from Interlock?** Remove the evidence and
+find out:
+
+| Condition | Invalid outcomes |
+| --- | --- |
+| Interlock + coupling evidence present | 0/2 |
+| Interlock + coupling evidence removed | 2/2 |
+
+The decision reverses. The safety is evidence-derived, not a property of the
+engine.
+
+**What this is not.** Interlock is not 0% unsafe — it produced invalid joint
+states in the two ablation scenarios by design. It is not "safer than locking":
+per-target locking is correct for the hazard it addresses. The 0/2 is bounded to
+the coupled scenarios of this corpus and must not be collapsed into a single
+rate over all sixteen. No interval or significance is claimed, and no
+exactly-once, restart-safety or production-readiness result was tested here.
 
 ## What is new here
 

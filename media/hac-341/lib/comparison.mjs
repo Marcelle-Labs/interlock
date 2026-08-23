@@ -125,13 +125,41 @@ export function buildComparison(sources = {}) {
   // The experiment names itself; typing "HAC-343" here would be the one value
   // on this panel that came from nowhere.
   const experiment = bind(sources, EXPORT, 'experiment');
+  const credibilityClaim = bind(sources, EXPORT, 'panel1.perTargetLockCredibility.claim');
   const credibility = bind(sources, EXPORT, 'panel1.perTargetLockCredibility.serializedSameTargetContention.display');
+  const parallelised = bind(sources, EXPORT, 'panel1.perTargetLockCredibility.parallelisedCrossTarget.display');
+  const missed = bind(sources, EXPORT, 'panel1.perTargetLockCredibility.missedCrossTargetHazards.display');
   const credibilityNote = bind(sources, EXPORT, 'panel1.perTargetLockCredibility.note');
   const scope = bind(sources, EXPORT, 'panel1.scope');
   const commit = bind(sources, EXPORT, 'derivedFrom.canonicalResultCommit');
 
+  /* Panel 2 travels with Panel 1 or not at all.
+   *
+   * Panel 1 alone reads as "Interlock is the safe one". The frozen export
+   * forbids exactly that reading: the 0/2 is bounded to COUPLED scenarios and
+   * is a property of the evidence being present, not of Interlock. Panel 2 is
+   * the arm of the same experiment that shows the dependency — remove the
+   * coupling evidence and the same core produces 2/2 invalid. Binding them in
+   * one object is what makes "adjacent" a mechanical property of the panel
+   * rather than a layout habit a later edit can quietly separate. */
+  const panel2Rows = [0, 1].map((i) => ({
+    condition: bind(sources, EXPORT, `panel2.rows.${i}.condition`),
+    invalidOutcomes: bind(sources, EXPORT, `panel2.rows.${i}.invalidOutcomes.display`),
+  }));
+  const panel2 = {
+    question: bind(sources, EXPORT, 'panel2.question'),
+    reading: bind(sources, EXPORT, 'panel2.reading'),
+    forbiddenRendering: bind(sources, EXPORT, 'panel2.forbiddenRendering'),
+  };
+
   const cells = strategies.flatMap((s) => s.cells);
-  const unresolved = [...cells, ...captions, experiment, credibility, credibilityNote, scope, commit]
+  const unresolved = [
+    ...cells, ...captions, experiment,
+    credibilityClaim, credibility, parallelised, missed, credibilityNote,
+    scope, commit,
+    ...Object.values(panel2),
+    ...panel2Rows.flatMap((r) => [r.condition, r.invalidOutcomes]),
+  ]
     .filter((c) => !c.resolved)
     .map((c) => c.source);
   for (const s of strategies) if (String(s.label).startsWith('[BIND:')) unresolved.push(s.labelSource);
@@ -149,7 +177,29 @@ export function buildComparison(sources = {}) {
     dimensions: DIMENSIONS,
     captions,
     strategies,
-    perTargetLockCredibility: { display: credibility.value, note: credibilityNote.value },
+    /* Three figures, not one. `2/2 serialized` alone shows the lock ran; it does
+       not show what the lock cost or what it still missed. The judge's question
+       is whether A3 is a credible alternative to Interlock, and that is only
+       answerable with all three: it serialized every same-target contention,
+       kept every cross-target pair concurrent, and still missed both
+       cross-target hazards. Dropping either of the last two lets the strip read
+       as a clean bill of health for per-target locking. */
+    perTargetLockCredibility: {
+      claim: credibilityClaim.value,
+      serializedSameTargetContention: credibility.value,
+      parallelisedCrossTarget: parallelised.value,
+      missedCrossTargetHazards: missed.value,
+      note: credibilityNote.value,
+    },
+    evidenceAblation: {
+      question: panel2.question.value,
+      rows: panel2Rows.map((r) => ({
+        condition: r.condition.value,
+        invalidOutcomes: r.invalidOutcomes.value,
+      })),
+      reading: panel2.reading.value,
+      forbiddenRendering: panel2.forbiddenRendering.value,
+    },
     unresolved,
     resolved: unresolved.length === 0,
     /* Shown verbatim whenever anything is unbound. Never shown when everything
@@ -187,6 +237,7 @@ export function judgeFacing(comparison) {
     captions: comparison.captions,
     strategies: comparison.strategies,
     perTargetLockCredibility: comparison.perTargetLockCredibility,
+    evidenceAblation: comparison.evidenceAblation,
     resolved: comparison.resolved,
     unresolved: comparison.unresolved,
     unresolvedLabel: comparison.unresolvedLabel,
@@ -202,5 +253,6 @@ export function judgeFacing(comparison) {
 export const JUDGE_FACING_FIELDS = [
   'title', 'sourceIssue', 'separateExperiment', 'artifacts', 'canonicalResultCommit',
   'scopeNote', 'dimensions', 'captions', 'strategies', 'perTargetLockCredibility',
+  'evidenceAblation',
   'resolved', 'unresolved', 'unresolvedLabel', 'unresolvedNote',
 ];

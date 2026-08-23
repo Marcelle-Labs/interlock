@@ -857,20 +857,18 @@
       ],
       "composition": {
         "state": "evaluation-not-yet-bound",
-        "message": "Evaluation not yet bound.",
+        "message": "Three-regime evaluation not yet bound.",
         "regimes": [
           "Regime 1",
           "Regime 2",
           "Regime 3"
         ],
         "metricsWithheld": [
-          "SPR",
           "precision",
           "recall",
-          "false-block rate",
-          "useful-concurrency"
+          "fleet-scale behaviour"
         ],
-        "rule": "Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen evaluation packet.",
+        "rule": "Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen three-regime evaluation packet.",
         "marks": []
       },
       "exports": [

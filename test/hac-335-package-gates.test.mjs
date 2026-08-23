@@ -32,6 +32,8 @@ const NEEDED = [
   'experiments/hac-342/evidence/cloud-run.public.json',
   'experiments/hac-342/evidence/publication-bindings.json',
   'experiments/hac-342/evidence/runtime-source-snapshot.json',
+  // The frozen source of every HAC-343 figure the package renders.
+  'experiments/hac-343/evidence/judge-export.json',
 ];
 
 const GATE = 'media/hac-335/bin/verify-package.mjs';
@@ -232,14 +234,62 @@ describe('public evidence integrity', () => {
   });
 });
 
-describe('HAC-319 stays unbound', () => {
-  it('fails when a metric appears next to a number', () => {
-    const r = perturbed((p) => p.append('README.md', 'Measured SPR: 0.94 across the evaluation set.'));
+describe('the HAC-343 evaluation stays bound and bounded', () => {
+  /* The gate used to prove the evaluation was absent. It now proves every
+     figure is the frozen one and that no figure travels alone, so each rule
+     below is exercised by breaking exactly one of those properties. */
+
+  it('fails when a rendered count is not a frozen judge-export value', () => {
+    const r = perturbed((p) => p.edit('README.md', '| Interlock | 0/2 | 2/2 |', '| Interlock | 0/7 | 2/2 |'));
     expect(r.code).toBe(1);
-    expect(r.out).toMatch(/HAC-319 metric/);
+    expect(r.out).toMatch(/0\/7, which is not a frozen HAC-343 display value/);
   });
 
-  it('fails when the evaluation shell enters the judge registry', () => {
+  it('fails when Panel 1 is shown without the evidence ablation', () => {
+    const r = perturbed((p) =>
+      p.edit('README.md', '| Interlock + coupling evidence removed | 2/2 |', ''));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/without the evidence-ablation condition/);
+  });
+
+  it('fails when the A3 credibility strip is dropped', () => {
+    const r = perturbed((p) =>
+      p.edit('README.md', 'parallelised cross-target pairs 4/4', 'parallelised cross-target pairs'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/A3 credibility figure/);
+  });
+
+  it('fails when the comparison is shown without its corpus bound', () => {
+    const r = perturbed((p) => p.edit('README.md', 'one frozen sixteen-scenario corpus', 'a corpus'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/without stating the corpus it is bounded to/);
+  });
+
+  it('fails when copy claims Interlock is 0% unsafe', () => {
+    const r = perturbed((p) => p.append('README.md', '\n\nIn practice Interlock is 0% unsafe.\n'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/0% unsafe/);
+  });
+
+  it('fails when copy claims Interlock is safer than locking', () => {
+    const r = perturbed((p) => p.append('README.md', '\n\nInterlock is safer than locking.\n'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/safer than locking/);
+  });
+
+  it('fails when copy claims statistical significance', () => {
+    const r = perturbed((p) => p.append('README.md', '\n\nThe difference is statistically significant.\n'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/statistical significance/);
+  });
+
+  it('fails when the superseded "no SPR exists" claim is reintroduced', () => {
+    const r = perturbed((p) => p.append('README.md', '\n\nNo SPR value exists in this package.\n'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/asserts no SPR value exists/);
+  });
+
+  it('fails when HAC-319 proper enters the judge registry', () => {
     const r = perturbed((p) => {
       const reg = p.json('media/hac-335/evidence/asset-registry.json');
       reg.assets.push({ assetId: 'IL-DIAG-013', exports: [], claimIds: [] });
@@ -249,14 +299,14 @@ describe('HAC-319 stays unbound', () => {
     expect(r.out).toMatch(/IL-DIAG-013 is in the judge-facing registry/);
   });
 
-  it('fails when the judge sequence points at the unbound shell', () => {
+  it('fails when the judge sequence points at the unbound HAC-319 shell', () => {
     const r = perturbed((p) => {
       const seq = p.json('media/hac-335/evidence/judge-sequence.json');
       seq.steps[1].supportingAssets = ['IL-DIAG-013'];
       p.writeJson('media/hac-335/evidence/judge-sequence.json', seq);
     });
     expect(r.code).toBe(1);
-    expect(r.out).toMatch(/points at the unbound evaluation shell/);
+    expect(r.out).toMatch(/points at the unbound HAC-319 shell/);
   });
 });
 

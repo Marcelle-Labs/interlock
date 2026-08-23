@@ -796,8 +796,26 @@
       }
     ],
     "perTargetLockCredibility": {
-      "display": "2/2",
+      "claim": "A3 is a real lock, so its misses are blindness rather than absence of a lock.",
+      "serializedSameTargetContention": "2/2",
+      "parallelisedCrossTarget": "4/4",
+      "missedCrossTargetHazards": "2/2",
       "note": "It locked exactly what a lock can see. A composition hazard spanning two lock keys is not visible to any per-key discipline."
+    },
+    "evidenceAblation": {
+      "question": "Is Interlock’s safety derived from the evidence, or from something else?",
+      "rows": [
+        {
+          "condition": "Interlock + coupling evidence present",
+          "invalidOutcomes": "0/2"
+        },
+        {
+          "condition": "Interlock + coupling evidence removed",
+          "invalidOutcomes": "2/2"
+        }
+      ],
+      "reading": "Interlock’s safety is evidence-derived. With revision-bound composition evidence present it withheld both hazardous compositions while retaining both safe parallel opportunities. When that evidence was deliberately removed, the decision reversed and both invariants failed.",
+      "forbiddenRendering": "A4 must not be described as globally 0% unsafe, and the sixteen-scenario corpus must not be collapsed into a single unsafe-rate denominator. The 0/2 in Panel 1 is bounded to COUPLED scenarios and means nothing without Panel 2 beside it."
     },
     "unresolved": [],
     "resolved": true,
@@ -809,20 +827,19 @@
     "label": "Anti-global-mutex evaluation",
     "sourceIssue": "HAC-319",
     "degradedState": "evaluation-not-yet-bound",
-    "message": "Evaluation not yet bound.",
+    "message": "Three-regime evaluation not yet bound.",
     "regimes": [
       "Regime 1",
       "Regime 2",
       "Regime 3"
     ],
     "metricsWithheld": [
-      "SPR",
       "precision",
       "recall",
-      "false-block rate",
-      "useful-concurrency"
+      "fleet-scale behaviour"
     ],
-    "rule": "Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen evaluation packet."
+    "boundElsewhere": "HAC-343 binds a bounded four-arm comparison, including SPR, over its own sixteen-scenario corpus. It is a child of HAC-319, not a substitute: it samples no population and reports no precision or recall.",
+    "rule": "Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen three-regime evaluation packet."
   },
   "degradedStates": [
     {

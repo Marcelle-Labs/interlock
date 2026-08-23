@@ -273,15 +273,26 @@ cloudRun.rawProof = {
 
 /* --- reserved surface: HAC-319 ----------------------------------------- */
 
+/**
+ * HAC-343 froze a bounded four-arm result, and this shell had to narrow.
+ *
+ * It previously withheld `SPR` — while the comparison panel beside it now
+ * renders SPR from HAC-343's frozen export. A surface that says a metric is
+ * withheld next to a panel showing that metric is not being careful, it is
+ * being wrong. What is still genuinely unbound is HAC-319 *proper*: the
+ * three-regime anti-global-mutex evaluation with precision and recall over a
+ * population this corpus does not sample.
+ */
 const reserved = {
   semanticStateId: 'evaluation.unbound',
   label: 'Anti-global-mutex evaluation',
   sourceIssue: 'HAC-319',
   degradedState: 'evaluation-not-yet-bound',
-  message: 'Evaluation not yet bound.',
+  message: 'Three-regime evaluation not yet bound.',
   regimes: ['Regime 1', 'Regime 2', 'Regime 3'],
-  metricsWithheld: ['SPR', 'precision', 'recall', 'false-block rate', 'useful-concurrency'],
-  rule: 'Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen evaluation packet.',
+  metricsWithheld: ['precision', 'recall', 'fleet-scale behaviour'],
+  boundElsewhere: 'HAC-343 binds a bounded four-arm comparison, including SPR, over its own sixteen-scenario corpus. It is a child of HAC-319, not a substitute: it samples no population and reports no precision or recall.',
+  rule: 'Labels only. No value, no mark, no proportional geometry until HAC-319 supplies a frozen three-regime evaluation packet.',
 };
 
 /* --- coordination-strategy comparison: bound to HAC-343 ---------------- */
