@@ -29,6 +29,39 @@ export const FROZEN_COMMITS = Object.freeze({
   'experiments/hac-343/evidence/execution-semantics.json': '276750ba7a4a51461fb2447b361d69be5e2a020b',
 });
 
+/**
+ * The tag that keeps each freeze commit reachable, and provable, forever.
+ *
+ * The SHAs above are only meaningful while something points at them. This
+ * repository squash-merges, so a branch's commits never reach `main`: after the
+ * merge, `git log -1 -- <contract>` names the squash commit, and once the branch
+ * is deleted the freeze commits are unreachable and get collected. Both the
+ * "frozen before results" claim and the bytes themselves would go with them.
+ *
+ * Tags are the fix already used by HAC-342, which records a `permanenceAnchor`
+ * for the same reason. A tag is a ref, so it keeps its commit alive independent
+ * of branch history, and it survives any merge style.
+ */
+export const FREEZE_TAGS = Object.freeze({
+  'experiments/hac-343/evidence/metric-definitions.json': 'hac-343-freeze-metric-definitions',
+  'experiments/hac-343/evidence/corpus.json': 'hac-343-freeze-corpus',
+  'experiments/hac-343/evidence/execution-semantics.json': 'hac-343-freeze-execution-semantics',
+});
+
+/**
+ * The commit that produced the canonical result, pinned rather than looked up.
+ *
+ * This is a judge-facing value: the cockpit renders it. It used to be read from
+ * `git log -1 -- results.json`, which answers about the history that happens to
+ * be checked out — on a squashed `main` that is the squash commit, so the export
+ * rebuilt to a different identity than the one committed. A rendered fact may
+ * not depend on where it is rebuilt.
+ */
+export const CANONICAL_RESULT_COMMIT = '7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0';
+
+/** The tag anchoring the commit above, for the same reason as FREEZE_TAGS. */
+export const CANONICAL_RESULT_TAG = 'hac-343-canonical-result';
+
 export const ORDERS = Object.freeze(['AB', 'BA']);
 
 // ---------------------------------------------------------------------------

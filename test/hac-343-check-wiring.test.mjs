@@ -15,8 +15,9 @@
  *    changes underneath the committed view model. That is the integration seam;
  *    the existing suite only proved the reverse (editing the view model).
  *
- * The HAC-343 verifier pins three freeze commits, so it needs real git history
- * rather than a file copy: each case runs against a local clone. It also loads
+ * The HAC-343 verifier proves three freeze commits through tags, so it needs real
+ * git refs and objects rather than a file copy: each case runs against a local
+ * clone, which carries both. It also loads
  * the compiled decision core through `experiments/hac-343/lib/arms.mjs`, which
  * is why `check:packet:eval` builds first and why `dist/` is copied in here.
  *
@@ -87,6 +88,15 @@ function broken(mutate, script = EVAL_GATE) {
   const snapshot = (f) => {
     if (!touched.has(f)) touched.set(f, readFileSync(join(dir, f), 'utf8'));
   };
+  // The freeze proof rests on tags, so a case must be able to move one. Ref state
+  // is snapshotted like file bytes: a `moveTag` that quietly resolved to the
+  // commit it already pointed at is a broken fixture, not a rejection.
+  const refs = new Map();
+  const resolveRef = (ref) => {
+    const r = spawnSync('git', ['-C', dir, 'rev-list', '-n', '1', ref], { encoding: 'utf8' });
+    return r.status === 0 ? r.stdout.trim() : null;
+  };
+  const snapshotRef = (ref) => { if (!refs.has(ref)) refs.set(ref, resolveRef(ref)); };
   mutate({
     dir,
     json(f, fn) {
@@ -111,6 +121,16 @@ function broken(mutate, script = EVAL_GATE) {
      * wrong job — the file changes, `changed === 1` holds, and the gate
      * correctly passes a workflow whose evaluation-gate was never touched.
      */
+    moveTag(tag, commitish) {
+      snapshotRef(tag);
+      const r = spawnSync('git', ['-C', dir, 'tag', '-f', tag, commitish], { encoding: 'utf8' });
+      if (r.status !== 0) throw new Error(`could not move ${tag}: ${r.stderr}`);
+    },
+    deleteTag(tag) {
+      snapshotRef(tag);
+      const r = spawnSync('git', ['-C', dir, 'tag', '-d', tag], { encoding: 'utf8' });
+      if (r.status !== 0) throw new Error(`could not delete ${tag}: ${r.stderr}`);
+    },
     editJob(f, jobName, from, to) {
       snapshot(f);
       const body = readFileSync(join(dir, f), 'utf8');
@@ -129,7 +149,9 @@ function broken(mutate, script = EVAL_GATE) {
     const after = existsSync(join(dir, f)) ? readFileSync(join(dir, f), 'utf8') : null;
     if (after !== before) changed += 1;
   }
-  const result = { ...run(dir, script), changed };
+  let refsMoved = 0;
+  for (const [ref, before] of refs) if (resolveRef(ref) !== before) refsMoved += 1;
+  const result = { ...run(dir, script), changed, refsMoved };
   // Reclaim the copy as soon as its gate has run. Thirty-odd full repository
   // copies held until teardown timed the afterAll hook out; nothing reads the
   // directory after this point.
@@ -648,5 +670,81 @@ describe('the judge export derives from frozen artifacts, not from the builder',
     const r = spawnSync(process.execPath, [BUILDER], { cwd: repoRoot, encoding: 'utf8' });
     expect(r.status).toBe(0);
     expect(readFileSync(join(repoRoot, EXPORT)).equals(before)).toBe(true);
+  }, 30_000);
+});
+
+/**
+ * The freeze proof moved from branch history to tags, so the tags are now
+ * load-bearing evidence and have to be attacked like any other.
+ *
+ * The check they replaced — "the freeze commit is still the last to touch this
+ * contract" — was not merely fragile, it was wrong on the trunk: this repository
+ * squash-merges, so on `main` every contract appears to have been introduced by
+ * the squash commit and all three checks failed while the evidence was intact.
+ * What must survive is the claim itself: these bytes, frozen at that commit,
+ * before the result existed.
+ */
+describe('the freeze anchors are themselves evidence', () => {
+  const METRICS_TAG = 'hac-343-freeze-metric-definitions';
+  const CORPUS_TAG = 'hac-343-freeze-corpus';
+  const RESULT_TAG = 'hac-343-canonical-result';
+  const METRICS_FREEZE = '0a6babbc5d1a3f69b057f98093108ee508072e48';
+
+  it('passes on the packet as committed, on squashed history', () => {
+    const r = broken(() => {});
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/HAC-343 packet verified/);
+    // The point of the rework: no check consults the current branch's history.
+    expect(r.out).not.toMatch(/is still the file its freeze commit introduced/);
+  }, 30_000);
+
+  it('fails when a freeze tag is deleted', () => {
+    const r = broken((a) => a.deleteTag(CORPUS_TAG));
+    expect(r.refsMoved).toBe(1);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(new RegExp(`${CORPUS_TAG} anchors the commit that froze`));
+    expect(r.out).toMatch(/tag not present in this checkout/);
+  }, 30_000);
+
+  it('fails when a freeze tag is moved to another commit', () => {
+    const r = broken((a) => a.moveTag(CORPUS_TAG, METRICS_FREEZE));
+    expect(r.refsMoved).toBe(1);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(new RegExp(`FAIL.*${CORPUS_TAG} anchors the commit that froze`));
+  }, 30_000);
+
+  it('fails when the canonical result tag is moved', () => {
+    const r = broken((a) => a.moveTag(RESULT_TAG, METRICS_FREEZE));
+    expect(r.refsMoved).toBe(1);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(new RegExp(`FAIL.*${RESULT_TAG} anchors the canonical result commit`));
+  }, 30_000);
+
+  /**
+   * The load-bearing case. Anchoring alone would let a contract be frozen *after*
+   * the result and still verify, which is the failure the whole packet exists to
+   * make impossible. Here the pin and its tag are moved together, so every anchor
+   * check still passes and only the ordering claim can catch it.
+   */
+  it('fails when a contract was frozen after the result it supposedly preceded', () => {
+    const r = broken((a) => {
+      a.edit('experiments/hac-343/lib/aggregate.mjs',
+        "export const CANONICAL_RESULT_COMMIT = '7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0';",
+        `export const CANONICAL_RESULT_COMMIT = '${METRICS_FREEZE}';`);
+      a.moveTag(RESULT_TAG, METRICS_FREEZE);
+    });
+    expect(r.changed).toBe(1);
+    expect(r.refsMoved).toBe(1);
+    expect(r.code).not.toBe(0);
+    // The anchors agree with each other; only the ordering is wrong.
+    expect(r.out).toMatch(new RegExp(`ok.*${RESULT_TAG} anchors the canonical result commit`));
+    expect(r.out).toMatch(/FAIL.*corpus\.json was frozen before the canonical result existed/);
+  }, 30_000);
+
+  it('still refuses a frozen contract edited after its freeze commit', () => {
+    const r = broken((a) => a.json('experiments/hac-343/evidence/corpus.json', (v) => { v.tampered = true; }));
+    expect(r.changed).toBe(1);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/byte-identical to its frozen blob/);
   }, 30_000);
 });

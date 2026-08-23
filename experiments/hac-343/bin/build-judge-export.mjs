@@ -32,7 +32,6 @@
  * if any figure lacks one. A number typed in by hand cannot acquire a pointer,
  * so it cannot reach the export.
  */
-import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -40,8 +39,7 @@ import { fileURLToPath } from 'node:url';
 
 import { SCENARIOS, FAMILIES } from '../lib/corpus.mjs';
 import { ARMS } from '../lib/arms.mjs';
-import { FROZEN_COMMITS, ORDERS } from '../lib/aggregate.mjs';
-import { GIT } from '../../hac-330/lib/exec.mjs';
+import { FROZEN_COMMITS, ORDERS, CANONICAL_RESULT_COMMIT } from '../lib/aggregate.mjs';
 
 /**
  * Default `.sort()` order, stated explicitly.
@@ -57,19 +55,11 @@ const byCodeUnit = (a, b) => {
 };
 
 const EXPERIMENT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const REPO_ROOT = resolve(EXPERIMENT_DIR, '..', '..');
 const EVIDENCE_DIR = join(EXPERIMENT_DIR, 'evidence');
 
 const read = (name) => readFileSync(join(EVIDENCE_DIR, name));
 const json = (name) => JSON.parse(read(name).toString('utf8'));
 const sha256 = (buffer) => createHash('sha256').update(buffer).digest('hex');
-
-/** The canonical result commit. Recorded so the export names its own source. */
-const CANONICAL_RESULT_COMMIT = execFileSync(
-  GIT,
-  ['-C', REPO_ROOT, 'log', '-1', '--format=%H', '--', 'experiments/hac-343/evidence/results.json'],
-  { encoding: 'utf8' },
-).trim();
 
 const raw = json('raw-results.json');
 const results = json('results.json');
