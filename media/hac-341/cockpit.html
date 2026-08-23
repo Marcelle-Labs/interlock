@@ -704,14 +704,14 @@ body[data-proof="cloud"] .cmp-strats button[aria-pressed="true"]{background:var(
    from frozen evidence. A field that is absent there is absent here.
    What the *selected arm* shows is derived in lib/arm-view.mjs, so the binding
    between an arm and its evidence can be asserted without a browser. */
-import { armView } from './lib/arm-view.mjs';
+import { armView } from '/media/hac-341/lib/arm-view.mjs';
 /* The guided layer's derivation. It lives beside arm-view.mjs for the same
    reason: step 5 claims that four things were held constant and four changed,
    and a claim like that has to be checked against the frozen arms rather than
    typed into markup. `ablationDelta` reads both arms and reports what actually
    moved, so a marker that has stopped being true fails the gate. */
 import { guideView, guideRoute, stateOfStep, stepOfState, GUIDE_STEPS,
-  GUIDE_FREE_STATE } from './lib/guide.mjs';
+  GUIDE_FREE_STATE } from '/media/hac-341/lib/guide.mjs';
 
 const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');
@@ -1717,7 +1717,7 @@ drawer.addEventListener('click', (e) => { if (e.target === drawer) closeDrawer()
 addEventListener('popstate', () => { closeDrawer(); resolve(); });
 
 try {
-  const res = await fetch('./evidence/view-model.json', { cache: 'no-store' });
+  const res = await fetch('/media/hac-341/evidence/view-model.json', { cache: 'no-store' });
   if (!res.ok) throw new Error(String(res.status));
   MODEL = await res.json();
   resolve();

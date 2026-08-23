@@ -205,7 +205,9 @@ if (defaultArm && perturbedArm) {
 }
 
 // The cockpit must consume that derivation rather than re-deriving it inline.
-if (!/from '\.\/lib\/arm-view\.mjs'/.test(cockpit)) {
+// Matched on the module, not the specifier prefix, so the rewrite fix below
+// does not read as the cockpit having dropped the import.
+if (!/from '\/media\/hac-341\/lib\/arm-view\.mjs'/.test(cockpit)) {
   fail('cockpit does not consume the shared arm-view derivation');
 }
 if (/environmentEvidence\[0\][^\n]*basisRevision|basisRevision[^\n]*environmentEvidence\[0\]/.test(cockpit)) {
@@ -1066,6 +1068,23 @@ if (!/lastFocus/.test(cockpit)) fail('focus is not returned to the invoking cont
 if (!/aria-pressed/.test(cockpit)) fail('toggle state is not exposed to assistive technology');
 if (!/aria-live/.test(cockpit)) fail('state changes are not announced');
 if (!/data-glyph/.test(cockpit)) fail('state is encoded by colour alone; no glyph channel');
+
+/* Every module import and evidence fetch resolves from the site root.
+ *
+ * `vercel.json` rewrites `/` and `/cockpit` onto this file. A rewrite serves
+ * these bytes without changing the request URL, and a document-relative
+ * specifier resolves against the *request* URL — so `./lib/guide.mjs` became
+ * `/lib/guide.mjs` and aborted, and the two URLs a judge actually visits
+ * rendered a blank page while still returning HTTP 200.
+ *
+ * The visual gate could not see it: it loads `/media/hac-341/cockpit.html`
+ * directly, which is the one path where the relative form happens to work.
+ * This is a static check for that reason — it needs no server and no
+ * deployment, and it fails on the specifier rather than on the symptom.
+ */
+for (const m of cockpit.matchAll(/(?:^|\s)(?:import\b[^;]*?from|await\s+fetch\(|import\()\s*['"](\.[^'"]*)['"]/g)) {
+  fail(`document-relative reference "${m[1]}" breaks under the vercel.json rewrite; anchor it at /media/hac-341/`);
+}
 
 const checksLabel = local.checks.label;
 if (errors.length) {
