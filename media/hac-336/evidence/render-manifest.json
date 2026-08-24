@@ -5,6 +5,7 @@
   "note": "Derived by media/hac-336/bin/build-video.mjs. Do not hand-edit. Duration, geometry and codec are read back out of the finished file rather than copied from the encode request.",
   "generator": "media/hac-336/bin/build-video.mjs",
   "encoder": "ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers",
+  "encoderPath": "/opt/homebrew/bin/ffmpeg",
   "video": {
     "path": "media/hac-336/exports/IL-MOT-020-interlock-final-cut-1920x1080.mp4",
     "sha256": "344d5954c4abc038ae6c741388466c7a19551b4b3897a2cb292c0d6b9a193af0",

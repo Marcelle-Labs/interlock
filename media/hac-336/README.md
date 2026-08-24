@@ -32,6 +32,12 @@ pnpm run film:render    # the encode; needs ffmpeg, and is not run in CI
 pnpm run check:film     # the gate
 ```
 
+`film:render` resolves `ffmpeg` to an absolute path rather than through `PATH`;
+set `FFMPEG` to an absolute path if your host keeps it somewhere else. The
+resolved binary is recorded in `evidence/render-manifest.json`, so the encoder
+that produced the submission video is a fact rather than whatever the shell found
+that afternoon.
+
 `film:derive` is the subset CI re-runs and diffs: boards, captions and the two
 manifests are pure functions of the cut and the frozen evidence. Frames are not
 — resvg's text rasterisation is not byte-identical across hosts — so they are

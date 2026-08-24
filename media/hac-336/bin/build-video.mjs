@@ -17,10 +17,10 @@
  * states. Nothing counts up, nothing types itself out, and nothing on screen
  * suggests a frozen result is being recomputed while the viewer watches.
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { dirname, join } from 'node:path';
+import { dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildExportName, validateExportName } from '../../../scripts/export-naming.mjs';
 import { timeline } from './lib/timeline.mjs';
@@ -57,6 +57,50 @@ const frameFor = (beatId) => {
   }
   return { ...f, abs };
 };
+
+/* -- the encoder ---------------------------------------------------------- */
+
+/**
+ * Resolve ffmpeg to an absolute path, never through `PATH`.
+ *
+ * Invoking a bare `ffmpeg` runs whatever the first writable directory on `PATH`
+ * happens to offer, which is both a real substitution risk and a reproducibility
+ * one: the binary that encoded the submission video should be a fact the render
+ * manifest can record, not whatever the shell found that afternoon.
+ *
+ * `FFMPEG` overrides for a host that keeps it elsewhere, and must itself be
+ * absolute — an override that reintroduced a relative lookup would defeat the
+ * point of having one.
+ */
+const FFMPEG_CANDIDATES = [
+  '/opt/homebrew/bin/ffmpeg',
+  '/usr/local/bin/ffmpeg',
+  '/usr/bin/ffmpeg',
+  '/snap/bin/ffmpeg',
+];
+
+function resolveFfmpeg() {
+  const override = process.env.FFMPEG;
+  if (override) {
+    if (!isAbsolute(override)) {
+      throw new Error(`FFMPEG must be an absolute path, not ${JSON.stringify(override)}`);
+    }
+    if (!existsSync(override) || !statSync(override).isFile()) {
+      throw new Error(`FFMPEG points at ${override}, which is not a file`);
+    }
+    return override;
+  }
+  const found = FFMPEG_CANDIDATES.find((c) => existsSync(c) && statSync(c).isFile());
+  if (!found) {
+    throw new Error(
+      `no ffmpeg found at any of ${FFMPEG_CANDIDATES.join(', ')}. Install it, or set FFMPEG to an `
+      + 'absolute path. This step is deliberately not run in CI; the gate reads the finished file instead.',
+    );
+  }
+  return found;
+}
+
+const FFMPEG = resolveFfmpeg();
 
 /* -- captions ------------------------------------------------------------- */
 
@@ -139,7 +183,7 @@ const args = [
 ];
 
 process.stdout.write(`ffmpeg: ${frames.length} stills, ${tl.transitions} crossfades, target ${tl.totalSeconds}s\n`);
-execFileSync('ffmpeg', args, { stdio: ['ignore', 'inherit', 'inherit'] });
+execFileSync(FFMPEG, args, { stdio: ['ignore', 'inherit', 'inherit'] });
 
 /* -- measure what was actually written ------------------------------------ */
 
@@ -169,7 +213,8 @@ writeFileSync(
     issue: 'HAC-336',
     note: 'Derived by media/hac-336/bin/build-video.mjs. Do not hand-edit. Duration, geometry and codec are read back out of the finished file rather than copied from the encode request.',
     generator: 'media/hac-336/bin/build-video.mjs',
-    encoder: execFileSync('ffmpeg', ['-version'], { encoding: 'utf8' }).split('\n')[0],
+    encoder: execFileSync(FFMPEG, ['-version'], { encoding: 'utf8' }).split('\n')[0],
+    encoderPath: FFMPEG,
     video: {
       path: `media/hac-336/exports/${exportName}`,
       sha256: sha256(bytes),
