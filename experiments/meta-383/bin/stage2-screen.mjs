@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const EXP = dirname(HERE);
@@ -64,9 +64,10 @@ const SURFACE = {
 const ENV = {
   ...process.env,
   PATH: process.env.HOME + '/.cargo/bin:/opt/homebrew/opt/openjdk/bin:' + process.env.PATH,
-  // Shared dependency cache. Cargo keys on fingerprints, so sharing a target
+  // Shared dependency cache, held outside the per-run work directory so it
+  // survives worktree teardown. Cargo keys on fingerprints, so sharing a target
   // directory changes build time only, never a verdict.
-  CARGO_TARGET_DIR: join(WORK, 'cargo-target'),
+  CARGO_TARGET_DIR: '/private/tmp/meta375/m383-cargo-target',
 };
 
 const git = (cwd, ...args) =>
@@ -95,6 +96,55 @@ function runSurface(repo, tree) {
       ms: Date.now() - started,
     };
   }
+}
+
+// ------------------------------------------------------------- T0 evidence
+
+const CLI_CHECKOUT = '/Users/user1/dev/cli';
+const MINING_ENTRY = join('packages', 'mining-core', 'dist', 'index.js');
+
+/**
+ * Mine the committed evidence available at T0 with `@workspacejson/mining-core`
+ * from the local workspacejson/cli checkout.
+ *
+ * Evidence flows cli -> interlock only. Nothing is written to the cli
+ * repository and no dependency on it is declared here; the entry point is
+ * loaded by absolute path and its identity is recorded in the receipt.
+ */
+async function mineT0(dir, t0) {
+  const entry = join(CLI_CHECKOUT, MINING_ENTRY);
+  const pipeline = await import(pathToFileURL(entry).href);
+  const pkg = JSON.parse(
+    readFileSync(join(CLI_CHECKOUT, 'packages', 'mining-core', 'package.json'), 'utf8'),
+  );
+  const producer = {
+    repository: 'workspacejson/cli',
+    remote: git(CLI_CHECKOUT, 'remote', 'get-url', 'origin').trim(),
+    observedSha: git(CLI_CHECKOUT, 'rev-parse', 'HEAD').trim(),
+    checkoutClean: git(CLI_CHECKOUT, 'status', '--porcelain').trim() === '',
+    package: pkg.name,
+    version: pkg.version,
+    published: pkg.private !== true,
+    entrypoint: MINING_ENTRY,
+    bundleSha256: sha256(readFileSync(entry)),
+    pipeline: 'mine -> score -> select',
+    l1ProjectionUsed: false,
+    l1ProjectionNote:
+      'project() is exported but deliberately not called. L1 emission onto generated.coChange is step 3 of the A-009 staged transition and is not authorized by this experiment.',
+  };
+
+  const tree = treeAt(dir, 'mine-t0', t0);
+  const { mine, score, select, serializeSelection } = pipeline;
+  const selection = select(score(await mine(tree)));
+  const serialized = serializeSelection(selection);
+  dropTree(dir, tree);
+
+  return {
+    producer,
+    selection,
+    serializedSelection: serialized,
+    serializedSha256: sha256(Buffer.from(serialized, 'utf8')),
+  };
 }
 
 const treeAt = (dir, name, rev) => {
@@ -301,18 +351,59 @@ for (const cand of order) {
     continue;
   }
 
-  // Rule 6 — evidence honesty is established when the T0 evidence is mined in
-  // Stage 2c; the descriptive-observation constraint is asserted there, against
-  // the actual artifact, rather than presumed here.
-  record.rules.evidenceHonesty = {
-    pass: null,
-    detail: 'deferred to Stage 2c, where the T0 artifact is mined and inspected',
-  };
+  // Rule 6 — evidence honesty, decided against the actual mined artifact.
+  //
+  // This is a claim about an artifact that does not exist until it is mined, so
+  // it cannot be presumed. If the T0 history carries no descriptive observation
+  // relating the two changes' paths, there is nothing for arms B and C to
+  // carry, and the candidate is rejected rather than furnished with an
+  // observation invented for it.
+  const mined = await mineT0(dir, cand.t0);
+  const touched = new Set([...pathsA, ...pathsB]);
+  const spanning = mined.selection.pairs.filter(
+    (p) =>
+      (pathsA.includes(p.files[0]) && pathsB.includes(p.files[1])) ||
+      (pathsB.includes(p.files[0]) && pathsA.includes(p.files[1])),
+  );
+  const unrelated = mined.selection.pairs
+    .filter((p) => !touched.has(p.files[0]) && !touched.has(p.files[1]))
+    .sort(
+      (x, y) =>
+        y.support - x.support ||
+        x.occurrences - y.occurrences ||
+        (x.files[0] < y.files[0] ? -1 : x.files[0] > y.files[0] ? 1 : 0) ||
+        (x.files[1] < y.files[1] ? -1 : x.files[1] > y.files[1] ? 1 : 0),
+    );
 
-  record.disposition = 'ADMITTED_PENDING_EVIDENCE_HONESTY';
+  record.rules.evidenceHonesty = {
+    pass: spanning.length > 0 && unrelated.length > 0,
+    basisRevision: mined.selection.basisWindow.basisCommit,
+    basisIsT0: mined.selection.basisWindow.basisCommit === cand.t0,
+    completeness: mined.selection.completeness,
+    pairsEmitted: mined.selection.pairs.length,
+    spanningObservation: spanning,
+    armDUnrelatedPair: unrelated[0] ?? null,
+    descriptiveOnly: true,
+    statedAs: 'support and occurrences over a pinned basis revision and window',
+    notClaimed: ['dependency', 'causality', 'blast radius', 'risk', 'required change'],
+  };
+  record.minedEvidence = mined;
+
+  if (!record.rules.evidenceHonesty.pass) {
+    record.disposition = 'REJECTED';
+    record.rejectionReason =
+      spanning.length === 0
+        ? 'NO_T0_EVIDENCE_FOR_THE_RELATIONSHIP'
+        : 'NO_PREREGISTERED_UNRELATED_PAIR_FOR_ARM_D';
+    screened.push(record);
+    console.error('#' + cand.order + ' ' + cand.repository + ' REJECTED ' + record.rejectionReason);
+    continue;
+  }
+
+  record.disposition = 'ADMITTED';
   screened.push(record);
   admitted = record;
-  console.error('#' + cand.order + ' ' + cand.repository + ' ADMITTED (rules 1-5,7,8 pass)');
+  console.error('#' + cand.order + ' ' + cand.repository + ' ADMITTED (all eight rules pass)');
   break;
 }
 
