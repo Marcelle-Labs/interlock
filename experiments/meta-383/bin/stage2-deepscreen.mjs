@@ -53,7 +53,28 @@ function requireDisk(where) {
 const git = (cwd, ...args) =>
   execFileSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
 
+// The first Stage 2b execution produced composed checks that finished in ~0.2s
+// with no `Checking <root>` line: cargo considered every unit fresh and did not
+// re-examine the composed source at all. Exit 0 from an inert probe is not
+// evidence. Two guards are added here and the inert run is preserved in
+// DEVIATIONS.md rather than silently replaced.
+//   (1) touchAll forces cargo's mtime fingerprints to be recomputed;
+//   (2) every check must show the workspace root actually being checked, or the
+//       verdict is PROBE_INERT and the screen aborts instead of recording a
+//       disposition.
+function touchAll(cwd) {
+  execFileSync('sh', ['-c',
+    "find . -type f \\( -name '*.rs' -o -name 'Cargo.toml' -o -name 'Cargo.lock' -o -name '*.clj' -o -name '*.edn' \\) -exec touch {} +"],
+    { cwd, encoding: 'utf8' });
+}
+const ROOT_EVIDENCE = {
+  'JamieMason/syncpack': /^\s*(Checking|Compiling) syncpack v/m,
+  'formatjs/formatjs': /^\s*(Checking|Compiling) /m,
+  'polyfy/polylith': /./,
+};
+
 function runSurface(repo, cwd, label) {
+  touchAll(cwd);
   const [cmd, ...args] = SURFACE[repo];
   const t = Date.now();
   const r = spawnSync(cmd, args, {
@@ -71,7 +92,11 @@ function runSurface(repo, cwd, label) {
   out.tail = combined.split('\n').filter(Boolean).slice(-25).join('\n');
   out.errorLines = combined.split('\n').filter((l) => /^error(\[|:)/.test(l.trim())).slice(0, 40);
   out.passed = r.status === 0;
-  console.error(`    ${label}: exit=${r.status} (${out.seconds}s)`);
+  out.rootActuallyChecked = ROOT_EVIDENCE[repo].test(combined);
+  console.error(`    ${label}: exit=${r.status} (${out.seconds}s) rootChecked=${out.rootActuallyChecked}`);
+  if (!out.rootActuallyChecked) {
+    throw Object.assign(new Error('PROBE_INERT at ' + label + ': the frozen surface produced no evidence that the workspace root was examined'), { inert: true, detail: out });
+  }
   return out;
 }
 
@@ -80,6 +105,49 @@ const top6 = cands.deepScreenOrder.slice(0, 6);
 
 rmSync(WORK, { recursive: true, force: true });
 mkdirSync(WORK, { recursive: true });
+
+// ---------------------------------------------------------- positive control
+// Before any candidate verdict is trusted, prove the frozen surface can detect a
+// delete-versus-reference break of exactly the HAC-343 class in this harness.
+function positiveControl() {
+  const repo = 'JamieMason/syncpack';
+  const dir = CLONE[repo];
+  const t0 = top6[0].t0;
+  const w = join(WORK, 'positive-control');
+  git(dir, 'worktree', 'add', '--detach', '-f', w, t0);
+  try {
+    const clean = runSurface(repo, w, 'positive-control-clean');
+    // Remove a referenced item: delete the body of a pub fn's declaring line by
+    // renaming it, so every call site becomes an unresolved reference.
+    const target = execFileSync('sh', ['-c',
+      "grep -rln '^pub fn ' --include='*.rs' src crates | head -1"], { cwd: w, encoding: 'utf8' }).trim();
+    if (!target) throw new Error('positive control could not find a pub fn to remove');
+    const fnName = execFileSync('sh', ['-c',
+      "grep -m1 '^pub fn ' " + target + " | sed -E 's/^pub fn ([A-Za-z0-9_]+).*/\\1/'"], { cwd: w, encoding: 'utf8' }).trim();
+    execFileSync('sh', ['-c',
+      "sed -i '' 's/^pub fn " + fnName + "/pub fn " + fnName + "_renamed_by_positive_control/' " + target], { cwd: w });
+    let broke;
+    try { broke = runSurface(repo, w, 'positive-control-broken'); }
+    catch (e) { broke = e.detail || { passed: null, note: String(e.message) }; }
+    return {
+      question: 'Does the frozen validation surface actually detect a delete-versus-reference break in this harness?',
+      t0, mutatedFile: target, renamedFunction: fnName,
+      cleanExit: clean.exitCode, brokenExit: broke.exitCode,
+      surfaceIsLive: clean.exitCode === 0 && broke.exitCode !== 0,
+      brokenErrorLines: broke.errorLines,
+    };
+  } finally {
+    try { git(dir, 'worktree', 'remove', '--force', w); } catch { rmSync(w, { recursive: true, force: true }); }
+  }
+}
+console.error('=== positive control ===');
+const control = positiveControl();
+console.error('  surfaceIsLive=' + control.surfaceIsLive);
+if (!control.surfaceIsLive) {
+  writeFileSync(join(EXP, 'evidence', 'stage2b-deepscreen.json'), JSON.stringify(
+    { experiment: 'META-383', kind: 'Stage 2b deep screen', disposition: 'ABORTED_SURFACE_NOT_LIVE', positiveControl: control }, null, 2) + '\n');
+  throw new Error('frozen validation surface failed its positive control; no candidate verdict may be recorded');
+}
 
 const results = [];
 let admitted = null;
@@ -202,11 +270,11 @@ for (const c of top6) {
     results.push(rec);
   } catch (e) {
     rec.admitted = false;
-    rec.rejectionReason = e.infra ? 'INFRASTRUCTURE_FAILURE_NOT_A_VERDICT' : 'SCREENING_ERROR';
+    rec.rejectionReason = e.infra ? 'INFRASTRUCTURE_FAILURE_NOT_A_VERDICT' : e.inert ? 'PROBE_INERT_NOT_A_VERDICT' : 'SCREENING_ERROR';
     rec.error = String(e.stderr || e.message).slice(0, 4000);
     results.push(rec);
     cleanup();
-    if (e.infra) {
+    if (e.infra || e.inert) {
       writeFileSync(join(EXP, 'evidence', 'stage2b-deepscreen.json'), JSON.stringify(
         { experiment: 'META-383', kind: 'Stage 2b deep screen', disposition: 'ABORTED_INFRASTRUCTURE', candidates: results }, null, 2) + '\n');
       console.error('ABORTED: ' + e.message);
@@ -223,6 +291,7 @@ const out = {
   frozenBy: 'PREREGISTRATION.md section 5, commit 032178b',
   evaluationOrderNote:
     'Rules were evaluated in compile-cost order (2, 4, 3a-base, 5, 3b, 8). Admission is the conjunction of all eight and is order-independent. Rules 1, 6 and 7 are properties of the evidence payload and the tree, adjudicated in the receipt rather than by this script.',
+  positiveControl: control,
   deepScreenBudget: 6,
   candidates: results,
   admittedOrder: admitted ? admitted.order : null,
