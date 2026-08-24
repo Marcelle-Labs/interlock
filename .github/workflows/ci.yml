@@ -525,6 +525,49 @@ jobs:
             echo "genuinely changed, that is a claim change and belongs on HAC-333."
           } >> "$GITHUB_STEP_SUMMARY"
 
+  filmed-run-gate:
+    name: Filmed run record gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # HAC-324's filmed-run record is *derived* from the packet the traversal
+      # emitted, which sits committed beside it. A derivation that quietly
+      # changed an execution fact would therefore look corroborated rather than
+      # contradicted, so the gate rebuilds the record and proves every execution
+      # fact is byte-identical to the emitted bytes.
+      - name: Verify the filmed-run record
+        run: pnpm run check:filmed-run
+
+      - name: Every gate is proven to fail on the defect it targets
+        run: pnpm vitest run test/hac-324-filmed-run-gates.test.mjs
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Filmed run record gate failed"
+            echo
+            echo "**Invariant.** \`experiments/hac-324/evidence/filmed-run.json\` is"
+            echo "\`filmed-run.raw.json\` plus exactly one declared correction: the"
+            echo "observer principal, which the HAC-340 provisioning script recorded as"
+            echo "the provisioning caller rather than the principal that performed the"
+            echo "read-back. Every execution fact must be byte-identical between the two,"
+            echo "the capture package must name the same run, and every frame must still"
+            echo "match its recorded digest."
+            echo
+            echo "Rebuild with \`node experiments/hac-324/bin/build-filmed-run.mjs\`."
+            echo "Do not hand-edit either file: the raw packet is the emitted evidence and"
+            echo "the derived record is generated from it."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   evaluation-gate:
     name: Evaluation gate
     runs-on: ubuntu-24.04

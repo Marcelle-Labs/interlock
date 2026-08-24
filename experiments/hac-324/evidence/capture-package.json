@@ -80,10 +80,10 @@
   "allFramesPassQuality": true,
   "knownDiscrepancies": [
     {
-      "field": "filmed-run.json \u2192 resources.observerPrincipal",
+      "field": "filmed-run.raw.json \u2192 resources.observerPrincipal",
       "recorded": "user:qwynn@marcellelabs.io",
       "actual": "serviceAccount:interlock-hac340-observer@interlock-film-260823.iam.gserviceaccount.com",
-      "why": "10-provision.sh records the caller from `gcloud config get-value account` at provision time. The traversal authenticated by impersonating the dedicated keyless observer SA, because gcloud 580 refuses audience-scoped ID tokens for user accounts. The packet field was not edited \u2014 evidence is recorded as emitted, and the correction lives here.",
+      "why": "Corrected at the producing layer. The emitted packet is preserved verbatim as filmed-run.raw.json; experiments/hac-324/bin/build-filmed-run.mjs derives filmed-run.json, splitting the conflated field into operatorPrincipal (who provisioned) and observerPrincipal (who observed). experiments/hac-324/bin/verify-filmed-run.mjs proves every execution fact is byte-identical between the two.",
       "classification": "NON_MATERIAL \u2014 adjudicated principal-type substitution; controls returned identical 403/401/403"
     },
     {
@@ -99,5 +99,6 @@
     "deletedAt": "2026-08-24T01:50:43.559Z",
     "projectLifecycleState": "DELETE_REQUESTED"
   },
-  "packetVerification": "HAC-340 packet verified \u2014 all 19 assertions including teardown"
+  "packetVerification": "HAC-340 packet verified \u2014 all 19 assertions including teardown",
+  "operatorPrincipal": "user:qwynn@marcellelabs.io"
 }
