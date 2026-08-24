@@ -1,0 +1,95 @@
+{
+  "stage": 1,
+  "question": "Can the frozen HAC-343 cross-target composition fixture be represented as live Git worktree state?",
+  "disposition": "MECHANISM_TRANSFER_ONLY",
+  "claimBoundary": "MECHANISM_TRANSFER_ONLY is a mechanism check. It is not evidence of workspace.json usefulness and is never reported as such.",
+  "scenario": {
+    "id": "registry/coupled/retire-vs-route",
+    "label": "COUPLED",
+    "family": "registry",
+    "intents": [
+      {
+        "op": "remove-service",
+        "path": "registry/services.json",
+        "service": "legacy-pricing"
+      },
+      {
+        "op": "add-route",
+        "path": "routing/routes.json",
+        "route": "/pricing",
+        "service": "legacy-pricing"
+      }
+    ]
+  },
+  "hac343Fidelity": {
+    "intentsReadFrom": "experiments/hac-343/evidence/corpus.json",
+    "intentsAppliedBy": "experiments/hac-343/lib/executor.mjs applyIntent()",
+    "oracle": "the fixture's own verify.mjs; the verdict is the exit code, and stdout is preserved but never parsed for the verdict",
+    "semanticsChanged": false
+  },
+  "baseRevision": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+  "baseTree": "b57f883c20fa06246799e610eed88b90d160dfc5",
+  "frozenCorpusHead": "50c48393ef0df2d1a31abf71a45b5ac3127fb8bf",
+  "frozenCorpusTree": "b57f883c20fa06246799e610eed88b90d160dfc5",
+  "worktrees": {
+    "a": {
+      "path": "<experiment>/.work/stage1/wt-a",
+      "changedPaths": [
+        "registry/services.json"
+      ],
+      "diffSha256": "b292abf1e60c55869ce6c62ed6a9b7298b22bfbbfe2f490c223796783c90d816",
+      "committed": false,
+      "staged": false
+    },
+    "b": {
+      "path": "<experiment>/.work/stage1/wt-b",
+      "changedPaths": [
+        "routing/routes.json"
+      ],
+      "diffSha256": "25fa37d840b2cefb9984404b5aba64c0e758ee2c7bc5f89c84564e904ba7e34b",
+      "committed": false,
+      "staged": false
+    },
+    "integration": {
+      "path": "<experiment>/.work/stage1/wt-int",
+      "disposable": true
+    }
+  },
+  "crossTarget": {
+    "pathDisjoint": true,
+    "textualMergeConflict": false
+  },
+  "independentLocalValidity": {
+    "a": {
+      "exitCode": 0,
+      "holds": true,
+      "stdout": "{\n  \"invariant\": \"every route.service and alias target resolves in registry/services.json\",\n  \"declared\": [\n    \"checkout\",\n    \"inventory\"\n  ],\n  \"references\": 3,\n  \"dangling\": [],\n  \"holds\": true\n}\n"
+    },
+    "b": {
+      "exitCode": 0,
+      "holds": true,
+      "stdout": "{\n  \"invariant\": \"every route.service and alias target resolves in registry/services.json\",\n  \"declared\": [\n    \"checkout\",\n    \"inventory\",\n    \"legacy-pricing\"\n  ],\n  \"references\": 4,\n  \"dangling\": [],\n  \"holds\": true\n}\n"
+    }
+  },
+  "composed": {
+    "exitCode": 1,
+    "holds": false,
+    "stdout": "{\n  \"invariant\": \"every route.service and alias target resolves in registry/services.json\",\n  \"declared\": [\n    \"checkout\",\n    \"inventory\"\n  ],\n  \"references\": 4,\n  \"dangling\": [\n    {\n      \"kind\": \"route\",\n      \"from\": \"/pricing\",\n      \"to\": \"legacy-pricing\"\n    }\n  ],\n  \"holds\": false\n}\n",
+    "stderr": "",
+    "dangling": [
+      {
+        "kind": "route",
+        "from": "/pricing",
+        "to": "legacy-pricing"
+      }
+    ]
+  },
+  "replayIntegrity": {
+    "candidateWorktreeMutatedByComposition": false
+  },
+  "exitZeroIsNotEvidence": "Every state above is established by the preserved verifier output, not by an exit code alone.",
+  "diffs": {
+    "a": "diff --git a/registry/services.json b/registry/services.json\nindex 3d2759d..f51c694 100644\n--- a/registry/services.json\n+++ b/registry/services.json\n@@ -1,7 +1,6 @@\n {\n   \"services\": [\n     \"checkout\",\n-    \"inventory\",\n-    \"legacy-pricing\"\n+    \"inventory\"\n   ]\n }\n",
+    "b": "diff --git a/routing/routes.json b/routing/routes.json\nindex 5e39117..cc85898 100644\n--- a/routing/routes.json\n+++ b/routing/routes.json\n@@ -7,6 +7,10 @@\n     {\n       \"path\": \"/inventory\",\n       \"service\": \"inventory\"\n+    },\n+    {\n+      \"path\": \"/pricing\",\n+      \"service\": \"legacy-pricing\"\n     }\n   ]\n }\n"
+  }
+}
