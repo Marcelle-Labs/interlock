@@ -1,0 +1,63 @@
+{
+  "experiment": "META-383",
+  "kind": "host profile",
+  "status": "FROZEN_BEFORE_SCREENING",
+  "probedAt": "2026-08-24",
+  "platform": {
+    "os": "Darwin",
+    "release": "25.1.0",
+    "machine": "arm64"
+  },
+  "decisionHost": {
+    "binary": "claude",
+    "version": "2.1.241 (Claude Code)",
+    "mode": "--print (non-interactive)",
+    "model": "claude-sonnet-5",
+    "allowedTools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Bash"
+    ],
+    "allowedToolsNote": "Identical across arms A, B, C and D. Information is the only treatment; capability is held constant.",
+    "timeoutSeconds": 600,
+    "concurrency": 5,
+    "runsPerFixturePerArm": 5
+  },
+  "toolchains": {
+    "node": "v22.19.0",
+    "git": "git version 2.52.0",
+    "python3": "Python 3.14.6",
+    "rustupCargo": "cargo 1.97.0 (c980f4866 2026-06-30)",
+    "java": "openjdk version \"26.0.2.1\" 2026-08-18",
+    "clojure": "Clojure CLI version 1.12.5.1664"
+  },
+  "validationSurfaces": {
+    "JamieMason/syncpack": {
+      "command": "cargo check --workspace --locked",
+      "toolchain": "rust-toolchain.toml channel 1.97 via rustup",
+      "resolvedRustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+      "probedAtPin": true,
+      "available": true,
+      "probeResult": "PASS (clean workspace check at the pinned revision)",
+      "note": "Repository-native compiler. Rust resolves item references at compile time, so a delete-versus-reference composition hazard is caught by the repository's own toolchain rather than by any checker this experiment authored."
+    },
+    "formatjs/formatjs": {
+      "command": "cargo check --workspace --locked --exclude formatjs_icu_messageformat_parser_integration_tests",
+      "probedAtPin": true,
+      "available": true,
+      "probeResult": "PASS after excluding one Bazel-only crate",
+      "exclusionReason": "formatjs_icu_messageformat_parser_integration_tests depends on the Bazel-provided `runfiles` crate, which is absent from the Cargo graph. It fails to check at the pinned revision independently of any candidate change, so it is excluded as a pre-existing property of the repository, not in response to a candidate.",
+      "note": "Covers the Rust crates only. The TypeScript surface would require a full pnpm install of a Bazel monorepo and is NOT part of the frozen surface; a candidate whose consequence is only observable in TypeScript is rejected VALIDATION_SURFACE_UNAVAILABLE."
+    },
+    "polyfy/polylith": {
+      "command": "clojure -M:poly check",
+      "probedAtPin": true,
+      "available": true,
+      "probeResult": "PASS (printed OK at the pinned revision)",
+      "note": "Polylith's own workspace checker validates component/interface references across bricks. It is repository-native and is precisely the referential hazard class under test, so it is a fair surface rather than a weak stand-in for a compiler."
+    }
+  },
+  "surfaceFairness": "All three repositories in the frozen universe have a working, repository-native, deterministic validation surface at their pinned revision. Two toolchains (rustup 1.97 for syncpack, openjdk + Clojure CLI for polylith) were installed BEFORE screening specifically so that no repository would be silently unable to admit a candidate. No repository is excluded by infrastructure.",
+  "noHandAuthoredOracle": "Every surface above is the repository's own. This experiment authors no invariant checker for the external universe."
+}

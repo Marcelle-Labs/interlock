@@ -1,0 +1,55 @@
+{
+  "experiment": "META-383",
+  "kind": "frozen external repository universe",
+  "status": "FROZEN_BEFORE_SCREENING",
+  "provenance": "Reused verbatim from META-373 / META-375. No fourth repository may be added, before or after outcomes.",
+  "tieBreakOrder": [
+    "polyfy/polylith",
+    "JamieMason/syncpack",
+    "formatjs/formatjs"
+  ],
+  "repositories": [
+    {
+      "repository": "polyfy/polylith",
+      "remote": "https://github.com/polyfy/polylith",
+      "pinnedRevision": "68dab9868274c8044817983c2424fbdbd616a456",
+      "pinObjectType": "commit",
+      "pinPresentInClone": true,
+      "pinCommitDate": "2026-08-09T20:37:01+02:00",
+      "pinSubject": "Fix race condition",
+      "pinTree": "f7c6ca3cd7c3b51088224a495f20106ef69dca8b",
+      "firstParentDepthAtPin": 394,
+      "totalReachableAtPin": 397,
+      "localClone": "/private/tmp/meta375/clones/polylith",
+      "shallow": "false"
+    },
+    {
+      "repository": "JamieMason/syncpack",
+      "remote": "https://github.com/JamieMason/syncpack",
+      "pinnedRevision": "958d30689ac24b60623258630242330bd6d0264b",
+      "pinObjectType": "commit",
+      "pinPresentInClone": true,
+      "pinCommitDate": "2026-08-09T12:13:52+01:00",
+      "pinSubject": "chore(release): 15.3.3",
+      "pinTree": "78748c316d8a079deaf072d2aad7c3eadc84ec5d",
+      "firstParentDepthAtPin": 919,
+      "totalReachableAtPin": 919,
+      "localClone": "/private/tmp/meta375/clones/syncpack",
+      "shallow": "false"
+    },
+    {
+      "repository": "formatjs/formatjs",
+      "remote": "https://github.com/formatjs/formatjs",
+      "pinnedRevision": "27c29bf9a40a50dac232a159b8790dbd14732c57",
+      "pinObjectType": "commit",
+      "pinPresentInClone": true,
+      "pinCommitDate": "2026-08-10T15:40:37Z",
+      "pinSubject": "chore(deps): update dependency oxlint to v1.77.0 (#7025)",
+      "pinTree": "54f5b4619ce6a84191a303256feb151d07effd05",
+      "firstParentDepthAtPin": 6545,
+      "totalReachableAtPin": 6856,
+      "localClone": "/private/tmp/meta375/clones/formatjs",
+      "shallow": "false"
+    }
+  ]
+}
