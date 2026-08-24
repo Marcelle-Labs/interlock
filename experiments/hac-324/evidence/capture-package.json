@@ -1,0 +1,103 @@
+{
+  "packageId": "HAC-324-authoritative-filmed-run",
+  "proofClass": "GOOGLE CLOUD PARTICIPATION",
+  "filmedRunId": "ilk-hac340-cloud-1787536029323",
+  "correlationId": "ilk-hac340-cloud-1787536029323",
+  "receiptId": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d",
+  "receiptDigest": "sha256:7fb65efe30d89bab241d1f5b8ea00ca58fb732a30b9fb87288a09deab411743f",
+  "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+  "productRevision": "director 0beeb4a40283687ccfc518f16115e9e3a3277664",
+  "gcpProject": "interlock-film-260823",
+  "region": "us-central1",
+  "vertexLocation": "global",
+  "model": "gemini-3.5-flash",
+  "adk": "Google ADK 1.35.1 / Vertex AI",
+  "revisions": {
+    "agent": "interlock-hac340-agent-00001-hbk",
+    "proxy": "interlock-hac340-proxy-00001-s76",
+    "target": "interlock-hac340-target-00001-sng"
+  },
+  "externalCallerPrincipal": "serviceAccount:interlock-hac340-observer@interlock-film-260823.iam.gserviceaccount.com",
+  "principalSubstitution": "NON_MATERIAL \u2014 human user replaced by dedicated keyless observer SA; adjudicated, and controls returned identical 403/401/403",
+  "capturedAt": "2026-08-24T01:49:43.617Z",
+  "frames": [
+    {
+      "sceneId": "agent-traversal",
+      "source": "live agent traversal executed during capture",
+      "path": "/tmp/il-film-capture/out/.work/recordings/scene-agent-traversal.png",
+      "sha256": "102cafb35c0c02f9df1d9518e3be9fd9f361480f12d6f7bb37b3f1e640a1a490",
+      "bytes": 93288,
+      "qualityPass": true,
+      "qualityFailures": [],
+      "distinctColors": 467,
+      "luminanceStdDev": 18.71
+    },
+    {
+      "sceneId": "gemini-adk-attribution",
+      "source": "live Cloud Run config: model + pinned ADK image",
+      "path": "/tmp/il-film-capture/out/.work/recordings/scene-gemini-adk-attribution.png",
+      "sha256": "ee007e9c29c5fea3719fcec6d63d68c1ead5af33fceef4d90a8d1775f24f85c0",
+      "bytes": 146792,
+      "qualityPass": true,
+      "qualityFailures": [],
+      "distinctColors": 523,
+      "luminanceStdDev": 26.49
+    },
+    {
+      "sceneId": "cloud-run-topology",
+      "source": "live Cloud Run services and revisions",
+      "path": "/tmp/il-film-capture/out/.work/recordings/scene-cloud-run-topology.png",
+      "sha256": "ae6bd02c7f4ebf0dc2b55ad76eb5b91d03ec32eba672672433480dd75b80e779",
+      "bytes": 99108,
+      "qualityPass": true,
+      "qualityFailures": [],
+      "distinctColors": 498,
+      "luminanceStdDev": 20.67
+    },
+    {
+      "sceneId": "cloud-logging-correlation",
+      "source": "live Cloud Logging filtered to this run",
+      "path": "/tmp/il-film-capture/out/.work/recordings/scene-cloud-logging-correlation.png",
+      "sha256": "ccd916391f6a8f38dde906477c6e16423db8a509bde55f64b59945517087fee8",
+      "bytes": 133422,
+      "qualityPass": true,
+      "qualityFailures": [],
+      "distinctColors": 504,
+      "luminanceStdDev": 23.8
+    },
+    {
+      "sceneId": "receipt-mutation-observation",
+      "source": "evidence packet emitted by scene 1's traversal",
+      "path": "/tmp/il-film-capture/out/.work/recordings/scene-receipt-mutation-observation.png",
+      "sha256": "381c629fa64bbafec37b07ad4b22c8d074cb2f67a24b2f25e1b2fddd54860d8c",
+      "bytes": 233212,
+      "qualityPass": true,
+      "qualityFailures": [],
+      "distinctColors": 509,
+      "luminanceStdDev": 34.18
+    }
+  ],
+  "allFramesPassQuality": true,
+  "knownDiscrepancies": [
+    {
+      "field": "filmed-run.json \u2192 resources.observerPrincipal",
+      "recorded": "user:qwynn@marcellelabs.io",
+      "actual": "serviceAccount:interlock-hac340-observer@interlock-film-260823.iam.gserviceaccount.com",
+      "why": "10-provision.sh records the caller from `gcloud config get-value account` at provision time. The traversal authenticated by impersonating the dedicated keyless observer SA, because gcloud 580 refuses audience-scoped ID tokens for user accounts. The packet field was not edited \u2014 evidence is recorded as emitted, and the correction lives here.",
+      "classification": "NON_MATERIAL \u2014 adjudicated principal-type substitution; controls returned identical 403/401/403"
+    },
+    {
+      "field": "raw gcloud --format=json live-surface dumps",
+      "recorded": "captured during preflight, outside the hardened path",
+      "actual": "excluded from this package",
+      "why": "`gcloud run services list --format=json` embeds the proxy's INTERLOCK_SIGNING_KEY_PEM (an Ed25519 private key) verbatim in the service env. Those dumps were taken with plain gcloud before the redaction adapter existed and were removed rather than committed. Every frame in this package went through the hardened path, whose redaction covers private-key blocks; none of them contain key material. The project has since been deleted, so the key is dead either way.",
+      "classification": "EXCLUDED \u2014 superseded by the provenance-bound frames"
+    }
+  ],
+  "teardown": {
+    "status": "completed",
+    "deletedAt": "2026-08-24T01:50:43.559Z",
+    "projectLifecycleState": "DELETE_REQUESTED"
+  },
+  "packetVerification": "HAC-340 packet verified \u2014 all 19 assertions including teardown"
+}
