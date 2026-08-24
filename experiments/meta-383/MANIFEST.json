@@ -13,8 +13,13 @@
     5
   ],
   "modelRuns": 0,
-  "fileCount": 28,
+  "fileCount": 26,
   "files": [
+    {
+      "path": "DEVIATIONS.md",
+      "bytes": 8244,
+      "sha256": "3f216a7a4f44174797a1ec281ed696e7ccaad3e113d73a86a96de0fb0bf6a583"
+    },
     {
       "path": "PREREGISTRATION.md",
       "bytes": 18245,
@@ -22,13 +27,8 @@
     },
     {
       "path": "RECEIPT.md",
-      "bytes": 5357,
-      "sha256": "4d8239f1a776c2784bf0383708d8596bc81dc32d62894553f5e9a5fd1d12771b"
-    },
-    {
-      "path": "REPORT.md",
-      "bytes": 8400,
-      "sha256": "cabb1ab729a875b68d92ccc3000f046a87ebb24831829c38cf9b08e6845c4692"
+      "bytes": 7491,
+      "sha256": "8647da5e67500a92d9761dffd9e90a5fdce2ddb1ab9cffb7da220804ae6a9e8c"
     },
     {
       "path": "bin/manifest.mjs",
@@ -51,11 +51,6 @@
       "sha256": "3c9ff483b8050eab32402d3e72c977be91de5166854086b4847ed6443ae1bd1e"
     },
     {
-      "path": "bin/stage2-screen.mjs",
-      "bytes": 15945,
-      "sha256": "946611c7bc658968d17f6342ac5cf3d0d9b9e19612c58caa5e9dd5a9bc66292e"
-    },
-    {
       "path": "evidence/candidates.json",
       "bytes": 37642,
       "sha256": "0fc486c014184a5e04a05ee26072f01a7ea85429584d578dcb4304ef5d8fe93e"
@@ -69,11 +64,6 @@
       "path": "evidence/repositories.json",
       "bytes": 2066,
       "sha256": "9b95db02f5c3390a635b7e359d8d739a0fe1e34087dac56dc45b6a613f3e9169"
-    },
-    {
-      "path": "evidence/screening.json",
-      "bytes": 47753,
-      "sha256": "35803845a753952a37ba92c3185d818dd66971b096d1d8062ff0e3f33fcdf5d0"
     },
     {
       "path": "evidence/stage1.json",

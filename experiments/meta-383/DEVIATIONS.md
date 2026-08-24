@@ -119,3 +119,36 @@ both are stated rather than buried:
    that natural cross-worktree composition hazards are rare in real repositories.
    That question is untested here, and any successor must fix the source-path
    rule *before* freezing, not after.
+
+## D5 — A second, concurrent execution of this issue. Its Stage 2b is withdrawn.
+
+META-383 was executed twice, concurrently, in this same working tree. Both runs
+worked from the same preregistration (`032178b`) and both reached
+`BOUNDED_SEARCH_EXHAUSTED`, but they were not coordinated, and their commits
+interleave: `032178b`, `5508ea0`, `3f70d48` and `c994c2c` come from one
+execution, `320bfd2` and `a633715` from the other.
+
+Two things are worth keeping from that.
+
+**The enumeration reproduced exactly.** `evidence/candidates.json` and
+`bin/stage2-enumerate.mjs` are byte-identical between the two independent runs.
+The frozen section 4 rule is deterministic in practice, not just on paper, and
+the 40-pair set and deep-screen order are not an artifact of one execution.
+
+**The second execution's deep screen was unsound and is withdrawn.** Its
+`bin/stage2-screen.mjs` and `evidence/screening.json` recorded six
+`COMPOSITION_IS_VALID` verdicts from `cargo check` runs that completed in 143 ms,
+168 ms and 241 ms on several candidates without recompiling anything, and its own
+"was the root actually checked?" assertion could never fire because it inspected
+`stdout` while cargo writes progress to `stderr`. Those verdicts rest on exactly
+the failure mode PREREGISTRATION §13 names — *exit 0 is never evidence by
+itself* — and the guards in D2, plus the positive control in D3, are what
+separate the surviving run from it.
+
+Both files, and the report derived from them, were removed rather than annotated,
+because a known-bad verdict set sitting inside an evidence package is something a
+later reader can cite by accident. The removal is a commit in this branch's
+history, not a rewrite; the withdrawn work remains readable at `c994c2c`.
+
+The disposition is unaffected. It was reached independently by both executions,
+and the surviving one is the instrumented one.
