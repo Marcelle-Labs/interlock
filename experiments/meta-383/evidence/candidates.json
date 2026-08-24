@@ -1,0 +1,1124 @@
+{
+  "experiment": "META-383",
+  "kind": "Stage 2a mechanical candidate enumeration",
+  "frozenBy": "PREREGISTRATION.md section 4, commit 032178b",
+  "parameters": {
+    "window": 150,
+    "maxWindowDistance": 25,
+    "totalCeiling": 40,
+    "quotas": {
+      "polyfy/polylith": 14,
+      "JamieMason/syncpack": 13,
+      "formatjs/formatjs": 13
+    },
+    "sourcePathRule": {
+      "lockfiles": [
+        "Cargo.lock",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "yarn.lock",
+        "MODULE.bazel.lock"
+      ],
+      "lockSuffix": ".lock",
+      "vendoredSegments": [
+        "node_modules",
+        "vendor",
+        "third_party",
+        "target",
+        "dist",
+        "build"
+      ]
+    },
+    "scoreRule": "score = |REM(Ca) INTERSECT ADD(Cb)| + |REM(Cb) INTERSECT ADD(Ca)|, identifiers /[A-Za-z_][A-Za-z0-9_]{3,}/ over source-path diff hunks at -U0; REM(C) excludes tokens the same commit re-adds",
+    "replayReading": "Step 3 replayability is part of the definition of a candidate pair. Pairs are apply-checked in frozen score order until the quota fills, which selects the identical set the literal rule would."
+  },
+  "totalEnumerated": 40,
+  "deepScreenOrder": [
+    {
+      "order": 1,
+      "repository": "JamieMason/syncpack",
+      "score": 135,
+      "t0": "cd79359fa810fd2bbfdfa69354f959b3bc11ed8c",
+      "ca": "052730cc1c69fa64546fb49e7f9c859369d82274",
+      "cb": "c3a24017b77fe2e4574db32c6b2cc25247e48d9a"
+    },
+    {
+      "order": 2,
+      "repository": "JamieMason/syncpack",
+      "score": 110,
+      "t0": "be883f5d6008d62a37d6daa65998908ec2493e59",
+      "ca": "53d54e07d69c35abc1a4124509d876f5dc837690",
+      "cb": "d1cedee1ab81e359cc056354e33c63788923269e"
+    },
+    {
+      "order": 3,
+      "repository": "JamieMason/syncpack",
+      "score": 69,
+      "t0": "e1dea165461ac7b2bbf85cc3534ce9a35c5fd280",
+      "ca": "352229642dbbbb27272170e99cf6a520706c39e2",
+      "cb": "c3a24017b77fe2e4574db32c6b2cc25247e48d9a"
+    },
+    {
+      "order": 4,
+      "repository": "JamieMason/syncpack",
+      "score": 68,
+      "t0": "7153e42d07142a01ef7b7bc0a9703f0f1c4bd535",
+      "ca": "44480de66429795ce0b53b5c800cbc76aa9aed14",
+      "cb": "c0482e6e29e95636ffdcf2e9fb5d0dd6aff64b00"
+    },
+    {
+      "order": 5,
+      "repository": "JamieMason/syncpack",
+      "score": 55,
+      "t0": "f49a895774ada5c999ab389c1693d3b399983f36",
+      "ca": "815e8afac28d1ce5b60044c44b51cb24ce76d242",
+      "cb": "d1cedee1ab81e359cc056354e33c63788923269e"
+    },
+    {
+      "order": 6,
+      "repository": "JamieMason/syncpack",
+      "score": 51,
+      "t0": "c826fe7b27c166ffff0c43ae274c87c8491aa2e5",
+      "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+      "cb": "2a98ec31888aad79ec792331aa838478407a5aea"
+    },
+    {
+      "order": 7,
+      "repository": "JamieMason/syncpack",
+      "score": 44,
+      "t0": "7153e42d07142a01ef7b7bc0a9703f0f1c4bd535",
+      "ca": "44480de66429795ce0b53b5c800cbc76aa9aed14",
+      "cb": "2a98ec31888aad79ec792331aa838478407a5aea"
+    },
+    {
+      "order": 8,
+      "repository": "JamieMason/syncpack",
+      "score": 41,
+      "t0": "c826fe7b27c166ffff0c43ae274c87c8491aa2e5",
+      "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+      "cb": "42c31a34073d816317e5144a29fa63572b28a0e1"
+    },
+    {
+      "order": 9,
+      "repository": "JamieMason/syncpack",
+      "score": 37,
+      "t0": "1a682b4d9d938d12f07894e36292d9c45e1e55f7",
+      "ca": "c0482e6e29e95636ffdcf2e9fb5d0dd6aff64b00",
+      "cb": "2a98ec31888aad79ec792331aa838478407a5aea"
+    },
+    {
+      "order": 10,
+      "repository": "polyfy/polylith",
+      "score": 35,
+      "t0": "6a8a2cb9be68044305c4d29b8d284456502d5c1e",
+      "ca": "f6714bd5737ea353cc874314024ca8fc49a0a2ee",
+      "cb": "7322300ee9f4249f72d5e7a14a57fdf9c976acac"
+    },
+    {
+      "order": 11,
+      "repository": "JamieMason/syncpack",
+      "score": 34,
+      "t0": "cb50d7f82ffde2e95bb9a3c65e4ff7adc03f485b",
+      "ca": "2765da1820859b6104ef80a2fc95fb7ec7aff62f",
+      "cb": "d1cedee1ab81e359cc056354e33c63788923269e"
+    },
+    {
+      "order": 12,
+      "repository": "JamieMason/syncpack",
+      "score": 30,
+      "t0": "5a14a28e00273e2e96295494ad4873ee18a6fb4a",
+      "ca": "4ec5ba86beaee66a04085c583d81ff4ee405a869",
+      "cb": "d1cedee1ab81e359cc056354e33c63788923269e"
+    },
+    {
+      "order": 13,
+      "repository": "polyfy/polylith",
+      "score": 29,
+      "t0": "73da9a794ce6e3a910797b6ece2114c673bdd140",
+      "ca": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+      "cb": "2d850fb1e0b77ae335a7bd8f96c8f2b2ca18b469"
+    },
+    {
+      "order": 14,
+      "repository": "JamieMason/syncpack",
+      "score": 28,
+      "t0": "cd79359fa810fd2bbfdfa69354f959b3bc11ed8c",
+      "ca": "052730cc1c69fa64546fb49e7f9c859369d82274",
+      "cb": "9a91292961e210a8081ac6130cd7bff10c86173f"
+    },
+    {
+      "order": 15,
+      "repository": "JamieMason/syncpack",
+      "score": 27,
+      "t0": "72ab3644d1240086309e8ad669531c5fecab5707",
+      "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+      "cb": "d59398e06d46629b767019ea04f28438784931e5"
+    },
+    {
+      "order": 16,
+      "repository": "polyfy/polylith",
+      "score": 20,
+      "t0": "e3ce9c37b48eb72a11b92045024dbc1c07ba726c",
+      "ca": "7d2beb0b3ec1ad297e3dcc72c627a5453cf8a949",
+      "cb": "ed5614196eefe582f3d7bf3cae1838c230395d26"
+    },
+    {
+      "order": 17,
+      "repository": "polyfy/polylith",
+      "score": 20,
+      "t0": "73da9a794ce6e3a910797b6ece2114c673bdd140",
+      "ca": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+      "cb": "345af4992b5ec97b712cd5b1a2a06f731cdfd61d"
+    },
+    {
+      "order": 18,
+      "repository": "polyfy/polylith",
+      "score": 13,
+      "t0": "20b2a8b86b687c38fd830c3f774718926f12e397",
+      "ca": "2c6ae861dfc7ecd31134d66d06ee787051a3431d",
+      "cb": "ed5614196eefe582f3d7bf3cae1838c230395d26"
+    },
+    {
+      "order": 19,
+      "repository": "polyfy/polylith",
+      "score": 13,
+      "t0": "adbfbe6b08a2d6bd71f5e9183a776453a36209a3",
+      "ca": "8126b116ff39d2081168be3d57c2da7f44dc4310",
+      "cb": "7322300ee9f4249f72d5e7a14a57fdf9c976acac"
+    },
+    {
+      "order": 20,
+      "repository": "polyfy/polylith",
+      "score": 9,
+      "t0": "6a8a2cb9be68044305c4d29b8d284456502d5c1e",
+      "ca": "f6714bd5737ea353cc874314024ca8fc49a0a2ee",
+      "cb": "855d146c1d5d7f39000cf432ba76a78a98ec8a5b"
+    },
+    {
+      "order": 21,
+      "repository": "polyfy/polylith",
+      "score": 7,
+      "t0": "bf268fde0e8fbfd25677906b8fa5715df8c693f8",
+      "ca": "a5614affd1a6ca4538bad8a3da17d4c06381f1e4",
+      "cb": "2d850fb1e0b77ae335a7bd8f96c8f2b2ca18b469"
+    },
+    {
+      "order": 22,
+      "repository": "polyfy/polylith",
+      "score": 7,
+      "t0": "84f4e9203742f31d7bb68c619cf26f2dc8c84b57",
+      "ca": "973fd8c74910c48a008c344b10fb51c1f28550de",
+      "cb": "7322300ee9f4249f72d5e7a14a57fdf9c976acac"
+    },
+    {
+      "order": 23,
+      "repository": "polyfy/polylith",
+      "score": 7,
+      "t0": "8126b116ff39d2081168be3d57c2da7f44dc4310",
+      "ca": "da3c0af130a5de9aff520934b88f42edd3b813f6",
+      "cb": "855d146c1d5d7f39000cf432ba76a78a98ec8a5b"
+    },
+    {
+      "order": 24,
+      "repository": "polyfy/polylith",
+      "score": 6,
+      "t0": "4b41adbd8db4bcd944a4183d36b557908d34e9ca",
+      "ca": "dc18d7a2baf69e03086fddfa408e1097fa4c45fa",
+      "cb": "e064d4cf19d1845d28befb7a636f5a3493812022"
+    },
+    {
+      "order": 25,
+      "repository": "polyfy/polylith",
+      "score": 6,
+      "t0": "20b2a8b86b687c38fd830c3f774718926f12e397",
+      "ca": "2c6ae861dfc7ecd31134d66d06ee787051a3431d",
+      "cb": "5d8b7aee02f28c8896c5584b246cad1cbb042607"
+    },
+    {
+      "order": 26,
+      "repository": "polyfy/polylith",
+      "score": 6,
+      "t0": "e3ce9c37b48eb72a11b92045024dbc1c07ba726c",
+      "ca": "7d2beb0b3ec1ad297e3dcc72c627a5453cf8a949",
+      "cb": "5d8b7aee02f28c8896c5584b246cad1cbb042607"
+    },
+    {
+      "order": 27,
+      "repository": "polyfy/polylith",
+      "score": 6,
+      "t0": "2790bc39611bf59db08e32d9e3e8e0f34195466c",
+      "ca": "1dc4cceff7e2cbeda46fa97f8a4b4a4a65fb53d2",
+      "cb": "67e8d618c5220ce44ef1c9545a32819ccabf7b72"
+    },
+    {
+      "order": 28,
+      "repository": "formatjs/formatjs",
+      "score": 5,
+      "t0": "bfeefd7f8cdb07d9c0fbbfce25f710f9e25e8bcc",
+      "ca": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+      "cb": "9c4c852408294b5f77c61bf19409501425974932"
+    },
+    {
+      "order": 29,
+      "repository": "formatjs/formatjs",
+      "score": 5,
+      "t0": "e0d13474a4ca778fec72a0a82e1d21a94beae0a5",
+      "ca": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+      "cb": "59a6395745afba1fb0bbc900c970254c33d03ff8"
+    },
+    {
+      "order": 30,
+      "repository": "formatjs/formatjs",
+      "score": 4,
+      "t0": "75ed3af6b656cd5d8012f66c290fdb5f96479702",
+      "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+      "cb": "9c4c852408294b5f77c61bf19409501425974932"
+    },
+    {
+      "order": 31,
+      "repository": "formatjs/formatjs",
+      "score": 4,
+      "t0": "75ed3af6b656cd5d8012f66c290fdb5f96479702",
+      "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+      "cb": "199859ad7d341282ef4fd8e0df5943b05d219ddd"
+    },
+    {
+      "order": 32,
+      "repository": "formatjs/formatjs",
+      "score": 4,
+      "t0": "e0d13474a4ca778fec72a0a82e1d21a94beae0a5",
+      "ca": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+      "cb": "917764836b64dab135b51994319847527e4df35c"
+    },
+    {
+      "order": 33,
+      "repository": "formatjs/formatjs",
+      "score": 3,
+      "t0": "75ed3af6b656cd5d8012f66c290fdb5f96479702",
+      "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+      "cb": "eded845fafc1b99c22a8bfe6519c68d6de1bacd0"
+    },
+    {
+      "order": 34,
+      "repository": "formatjs/formatjs",
+      "score": 3,
+      "t0": "d4e3912792acfb462ab8f10db49bc34b0e363563",
+      "ca": "419671047cdf0d3a667517ed5785308f4992f649",
+      "cb": "917764836b64dab135b51994319847527e4df35c"
+    },
+    {
+      "order": 35,
+      "repository": "formatjs/formatjs",
+      "score": 2,
+      "t0": "94ed2046aa54ab7e85a68da36d012969363160ff",
+      "ca": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10",
+      "cb": "78db711153cc23e775a09f0bbec52a178439f081"
+    },
+    {
+      "order": 36,
+      "repository": "formatjs/formatjs",
+      "score": 2,
+      "t0": "bfeefd7f8cdb07d9c0fbbfce25f710f9e25e8bcc",
+      "ca": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+      "cb": "eb0a8ec57804c957a24cf0add1df945dcd4841f9"
+    },
+    {
+      "order": 37,
+      "repository": "formatjs/formatjs",
+      "score": 2,
+      "t0": "e8b66009736249daf58c9aec92fe108a23161935",
+      "ca": "4aa090b701e3ea058314fadf88575c70aeed83d1",
+      "cb": "b6fac59bb1102fc1d6c95909b83c2ee9584dbe1f"
+    },
+    {
+      "order": 38,
+      "repository": "formatjs/formatjs",
+      "score": 2,
+      "t0": "ce7e4816b034419a803a82dab0b3a09c3495ed5c",
+      "ca": "e8b66009736249daf58c9aec92fe108a23161935",
+      "cb": "4aa090b701e3ea058314fadf88575c70aeed83d1"
+    },
+    {
+      "order": 39,
+      "repository": "formatjs/formatjs",
+      "score": 1,
+      "t0": "bfeefd7f8cdb07d9c0fbbfce25f710f9e25e8bcc",
+      "ca": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+      "cb": "78db711153cc23e775a09f0bbec52a178439f081"
+    },
+    {
+      "order": 40,
+      "repository": "formatjs/formatjs",
+      "score": 1,
+      "t0": "fb1ef9cc990598574e0ffa37c1002f50b0ad7c25",
+      "ca": "94ed2046aa54ab7e85a68da36d012969363160ff",
+      "cb": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10"
+    }
+  ],
+  "perRepository": [
+    {
+      "repository": "polyfy/polylith",
+      "pin": "68dab9868274c8044817983c2424fbdbd616a456",
+      "quota": 14,
+      "windowSize": 150,
+      "consideredPairs": 3425,
+      "mechanicallyRejected": {
+        "noSourcePath": 87,
+        "pathsOverlap": 1936
+      },
+      "pairsPassingMechanicalFilters": 1402,
+      "replayRejectedWhileFillingQuota": [
+        {
+          "ca": "7322300ee9f4249f72d5e7a14a57fdf9c976acac",
+          "cb": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "score": 33,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "65fc98d82a9c8da66566b09829f488b2fd80d668",
+          "cb": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "score": 28,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "cb": "4bd686329930f6bf70f6e8ffec45df764cc1e83c",
+          "score": 24,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "345af4992b5ec97b712cd5b1a2a06f731cdfd61d",
+          "cb": "1dc4cceff7e2cbeda46fa97f8a4b4a4a65fb53d2",
+          "score": 19,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "f6714bd5737ea353cc874314024ca8fc49a0a2ee",
+          "cb": "65fc98d82a9c8da66566b09829f488b2fd80d668",
+          "score": 19,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "4bd686329930f6bf70f6e8ffec45df764cc1e83c",
+          "cb": "1dc4cceff7e2cbeda46fa97f8a4b4a4a65fb53d2",
+          "score": 18,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "cb": "913e81eee26e7157b0a49fe199fce4e31d2582af",
+          "score": 17,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2d850fb1e0b77ae335a7bd8f96c8f2b2ca18b469",
+          "cb": "1dc4cceff7e2cbeda46fa97f8a4b4a4a65fb53d2",
+          "score": 15,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "8e4355b04ccf3179a9cf57bdae0c51d4e790a210",
+          "cb": "27877e5756096cccf86d3c2fe6dd7115c642ab3a",
+          "score": 13,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "65fc98d82a9c8da66566b09829f488b2fd80d668",
+          "cb": "a5614affd1a6ca4538bad8a3da17d4c06381f1e4",
+          "score": 12,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "973fd8c74910c48a008c344b10fb51c1f28550de",
+          "cb": "8e4355b04ccf3179a9cf57bdae0c51d4e790a210",
+          "score": 12,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "bf268fde0e8fbfd25677906b8fa5715df8c693f8",
+          "cb": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "score": 10,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "8126b116ff39d2081168be3d57c2da7f44dc4310",
+          "cb": "8e4355b04ccf3179a9cf57bdae0c51d4e790a210",
+          "score": 10,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "67e8d618c5220ce44ef1c9545a32819ccabf7b72",
+          "cb": "7d2beb0b3ec1ad297e3dcc72c627a5453cf8a949",
+          "score": 9,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "973fd8c74910c48a008c344b10fb51c1f28550de",
+          "cb": "65fc98d82a9c8da66566b09829f488b2fd80d668",
+          "score": 9,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "65fc98d82a9c8da66566b09829f488b2fd80d668",
+          "cb": "27877e5756096cccf86d3c2fe6dd7115c642ab3a",
+          "score": 7,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "616facf109be97adec49a747ae0cf08ad18fc3be",
+          "cb": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "score": 7,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        }
+      ],
+      "scoreDistribution": {
+        "max": 35,
+        "nonZeroScorePairs": 321
+      },
+      "enumerated": [
+        {
+          "ca": "f6714bd5737ea353cc874314024ca8fc49a0a2ee",
+          "cb": "7322300ee9f4249f72d5e7a14a57fdf9c976acac",
+          "iOlder": 107,
+          "jNewer": 96,
+          "score": 35,
+          "t0": "6a8a2cb9be68044305c4d29b8d284456502d5c1e"
+        },
+        {
+          "ca": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "cb": "2d850fb1e0b77ae335a7bd8f96c8f2b2ca18b469",
+          "iOlder": 76,
+          "jNewer": 62,
+          "score": 29,
+          "t0": "73da9a794ce6e3a910797b6ece2114c673bdd140"
+        },
+        {
+          "ca": "7d2beb0b3ec1ad297e3dcc72c627a5453cf8a949",
+          "cb": "ed5614196eefe582f3d7bf3cae1838c230395d26",
+          "iOlder": 33,
+          "jNewer": 15,
+          "score": 20,
+          "t0": "e3ce9c37b48eb72a11b92045024dbc1c07ba726c"
+        },
+        {
+          "ca": "87aeb2ce093f31449827fb19d189e4ad0f80859d",
+          "cb": "345af4992b5ec97b712cd5b1a2a06f731cdfd61d",
+          "iOlder": 76,
+          "jNewer": 61,
+          "score": 20,
+          "t0": "73da9a794ce6e3a910797b6ece2114c673bdd140"
+        },
+        {
+          "ca": "2c6ae861dfc7ecd31134d66d06ee787051a3431d",
+          "cb": "ed5614196eefe582f3d7bf3cae1838c230395d26",
+          "iOlder": 27,
+          "jNewer": 15,
+          "score": 13,
+          "t0": "20b2a8b86b687c38fd830c3f774718926f12e397"
+        },
+        {
+          "ca": "8126b116ff39d2081168be3d57c2da7f44dc4310",
+          "cb": "7322300ee9f4249f72d5e7a14a57fdf9c976acac",
+          "iOlder": 113,
+          "jNewer": 96,
+          "score": 13,
+          "t0": "adbfbe6b08a2d6bd71f5e9183a776453a36209a3"
+        },
+        {
+          "ca": "f6714bd5737ea353cc874314024ca8fc49a0a2ee",
+          "cb": "855d146c1d5d7f39000cf432ba76a78a98ec8a5b",
+          "iOlder": 107,
+          "jNewer": 106,
+          "score": 9,
+          "t0": "6a8a2cb9be68044305c4d29b8d284456502d5c1e"
+        },
+        {
+          "ca": "a5614affd1a6ca4538bad8a3da17d4c06381f1e4",
+          "cb": "2d850fb1e0b77ae335a7bd8f96c8f2b2ca18b469",
+          "iOlder": 82,
+          "jNewer": 62,
+          "score": 7,
+          "t0": "bf268fde0e8fbfd25677906b8fa5715df8c693f8"
+        },
+        {
+          "ca": "973fd8c74910c48a008c344b10fb51c1f28550de",
+          "cb": "7322300ee9f4249f72d5e7a14a57fdf9c976acac",
+          "iOlder": 116,
+          "jNewer": 96,
+          "score": 7,
+          "t0": "84f4e9203742f31d7bb68c619cf26f2dc8c84b57"
+        },
+        {
+          "ca": "da3c0af130a5de9aff520934b88f42edd3b813f6",
+          "cb": "855d146c1d5d7f39000cf432ba76a78a98ec8a5b",
+          "iOlder": 112,
+          "jNewer": 106,
+          "score": 7,
+          "t0": "8126b116ff39d2081168be3d57c2da7f44dc4310"
+        },
+        {
+          "ca": "dc18d7a2baf69e03086fddfa408e1097fa4c45fa",
+          "cb": "e064d4cf19d1845d28befb7a636f5a3493812022",
+          "iOlder": 9,
+          "jNewer": 1,
+          "score": 6,
+          "t0": "4b41adbd8db4bcd944a4183d36b557908d34e9ca"
+        },
+        {
+          "ca": "2c6ae861dfc7ecd31134d66d06ee787051a3431d",
+          "cb": "5d8b7aee02f28c8896c5584b246cad1cbb042607",
+          "iOlder": 27,
+          "jNewer": 16,
+          "score": 6,
+          "t0": "20b2a8b86b687c38fd830c3f774718926f12e397"
+        },
+        {
+          "ca": "7d2beb0b3ec1ad297e3dcc72c627a5453cf8a949",
+          "cb": "5d8b7aee02f28c8896c5584b246cad1cbb042607",
+          "iOlder": 33,
+          "jNewer": 16,
+          "score": 6,
+          "t0": "e3ce9c37b48eb72a11b92045024dbc1c07ba726c"
+        },
+        {
+          "ca": "1dc4cceff7e2cbeda46fa97f8a4b4a4a65fb53d2",
+          "cb": "67e8d618c5220ce44ef1c9545a32819ccabf7b72",
+          "iOlder": 42,
+          "jNewer": 40,
+          "score": 6,
+          "t0": "2790bc39611bf59db08e32d9e3e8e0f34195466c"
+        }
+      ]
+    },
+    {
+      "repository": "JamieMason/syncpack",
+      "pin": "958d30689ac24b60623258630242330bd6d0264b",
+      "quota": 13,
+      "windowSize": 150,
+      "consideredPairs": 3425,
+      "mechanicallyRejected": {
+        "noSourcePath": 50,
+        "pathsOverlap": 718
+      },
+      "pairsPassingMechanicalFilters": 2657,
+      "replayRejectedWhileFillingQuota": [
+        {
+          "ca": "d88bbe858e6a2c35aa34b0465202b5e7005d1a72",
+          "cb": "052730cc1c69fa64546fb49e7f9c859369d82274",
+          "score": 118,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "052730cc1c69fa64546fb49e7f9c859369d82274",
+          "score": 102,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "d88bbe858e6a2c35aa34b0465202b5e7005d1a72",
+          "score": 98,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "44480de66429795ce0b53b5c800cbc76aa9aed14",
+          "cb": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "score": 78,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "cb": "052730cc1c69fa64546fb49e7f9c859369d82274",
+          "score": 75,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "c0482e6e29e95636ffdcf2e9fb5d0dd6aff64b00",
+          "cb": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "score": 75,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "cb": "233a0b37265ff278bc96ece91f8c2bbfcaeeb280",
+          "score": 70,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "233a0b37265ff278bc96ece91f8c2bbfcaeeb280",
+          "score": 62,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "efb42bdde6c1ff34be32153e6abb8814646eddb7",
+          "score": 52,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "6cf8792eba78f5d901533e89f8b77c8d3a9216b0",
+          "cb": "d88bbe858e6a2c35aa34b0465202b5e7005d1a72",
+          "score": 51,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "cb": "6cf8792eba78f5d901533e89f8b77c8d3a9216b0",
+          "score": 48,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "d1cedee1ab81e359cc056354e33c63788923269e",
+          "cb": "8b1334a95092e2e9e032a86315875743e5148b41",
+          "score": 47,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "cb": "352229642dbbbb27272170e99cf6a520706c39e2",
+          "score": 46,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "352229642dbbbb27272170e99cf6a520706c39e2",
+          "score": 45,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "c0482e6e29e95636ffdcf2e9fb5d0dd6aff64b00",
+          "cb": "d88bbe858e6a2c35aa34b0465202b5e7005d1a72",
+          "score": 45,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "d59398e06d46629b767019ea04f28438784931e5",
+          "cb": "052730cc1c69fa64546fb49e7f9c859369d82274",
+          "score": 44,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "d1cedee1ab81e359cc056354e33c63788923269e",
+          "cb": "bd7573e29fce47d8f1a5bc1b5bc2b13b335b9430",
+          "score": 43,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "44480de66429795ce0b53b5c800cbc76aa9aed14",
+          "cb": "d88bbe858e6a2c35aa34b0465202b5e7005d1a72",
+          "score": 43,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "53d54e07d69c35abc1a4124509d876f5dc837690",
+          "cb": "8ac4a102d6628544063786f3e94c5493b7049d62",
+          "score": 38,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "5522ffe646fec8f9803b4aa63eb62a8b366d46d4",
+          "cb": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "score": 38,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "6cf8792eba78f5d901533e89f8b77c8d3a9216b0",
+          "cb": "c3a24017b77fe2e4574db32c6b2cc25247e48d9a",
+          "score": 37,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "efb42bdde6c1ff34be32153e6abb8814646eddb7",
+          "cb": "052730cc1c69fa64546fb49e7f9c859369d82274",
+          "score": 32,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "cb": "d43ddacbf4c781468d67c317a7eb2020e3cafcfc",
+          "score": 32,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "d1cedee1ab81e359cc056354e33c63788923269e",
+          "cb": "8ac4a102d6628544063786f3e94c5493b7049d62",
+          "score": 31,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "9d0f110984f3fd1485ea864df6142708951c6106",
+          "cb": "d88bbe858e6a2c35aa34b0465202b5e7005d1a72",
+          "score": 31,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "d43ddacbf4c781468d67c317a7eb2020e3cafcfc",
+          "score": 30,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "08fa3722a2a20f834cdf3b0fa472b5ec4acc6851",
+          "score": 27,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        }
+      ],
+      "scoreDistribution": {
+        "max": 135,
+        "nonZeroScorePairs": 878
+      },
+      "enumerated": [
+        {
+          "ca": "052730cc1c69fa64546fb49e7f9c859369d82274",
+          "cb": "c3a24017b77fe2e4574db32c6b2cc25247e48d9a",
+          "iOlder": 91,
+          "jNewer": 86,
+          "score": 135,
+          "t0": "cd79359fa810fd2bbfdfa69354f959b3bc11ed8c"
+        },
+        {
+          "ca": "53d54e07d69c35abc1a4124509d876f5dc837690",
+          "cb": "d1cedee1ab81e359cc056354e33c63788923269e",
+          "iOlder": 60,
+          "jNewer": 58,
+          "score": 110,
+          "t0": "be883f5d6008d62a37d6daa65998908ec2493e59"
+        },
+        {
+          "ca": "352229642dbbbb27272170e99cf6a520706c39e2",
+          "cb": "c3a24017b77fe2e4574db32c6b2cc25247e48d9a",
+          "iOlder": 93,
+          "jNewer": 86,
+          "score": 69,
+          "t0": "e1dea165461ac7b2bbf85cc3534ce9a35c5fd280"
+        },
+        {
+          "ca": "44480de66429795ce0b53b5c800cbc76aa9aed14",
+          "cb": "c0482e6e29e95636ffdcf2e9fb5d0dd6aff64b00",
+          "iOlder": 128,
+          "jNewer": 125,
+          "score": 68,
+          "t0": "7153e42d07142a01ef7b7bc0a9703f0f1c4bd535"
+        },
+        {
+          "ca": "815e8afac28d1ce5b60044c44b51cb24ce76d242",
+          "cb": "d1cedee1ab81e359cc056354e33c63788923269e",
+          "iOlder": 78,
+          "jNewer": 58,
+          "score": 55,
+          "t0": "f49a895774ada5c999ab389c1693d3b399983f36"
+        },
+        {
+          "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "cb": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "iOlder": 116,
+          "jNewer": 113,
+          "score": 51,
+          "t0": "c826fe7b27c166ffff0c43ae274c87c8491aa2e5"
+        },
+        {
+          "ca": "44480de66429795ce0b53b5c800cbc76aa9aed14",
+          "cb": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "iOlder": 128,
+          "jNewer": 113,
+          "score": 44,
+          "t0": "7153e42d07142a01ef7b7bc0a9703f0f1c4bd535"
+        },
+        {
+          "ca": "3a7b83a9dc6f4761fd60b9b0936c085a08446310",
+          "cb": "42c31a34073d816317e5144a29fa63572b28a0e1",
+          "iOlder": 116,
+          "jNewer": 112,
+          "score": 41,
+          "t0": "c826fe7b27c166ffff0c43ae274c87c8491aa2e5"
+        },
+        {
+          "ca": "c0482e6e29e95636ffdcf2e9fb5d0dd6aff64b00",
+          "cb": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "iOlder": 125,
+          "jNewer": 113,
+          "score": 37,
+          "t0": "1a682b4d9d938d12f07894e36292d9c45e1e55f7"
+        },
+        {
+          "ca": "2765da1820859b6104ef80a2fc95fb7ec7aff62f",
+          "cb": "d1cedee1ab81e359cc056354e33c63788923269e",
+          "iOlder": 76,
+          "jNewer": 58,
+          "score": 34,
+          "t0": "cb50d7f82ffde2e95bb9a3c65e4ff7adc03f485b"
+        },
+        {
+          "ca": "4ec5ba86beaee66a04085c583d81ff4ee405a869",
+          "cb": "d1cedee1ab81e359cc056354e33c63788923269e",
+          "iOlder": 66,
+          "jNewer": 58,
+          "score": 30,
+          "t0": "5a14a28e00273e2e96295494ad4873ee18a6fb4a"
+        },
+        {
+          "ca": "052730cc1c69fa64546fb49e7f9c859369d82274",
+          "cb": "9a91292961e210a8081ac6130cd7bff10c86173f",
+          "iOlder": 91,
+          "jNewer": 90,
+          "score": 28,
+          "t0": "cd79359fa810fd2bbfdfa69354f959b3bc11ed8c"
+        },
+        {
+          "ca": "2a98ec31888aad79ec792331aa838478407a5aea",
+          "cb": "d59398e06d46629b767019ea04f28438784931e5",
+          "iOlder": 113,
+          "jNewer": 107,
+          "score": 27,
+          "t0": "72ab3644d1240086309e8ad669531c5fecab5707"
+        }
+      ]
+    },
+    {
+      "repository": "formatjs/formatjs",
+      "pin": "27c29bf9a40a50dac232a159b8790dbd14732c57",
+      "quota": 13,
+      "windowSize": 150,
+      "consideredPairs": 3425,
+      "mechanicallyRejected": {
+        "noSourcePath": 1986,
+        "pathsOverlap": 365
+      },
+      "pairsPassingMechanicalFilters": 1074,
+      "replayRejectedWhileFillingQuota": [
+        {
+          "ca": "6449dd1e23d5bac9ffacd5b4918cea0728d09f3a",
+          "cb": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+          "score": 11,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+          "cb": "419671047cdf0d3a667517ed5785308f4992f649",
+          "score": 7,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+          "cb": "bfeefd7f8cdb07d9c0fbbfce25f710f9e25e8bcc",
+          "score": 6,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+          "cb": "8b39e5d69aacedb8f2b8403734f16b75961d83c4",
+          "score": 5,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "59a6395745afba1fb0bbc900c970254c33d03ff8",
+          "cb": "4d43017af6ed9d2519343a84447f20a1ce9f2fbb",
+          "score": 4,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "e8b66009736249daf58c9aec92fe108a23161935",
+          "cb": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+          "score": 4,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "f86bbb6938703dce7496ad38ffe54c24b486999b",
+          "cb": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+          "score": 4,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+          "cb": "992fafda14b3966e96d3d53c9afae3c9762dfc7e",
+          "score": 3,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+          "cb": "eb0a8ec57804c957a24cf0add1df945dcd4841f9",
+          "score": 3,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "199859ad7d341282ef4fd8e0df5943b05d219ddd",
+          "cb": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+          "score": 3,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "9c4c852408294b5f77c61bf19409501425974932",
+          "cb": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10",
+          "score": 2,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "eb0a8ec57804c957a24cf0add1df945dcd4841f9",
+          "cb": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10",
+          "score": 2,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "4d43017af6ed9d2519343a84447f20a1ce9f2fbb",
+          "cb": "f329f904b520ce2751f3e835ec220abe45d667bd",
+          "score": 2,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "4d43017af6ed9d2519343a84447f20a1ce9f2fbb",
+          "cb": "75edf1cd6a7045475bb134daf62c686602c92547",
+          "score": 2,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "b6fac59bb1102fc1d6c95909b83c2ee9584dbe1f",
+          "cb": "4d43017af6ed9d2519343a84447f20a1ce9f2fbb",
+          "score": 2,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "f86bbb6938703dce7496ad38ffe54c24b486999b",
+          "cb": "419671047cdf0d3a667517ed5785308f4992f649",
+          "score": 2,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+          "cb": "68477c3d7f54b1e1f9791780dd59c0cc3b98cbbb",
+          "score": 1,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "8b39e5d69aacedb8f2b8403734f16b75961d83c4",
+          "cb": "68477c3d7f54b1e1f9791780dd59c0cc3b98cbbb",
+          "score": 1,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "199859ad7d341282ef4fd8e0df5943b05d219ddd",
+          "cb": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10",
+          "score": 1,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        },
+        {
+          "ca": "8b39e5d69aacedb8f2b8403734f16b75961d83c4",
+          "cb": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10",
+          "score": 1,
+          "reason": "PATCH_B_DOES_NOT_APPLY_TO_T0"
+        }
+      ],
+      "scoreDistribution": {
+        "max": 11,
+        "nonZeroScorePairs": 74
+      },
+      "enumerated": [
+        {
+          "ca": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+          "cb": "9c4c852408294b5f77c61bf19409501425974932",
+          "iOlder": 43,
+          "jNewer": 41,
+          "score": 5,
+          "t0": "bfeefd7f8cdb07d9c0fbbfce25f710f9e25e8bcc"
+        },
+        {
+          "ca": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+          "cb": "59a6395745afba1fb0bbc900c970254c33d03ff8",
+          "iOlder": 138,
+          "jNewer": 137,
+          "score": 5,
+          "t0": "e0d13474a4ca778fec72a0a82e1d21a94beae0a5"
+        },
+        {
+          "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+          "cb": "9c4c852408294b5f77c61bf19409501425974932",
+          "iOlder": 51,
+          "jNewer": 41,
+          "score": 4,
+          "t0": "75ed3af6b656cd5d8012f66c290fdb5f96479702"
+        },
+        {
+          "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+          "cb": "199859ad7d341282ef4fd8e0df5943b05d219ddd",
+          "iOlder": 51,
+          "jNewer": 45,
+          "score": 4,
+          "t0": "75ed3af6b656cd5d8012f66c290fdb5f96479702"
+        },
+        {
+          "ca": "ee5c5ae4bb8e7a6880794670ebc796d8f703f660",
+          "cb": "917764836b64dab135b51994319847527e4df35c",
+          "iOlder": 138,
+          "jNewer": 113,
+          "score": 4,
+          "t0": "e0d13474a4ca778fec72a0a82e1d21a94beae0a5"
+        },
+        {
+          "ca": "cbd230439adda1ae302e12cc088299d3e0159dfd",
+          "cb": "eded845fafc1b99c22a8bfe6519c68d6de1bacd0",
+          "iOlder": 51,
+          "jNewer": 46,
+          "score": 3,
+          "t0": "75ed3af6b656cd5d8012f66c290fdb5f96479702"
+        },
+        {
+          "ca": "419671047cdf0d3a667517ed5785308f4992f649",
+          "cb": "917764836b64dab135b51994319847527e4df35c",
+          "iOlder": 120,
+          "jNewer": 113,
+          "score": 3,
+          "t0": "d4e3912792acfb462ab8f10db49bc34b0e363563"
+        },
+        {
+          "ca": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10",
+          "cb": "78db711153cc23e775a09f0bbec52a178439f081",
+          "iOlder": 29,
+          "jNewer": 18,
+          "score": 2,
+          "t0": "94ed2046aa54ab7e85a68da36d012969363160ff"
+        },
+        {
+          "ca": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+          "cb": "eb0a8ec57804c957a24cf0add1df945dcd4841f9",
+          "iOlder": 43,
+          "jNewer": 37,
+          "score": 2,
+          "t0": "bfeefd7f8cdb07d9c0fbbfce25f710f9e25e8bcc"
+        },
+        {
+          "ca": "4aa090b701e3ea058314fadf88575c70aeed83d1",
+          "cb": "b6fac59bb1102fc1d6c95909b83c2ee9584dbe1f",
+          "iOlder": 146,
+          "jNewer": 144,
+          "score": 2,
+          "t0": "e8b66009736249daf58c9aec92fe108a23161935"
+        },
+        {
+          "ca": "e8b66009736249daf58c9aec92fe108a23161935",
+          "cb": "4aa090b701e3ea058314fadf88575c70aeed83d1",
+          "iOlder": 147,
+          "jNewer": 146,
+          "score": 2,
+          "t0": "ce7e4816b034419a803a82dab0b3a09c3495ed5c"
+        },
+        {
+          "ca": "275565cdb2a8490d40d82224f9453ab8c74fb351",
+          "cb": "78db711153cc23e775a09f0bbec52a178439f081",
+          "iOlder": 43,
+          "jNewer": 18,
+          "score": 1,
+          "t0": "bfeefd7f8cdb07d9c0fbbfce25f710f9e25e8bcc"
+        },
+        {
+          "ca": "94ed2046aa54ab7e85a68da36d012969363160ff",
+          "cb": "bc4cb31c3f1a27d0b1c22083fc4cfd721839af10",
+          "iOlder": 30,
+          "jNewer": 29,
+          "score": 1,
+          "t0": "fb1ef9cc990598574e0ffa37c1002f50b0ad7c25"
+        }
+      ]
+    }
+  ]
+}
