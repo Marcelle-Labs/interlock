@@ -1,0 +1,111 @@
+{
+  "commitSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+  "model": "gemini-3.5-flash",
+  "adkPath": "Google ADK 1.35.1 / Vertex AI",
+  "resources": {
+    "projectId": "interlock-film-260823",
+    "region": "us-central1",
+    "vertexLocation": "global",
+    "agentUrl": "https://interlock-hac340-agent-butemkskqa-uc.a.run.app",
+    "proxyUrl": "https://interlock-hac340-proxy-butemkskqa-uc.a.run.app",
+    "targetUrl": "https://interlock-hac340-target-butemkskqa-uc.a.run.app",
+    "agentServiceAccount": "serviceAccount:interlock-hac340-agent@interlock-film-260823.iam.gserviceaccount.com",
+    "proxyServiceAccount": "serviceAccount:interlock-hac340-proxy@interlock-film-260823.iam.gserviceaccount.com",
+    "targetServiceAccount": "serviceAccount:interlock-hac340-target@interlock-film-260823.iam.gserviceaccount.com",
+    "observerPrincipal": "user:qwynn@marcellelabs.io",
+    "nodeImage": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-node:ae6d0d3",
+    "agentImage": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-adk:ae6d0d3"
+  },
+  "correlationId": "ilk-hac340-cloud-1787536029323",
+  "decision": "ALLOW",
+  "receiptId": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d",
+  "receiptDigest": "sha256:7fb65efe30d89bab241d1f5b8ea00ca58fb732a30b9fb87288a09deab411743f",
+  "protectedMutation": {
+    "status": "EXECUTED",
+    "correlationId": "ilk-hac340-cloud-1787536029323",
+    "receiptId": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d",
+    "revisionBefore": "sha256:c78fe996446426339788c38a6a6edaf6b1b8ab72f984c9c72786637148615a10",
+    "revisionAfter": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    },
+    "invariant": {
+      "holds": true,
+      "total": 105,
+      "totalReservable": 130,
+      "detail": "total 105 <= 130"
+    }
+  },
+  "observation": {
+    "revision": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    }
+  },
+  "runtimeProof": {
+    "proxyLogEntries": [
+      {
+        "insertId": "6a8ba2ad00064c4b17d4ba8b",
+        "jsonPayload": {
+          "correlationId": "ilk-hac340-cloud-1787536029323",
+          "event": "proxy.request",
+          "identity": "interlock-hac340-agent@interlock-film-260823.iam.gserviceaccount.com",
+          "identitySource": "oidc-id-token/platform-verified:email",
+          "transport": "mcp"
+        },
+        "labels": {
+          "instanceId": "00a41e8c1d49b36ee26b08d3534054faba426aac33b91e8d6fdc8c140e52b9ca403bbbf58028049b7d91b7fe35c99b3b2d087f30ed862da58ebc8ceebd6d8f9317525208aa4efa04e8d8fa1162dc"
+        },
+        "logName": "projects/interlock-film-260823/logs/run.googleapis.com%2Fstdout",
+        "receiveTimestamp": "2026-08-24T01:47:25.708547374Z",
+        "resource": {
+          "labels": {
+            "configuration_name": "interlock-hac340-proxy",
+            "location": "us-central1",
+            "project_id": "interlock-film-260823",
+            "revision_name": "interlock-hac340-proxy-00001-s76",
+            "service_name": "interlock-hac340-proxy"
+          },
+          "type": "cloud_run_revision"
+        },
+        "timestamp": "2026-08-24T01:47:25.412747Z"
+      }
+    ],
+    "agentHttpStatus": 200
+  },
+  "expectedConfiguration": {
+    "projectId": "interlock-film-260823",
+    "region": "us-central1",
+    "vertexLocation": "global",
+    "agentUrl": "https://interlock-hac340-agent-butemkskqa-uc.a.run.app",
+    "proxyUrl": "https://interlock-hac340-proxy-butemkskqa-uc.a.run.app",
+    "targetUrl": "https://interlock-hac340-target-butemkskqa-uc.a.run.app",
+    "agentServiceAccount": "serviceAccount:interlock-hac340-agent@interlock-film-260823.iam.gserviceaccount.com",
+    "proxyServiceAccount": "serviceAccount:interlock-hac340-proxy@interlock-film-260823.iam.gserviceaccount.com",
+    "targetServiceAccount": "serviceAccount:interlock-hac340-target@interlock-film-260823.iam.gserviceaccount.com",
+    "observerPrincipal": "user:qwynn@marcellelabs.io",
+    "nodeImage": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-node:ae6d0d3",
+    "agentImage": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-adk:ae6d0d3"
+  },
+  "observedConfiguration": {
+    "agentRevision": "https://interlock-hac340-agent-butemkskqa-uc.a.run.app",
+    "proxyRevision": "https://interlock-hac340-proxy-butemkskqa-uc.a.run.app",
+    "targetRevision": "https://interlock-hac340-target-butemkskqa-uc.a.run.app"
+  },
+  "controls": {
+    "forgedHeaderStatus": 403,
+    "wrongAudienceStatus": 401,
+    "directBypassStatus": 403
+  },
+  "teardown": "pending"
+}
