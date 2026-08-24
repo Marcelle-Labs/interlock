@@ -1,0 +1,90 @@
+WEBVTT
+
+NOTE
+Interlock final cut - narration and caption track.
+The cut has no audio. These cues are the spoken text a voice-over would carry,
+and the text a muted viewer can read alongside the frame.
+
+1
+00:00:00.000 --> 00:00:03.600
+Interlock. Evidence-bound coordination before shared-state mutation.
+
+2
+00:00:04.000 --> 00:00:08.200
+Two agents propose two changes. Each one is valid when you check it on its own.
+
+3
+00:00:08.600 --> 00:00:13.300
+They write into one shared environment, so one bound applies to their joint outcome: sum of reserved must stay at or under 130.
+
+4
+00:00:13.700 --> 00:00:19.400
+Applied together with no coordination, the joint state is 140 against a bound of 130. Neither change is wrong. The composition is.
+
+5
+00:00:19.800 --> 00:00:33.000
+Same intents, same environment. Interlock reads revision-bound co-change evidence before the mutation and decides WITHHOLD_SERIALIZE. The joint outcome is 120 against the same bound of 130, on 24 of 24 checks.
+
+6
+00:00:33.400 --> 00:00:46.600
+Then the coupling signal is deliberately removed from the frozen evidence. Same decision core, same intents: the decision becomes ALLOW_PARALLEL and 140 against 130 returns. The evidence is load-bearing. Both arms are recorded results; nothing is re-run to produce this comparison.
+
+7
+00:00:47.000 --> 00:01:00.200
+On a frozen sixteen-scenario corpus, four coordination strategies. Uncoordinated keeps both independent opportunities parallel and leaves both cross-target hazards unsafe. A global lock blocks both hazards by eliminating concurrency: none of the two parallel opportunities survive. A credible per-target lock keeps both opportunities parallel and still misses both hazards, because a hazard spanning two lock keys is not visible to any per-key discipline.
+
+8
+00:01:00.600 --> 00:01:17.800
+Interlock preserved both known-safe parallel opportunities while withholding both evidence-supported cross-target hazards. Then the coupling evidence was deliberately removed from the frozen fixtures, with the intents unchanged. The same core reversed to ALLOW_PARALLEL and both invariants failed. Bounded to this corpus.
+
+9
+00:01:18.200 --> 00:01:21.900
+Different run. Different evidence. Nothing crosses.
+
+10
+00:01:22.300 --> 00:01:33.500
+This is the deployed Cloud Run agent reading back its own configuration: gemini-3.5-flash, reached through Google ADK 1.35.1 with Vertex AI access, from a pinned image built at the runtime source commit.
+
+11
+00:01:33.900 --> 00:01:43.100
+Three Cloud Run services carried the run in us-central1: the ADK agent, the Interlock MCP proxy, and the protected target.
+
+12
+00:01:43.500 --> 00:01:57.700
+The agent traversal, executed while this frame was being captured. Interlock returned ALLOW with a receipt digest, under one correlation id. Three fail-closed controls were recorded on the same run: a forged identity header returned 403, an invalid bearer token returned 401, and a direct call to the target with no receipt returned 403.
+
+13
+00:01:58.100 --> 00:02:09.300
+The protected mutation is EXECUTED against that receipt. The target moved from one revision to the next, and the resulting invariant is a total of 105 against the bound of 130.
+
+14
+00:02:09.700 --> 00:02:22.900
+EXECUTED is not OBSERVED. A separately authenticated keyless observer service account read the target back at the post-mutation revision and observed alpha at 45. Two records, not one: the model's own output declares nothing.
+
+15
+00:02:23.300 --> 00:02:33.500
+Cloud Logging, filtered to that same correlation id: the proxy request, the agent identity as the platform verified it, and the Cloud Run revision that served it.
+
+16
+00:02:33.900 --> 00:02:47.100
+Where Interlock sits. The agent calls a tool through the Interlock MCP proxy. Interlock reads revision-bound composition evidence before the mutation and returns a decision with a receipt. The protected target refused a direct call that carried no receipt.
+
+17
+00:02:47.500 --> 00:02:59.700
+Cloud Run IAM establishes transport provenance. It does not establish Google-managed proposer, reviewer or authorizer roles inside Interlock. Agent Runtime, Agent Gateway and CONTENT_AUTHZ were not on this path.
+
+18
+00:03:00.100 --> 00:03:12.300
+What the evaluation is bounded by. Sixteen frozen scenarios across two hazard families, enumerated exhaustively: exact counts, not estimates, and no interval or significance is claimed. Every inadmissible-evidence scenario failed closed, and on two of eight the refusal reason disagreed with the frozen corpus; the corpus is frozen and stays wrong on the record.
+
+19
+00:03:12.700 --> 00:03:29.900
+And what is not claimed. Two runs, two proof classes; neither is evidence for the other. No exactly-once execution, no restart safety, no target-side atomicity, no production readiness. ALLOW is a decision, not a verification or an authorization, and WITHHOLD_SERIALIZE is not human approval.
+
+20
+00:03:30.300 --> 00:03:38.500
+Valid alone does not mean safe together. Interlock reads revision-bound evidence about the composition before the mutation: parallel when the evidence supports it, serialized when it does not.
+
+21
+00:03:38.900 --> 00:03:49.500
+Every number in this video is committed. The Google Cloud packet is readable without an account, pinned at one commit, and its bytes hash to a digest any reader can recompute.

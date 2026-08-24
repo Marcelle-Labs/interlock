@@ -1,0 +1,266 @@
+{
+  "manifestId": "HAC-336-cut",
+  "revision": "r01",
+  "issue": "HAC-336",
+  "note": "The edit decision list. Authored: this is the one file in HAC-336 a human writes. Everything else under media/hac-336 is derived from it plus frozen evidence. Durations are holds; the assembled total is derived as sum(holdSeconds) - transitionSeconds * (beats - 1) and is never read from a total field.",
+  "sourceRevisions": {
+    "note": "Declared provenance for the assembly. The four values that also appear inside frozen evidence files are cross-checked mechanically by media/hac-336/bin/verify-film.mjs. The two repository revisions cannot be checked from content — a commit cannot name itself — so they are recorded as declarations and the mechanical binding for every input is its content digest in input-manifest.json, which is the lesson HAC-335 recorded when a registry kept a superseded capture SHA.",
+    "interlockSha": {
+      "value": "6da9884bc7922a199003ea9babcdf47dbba104df",
+      "checkable": false,
+      "meaning": "Marcelle-Labs/interlock main at the revision this cut was assembled from. The assembly commit is its descendant."
+    },
+    "directorSha": {
+      "value": "81a0535acac9a3b58b2b948ed9e600a9c2c59af9",
+      "checkable": false,
+      "meaning": "Marcelle-Labs/director (Studio v3) main at assembly time. Studio produced the HAC-324 capture package; it is not a build input to this repository, and the revision that actually performed the capture is recorded separately as capturePackage.productRevision."
+    },
+    "hac343CanonicalResult": {
+      "value": "7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0",
+      "checkable": true,
+      "source": "experiments/hac-343/evidence/judge-export.json",
+      "pointer": "/provenance/canonicalResultCommit"
+    },
+    "filmedRunId": {
+      "value": "ilk-hac340-cloud-1787536029323",
+      "checkable": true,
+      "source": "experiments/hac-324/evidence/filmed-run.json",
+      "pointer": "/correlationId"
+    },
+    "receiptId": {
+      "value": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d",
+      "checkable": true,
+      "source": "experiments/hac-324/evidence/filmed-run.json",
+      "pointer": "/receiptId"
+    },
+    "runtimeSourceSha": {
+      "value": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+      "checkable": true,
+      "source": "experiments/hac-324/evidence/filmed-run.json",
+      "pointer": "/commitSha"
+    }
+  },
+  "geometry": { "width": 1920, "height": 1080, "aspect": "16:9", "fps": 30 },
+  "transitionSeconds": 0.4,
+  "transition": {
+    "kind": "crossfade",
+    "semanticJob": "A state change between two frozen holds. The transition carries no value of its own: every proposition is legible on the still frame at either end, so removing motion removes nothing.",
+    "forbidden": ["particles", "typewriter", "counters", "perpetual motion", "recomputation of a frozen result"]
+  },
+  "audio": {
+    "track": "none",
+    "why": "HAC-333 froze the cut as muted: every claim must survive with the sound off. The narration lines below are the caption track and double as a voice-over script if one is ever recorded. No synthetic narration is generated, because narration that no human spoke is not evidence of anything.",
+    "captions": "media/hac-336/captions"
+  },
+  "proofClasses": {
+    "brand": "Identity. No evidence is asserted.",
+    "A": "Controlled local experiment (HAC-330). Deterministic, local. No cloud runtime, no receipt, no protected target, no observer.",
+    "EVAL": "Controlled local evaluation (HAC-343). Bounded sixteen-scenario corpus, exhaustively enumerated.",
+    "transition": "Proof-class reset. Asserts only that nothing crosses.",
+    "B": "Google Cloud participation (HAC-324 authoritative filmed run, claim-equivalent to the frozen HAC-340 reference).",
+    "bounds": "Claim boundary. States what is not claimed.",
+    "close": "Close. Restates the thesis and where to verify it."
+  },
+  "beats": [
+    {
+      "beatId": "B01",
+      "act": "PROBLEM",
+      "proofClass": "brand",
+      "holdSeconds": 4.0,
+      "source": { "kind": "asset", "path": "media/hac-335/exports/IL-SCAF-010-video-title-card-1920x1080.png", "assetId": "IL-SCAF-010" },
+      "narration": "Interlock. Evidence-bound coordination before shared-state mutation.",
+      "claims": ["CL-002"]
+    },
+    {
+      "beatId": "B02",
+      "act": "PROBLEM",
+      "proofClass": "A",
+      "holdSeconds": 5.0,
+      "source": { "kind": "board", "master": "IL-PROOF-020", "state": "intents" },
+      "narration": "Two agents propose two changes. Each one is valid when you check it on its own.",
+      "claims": ["CL-001"],
+      "mutedRead": "Two intent panels, both marked LOCALLY VALID. No coupling is drawn yet."
+    },
+    {
+      "beatId": "B03",
+      "act": "PROBLEM",
+      "proofClass": "A",
+      "holdSeconds": 5.5,
+      "source": { "kind": "board", "master": "IL-PROOF-020", "state": "coupled" },
+      "narration": "They write into one shared environment, so one bound applies to their joint outcome: sum of reserved must stay at or under 130.",
+      "claims": ["CL-001", "CL-002"],
+      "mutedRead": "Both intents now terminate in the shared environment band, marked COUPLED, with the joint bound shown."
+    },
+    {
+      "beatId": "B04",
+      "act": "PROBLEM",
+      "proofClass": "A",
+      "holdSeconds": 6.5,
+      "source": { "kind": "board", "master": "IL-PROOF-020", "state": "baseline" },
+      "narration": "Applied together with no coordination, the joint state is 140 against a bound of 130. Neither change is wrong. The composition is.",
+      "claims": ["CL-003"],
+      "mutedRead": "140 > 130 at display size, marked INVALID JOINT STATE."
+    },
+    {
+      "beatId": "B05",
+      "act": "CAUSAL",
+      "proofClass": "A",
+      "holdSeconds": 14.0,
+      "source": { "kind": "asset", "path": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1920x1080-runhac330local.png", "assetId": "IL-PROOF-010" },
+      "narration": "Same intents, same environment. Interlock reads revision-bound co-change evidence before the mutation and decides WITHHOLD_SERIALIZE. The joint outcome is 120 against the same bound of 130, on 24 of 24 checks.",
+      "claims": ["CL-002", "CL-003", "CL-004", "CL-005", "CL-027"]
+    },
+    {
+      "beatId": "B06",
+      "act": "CAUSAL",
+      "proofClass": "A",
+      "holdSeconds": 14.0,
+      "source": { "kind": "asset", "path": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1920x1080-runhac330local.png", "assetId": "IL-PROOF-011" },
+      "narration": "Then the coupling signal is deliberately removed from the frozen evidence. Same decision core, same intents: the decision becomes ALLOW_PARALLEL and 140 against 130 returns. The evidence is load-bearing. Both arms are recorded results; nothing is re-run to produce this comparison.",
+      "claims": ["CL-006", "CL-007"]
+    },
+    {
+      "beatId": "B07",
+      "act": "UTILITY",
+      "proofClass": "EVAL",
+      "holdSeconds": 14.0,
+      "source": { "kind": "board", "master": "IL-PROOF-021", "state": "comparison" },
+      "narration": "On a frozen sixteen-scenario corpus, four coordination strategies. Uncoordinated keeps both independent opportunities parallel and leaves both cross-target hazards unsafe. A global lock blocks both hazards by eliminating concurrency: none of the two parallel opportunities survive. A credible per-target lock keeps both opportunities parallel and still misses both hazards, because a hazard spanning two lock keys is not visible to any per-key discipline.",
+      "claims": ["CL-028", "CL-029"]
+    },
+    {
+      "beatId": "B08",
+      "act": "UTILITY",
+      "proofClass": "EVAL",
+      "holdSeconds": 18.0,
+      "source": { "kind": "board", "master": "IL-PROOF-021", "state": "ablation" },
+      "narration": "Interlock preserved both known-safe parallel opportunities while withholding both evidence-supported cross-target hazards. Then the coupling evidence was deliberately removed from the frozen fixtures, with the intents unchanged. The same core reversed to ALLOW_PARALLEL and both invariants failed. Bounded to this corpus.",
+      "claims": ["CL-028", "CL-030", "CL-031"],
+      "guardrail": "HAC-343 media narration guardrail: Panel 1 and Panel 2 must appear as one contiguous visual unit. This state renders both on one board, so the 0/2 figure is never on screen without its ablation control."
+    },
+    {
+      "beatId": "B09",
+      "act": "RESET",
+      "proofClass": "transition",
+      "holdSeconds": 4.5,
+      "source": { "kind": "board", "master": "IL-SCAF-020", "state": "reset" },
+      "narration": "Different run. Different evidence. Nothing crosses.",
+      "claims": ["CL-009", "CL-020", "CL-027"],
+      "mutedRead": "The field inverts from paper to ink. The board states that the controlled local experiment and the Google Cloud run are two runs, and that neither is evidence for the other."
+    },
+    {
+      "beatId": "B10",
+      "title": "Gemini 3.5 Flash through Google ADK, on Cloud Run",
+      "act": "CLOUD",
+      "proofClass": "B",
+      "holdSeconds": 12.0,
+      "source": { "kind": "capture", "sceneId": "gemini-adk-attribution", "crop": { "x": 52, "y": 44, "w": 1560, "h": 690 } },
+      "narration": "This is the deployed Cloud Run agent reading back its own configuration: gemini-3.5-flash, reached through Google ADK 1.35.1 with Vertex AI access, from a pinned image built at the runtime source commit.",
+      "claims": ["FR-001", "FR-002"]
+    },
+    {
+      "beatId": "B11",
+      "title": "The three Cloud Run services that carried the run",
+      "act": "CLOUD",
+      "proofClass": "B",
+      "holdSeconds": 10.0,
+      "source": { "kind": "capture", "sceneId": "cloud-run-topology", "crop": { "x": 52, "y": 44, "w": 1180, "h": 300 } },
+      "narration": "Three Cloud Run services carried the run in us-central1: the ADK agent, the Interlock MCP proxy, and the protected target.",
+      "claims": ["FR-003"]
+    },
+    {
+      "beatId": "B12",
+      "title": "The agent traversal, executed while it was filmed",
+      "act": "CLOUD",
+      "proofClass": "B",
+      "holdSeconds": 15.0,
+      "source": { "kind": "capture", "sceneId": "agent-traversal", "crop": { "x": 52, "y": 44, "w": 1160, "h": 440 } },
+      "narration": "The agent traversal, executed while this frame was being captured. Interlock returned ALLOW with a receipt digest, under one correlation id. Three fail-closed controls were recorded on the same run: a forged identity header returned 403, an invalid bearer token returned 401, and a direct call to the target with no receipt returned 403.",
+      "claims": ["FR-004", "FR-005", "FR-009"]
+    },
+    {
+      "beatId": "B13",
+      "title": "EXECUTED: the protected mutation, bound to the receipt",
+      "act": "EXECUTED_OBSERVED",
+      "proofClass": "B",
+      "holdSeconds": 12.0,
+      "source": { "kind": "capture", "sceneId": "receipt-mutation-observation", "crop": { "x": 52, "y": 236, "w": 1180, "h": 400 }, "cropId": "executed" },
+      "narration": "The protected mutation is EXECUTED against that receipt. The target moved from one revision to the next, and the resulting invariant is a total of 105 against the bound of 130.",
+      "claims": ["FR-005", "FR-006"]
+    },
+    {
+      "beatId": "B14",
+      "title": "OBSERVED: an independent read-back, separately authenticated",
+      "act": "EXECUTED_OBSERVED",
+      "proofClass": "B",
+      "holdSeconds": 14.0,
+      "source": { "kind": "capture", "sceneId": "receipt-mutation-observation", "crop": { "x": 52, "y": 672, "w": 1180, "h": 300 }, "cropId": "observed" },
+      "narration": "EXECUTED is not OBSERVED. A separately authenticated keyless observer service account read the target back at the post-mutation revision and observed alpha at 45. Two records, not one: the model's own output declares nothing.",
+      "claims": ["FR-007", "FR-008"]
+    },
+    {
+      "beatId": "B15",
+      "title": "Cloud Logging, correlated to the same run",
+      "act": "EXECUTED_OBSERVED",
+      "proofClass": "B",
+      "holdSeconds": 11.0,
+      "source": { "kind": "capture", "sceneId": "cloud-logging-correlation", "crop": { "x": 52, "y": 44, "w": 1700, "h": 560 } },
+      "narration": "Cloud Logging, filtered to that same correlation id: the proxy request, the agent identity as the platform verified it, and the Cloud Run revision that served it.",
+      "claims": ["FR-010"]
+    },
+    {
+      "beatId": "B16",
+      "act": "ARCHITECTURE",
+      "proofClass": "B",
+      "holdSeconds": 14.0,
+      "source": { "kind": "board", "master": "IL-DIAG-020", "state": "path" },
+      "narration": "Where Interlock sits. The agent calls a tool through the Interlock MCP proxy. Interlock reads revision-bound composition evidence before the mutation and returns a decision with a receipt. The protected target refused a direct call that carried no receipt.",
+      "claims": ["FR-002", "FR-003", "FR-004", "FR-009"]
+    },
+    {
+      "beatId": "B17",
+      "act": "ARCHITECTURE",
+      "proofClass": "B",
+      "holdSeconds": 13.0,
+      "source": { "kind": "board", "master": "IL-DIAG-020", "state": "boundary" },
+      "narration": "Cloud Run IAM establishes transport provenance. It does not establish Google-managed proposer, reviewer or authorizer roles inside Interlock. Agent Runtime, Agent Gateway and CONTENT_AUTHZ were not on this path.",
+      "claims": ["CL-015", "CL-021", "FR-011"]
+    },
+    {
+      "beatId": "B18",
+      "act": "BOUNDS",
+      "proofClass": "bounds",
+      "holdSeconds": 13.0,
+      "source": { "kind": "board", "master": "IL-PROOF-022", "state": "bounds" },
+      "narration": "What the evaluation is bounded by. Sixteen frozen scenarios across two hazard families, enumerated exhaustively: exact counts, not estimates, and no interval or significance is claimed. Every inadmissible-evidence scenario failed closed, and on two of eight the refusal reason disagreed with the frozen corpus; the corpus is frozen and stays wrong on the record.",
+      "claims": ["CL-031"]
+    },
+    {
+      "beatId": "B19",
+      "act": "BOUNDS",
+      "proofClass": "bounds",
+      "holdSeconds": 18.0,
+      "source": { "kind": "asset", "path": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png", "assetId": "IL-PROOF-014" },
+      "narration": "And what is not claimed. Two runs, two proof classes; neither is evidence for the other. No exactly-once execution, no restart safety, no target-side atomicity, no production readiness. ALLOW is a decision, not a verification or an authorization, and WITHHOLD_SERIALIZE is not human approval.",
+      "claims": ["CL-009", "CL-014", "CL-020", "CL-021", "CL-022", "CL-023", "CL-024", "CL-027"]
+    },
+    {
+      "beatId": "B20",
+      "act": "CLOSE",
+      "proofClass": "close",
+      "holdSeconds": 9.0,
+      "source": { "kind": "board", "master": "IL-SCAF-021", "state": "thesis" },
+      "narration": "Valid alone does not mean safe together. Interlock reads revision-bound evidence about the composition before the mutation: parallel when the evidence supports it, serialized when it does not.",
+      "claims": ["CL-001", "CL-002"]
+    },
+    {
+      "beatId": "B21",
+      "act": "CLOSE",
+      "proofClass": "close",
+      "holdSeconds": 11.0,
+      "source": { "kind": "asset", "path": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png", "assetId": "IL-SCAF-011" },
+      "narration": "Every number in this video is committed. The Google Cloud packet is readable without an account, pinned at one commit, and its bytes hash to a digest any reader can recompute.",
+      "claims": ["CL-017", "CL-009"]
+    }
+  ]
+}

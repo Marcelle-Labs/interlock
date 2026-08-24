@@ -1,0 +1,341 @@
+{
+  "manifestId": "HAC-336-render-manifest",
+  "revision": "r01",
+  "issue": "HAC-336",
+  "note": "Derived by media/hac-336/bin/build-video.mjs. Do not hand-edit. Duration, geometry and codec are read back out of the finished file rather than copied from the encode request.",
+  "generator": "media/hac-336/bin/build-video.mjs",
+  "encoder": "ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers",
+  "video": {
+    "path": "media/hac-336/exports/IL-MOT-020-interlock-final-cut-1920x1080.mp4",
+    "sha256": "344d5954c4abc038ae6c741388466c7a19551b4b3897a2cb292c0d6b9a193af0",
+    "bytes": 15974400,
+    "width": 1920,
+    "height": 1080,
+    "codec": "avc1",
+    "brand": "isom",
+    "fps": 30,
+    "measuredDurationSeconds": 229.534,
+    "derivedDurationSeconds": 229.5,
+    "audioTracks": 0,
+    "trackHandlers": [
+      "vide"
+    ]
+  },
+  "captions": [
+    {
+      "path": "media/hac-336/captions/interlock-final-cut.en.vtt",
+      "format": "WebVTT",
+      "cues": 21,
+      "sha256": "ce9d562e33eff0dffd47c9723077ce3f28e385bfcdd1237e2403e8f24a16dd44"
+    },
+    {
+      "path": "media/hac-336/captions/interlock-final-cut.en.srt",
+      "format": "SubRip",
+      "cues": 21,
+      "sha256": "9304950e76ebb36b8f43694a038feea2e9d01be47b708450575019b2b8098aa1"
+    }
+  ],
+  "frames": [
+    {
+      "beatId": "B01",
+      "path": "media/hac-335/exports/IL-SCAF-010-video-title-card-1920x1080.png",
+      "sha256": "0d238422b53d960ceb2b75f7871f042799bd8578969fd20d2944c7d84e080fa2"
+    },
+    {
+      "beatId": "B02",
+      "path": "media/hac-336/frames/B02-IL-PROOF-020-intents.png",
+      "sha256": "0d12bebadeb29d6b4ee0f4df96cac92c34517b073c66fbac21044d0f3d3bf15b"
+    },
+    {
+      "beatId": "B03",
+      "path": "media/hac-336/frames/B03-IL-PROOF-020-coupled.png",
+      "sha256": "780d1eb2a59482a156b9ae145dbd9eea0682bcaee1bd9d995d519b8bb3dfa754"
+    },
+    {
+      "beatId": "B04",
+      "path": "media/hac-336/frames/B04-IL-PROOF-020-baseline.png",
+      "sha256": "2fb939d1ce99a406128538fb2b4e421fbb0a431f8028d0cdb9fd9dc13294ea86"
+    },
+    {
+      "beatId": "B05",
+      "path": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1920x1080-runhac330local.png",
+      "sha256": "cf9055667978d78a1a5f65816ac376f56722f5594eaab6abef229e8b3a4ab53a"
+    },
+    {
+      "beatId": "B06",
+      "path": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1920x1080-runhac330local.png",
+      "sha256": "26ba70a6c1cda6f1645ae213e2149bced9541f92753968bc67b1cdd470a7c639"
+    },
+    {
+      "beatId": "B07",
+      "path": "media/hac-336/frames/B07-IL-PROOF-021-comparison.png",
+      "sha256": "6543146ac6f33bce3ecb98423d0d4e576c068c907d58246121b10e39e88f76dc"
+    },
+    {
+      "beatId": "B08",
+      "path": "media/hac-336/frames/B08-IL-PROOF-021-ablation.png",
+      "sha256": "c7af286394411cfb7326b0479deeab9618a7582e83915c1cb2ce40dd67a08db1"
+    },
+    {
+      "beatId": "B09",
+      "path": "media/hac-336/frames/B09-IL-SCAF-020-reset.png",
+      "sha256": "a14bd9217fa0351b904c3313c497ce672e6a0050d49589a2dd46df663ffa08c7"
+    },
+    {
+      "beatId": "B10",
+      "path": "media/hac-336/frames/B10-scene-gemini-adk-attribution.png",
+      "sha256": "8f3becec942bf62452d5db5c7338353c321c07dcd02bf36e3c38a91d5678e8dd"
+    },
+    {
+      "beatId": "B11",
+      "path": "media/hac-336/frames/B11-scene-cloud-run-topology.png",
+      "sha256": "dbbce721f073c8f28f21bf35b2a5c169800e29867e3d0a47d6909cc480b5501b"
+    },
+    {
+      "beatId": "B12",
+      "path": "media/hac-336/frames/B12-scene-agent-traversal.png",
+      "sha256": "7e63f8c2d33ff144e8c1e214400b3ffac7117748092f52b481d8b727f3821521"
+    },
+    {
+      "beatId": "B13",
+      "path": "media/hac-336/frames/B13-scene-receipt-mutation-observation-executed.png",
+      "sha256": "daf6725048babae0d06229b3e51efb190cd24e03e00b5c6e5600faec00327b47"
+    },
+    {
+      "beatId": "B14",
+      "path": "media/hac-336/frames/B14-scene-receipt-mutation-observation-observed.png",
+      "sha256": "cc6a3851c7dfa7e1c73b5b551ea034c92a8fa8870e91249a27c5821734df82a9"
+    },
+    {
+      "beatId": "B15",
+      "path": "media/hac-336/frames/B15-scene-cloud-logging-correlation.png",
+      "sha256": "7bcb53f93c469793abbee2d3fd346f3c87a6a370b2aef0d24da13bdcf78e5b19"
+    },
+    {
+      "beatId": "B16",
+      "path": "media/hac-336/frames/B16-IL-DIAG-020-path.png",
+      "sha256": "960c2d9bd8e13946c5332e040907553a7d751858e179694002e9c27725732dad"
+    },
+    {
+      "beatId": "B17",
+      "path": "media/hac-336/frames/B17-IL-DIAG-020-boundary.png",
+      "sha256": "13ca784d8447cd49226f90ff3f026bbf9a35271b60add2b687d65b5063e99074"
+    },
+    {
+      "beatId": "B18",
+      "path": "media/hac-336/frames/B18-IL-PROOF-022-bounds.png",
+      "sha256": "5c5a0fc0268eddb8d64017c043408d2f86aa94040d6b346c125eadb0db889e29"
+    },
+    {
+      "beatId": "B19",
+      "path": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png",
+      "sha256": "11f1d61ee8445d1f0800d7895bf7a54335613c3d462a4eab8e517843f1d0b1a9"
+    },
+    {
+      "beatId": "B20",
+      "path": "media/hac-336/frames/B20-IL-SCAF-021-thesis.png",
+      "sha256": "9983457402a8f77dfc26fc4699c1ab9ee9b9a1c850c3bc34d7cf1161e5caf2bb"
+    },
+    {
+      "beatId": "B21",
+      "path": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+      "sha256": "0fd186af922178a972e049f9d70351ceae62e63494270b182dbc8a9ec5ae1946"
+    }
+  ],
+  "timeline": {
+    "beats": [
+      {
+        "beatId": "B01",
+        "index": 0,
+        "startSeconds": 0,
+        "endSeconds": 4,
+        "holdSeconds": 4,
+        "captionStart": 0,
+        "captionEnd": 3.6
+      },
+      {
+        "beatId": "B02",
+        "index": 1,
+        "startSeconds": 3.6,
+        "endSeconds": 8.6,
+        "holdSeconds": 5,
+        "captionStart": 4,
+        "captionEnd": 8.2
+      },
+      {
+        "beatId": "B03",
+        "index": 2,
+        "startSeconds": 8.2,
+        "endSeconds": 13.7,
+        "holdSeconds": 5.5,
+        "captionStart": 8.6,
+        "captionEnd": 13.3
+      },
+      {
+        "beatId": "B04",
+        "index": 3,
+        "startSeconds": 13.3,
+        "endSeconds": 19.8,
+        "holdSeconds": 6.5,
+        "captionStart": 13.7,
+        "captionEnd": 19.4
+      },
+      {
+        "beatId": "B05",
+        "index": 4,
+        "startSeconds": 19.4,
+        "endSeconds": 33.4,
+        "holdSeconds": 14,
+        "captionStart": 19.8,
+        "captionEnd": 33
+      },
+      {
+        "beatId": "B06",
+        "index": 5,
+        "startSeconds": 33,
+        "endSeconds": 47,
+        "holdSeconds": 14,
+        "captionStart": 33.4,
+        "captionEnd": 46.6
+      },
+      {
+        "beatId": "B07",
+        "index": 6,
+        "startSeconds": 46.6,
+        "endSeconds": 60.6,
+        "holdSeconds": 14,
+        "captionStart": 47,
+        "captionEnd": 60.2
+      },
+      {
+        "beatId": "B08",
+        "index": 7,
+        "startSeconds": 60.2,
+        "endSeconds": 78.2,
+        "holdSeconds": 18,
+        "captionStart": 60.6,
+        "captionEnd": 77.8
+      },
+      {
+        "beatId": "B09",
+        "index": 8,
+        "startSeconds": 77.8,
+        "endSeconds": 82.3,
+        "holdSeconds": 4.5,
+        "captionStart": 78.2,
+        "captionEnd": 81.9
+      },
+      {
+        "beatId": "B10",
+        "index": 9,
+        "startSeconds": 81.9,
+        "endSeconds": 93.9,
+        "holdSeconds": 12,
+        "captionStart": 82.3,
+        "captionEnd": 93.5
+      },
+      {
+        "beatId": "B11",
+        "index": 10,
+        "startSeconds": 93.5,
+        "endSeconds": 103.5,
+        "holdSeconds": 10,
+        "captionStart": 93.9,
+        "captionEnd": 103.1
+      },
+      {
+        "beatId": "B12",
+        "index": 11,
+        "startSeconds": 103.1,
+        "endSeconds": 118.1,
+        "holdSeconds": 15,
+        "captionStart": 103.5,
+        "captionEnd": 117.7
+      },
+      {
+        "beatId": "B13",
+        "index": 12,
+        "startSeconds": 117.7,
+        "endSeconds": 129.7,
+        "holdSeconds": 12,
+        "captionStart": 118.1,
+        "captionEnd": 129.3
+      },
+      {
+        "beatId": "B14",
+        "index": 13,
+        "startSeconds": 129.3,
+        "endSeconds": 143.3,
+        "holdSeconds": 14,
+        "captionStart": 129.7,
+        "captionEnd": 142.9
+      },
+      {
+        "beatId": "B15",
+        "index": 14,
+        "startSeconds": 142.9,
+        "endSeconds": 153.9,
+        "holdSeconds": 11,
+        "captionStart": 143.3,
+        "captionEnd": 153.5
+      },
+      {
+        "beatId": "B16",
+        "index": 15,
+        "startSeconds": 153.5,
+        "endSeconds": 167.5,
+        "holdSeconds": 14,
+        "captionStart": 153.9,
+        "captionEnd": 167.1
+      },
+      {
+        "beatId": "B17",
+        "index": 16,
+        "startSeconds": 167.1,
+        "endSeconds": 180.1,
+        "holdSeconds": 13,
+        "captionStart": 167.5,
+        "captionEnd": 179.7
+      },
+      {
+        "beatId": "B18",
+        "index": 17,
+        "startSeconds": 179.7,
+        "endSeconds": 192.7,
+        "holdSeconds": 13,
+        "captionStart": 180.1,
+        "captionEnd": 192.3
+      },
+      {
+        "beatId": "B19",
+        "index": 18,
+        "startSeconds": 192.3,
+        "endSeconds": 210.3,
+        "holdSeconds": 18,
+        "captionStart": 192.7,
+        "captionEnd": 209.9
+      },
+      {
+        "beatId": "B20",
+        "index": 19,
+        "startSeconds": 209.9,
+        "endSeconds": 218.9,
+        "holdSeconds": 9,
+        "captionStart": 210.3,
+        "captionEnd": 218.5
+      },
+      {
+        "beatId": "B21",
+        "index": 20,
+        "startSeconds": 218.5,
+        "endSeconds": 229.5,
+        "holdSeconds": 11,
+        "captionStart": 218.9,
+        "captionEnd": 229.5
+      }
+    ],
+    "holdSum": 237.5,
+    "transitions": 20,
+    "totalSeconds": 229.5
+  }
+}

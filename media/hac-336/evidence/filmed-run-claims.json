@@ -1,0 +1,134 @@
+{
+  "manifestId": "HAC-336-filmed-run-claims",
+  "revision": "r01",
+  "issue": "HAC-336",
+  "note": "The HAC-335 claim ledger binds the frozen HAC-340 reference run (correlation ilk-hac340-cloud-1786730369123). The video shows the HAC-324 authoritative filmed run (correlation ilk-hac340-cloud-1787536029323), which is a different run instance. Its claims need their own rows so no sentence about the filmed run borrows a ledger row that describes the frozen one. Every row names JSON pointers into the frozen filmed-run record; the builder resolves them and the gate re-derives them, so a text that drifts from its evidence is a mechanical finding.",
+  "runIdentity": {
+    "filmedRunId": "ilk-hac340-cloud-1787536029323",
+    "distinctFrom": "ilk-hac340-cloud-1786730369123",
+    "relationship": "Claim-equivalent to the frozen HAC-340 Google Cloud participation claim on 16 of 16 material parity fields. It is a new run, not the frozen reference run, and is never substituted into the frozen packet."
+  },
+  "sources": {
+    "filmedRun": "experiments/hac-324/evidence/filmed-run.json",
+    "capturePackage": "experiments/hac-324/evidence/capture-package.json",
+    "nonClaims": "media/hac-333/scene-manifest.json"
+  },
+  "claims": [
+    {
+      "id": "FR-001",
+      "text": "The recorded traversal ran gemini-3.5-flash.",
+      "classification": "EVIDENCED",
+      "pointers": [{ "source": "filmedRun", "pointer": "/model" }]
+    },
+    {
+      "id": "FR-002",
+      "text": "The agent reached the model through Google ADK 1.35.1 with Vertex AI access, from an image pinned to the runtime source commit.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/adkPath" },
+        { "source": "capturePackage", "pointer": "/adk" },
+        { "source": "filmedRun", "pointer": "/resources/vertexLocation" },
+        { "source": "filmedRun", "pointer": "/resources/agentImage" },
+        { "source": "filmedRun", "pointer": "/commitSha" }
+      ]
+    },
+    {
+      "id": "FR-003",
+      "text": "Three Cloud Run services in us-central1 carried the run: the ADK agent, the Interlock MCP proxy and the protected target.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "capturePackage", "pointer": "/region" },
+        { "source": "capturePackage", "pointer": "/revisions/agent" },
+        { "source": "capturePackage", "pointer": "/revisions/proxy" },
+        { "source": "capturePackage", "pointer": "/revisions/target" }
+      ]
+    },
+    {
+      "id": "FR-004",
+      "text": "Interlock returned ALLOW with an authorization receipt, under one correlation id.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/decision" },
+        { "source": "filmedRun", "pointer": "/receiptId" },
+        { "source": "filmedRun", "pointer": "/receiptDigest" },
+        { "source": "filmedRun", "pointer": "/correlationId" }
+      ]
+    },
+    {
+      "id": "FR-005",
+      "text": "The protected mutation is EXECUTED against that receipt, moving the target from one revision to the next.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/protectedMutation/status" },
+        { "source": "filmedRun", "pointer": "/protectedMutation/receiptId" },
+        { "source": "filmedRun", "pointer": "/protectedMutation/revisionBefore" },
+        { "source": "filmedRun", "pointer": "/protectedMutation/revisionAfter" }
+      ]
+    },
+    {
+      "id": "FR-006",
+      "text": "The resulting invariant on the protected target is total 105 <= 130.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/protectedMutation/invariant/detail" },
+        { "source": "filmedRun", "pointer": "/protectedMutation/invariant/holds" }
+      ]
+    },
+    {
+      "id": "FR-007",
+      "text": "The read-back was performed by a dedicated keyless observer service account, independently authenticated and distinct from the provisioning operator.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/resources/observerPrincipal" },
+        { "source": "filmedRun", "pointer": "/resources/operatorPrincipal" },
+        { "source": "filmedRun", "pointer": "/principalProjection/correction/classification" },
+        { "source": "capturePackage", "pointer": "/externalCallerPrincipal" }
+      ]
+    },
+    {
+      "id": "FR-008",
+      "text": "That observation read alpha=45 at the post-mutation revision.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/observation/revision" },
+        { "source": "filmedRun", "pointer": "/observation/state/services/alpha" }
+      ]
+    },
+    {
+      "id": "FR-009",
+      "text": "Three fail-closed controls were recorded on this run: a forged identity header returned 403, an invalid bearer token returned 401, and a direct target call carrying no receipt returned 403.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/controls/forgedHeaderStatus" },
+        { "source": "filmedRun", "pointer": "/controls/wrongAudienceStatus" },
+        { "source": "filmedRun", "pointer": "/controls/directBypassStatus" }
+      ],
+      "renderingRule": "The emitted field is named wrongAudienceStatus, which is the implementation label the frozen HAC-340 packet also uses. Judge-facing copy says invalid bearer token -> 401, matching HAC-333 and HAC-335. No valid-token wrong-audience cloud negative test is claimed; wrong-audience rejection remains controlled local parity evidence."
+    },
+    {
+      "id": "FR-010",
+      "text": "Cloud Logging carries a proxy request for this run's correlation id, with the agent identity as the platform verified it and the Cloud Run revision that served it.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "filmedRun", "pointer": "/runtimeProof/proxyLogEntries/0/jsonPayload/correlationId" },
+        { "source": "filmedRun", "pointer": "/runtimeProof/proxyLogEntries/0/jsonPayload/identitySource" },
+        { "source": "filmedRun", "pointer": "/runtimeProof/proxyLogEntries/0/resource/labels/revision_name" }
+      ]
+    },
+    {
+      "id": "FR-011",
+      "text": "Agent Runtime, Agent Gateway and CONTENT_AUTHZ were not on the recorded path, and Cloud Run IAM establishes transport provenance only.",
+      "classification": "NOT CLAIMED",
+      "pointers": [{ "source": "nonClaims", "pointer": "/globalNonClaims" }]
+    },
+    {
+      "id": "FR-012",
+      "text": "The filming environment was torn down after capture; the Google Cloud project is deleted.",
+      "classification": "EVIDENCED",
+      "pointers": [
+        { "source": "capturePackage", "pointer": "/teardown/status" },
+        { "source": "capturePackage", "pointer": "/teardown/projectLifecycleState" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,366 @@
+{
+  "manifestId": "HAC-336-frame-manifest",
+  "revision": "r01",
+  "issue": "HAC-336",
+  "note": "Derived by media/hac-336/bin/build-frames.mjs. Do not hand-edit. `sourceSha256` binds each frame to the artifact it came from: an SVG master for a board, the promoted capture bytes for a filmed scene, the frozen export itself for an asset.",
+  "generator": "media/hac-336/bin/build-frames.mjs",
+  "rasteriser": "@resvg/resvg-js@2.6.2",
+  "geometry": {
+    "width": 1920,
+    "height": 1080
+  },
+  "stageBox": {
+    "x": 88,
+    "y": 228,
+    "w": 1744,
+    "h": 544
+  },
+  "frames": [
+    {
+      "beatId": "B01",
+      "kind": "asset",
+      "assetId": "IL-SCAF-010",
+      "path": "media/hac-335/exports/IL-SCAF-010-video-title-card-1920x1080.png",
+      "composed": false,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "0d238422b53d960ceb2b75f7871f042799bd8578969fd20d2944c7d84e080fa2",
+      "sourcePath": "media/hac-335/exports/IL-SCAF-010-video-title-card-1920x1080.png",
+      "sourceSha256": "0d238422b53d960ceb2b75f7871f042799bd8578969fd20d2944c7d84e080fa2"
+    },
+    {
+      "beatId": "B02",
+      "kind": "board",
+      "assetId": "IL-PROOF-020",
+      "state": "intents",
+      "path": "media/hac-336/frames/B02-IL-PROOF-020-intents.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "0d12bebadeb29d6b4ee0f4df96cac92c34517b073c66fbac21044d0f3d3bf15b",
+      "sourcePath": "media/hac-336/masters/IL-PROOF-020-composition-hazard-intents.svg",
+      "sourceSha256": "567da3a0bbb76eace11b4829fd3c1935c6224acf409c2bcb6be4803f5efe09ac"
+    },
+    {
+      "beatId": "B03",
+      "kind": "board",
+      "assetId": "IL-PROOF-020",
+      "state": "coupled",
+      "path": "media/hac-336/frames/B03-IL-PROOF-020-coupled.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "780d1eb2a59482a156b9ae145dbd9eea0682bcaee1bd9d995d519b8bb3dfa754",
+      "sourcePath": "media/hac-336/masters/IL-PROOF-020-composition-hazard-coupled.svg",
+      "sourceSha256": "4c512891c728aa84cf698d5f29b07a1be81781db326b7a316b2c332b969c6925"
+    },
+    {
+      "beatId": "B04",
+      "kind": "board",
+      "assetId": "IL-PROOF-020",
+      "state": "baseline",
+      "path": "media/hac-336/frames/B04-IL-PROOF-020-baseline.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "2fb939d1ce99a406128538fb2b4e421fbb0a431f8028d0cdb9fd9dc13294ea86",
+      "sourcePath": "media/hac-336/masters/IL-PROOF-020-composition-hazard-baseline.svg",
+      "sourceSha256": "9d62da859c43c74e6623f8267f0a542905168a1f1234d9542a9a7b1b89864ca3"
+    },
+    {
+      "beatId": "B05",
+      "kind": "asset",
+      "assetId": "IL-PROOF-010",
+      "path": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1920x1080-runhac330local.png",
+      "composed": false,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "cf9055667978d78a1a5f65816ac376f56722f5594eaab6abef229e8b3a4ab53a",
+      "sourcePath": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1920x1080-runhac330local.png",
+      "sourceSha256": "cf9055667978d78a1a5f65816ac376f56722f5594eaab6abef229e8b3a4ab53a"
+    },
+    {
+      "beatId": "B06",
+      "kind": "asset",
+      "assetId": "IL-PROOF-011",
+      "path": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1920x1080-runhac330local.png",
+      "composed": false,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "26ba70a6c1cda6f1645ae213e2149bced9541f92753968bc67b1cdd470a7c639",
+      "sourcePath": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1920x1080-runhac330local.png",
+      "sourceSha256": "26ba70a6c1cda6f1645ae213e2149bced9541f92753968bc67b1cdd470a7c639"
+    },
+    {
+      "beatId": "B07",
+      "kind": "board",
+      "assetId": "IL-PROOF-021",
+      "state": "comparison",
+      "path": "media/hac-336/frames/B07-IL-PROOF-021-comparison.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "6543146ac6f33bce3ecb98423d0d4e576c068c907d58246121b10e39e88f76dc",
+      "sourcePath": "media/hac-336/masters/IL-PROOF-021-bounded-four-arm-comparison-comparison.svg",
+      "sourceSha256": "b1c7e284dcca5a1a2e5f6bf557a8e03aabb6fcec3a6c2ca39501ffda447c8b05"
+    },
+    {
+      "beatId": "B08",
+      "kind": "board",
+      "assetId": "IL-PROOF-021",
+      "state": "ablation",
+      "path": "media/hac-336/frames/B08-IL-PROOF-021-ablation.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "c7af286394411cfb7326b0479deeab9618a7582e83915c1cb2ce40dd67a08db1",
+      "sourcePath": "media/hac-336/masters/IL-PROOF-021-bounded-four-arm-comparison-ablation.svg",
+      "sourceSha256": "40cbb5f977cbebe24663a6a39f3452a33f342befc17d8b8e840b9abf8d63aa81"
+    },
+    {
+      "beatId": "B09",
+      "kind": "board",
+      "assetId": "IL-SCAF-020",
+      "state": "reset",
+      "path": "media/hac-336/frames/B09-IL-SCAF-020-reset.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "a14bd9217fa0351b904c3313c497ce672e6a0050d49589a2dd46df663ffa08c7",
+      "sourcePath": "media/hac-336/masters/IL-SCAF-020-proof-class-reset-reset.svg",
+      "sourceSha256": "71c40a0df15799ffb85abd3017c9017e9b9336eb2fe2151a886b00e94dfdc7b3"
+    },
+    {
+      "beatId": "B10",
+      "kind": "capture",
+      "sceneId": "gemini-adk-attribution",
+      "cropId": null,
+      "crop": {
+        "x": 52,
+        "y": 44,
+        "w": 1560,
+        "h": 690
+      },
+      "stage": {
+        "x": 345,
+        "y": 228,
+        "w": 1230,
+        "h": 544,
+        "scale": 0.7884
+      },
+      "path": "media/hac-336/frames/B10-scene-gemini-adk-attribution.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "8f3becec942bf62452d5db5c7338353c321c07dcd02bf36e3c38a91d5678e8dd",
+      "sourcePath": "experiments/hac-324/frames/scene-gemini-adk-attribution.png",
+      "sourceSha256": "ee007e9c29c5fea3719fcec6d63d68c1ead5af33fceef4d90a8d1775f24f85c0"
+    },
+    {
+      "beatId": "B11",
+      "kind": "capture",
+      "sceneId": "cloud-run-topology",
+      "cropId": null,
+      "crop": {
+        "x": 52,
+        "y": 44,
+        "w": 1180,
+        "h": 300
+      },
+      "stage": {
+        "x": 88,
+        "y": 279,
+        "w": 1744,
+        "h": 443,
+        "scale": 1.478
+      },
+      "path": "media/hac-336/frames/B11-scene-cloud-run-topology.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "dbbce721f073c8f28f21bf35b2a5c169800e29867e3d0a47d6909cc480b5501b",
+      "sourcePath": "experiments/hac-324/frames/scene-cloud-run-topology.png",
+      "sourceSha256": "ae6bd02c7f4ebf0dc2b55ad76eb5b91d03ec32eba672672433480dd75b80e779"
+    },
+    {
+      "beatId": "B12",
+      "kind": "capture",
+      "sceneId": "agent-traversal",
+      "cropId": null,
+      "crop": {
+        "x": 52,
+        "y": 44,
+        "w": 1160,
+        "h": 440
+      },
+      "stage": {
+        "x": 243,
+        "y": 228,
+        "w": 1434,
+        "h": 544,
+        "scale": 1.2364
+      },
+      "path": "media/hac-336/frames/B12-scene-agent-traversal.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "7e63f8c2d33ff144e8c1e214400b3ffac7117748092f52b481d8b727f3821521",
+      "sourcePath": "experiments/hac-324/frames/scene-agent-traversal.png",
+      "sourceSha256": "102cafb35c0c02f9df1d9518e3be9fd9f361480f12d6f7bb37b3f1e640a1a490"
+    },
+    {
+      "beatId": "B13",
+      "kind": "capture",
+      "sceneId": "receipt-mutation-observation",
+      "cropId": "executed",
+      "crop": {
+        "x": 52,
+        "y": 236,
+        "w": 1180,
+        "h": 400
+      },
+      "stage": {
+        "x": 158,
+        "y": 228,
+        "w": 1605,
+        "h": 544,
+        "scale": 1.36
+      },
+      "path": "media/hac-336/frames/B13-scene-receipt-mutation-observation-executed.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "daf6725048babae0d06229b3e51efb190cd24e03e00b5c6e5600faec00327b47",
+      "sourcePath": "experiments/hac-324/frames/scene-receipt-mutation-observation.png",
+      "sourceSha256": "381c629fa64bbafec37b07ad4b22c8d074cb2f67a24b2f25e1b2fddd54860d8c"
+    },
+    {
+      "beatId": "B14",
+      "kind": "capture",
+      "sceneId": "receipt-mutation-observation",
+      "cropId": "observed",
+      "crop": {
+        "x": 52,
+        "y": 672,
+        "w": 1180,
+        "h": 300
+      },
+      "stage": {
+        "x": 88,
+        "y": 279,
+        "w": 1744,
+        "h": 443,
+        "scale": 1.478
+      },
+      "path": "media/hac-336/frames/B14-scene-receipt-mutation-observation-observed.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "cc6a3851c7dfa7e1c73b5b551ea034c92a8fa8870e91249a27c5821734df82a9",
+      "sourcePath": "experiments/hac-324/frames/scene-receipt-mutation-observation.png",
+      "sourceSha256": "381c629fa64bbafec37b07ad4b22c8d074cb2f67a24b2f25e1b2fddd54860d8c"
+    },
+    {
+      "beatId": "B15",
+      "kind": "capture",
+      "sceneId": "cloud-logging-correlation",
+      "cropId": null,
+      "crop": {
+        "x": 52,
+        "y": 44,
+        "w": 1700,
+        "h": 560
+      },
+      "stage": {
+        "x": 135,
+        "y": 228,
+        "w": 1651,
+        "h": 544,
+        "scale": 0.9714
+      },
+      "path": "media/hac-336/frames/B15-scene-cloud-logging-correlation.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "7bcb53f93c469793abbee2d3fd346f3c87a6a370b2aef0d24da13bdcf78e5b19",
+      "sourcePath": "experiments/hac-324/frames/scene-cloud-logging-correlation.png",
+      "sourceSha256": "ccd916391f6a8f38dde906477c6e16423db8a509bde55f64b59945517087fee8"
+    },
+    {
+      "beatId": "B16",
+      "kind": "board",
+      "assetId": "IL-DIAG-020",
+      "state": "path",
+      "path": "media/hac-336/frames/B16-IL-DIAG-020-path.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "960c2d9bd8e13946c5332e040907553a7d751858e179694002e9c27725732dad",
+      "sourcePath": "media/hac-336/masters/IL-DIAG-020-filmed-run-path-path.svg",
+      "sourceSha256": "b67d8ccf796ff761d5f74491e99302689cb23049e1b4310dea14b6880b837e40"
+    },
+    {
+      "beatId": "B17",
+      "kind": "board",
+      "assetId": "IL-DIAG-020",
+      "state": "boundary",
+      "path": "media/hac-336/frames/B17-IL-DIAG-020-boundary.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "13ca784d8447cd49226f90ff3f026bbf9a35271b60add2b687d65b5063e99074",
+      "sourcePath": "media/hac-336/masters/IL-DIAG-020-filmed-run-path-boundary.svg",
+      "sourceSha256": "222bc44997e9732b28c047e493a29aeae9e3f56e99bf7e627562bed5489c01ef"
+    },
+    {
+      "beatId": "B18",
+      "kind": "board",
+      "assetId": "IL-PROOF-022",
+      "state": "bounds",
+      "path": "media/hac-336/frames/B18-IL-PROOF-022-bounds.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "5c5a0fc0268eddb8d64017c043408d2f86aa94040d6b346c125eadb0db889e29",
+      "sourcePath": "media/hac-336/masters/IL-PROOF-022-evaluation-bounds-bounds.svg",
+      "sourceSha256": "b6e89f22fea263976acc24a696adbfc3c71d63abb3ed78c6bbf7fe296b9e5ed1"
+    },
+    {
+      "beatId": "B19",
+      "kind": "asset",
+      "assetId": "IL-PROOF-014",
+      "path": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png",
+      "composed": false,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "11f1d61ee8445d1f0800d7895bf7a54335613c3d462a4eab8e517843f1d0b1a9",
+      "sourcePath": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png",
+      "sourceSha256": "11f1d61ee8445d1f0800d7895bf7a54335613c3d462a4eab8e517843f1d0b1a9"
+    },
+    {
+      "beatId": "B20",
+      "kind": "board",
+      "assetId": "IL-SCAF-021",
+      "state": "thesis",
+      "path": "media/hac-336/frames/B20-IL-SCAF-021-thesis.png",
+      "composed": true,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "9983457402a8f77dfc26fc4699c1ab9ee9b9a1c850c3bc34d7cf1161e5caf2bb",
+      "sourcePath": "media/hac-336/masters/IL-SCAF-021-closing-thesis-thesis.svg",
+      "sourceSha256": "6274f887c139dfc4f9151d8af6f766efe230707b481671bdd4015e147def7175"
+    },
+    {
+      "beatId": "B21",
+      "kind": "asset",
+      "assetId": "IL-SCAF-011",
+      "path": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+      "composed": false,
+      "width": 1920,
+      "height": 1080,
+      "sha256": "0fd186af922178a972e049f9d70351ceae62e63494270b182dbc8a9ec5ae1946",
+      "sourcePath": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+      "sourceSha256": "0fd186af922178a972e049f9d70351ceae62e63494270b182dbc8a9ec5ae1946"
+    }
+  ]
+}
