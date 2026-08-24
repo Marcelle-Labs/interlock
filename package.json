@@ -2,7 +2,7 @@
   "name": "@marcelle-labs/interlock",
   "version": "0.0.0",
   "private": true,
-  "description": "Interlock — composition engine and reference application for the WorkspaceJSON Interlock contest submission",
+  "description": "Interlock \u2014 composition engine and reference application for the WorkspaceJSON Interlock contest submission",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
@@ -15,7 +15,8 @@
     "check:packet": "node experiments/hac-330/bin/verify-packet.mjs",
     "check:packet:s2": "node experiments/hac-326/bin/verify-packet.mjs",
     "check:packet:eval": "pnpm run build && node experiments/hac-343/bin/verify-packet.mjs",
-    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:packet:eval && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:visuals && pnpm run check:identity && pnpm run check:package",
+    "check:filmed-run": "node experiments/hac-324/bin/verify-filmed-run.mjs",
+    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:packet:eval && pnpm run check:filmed-run && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:visuals && pnpm run check:identity && pnpm run check:package",
     "check:cockpit": "node media/hac-341/bin/verify-cockpit.mjs",
     "check:cockpit:visual": "node media/hac-341/bin/verify-cockpit-visual.mjs",
     "check:package": "node media/hac-335/bin/verify-package.mjs",

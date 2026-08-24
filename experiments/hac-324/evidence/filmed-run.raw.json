@@ -12,10 +12,9 @@
     "agentServiceAccount": "serviceAccount:interlock-hac340-agent@interlock-film-260823.iam.gserviceaccount.com",
     "proxyServiceAccount": "serviceAccount:interlock-hac340-proxy@interlock-film-260823.iam.gserviceaccount.com",
     "targetServiceAccount": "serviceAccount:interlock-hac340-target@interlock-film-260823.iam.gserviceaccount.com",
-    "observerPrincipal": "serviceAccount:interlock-hac340-observer@interlock-film-260823.iam.gserviceaccount.com",
+    "observerPrincipal": "user:qwynn@marcellelabs.io",
     "nodeImage": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-node:ae6d0d3",
-    "agentImage": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-adk:ae6d0d3",
-    "operatorPrincipal": "user:qwynn@marcellelabs.io"
+    "agentImage": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-adk:ae6d0d3"
   },
   "correlationId": "ilk-hac340-cloud-1787536029323",
   "decision": "ALLOW",
@@ -108,18 +107,5 @@
     "wrongAudienceStatus": 401,
     "directBypassStatus": 403
   },
-  "teardown": "pending",
-  "principalProjection": {
-    "note": "observerPrincipal in the emitted packet named the provisioning caller. It is corrected here and the original value is preserved as operatorPrincipal. filmed-run.raw.json holds the emitted bytes unchanged.",
-    "correction": {
-      "field": "resources.observerPrincipal",
-      "rawValue": "user:qwynn@marcellelabs.io",
-      "reclassifiedAs": "resources.operatorPrincipal",
-      "correctedValue": "serviceAccount:interlock-hac340-observer@interlock-film-260823.iam.gserviceaccount.com",
-      "reason": "10-provision.sh records the provisioning caller, not the principal that performed the read-back. The traversal impersonated a dedicated keyless observer service account because gcloud 580 refuses audience-scoped identity tokens for user accounts. Adjudicated NON_MATERIAL: the substitution changed no authorization behaviour, and the fail-closed controls returned an identical 403/401/403.",
-      "classification": "NON_MATERIAL"
-    },
-    "rawPacket": "experiments/hac-324/evidence/filmed-run.raw.json",
-    "producer": "experiments/hac-324/bin/build-filmed-run.mjs"
-  }
+  "teardown": "pending"
 }
