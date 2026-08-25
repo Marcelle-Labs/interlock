@@ -20,6 +20,8 @@
 
   --transition-interactive: color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard); /* @kind other */
 
+  --il-stage-rise: 6px; /* @kind other */ /* a stage arriving into the reading order */
+
   --delay-step: 90ms; /* @kind other */ /* successive items in a sequence */
   --delay-stage: 260ms; /* @kind other */ /* successive stages in the five-state model */
 
@@ -46,6 +48,10 @@
 @keyframes il-pass        { from { transform: translateX(0); } to { transform: translateX(var(--il-pass, 4px)); } }
 @keyframes il-appear      { from { opacity: 0; } to { opacity: 1; } }
 @keyframes il-step-in     { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+/* A stage arriving into the reading order. Longer travel than il-step-in, which
+   marks a value that changed in place; this one marks a region the reader is
+   being moved to. It plays once, settles, and never moves again. */
+@keyframes il-stage-in    { from { opacity: 0; transform: translateY(var(--il-stage-rise, 6px)); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -68,6 +74,10 @@
     --mot-card-wipe: 0ms; /* @kind other */
   }
   /* Animated assets must expose a [data-il-static] sibling; the
-     motion layer hides itself rather than snapping through frames. */
-  [data-il-motion] { animation: none !important; transition: none !important; }
+     motion layer hides itself rather than snapping through frames.
+     The descendant selector is not redundant: a sequence that stages its
+     children — held, then changed, then the outcome — hangs its attribute on
+     the container, and killing only the container would leave the staggered
+     children animating under a preference that asked for none. */
+  [data-il-motion], [data-il-motion] * { animation: none !important; transition: none !important; }
 }

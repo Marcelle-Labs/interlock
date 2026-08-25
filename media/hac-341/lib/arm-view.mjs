@@ -108,4 +108,57 @@ export function armView(run, armId) {
   };
 }
 
-export { NO_DECISION };
+/**
+ * The Interlock gate's presentation state for one recorded arm.
+ *
+ * The gate is the product's own mechanism, so it is drawn with the canonical
+ * `assets/brand/logo-geometry.js` geometry and nothing else. What varies is one
+ * thing: where the two leaves are, which is decided entirely by the decision the
+ * frozen arm recorded.
+ *
+ * Three states, and each is a *position*, not a moment in a sequence:
+ *
+ *   absent  Interlock was disabled in this arm, so there is no gate to be in a
+ *           state — the leaves are not drawn at all, matching the canonical
+ *           `interlock-state-1` composition.
+ *   closed  the leaves interlock. The recorded decision withheld parallel
+ *           execution.
+ *   open    the leaves stand apart by GATE_TRAVEL. The recorded decision
+ *           permitted parallel execution.
+ *
+ * An unrecognised decision returns `null` and the surface draws no gate. It
+ * deliberately does not fall back to a plausible position: a gate showing the
+ * wrong state is worse than no gate, and `verify-cockpit.mjs` refuses a recorded
+ * decision this map does not carry, so a new token fails CI instead of shipping
+ * as a silent guess.
+ *
+ * Note what is NOT here: any notion of evaluating, approaching, resolving or
+ * settling. The frozen packets record a decision and the basis it was taken on.
+ * They record no deliberation, so none is representable.
+ */
+const GATE_STATES = {
+  WITHHOLD_SERIALIZE: {
+    id: 'closed',
+    label: 'Gate closed',
+    gloss: 'parallel execution withheld',
+  },
+  ALLOW_PARALLEL: {
+    id: 'open',
+    label: 'Gate open',
+    gloss: 'parallel execution permitted',
+  },
+};
+
+/** Half the gap between the leaves when the gate is open, in grid units. */
+const GATE_TRAVEL = 1.6;
+
+export function gateState(arm) {
+  if (!arm) return null;
+  if (!arm.decision) {
+    return { id: 'absent', label: 'Gate not engaged', gloss: `${NO_DECISION} in this arm`, travel: 0 };
+  }
+  const state = GATE_STATES[arm.decision];
+  return state ? { ...state, travel: state.id === 'open' ? GATE_TRAVEL : 0 } : null;
+}
+
+export { NO_DECISION, GATE_TRAVEL, GATE_STATES };

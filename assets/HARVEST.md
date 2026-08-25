@@ -32,6 +32,34 @@ Only the two variable faces are vendored. They cover the full 100–900 range th
 frozen system uses, so the 38 static weights in the upstream archive are not
 needed and are not carried.
 
+## Semantic iconography (HAC-345)
+
+Vendored for the same reason the faces are: a judge-facing surface may not
+acquire a runtime network dependency, and the cockpit is one static file with no
+build step. Twelve outline primitives cover the generic concepts that repeat
+across the proof spine — proof path, evidence inspection, controlled comparison,
+threshold, lineage, pass, unsafe, warning, refusal, replay, frozen artifact and
+external evidence.
+
+| | |
+| --- | --- |
+| Upstream | `https://github.com/lucide-icons/lucide` |
+| Release | `1.34.0`, published 2026-08-24 |
+| Commit | `1a60fd28ed7111bbf6acedc0896f3d83cd73945a` |
+| License | ISC (`assets/icons/LICENSE-lucide.txt`) |
+| Modified | no — each file is the upstream byte content of `icons/<name>.svg` |
+
+The path data is inlined in `media/hac-341/lib/icons.mjs` so the cockpit renders
+it without twelve extra requests; `media/hac-341/bin/verify-cockpit.mjs` checks
+each inlined body against the vendored bytes, so the copy cannot go stale
+silently. Registry row `IL-ICON-001` digest-gates the bytes themselves.
+
+**The Interlock mechanism is not in this vocabulary.** The gate, the mark and
+the coordination decision are drawn with `assets/logo/` geometry. `ShieldCheck`
+was on the HAC-345 shortlist and is deliberately not vendored: a generic shield
+standing in for the mechanism is the substitution the issue forbids. The other
+rejected candidates are recorded in `icons.mjs` as `REJECTED_CANDIDATES`.
+
 ## What was classified, and what happened to it
 
 | Family | Classification | Disposition | Reason |
@@ -105,3 +133,17 @@ That distinction is recorded per file in `assets/registry.json` as
 | upstream vercel/geist-font v1.7.2 | `assets/fonts/geist-variable.woff2` | `a369fcf5628ea2aa4e1b9e2ec6a5b3624e365bda588e1f0f2f12b564f728fbb8` |
 | upstream vercel/geist-font v1.7.2 | `assets/fonts/geist-mono-variable.woff2` | `fba8f577f38a2bbcbe818efa6348dd58f36303a10b8737c42fefad275be563ab` |
 | upstream vercel/geist-font v1.7.2 | `assets/fonts/OFL.txt` | `c683bfbcc7e087f5d37a54ef628f10387c451a83ddc459b151403a164ac46c90` |
+
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/ban.svg` | `2eba67f86d70bbd5d22e4211d44d7dda86c3397410f714765a12c3cd3ca0ebe3` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/circle-check-big.svg` | `25f075fd621df48282ace8326680a4cd165965e61458d2fd0cc1303cefc179ac` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/circle-x.svg` | `bcd8788901e6f29e1b231a81ba5e707d083d06cb4848a28f29407fab4f8e0b64` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/external-link.svg` | `3891241b8c3bfc3a8a930078f26ffc5a7e9763da6d0162ace2050b28d4c1d1fe` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/file-check.svg` | `c64133f05e44d87830e37c7a9c45a439c5146017f86e91e563f806ff8a2ad4c1` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/gauge.svg` | `d7710543a5085c5a61d0bbac1da8b89ef28e541b38ed739357991dff33d475b5` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/git-branch.svg` | `041f04acc8f92657b849540f0440e2e85d0df0b8da2365611e81b9bebfafc4eb` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/git-compare-arrows.svg` | `312a5913462dd0bd33bb3dae8e136ee2a4396e0906b917be4a2c1dd3c2d2a2a2` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/rotate-ccw.svg` | `622685386ab4017eabfde01cd74550a20b1924df233b353f73b6b155371f2afd` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/route.svg` | `fc169fd38a9963b016ad6d60fd72baa2b0ea8e0cec085bbc53287297c3d8121a` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/scan-search.svg` | `a2919e740bb122bb737542119c1d3c1042bcd62c79d702804553cc95ac768e1e` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/lucide/triangle-alert.svg` | `4866f38b8560d410f21e3226413e0b77997b6dfbb6931fadfe0a0d5aef9ffeb4` |
+| upstream lucide-icons/lucide 1.34.0 | `assets/icons/LICENSE-lucide.txt` | `b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57` |
