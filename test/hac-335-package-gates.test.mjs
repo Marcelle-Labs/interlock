@@ -84,6 +84,38 @@ describe('the gate accepts the package as built', () => {
   });
 });
 
+describe('prose asset references', () => {
+  /**
+   * The real defect: the README pointed at the IL-COCK-010 capture with the
+   * wrong crop height in its filename (1440x566 rather than 1440x774) after
+   * the capture was retaken. Every other gate passed, because nothing
+   * compared a prose link against the filesystem.
+   */
+  it('fails when a README image points at a file that does not exist', () => {
+    const r = perturbed((p) =>
+      p.edit('README.md',
+        'IL-COCK-010-run-local-treatment-1440x774-runhac330local.png',
+        'IL-COCK-010-run-local-treatment-1440x566-runhac330local.png'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/which does not exist/);
+  });
+
+  it('fails when a diagram export is renamed without updating the prose', () => {
+    const r = perturbed((p) => p.append('README.md', '![diagram](media/hac-334/exports/nope.png)'));
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/nope\.png, which does not exist/);
+  });
+
+  it('accepts remote images, anchors, and non-asset links it does not police', () => {
+    const r = perturbed((p) =>
+      p.append('README.md',
+        'See [remote](https://example.com/x.png), [here](#claim-boundary) '
+        + 'and [the docs](./docs/some/guide.md).'));
+    expect(r.out).toContain('HAC-335 judge package verified');
+    expect(r.code).toBe(0);
+  });
+});
+
 describe('proof-class separation', () => {
   it('fails when one sentence merges the two runs', () => {
     const r = perturbed((p) =>
