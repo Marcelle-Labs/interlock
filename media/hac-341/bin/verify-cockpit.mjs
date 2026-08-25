@@ -1355,6 +1355,65 @@ for (const m of cockpit.matchAll(/(?:^|\s)(?:import\b[^;]*?from|await\s+fetch\(|
   fail(`document-relative reference "${m[1]}" breaks under the vercel.json rewrite; anchor it at /media/hac-341/`);
 }
 
+/**
+ * `immutable` is a promise about a URL, and these URLs are not content-addressed.
+ *
+ * The defect this exists to prevent has happened. `/media/(.*).mjs` was served
+ * with `max-age=31536000, immutable` while `/cockpit` was served
+ * `max-age=0, must-revalidate`. Adding a `gateState` export to `arm-view.mjs`
+ * therefore handed every returning visitor *new HTML* and a *year-old module*:
+ *
+ *   SyntaxError: The requested module '/media/hac-341/lib/arm-view.mjs'
+ *                does not provide an export named 'gateState'
+ *
+ * A module script that fails to link never runs, so `#app` was never filled and
+ * the deployed cockpit rendered blank — while still returning HTTP 200, and
+ * while every gate here passed, because the bytes on disk were correct and the
+ * bytes in the browser were not the bytes on disk.
+ *
+ * `immutable` is only sound where the filename changes with the content. Nothing
+ * under `/media` or `/assets` is fingerprinted, so nothing there may claim it.
+ *
+ * The fonts are the one exemption, and it is named rather than pattern-matched
+ * so it stays visible as an exemption: they are the upstream Geist binaries,
+ * they do not change with the product, and `check:identity` digest-gates them
+ * against `assets/registry.json` — a silent swap is already impossible.
+ */
+const IMMUTABLE_EXEMPT = new Set(['/assets/fonts/(.*).woff2']);
+const vercelConfig = JSON.parse(readFileSync(join(repoRoot, 'vercel.json'), 'utf8'));
+for (const rule of vercelConfig.headers ?? []) {
+  const cacheControl = (rule.headers ?? []).find((h) => /^cache-control$/i.test(h.key))?.value ?? '';
+  if (!/\bimmutable\b/.test(cacheControl)) continue;
+  if (IMMUTABLE_EXEMPT.has(rule.source)) continue;
+  fail(`vercel.json serves "${rule.source}" as immutable, but the URL is not content-addressed. `
+    + 'A returning visitor gets new HTML against a stale module or stylesheet; if an export moved, '
+    + 'the page renders blank. Use must-revalidate, or fingerprint the filename.');
+}
+/**
+ * The other half of the pair.
+ *
+ * A stale *document* against fresh modules fails the same way in reverse: old
+ * HTML importing an export the new module has moved or renamed. Vercel serves
+ * HTML `max-age=0, must-revalidate` by default and no rule here targets the
+ * document today, so this matches nothing — it exists to refuse a rule that
+ * starts to.
+ *
+ * Deliberately not a regex. An alternation carrying anchors invites the reader
+ * to guess where the anchors bind, and a predicate that has to be guessed at is
+ * a poor guard for a defect this subtle.
+ */
+const targetsDocument = (source) => source.includes('.html')
+  || source.includes('/cockpit')
+  || source === '/(.*)';
+for (const rule of vercelConfig.headers ?? []) {
+  if (!targetsDocument(rule.source)) continue;
+  const cacheControl = (rule.headers ?? []).find((h) => /^cache-control$/i.test(h.key))?.value ?? '';
+  if (!/must-revalidate|no-cache|max-age=0\b/.test(cacheControl)) {
+    fail(`vercel.json caches the document "${rule.source}" as "${cacheControl}", without revalidation. `
+      + 'Stale HTML against fresh modules fails the same way a stale module does.');
+  }
+}
+
 const checksLabel = local.checks.label;
 if (errors.length) {
   process.stderr.write(`HAC-341 cockpit contract violated:\n${errors.map((e) => `  - ${e}`).join('\n')}\n`);

@@ -41,6 +41,9 @@ const NEEDED = [
   // The cockpit gate refuses a motion sequence the contract does not carry, so
   // a copy without the contract is a copy with no documented motion at all.
   'docs/development/cockpit-motion-contract.md',
+  // The gate reads the deploy headers: an immutable cache on a URL the product
+  // can change is what rendered the deployed cockpit blank.
+  'vercel.json',
 ];
 
 let pristine;

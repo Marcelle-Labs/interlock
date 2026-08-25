@@ -384,6 +384,8 @@ const NEEDED = [
   '.github',
   // The gate refuses a motion sequence the contract does not carry.
   'docs/development/cockpit-motion-contract.md',
+  // The gate reads the deploy headers; see the identity-gate fixture.
+  'vercel.json',
 ];
 
 let pristine;
