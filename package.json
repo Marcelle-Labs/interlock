@@ -1,9 +1,17 @@
 {
   "name": "@marcelle-labs/interlock",
   "version": "0.0.0",
+  "description": "Interlock \u2014 evidence-bound coordination before shared-state mutation",
   "private": true,
-  "description": "Interlock \u2014 composition engine and reference application for the WorkspaceJSON Interlock contest submission",
   "license": "UNLICENSED",
+  "homepage": "https://github.com/Marcelle-Labs/interlock#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marcelle-Labs/interlock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Marcelle-Labs/interlock/issues"
+  },
   "type": "module",
   "engines": {
     "node": ">=22.0.0"
