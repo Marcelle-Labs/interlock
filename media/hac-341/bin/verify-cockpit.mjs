@@ -33,6 +33,21 @@ const bindings = read('experiments', 'hac-342', 'evidence', 'publication-binding
 
 const errors = [];
 const fail = (m) => errors.push(m);
+
+/**
+ * Byte-stable ordering for the names this gate prints back.
+ *
+ * Deliberately not a bare `.sort()`, which orders by UTF-16 code unit only as
+ * an implementation detail, and deliberately not `localeCompare`: this output
+ * is a gate's own record of what it checked, and CI and a laptop have to agree
+ * on it. Locale-aware collation is not guaranteed identical across
+ * environments or ICU builds. Comparing code units is. Same reasoning, and the
+ * same shape, as `byPath` in media/hac-335/bin/lib/capture-source.mjs.
+ */
+const byCodeUnit = (a, b) => {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+};
 const { local, cloud } = model.runs;
 
 /* --- local identity assets must survive constrained preview hosts -------- */
@@ -1352,7 +1367,7 @@ process.stdout.write(
   + `  ${model.degradedStates.length} degraded states, evidence links pinned to immutable commits\n`
   + `  guided walk: ${GUIDE_STEPS.length} steps, ${GUIDE_STATES.length} addressable states,`
   + ` ${delta.held.length} held / ${delta.changed.length} changed verified against the frozen arms\n`
-  + `  motion: ${[...sequences].sort().join(', ')} — one-shot, documented, budget ${durHold}ms,`
+  + `  motion: ${[...sequences].sort(byCodeUnit).join(', ')} — one-shot, documented, budget ${durHold}ms,`
   + ' settling at data-motion="settled"\n'
   + `  icon vocabulary: ${CONCEPTS.length} concepts, ${Object.keys(ICONS).length} vendored glyphs`
   + ` verified against ${ICON_SOURCE.vendorDir} @ ${ICON_SOURCE.commit.slice(0, 12)}, no generic mechanism stand-in\n`

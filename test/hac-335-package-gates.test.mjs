@@ -87,14 +87,20 @@ describe('the gate accepts the package as built', () => {
 describe('prose asset references', () => {
   /**
    * The real defect: the README pointed at the IL-COCK-010 capture with the
-   * wrong crop height in its filename (1440x566 rather than 1440x774) after
-   * the capture was retaken. Every other gate passed, because nothing
-   * compared a prose link against the filesystem.
+   * wrong crop height in its filename (1440x566 rather than the 1440x774 then
+   * on disk) after the capture was retaken. Every other gate passed, because
+   * nothing compared a prose link against the filesystem.
+   *
+   * The crop height has since moved again — the HAC-345/346/347 polish changed
+   * what the cockpit renders, so the capture is 1440x776 now. The anchor below
+   * tracks the *current* filename rather than the historical one: a test that
+   * kept editing a string the README no longer contains would throw on its own
+   * anchor instead of proving the gate bites.
    */
   it('fails when a README image points at a file that does not exist', () => {
     const r = perturbed((p) =>
       p.edit('README.md',
-        'IL-COCK-010-run-local-treatment-1440x774-runhac330local.png',
+        'IL-COCK-010-run-local-treatment-1440x776-runhac330local.png',
         'IL-COCK-010-run-local-treatment-1440x566-runhac330local.png'));
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/which does not exist/);
