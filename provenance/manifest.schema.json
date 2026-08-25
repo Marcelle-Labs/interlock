@@ -17,27 +17,57 @@
   ],
   "additionalProperties": true,
   "properties": {
-    "manifestVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
-    "product": { "const": "Interlock" },
-    "submissionRepository": { "const": "Marcelle-Labs/interlock" },
-    "owningOrganization": { "type": "string", "minLength": 1 },
-    "contestPeriodStart": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-    "bootstrapIssue": { "type": "string", "minLength": 1 },
-    "bootstrapRecordedAt": { "type": "string", "format": "date-time" },
-    "notes": { "type": "array", "items": { "type": "string" } },
+    "manifestVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "product": {
+      "const": "Interlock"
+    },
+    "submissionRepository": {
+      "const": "Marcelle-Labs/interlock"
+    },
+    "owningOrganization": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contestPeriodStart": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "bootstrapIssue": {
+      "type": "string",
+      "minLength": 1
+    },
+    "bootstrapRecordedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "dependencies": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/dependency" }
+      "items": {
+        "$ref": "#/$defs/dependency"
+      }
     },
     "submissionLocalMachinery": {
       "type": "array",
-      "items": { "$ref": "#/$defs/localMachinery" }
+      "items": {
+        "$ref": "#/$defs/localMachinery"
+      }
     },
     "newlyCreatedForContest": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/newWork" }
+      "items": {
+        "$ref": "#/$defs/newWork"
+      }
     }
   },
   "$defs": {
@@ -58,14 +88,38 @@
       ],
       "additionalProperties": true,
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-        "repository": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
-        "remote": { "type": "string", "pattern": "^https://" },
-        "owningOrganization": { "type": "string", "minLength": 1 },
-        "origin": { "enum": ["PRE_EXISTING", "CREATED_DURING_CONTEST"] },
-        "pinnedSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-        "pinnedRef": { "type": "string" },
-        "pinnedVersions": { "type": "object" },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^[^/]+/[^/]+$"
+        },
+        "remote": {
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "owningOrganization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin": {
+          "enum": [
+            "PRE_EXISTING",
+            "CREATED_DURING_CONTEST"
+          ]
+        },
+        "pinnedSha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "pinnedRef": {
+          "type": "string"
+        },
+        "pinnedVersions": {
+          "type": "object"
+        },
         "disposition": {
           "enum": [
             "WRITABLE",
@@ -75,11 +129,20 @@
           ]
         },
         "consumption": {
-          "enum": ["CONSUMED", "COPIED"],
+          "enum": [
+            "CONSUMED",
+            "COPIED"
+          ],
           "description": "CONSUMED means linked, installed, or executed in place. COPIED means source was vendored into this repository and requires explicit disclosure review."
         },
-        "purpose": { "type": "string", "minLength": 20 },
-        "devpostDisclosure": { "type": "string", "minLength": 40 },
+        "purpose": {
+          "type": "string",
+          "minLength": 20
+        },
+        "devpostDisclosure": {
+          "type": "string",
+          "minLength": 40
+        },
         "harvestDisposition": {
           "enum": [
             "NOT_APPLICABLE",
@@ -87,7 +150,12 @@
             "DELETE_AFTER_SUBMISSION"
           ]
         },
-        "boundaryNotes": { "type": "array", "items": { "type": "string" } }
+        "boundaryNotes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "localMachinery": {
@@ -98,22 +166,73 @@
         "status",
         "notPartOfReleasedStandard",
         "disclosureLanguage",
-        "harvestDisposition"
+        "initialHarvestDisposition",
+        "harvestScopeStatus",
+        "harvestLedger"
       ],
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-        "purpose": { "type": "string", "minLength": 20 },
-        "status": { "enum": ["PLANNED", "IN_PROGRESS", "BUILT", "REMOVED"] },
-        "notPartOfReleasedStandard": { "const": true },
-        "disclosureLanguage": { "type": "string", "minLength": 40 },
-        "harvestDisposition": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 20
+        },
+        "status": {
+          "enum": [
+            "PLANNED",
+            "IN_PROGRESS",
+            "BUILT",
+            "REMOVED"
+          ]
+        },
+        "notPartOfReleasedStandard": {
+          "const": true
+        },
+        "disclosureLanguage": {
+          "type": "string",
+          "minLength": 40
+        },
+        "harvestTarget": {
+          "type": "string"
+        },
+        "initialHarvestDisposition": {
+          "description": "What bootstrap recorded before the evidence to choose existed. Preserved, never overwritten.",
           "enum": [
             "HARVEST_OR_DELETE_AFTER_SUBMISSION",
             "DELETE_AFTER_SUBMISSION"
           ]
         },
-        "harvestTarget": { "type": "string" }
+        "harvestScopeStatus": {
+          "description": "Whether HAC-321 could reach a disposition. OUT_OF_SCOPE_NOT_BUILT is only valid while status is PLANNED.",
+          "enum": [
+            "RESOLVED",
+            "OUT_OF_SCOPE_NOT_BUILT"
+          ]
+        },
+        "resolvedHarvestDisposition": {
+          "description": "The single HAC-321 disposition. Required when harvestScopeStatus is RESOLVED and forbidden otherwise.",
+          "enum": [
+            "HARVEST_INTEGRATIONS",
+            "HARVEST_STANDARD_RESEARCH",
+            "HARVEST_STUDIO",
+            "HARVEST_SWARM",
+            "KEEP_INTERLOCK",
+            "DELETE_HACKATHON_ONLY"
+          ]
+        },
+        "harvestOwnerIssue": {
+          "description": "Durable owner issue that was filed or amended. Required for any HARVEST_* resolution.",
+          "type": "string",
+          "pattern": "^[A-Z]{2,5}-\\d+$"
+        },
+        "harvestLedger": {
+          "description": "Path to the ledger carrying the reasoning behind the resolution.",
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "newWork": {
@@ -130,15 +249,42 @@
       ],
       "additionalProperties": true,
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-        "repository": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
-        "remote": { "type": "string", "pattern": "^https://" },
-        "owningOrganization": { "type": "string", "minLength": 1 },
-        "origin": { "const": "CREATED_DURING_CONTEST" },
-        "initialSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-        "disposition": { "const": "WRITABLE" },
-        "purpose": { "type": "string", "minLength": 20 },
-        "mustNotAbsorb": { "type": "array", "items": { "type": "string" } }
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^[^/]+/[^/]+$"
+        },
+        "remote": {
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "owningOrganization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin": {
+          "const": "CREATED_DURING_CONTEST"
+        },
+        "initialSha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "disposition": {
+          "const": "WRITABLE"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 20
+        },
+        "mustNotAbsorb": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   }

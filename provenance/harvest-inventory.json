@@ -1,0 +1,321 @@
+{
+  "$schema": "./harvest-inventory.schema.json",
+  "inventoryVersion": "1.0.0",
+  "owningIssue": "HAC-321",
+  "ledger": "docs/quality/harvest-ledger.md",
+  "notes": [
+    "Machine-checked by scripts/check-harvest.mjs, which runs inside the required Provenance boundary context.",
+    "coverageRoots enumerate every place a capability can live. Every path under a root must be claimed by exactly one row, so adding a capability without a ledger row turns the gate red instead of passing silently.",
+    "Findings are recorded separately from capabilities: a finding has no path, so it cannot participate in coverage."
+  ],
+  "dispositions": [
+    "HARVEST_INTEGRATIONS",
+    "HARVEST_STANDARD_RESEARCH",
+    "HARVEST_STUDIO",
+    "HARVEST_SWARM",
+    "KEEP_INTERLOCK",
+    "DELETE_HACKATHON_ONLY"
+  ],
+  "coverageRoots": [
+    {
+      "path": "src",
+      "mode": "recursive"
+    },
+    {
+      "path": "experiments",
+      "mode": "children"
+    },
+    {
+      "path": "media",
+      "mode": "children"
+    },
+    {
+      "path": "scripts",
+      "mode": "children"
+    },
+    {
+      "path": "docs/quality",
+      "mode": "children"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "composition-decision-core",
+      "title": "Composition decision core",
+      "paths": [
+        "src/broker/pairing/arbitrate.ts",
+        "src/broker/pairing/store.ts"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Decides whether two intents may compose. That is a prescriptive judgment, and GOVERNANCE.md rejects prescriptive policy from the standard. Harvesting it upstream would be the charter violation META-284 is unwinding."
+    },
+    {
+      "id": "authorization-receipt-contract",
+      "title": "Authorization receipt and lifecycle contract",
+      "paths": [
+        "src/authorization/receipt.ts",
+        "src/authorization/intent.ts",
+        "src/authorization/canonical.ts",
+        "src/receipt.ts"
+      ],
+      "disposition": "HARVEST_INTEGRATIONS",
+      "ownerIssue": "META-330",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "The lifecycle another agent system can adopt without adopting Interlock's policy. The contract travels; the decision does not. EXECUTED and OBSERVED must not collapse in any harvested form."
+    },
+    {
+      "id": "enforcement-proxy",
+      "title": "Interlock enforcement proxy",
+      "paths": [
+        "src/proxy/main.ts",
+        "src/proxy/service.ts",
+        "src/proxy/http.ts",
+        "src/proxy/identity.ts",
+        "src/proxy/target-port.ts"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Reference-application enforcement path proven by HAC-326. Product, not seam."
+    },
+    {
+      "id": "protected-target",
+      "title": "Protected target service",
+      "paths": [
+        "src/target/main.ts",
+        "src/target/service.ts",
+        "src/target/http.ts",
+        "src/target/state.ts"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "The mutation surface the proxy protects. Exists to make the counterfactual demonstrable; not reusable outside it."
+    },
+    {
+      "id": "broker-safety-primitives",
+      "title": "Bypass guard, idempotency ledger, revision binding",
+      "paths": [
+        "src/broker/bypass/guard.ts",
+        "src/broker/idempotency/ledger.ts",
+        "src/broker/revision/revision.ts"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Fail-closed primitives bound to this broker's semantics. HAC-317 owns any production generalization; nothing is proposed for a workspacejson repository."
+    },
+    {
+      "id": "observation-events",
+      "title": "Independent observation and correlation",
+      "paths": [
+        "src/observation/events.ts",
+        "src/correlation.ts"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Emits the state chain the cockpit renders. Travels conceptually with the receipt contract but is not separately harvestable."
+    },
+    {
+      "id": "runtime-config",
+      "title": "Runtime configuration and JSON transport",
+      "paths": [
+        "src/config.ts",
+        "src/http/json.ts"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Ordinary application plumbing. Recorded so coverage is complete, not because it is notable."
+    },
+    {
+      "id": "four-arm-evaluation-harness",
+      "title": "Four-arm evaluation harness",
+      "paths": [
+        "experiments/hac-343"
+      ],
+      "disposition": "HARVEST_STANDARD_RESEARCH",
+      "ownerIssue": "META-384",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Arms, corpus, executor and aggregation for a multi-condition comparison where every arm can fail. Carries the freeze-before-results protocol and the packet verifier in the same tree."
+    },
+    {
+      "id": "evidence-provenance-envelope",
+      "title": "Evidence provenance envelope and pinned-upstream adapter",
+      "paths": [
+        "experiments/hac-330"
+      ],
+      "disposition": "HARVEST_STANDARD_RESEARCH",
+      "ownerIssue": "META-384",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Wraps a verbatim upstream result with producer SHA, package version, bundle digest, source revision, history basis and artifact digest, and refuses to run against a dirty or off-pin checkout. The synthetic-history fixtures in the same tree are superseded by META-383's use of real history and are not part of the harvest.",
+      "supersededParts": [
+        "experiments/hac-330/bin/build-fixtures.mjs generates synthetic Git histories; META-383 replaced the approach with real repository history. Deleted post-window with the rest of the tree's fixture machinery."
+      ]
+    },
+    {
+      "id": "public-evidence-redaction",
+      "title": "Public evidence redaction and logged-out verification",
+      "paths": [
+        "experiments/hac-342"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Redacts a packet for publication and verifies it resolves logged out. Bound to this submission's disclosure boundary; generalizing it would mean generalizing that boundary."
+    },
+    {
+      "id": "fallback-enforcement-path",
+      "title": "S2 fallback enforcement path",
+      "paths": [
+        "experiments/hac-326"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "The proven bounded MCP/API proxy enforcement path. Its production successor is HAC-317's scope inside this repository; nothing here is proposed for any workspacejson repository."
+    },
+    {
+      "id": "filmed-run-capture",
+      "title": "Filmed-run capture and verification",
+      "paths": [
+        "experiments/hac-324"
+      ],
+      "disposition": "HARVEST_STUDIO",
+      "ownerIssue": "HAC-324",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Builds and verifies a filmed run against its scene manifest. Studio v3 is already the consumer, so this is a harvest with a live customer."
+    },
+    {
+      "id": "gateway-provisioning-scripts",
+      "title": "Agent Gateway provisioning scripts",
+      "paths": [
+        "experiments/hac-325"
+      ],
+      "disposition": "DELETE_HACKATHON_ONLY",
+      "rationale": "Belongs to a path recorded as FAILED/PIVOTED. Keeping executable provisioning for an abandoned architecture invites someone to run it. HAC-338 owns the forensic finding; the scripts are not needed to preserve it."
+    },
+    {
+      "id": "cockpit-build",
+      "title": "Judge verification cockpit",
+      "paths": [
+        "media/hac-341"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "The judge-facing surface for pinned runs, including the cold-read kit. Product."
+    },
+    {
+      "id": "architecture-visual-suite",
+      "title": "Evidence-bound architecture visual suite",
+      "paths": [
+        "media/hac-334"
+      ],
+      "disposition": "HARVEST_STUDIO",
+      "ownerIssue": "HAC-324",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Generates architecture and proof visuals from machine-readable state. test/hac-334-gate-perturbation.test.mjs travels with it: a pipeline that cannot demonstrate its own gate failing is the vacuous-green case META-337 eliminated."
+    },
+    {
+      "id": "judge-package-and-asset-registry",
+      "title": "Judge package and asset registry",
+      "paths": [
+        "media/hac-335"
+      ],
+      "disposition": "HARVEST_STUDIO",
+      "ownerIssue": "HAC-324",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Binds every exported asset to an asset ID, judge question, source run, supported claim, runtime source SHA and evidence-publication SHA. The general capability is evidence-bound media."
+    },
+    {
+      "id": "storyboard-assembly",
+      "title": "Muted storyboard assembly",
+      "paths": [
+        "media/hac-333"
+      ],
+      "disposition": "DELETE_HACKATHON_ONLY",
+      "rationale": "Assembles one frozen 30-second storyboard for one submission. The reusable half is the asset registry, harvested separately; what remains is this submission's scene list."
+    },
+    {
+      "id": "provenance-boundary-gate",
+      "title": "Provenance boundary gate",
+      "paths": [
+        "scripts/check-provenance.mjs"
+      ],
+      "disposition": "HARVEST_SWARM",
+      "ownerIssue": "META-339",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "A machine-checked manifest that refuses to let a manifest edit grant itself permission. Answers 'which repository may this change touch' with a gate rather than a README paragraph."
+    },
+    {
+      "id": "identity-boundary-gate",
+      "title": "Identity boundary gate",
+      "paths": [
+        "scripts/check-identity.mjs"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Verifies one product's mark, vendored fonts and cockpit identity authority. Generalizes to nothing."
+    },
+    {
+      "id": "export-naming",
+      "title": "Deterministic export naming",
+      "paths": [
+        "scripts/export-naming.mjs"
+      ],
+      "disposition": "HARVEST_STUDIO",
+      "ownerIssue": "HAC-324",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Names exported assets deterministically from run and claim identity, so a filename cannot drift from what it depicts."
+    },
+    {
+      "id": "merge-gate-matrix-method",
+      "title": "Merge-gate matrix and hardening-receipt method",
+      "paths": [
+        "docs/quality/merge-gate-matrix.md",
+        "docs/quality/hardening-receipts.md"
+      ],
+      "disposition": "HARVEST_SWARM",
+      "ownerIssue": "META-339",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "One owner per failure class, values read back from the API rather than inferred from config, a bidirectional red/green proof per blocking gate, and a waiver register carrying owner, expiry and risk for what could not be proven."
+    },
+    {
+      "id": "harvest-ledger-gate",
+      "title": "Harvest ledger and coverage gate",
+      "paths": [
+        "docs/quality/harvest-ledger.md",
+        "scripts/check-harvest.mjs",
+        "provenance/harvest-inventory.json",
+        "provenance/harvest-inventory.schema.json"
+      ],
+      "disposition": "HARVEST_SWARM",
+      "ownerIssue": "META-339",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Answers 'did any capability get dropped on the floor' with a coverage check rather than a prose assertion. Self-referential on purpose: this row is what stops the ledger from omitting itself."
+    }
+  ],
+  "findings": [
+    {
+      "id": "cross-target-composition-hazard",
+      "statement": "Per-target locking preserves concurrency but can miss composition hazards spanning distinct targets; global locking preserves safety by eliminating concurrency. On a frozen sixteen-scenario corpus, Interlock withheld both hazardous compositions while retaining both safe parallel opportunities, and reversed its decision when the co-change evidence was removed.",
+      "source": "HAC-343",
+      "disposition": "KEEP_INTERLOCK",
+      "durableHome": "experiments/hac-343/evidence/judge-export.json",
+      "rationale": "This is the submission's own bounded claim, already pinned in a frozen evidence packet with its scope boundary attached. Routing it to a Standard research issue would detach the claim from the corpus that bounds it."
+    },
+    {
+      "id": "committed-evidence-no-measured-value",
+      "statement": "BOUNDED_SEARCH_EXHAUSTED. No authentic natural worktree-composition fixture passed admission within the frozen universe and budget, so no transfer result was established.",
+      "source": "META-383",
+      "disposition": "HARVEST_STANDARD_RESEARCH",
+      "ownerIssue": "Fibery OQ-17",
+      "rationale": "META-383's own completion routing names Fibery OQ-17 as the destination for its durable evidence, negative or contradiction. A negative is the finding most likely to be quietly dropped, and it is worth more than a positive from a search that had to be widened."
+    },
+    {
+      "id": "roadmap-intelligence-no-headroom",
+      "statement": "Most candidate roadmap decisions had no measurable baseline headroom, and no valid roadmap semantic established incremental agent-decision consequence.",
+      "source": "META-382",
+      "disposition": "HARVEST_STANDARD_RESEARCH",
+      "ownerIssue": "Fibery OQ-17",
+      "rationale": "Same destination and same reasoning as META-383. Together these two record where not to invest."
+    }
+  ],
+  "notInInventory": [
+    {
+      "id": "live-worktree-composition-harness",
+      "reason": "Lives on feature/meta-383-research-test-committed-repository-evidence-in-live-parallel and is not yet on main. Its intended disposition is HARVEST_STANDARD_RESEARCH under META-384, recorded there. It is deliberately absent here because the path does not exist on this branch, and a coverage gate that tolerates missing paths is not a coverage gate.",
+      "entersInventoryWhen": "the META-383 branch merges"
+    },
+    {
+      "id": "revision-anchor-extension",
+      "reason": "provenance/manifest.json records it with status PLANNED. It was never built, has no paths, and therefore cannot receive a disposition. Recording one would assert work that did not happen.",
+      "entersInventoryWhen": "never, unless it is actually built"
+    }
+  ]
+}
