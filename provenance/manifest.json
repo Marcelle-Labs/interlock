@@ -108,13 +108,17 @@
       "status": "BUILT",
       "notPartOfReleasedStandard": true,
       "disclosureLanguage": "The HAC-330 evidence adapter is a submission-local wrapper authored during the contest. It executes the pre-existing open-source workspace.json mining pipeline at a pinned revision and records provenance around the result; it contains no mining logic of its own, emits no workspace.json artifact, and is NOT part of released WorkspaceJSON v0.4 (@workspacejson/spec 0.4.4). It carries no specification authority.",
-      "harvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
       "harvestTarget": "workspacejson/cli, only via a separately approved upstream issue carrying the repository-attribution finding recorded in experiments/hac-330/README.md",
       "boundaryNotes": [
         "Consumes mine -> score -> select only. project() is exported by @workspacejson/mining-core but is deliberately not called: L1 emission onto generated.coChange is step 3 of the A-009 staged transition, which that package does not authorize.",
         "No workspace.json is written by this experiment, and no coChange key appears in any committed evidence artifact.",
         "Upstream was not modified. The experiment refuses to run against a workspacejson/cli checkout that is dirty or off the manifest pin."
-      ]
+      ],
+      "initialHarvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
+      "resolvedHarvestDisposition": "HARVEST_STANDARD_RESEARCH",
+      "harvestScopeStatus": "RESOLVED",
+      "harvestOwnerIssue": "META-384",
+      "harvestLedger": "docs/quality/harvest-ledger.md"
     },
     {
       "id": "hac-330-fixture-harness",
@@ -122,7 +126,10 @@
       "status": "BUILT",
       "notPartOfReleasedStandard": true,
       "disclosureLanguage": "The HAC-330 fixture harness is submission-local experimental machinery authored during the contest for the S-1 concept gate. It generates synthetic Git histories for a controlled local experiment and is NOT part of released WorkspaceJSON v0.4, nor of any WorkspaceJSON repository. It carries no specification authority.",
-      "harvestDisposition": "DELETE_AFTER_SUBMISSION"
+      "initialHarvestDisposition": "DELETE_AFTER_SUBMISSION",
+      "resolvedHarvestDisposition": "DELETE_HACKATHON_ONLY",
+      "harvestScopeStatus": "RESOLVED",
+      "harvestLedger": "docs/quality/harvest-ledger.md"
     },
     {
       "id": "hac-326-fallback-enforcement",
@@ -130,14 +137,17 @@
       "status": "BUILT",
       "notPartOfReleasedStandard": true,
       "disclosureLanguage": "The HAC-326 fallback enforcement path is submission-local machinery authored during the contest for the S2 architecture-freeze gate. It consumes the pinned upstream co-change evidence produced by the HAC-330 adapter and contains no upstream source. It is NOT part of released WorkspaceJSON v0.4 (@workspacejson/spec 0.4.4) and carries no specification authority.",
-      "harvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
       "harvestTarget": "the Marcelle-Labs/interlock production broker under HAC-317; nothing here is proposed for any workspacejson repository",
       "boundaryNotes": [
         "Consumes experiments/hac-330/evidence/baseline.evidence.json verbatim. It does not mine, does not re-derive co-change, and writes no workspace.json.",
         "The authorization receipt is an S2 contract fixture, not the production schema. HAC-317 owns the production receipt.",
         "No private key material is committed. Key pairs are minted per deployment into a gitignored .work/ directory, and only environment variable NAMES appear in source.",
         "The pending-intent store is in-memory and single-instance, and the replay ledger does not survive a restart. Both limitations are recorded in the evidence packet rather than implied away."
-      ]
+      ],
+      "initialHarvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
+      "resolvedHarvestDisposition": "KEEP_INTERLOCK",
+      "harvestScopeStatus": "RESOLVED",
+      "harvestLedger": "docs/quality/harvest-ledger.md"
     },
     {
       "id": "revision-anchor-extension",
@@ -145,8 +155,10 @@
       "status": "PLANNED",
       "notPartOfReleasedStandard": true,
       "disclosureLanguage": "The revision-anchor extension is an experimental, submission-local extension authored during the contest. It is NOT part of released WorkspaceJSON v0.4 (@workspacejson/spec 0.4.4) and carries no specification authority.",
-      "harvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
-      "harvestTarget": "workspacejson/standard, only via a separately approved Standard issue and ADR"
+      "harvestTarget": "workspacejson/standard, only via a separately approved Standard issue and ADR",
+      "initialHarvestDisposition": "HARVEST_OR_DELETE_AFTER_SUBMISSION",
+      "harvestScopeStatus": "OUT_OF_SCOPE_NOT_BUILT",
+      "harvestLedger": "docs/quality/harvest-ledger.md"
     }
   ],
   "newlyCreatedForContest": [
