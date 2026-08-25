@@ -1,9 +1,17 @@
 {
   "name": "@marcelle-labs/interlock",
   "version": "0.0.0",
+  "description": "Interlock — evidence-bound coordination before shared-state mutation",
   "private": true,
-  "description": "Interlock \u2014 composition engine and reference application for the WorkspaceJSON Interlock contest submission",
   "license": "UNLICENSED",
+  "homepage": "https://github.com/Marcelle-Labs/interlock#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marcelle-Labs/interlock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Marcelle-Labs/interlock/issues"
+  },
   "type": "module",
   "engines": {
     "node": ">=22.0.0"
@@ -11,6 +19,7 @@
   "packageManager": "pnpm@10.24.0",
   "scripts": {
     "check:provenance": "node scripts/check-provenance.mjs",
+    "check:harvest": "node scripts/check-harvest.mjs",
     "check:identity": "node scripts/check-identity.mjs",
     "check:packet": "node experiments/hac-330/bin/verify-packet.mjs",
     "check:packet:s2": "node experiments/hac-326/bin/verify-packet.mjs",

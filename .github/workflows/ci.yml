@@ -33,6 +33,11 @@ jobs:
       - name: Check provenance boundary
         run: npm run check:provenance
 
+      # Runs inside this required context rather than as a new status check, so
+      # the harvest ledger blocks a merge without a branch-protection change.
+      - name: Check harvest ledger
+        run: npm run check:harvest
+
       - name: Required authority files are present
         run: |
           set -euo pipefail

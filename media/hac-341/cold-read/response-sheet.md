@@ -93,6 +93,71 @@ If N, which diverged and how:
 
 ---
 
+## Pass 3 — what the HAC-345/346/347 polish added
+
+Asked after pass 2, on the default URL, mouse allowed. These are diagnostic,
+not scored: they exist to catch a treatment that reads well to its author.
+
+**Q6 — "Walk me through it: evidence, then the threshold, then the decision,
+then what was permitted or refused."** Do not prompt. Do not name the stages.
+
+```
+verbatim:
+
+
+
+```
+Reached decision/permission without narration?  **Y / N**
+Reread any region more than once?  which:
+
+```
+
+```
+
+**Q7 — pointing at the mark beside the decision: "What is that showing you?"**
+
+```
+verbatim:
+
+
+
+```
+Understood it as the state of an evidence-bound gate?  **Y / N**
+Read it as a logo, a status light, or decoration?  **Y / N**
+
+**Q8 — "Was there anything on the page that moved? Did it help or distract?"**
+
+```
+verbatim:
+
+
+
+```
+
+**Q9 — for each icon the reader used to find something, ask what it meant.**
+Record any that were read as something other than the concept below.
+
+```
+route         proof path / walkthrough      read as: ______________________
+scan-search   inspect evidence              read as: ______________________
+git-compare   controlled comparison         read as: ______________________
+gauge         the bound / threshold         read as: ______________________
+git-branch    the revision evidence is bound to
+                                            read as: ______________________
+circle-check  outcome holds                 read as: ______________________
+circle-x      outcome breaches its bound    read as: ______________________
+triangle      qualified / unavailable       read as: ______________________
+ban           refused / outside the claim   read as: ______________________
+rotate-ccw    replay a recorded arm         read as: ______________________
+file-check    the frozen raw artifact       read as: ______________________
+external      leaves for published evidence read as: ______________________
+```
+
+Any icon read as a *different concept* is an ambiguity finding. Remove or
+revise that icon — do not explain it to the next reader.
+
+---
+
 ## Automatic failures — tick any that occurred
 
 ```
@@ -105,6 +170,11 @@ If N, which diverged and how:
 [ ] concluded Interlock is universally safe / production-ready
 [ ] concluded Interlock prevents collisions in general
 [ ] keyboard or reduced-motion pass gave a different semantic answer
+[ ] believed the animation timing showed how long anything took to execute
+[ ] believed the animation produced or caused the Interlock decision
+[ ] read the gate as a padlock, a security badge, or a general safety claim
+[ ] read the open gate as the good/safe outcome
+[ ] took an icon as the only evidence for a proof or status meaning
 ```
 
 Any tick = this reader is a **FAIL**, whatever the Y/N answers above.

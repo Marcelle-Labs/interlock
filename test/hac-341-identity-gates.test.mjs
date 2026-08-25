@@ -38,6 +38,9 @@ const NEEDED = [
   // reproduced in CI, the rest by the packet verifier.
   'experiments/hac-343/bin',
   '.github',
+  // The cockpit gate refuses a motion sequence the contract does not carry, so
+  // a copy without the contract is a copy with no documented motion at all.
+  'docs/development/cockpit-motion-contract.md',
 ];
 
 let pristine;
@@ -329,7 +332,7 @@ describe('the selected arm drives its own evidence', () => {
 
   it('fails when the cockpit stops consuming the shared derivation', () => {
     const r = perturbed((a) => {
-      a.edit('media/hac-341/cockpit.html', "import { armView } from '/media/hac-341/lib/arm-view.mjs';", '');
+      a.edit('media/hac-341/cockpit.html', "import { armView, gateState } from '/media/hac-341/lib/arm-view.mjs';", '');
     }, gate);
     expect(r.code).not.toBe(0);
     expect(r.out).toMatch(/does not consume the shared arm-view derivation/);

@@ -119,6 +119,57 @@ claims.
 Untested-but-correct code reddened exactly one gate, and it was the one that owns
 coverage. That is the responsibility matrix working.
 
+### `Provenance boundary` — harvest ledger coverage (HAC-321)
+
+Added to the existing required context rather than as a new status check, so the
+ledger blocks a merge without a branch-protection change during freeze week.
+
+Four injected defects, each restored to green before the next:
+
+| Injected defect | Observed failure |
+| --- | --- |
+| Deleted the `runtime-config` row from the inventory | `2 capability path(s) have no ledger row: src/config.ts, src/http/json.ts` — plus a counts mismatch, 25 declared vs 24 |
+| Set a disposition to `PROBABLY_KEEP` | `disposition "PROBABLY_KEEP" is not one of the declared values` |
+| Removed `ownerIssue` from a `HARVEST_INTEGRATIONS` row | `HARVEST_INTEGRATIONS requires "ownerIssue" naming a durable owner` |
+| Made two rows claim `src/receipt.ts` | `already claimed by "authorization-receipt-contract" — exactly one disposition per capability` |
+
+| Field | Value |
+| --- | --- |
+| Source app | `github-actions` (15368), inside `Provenance boundary` |
+| Posture | blocking — **required** |
+| Repair | Inventory restored; `22 capabilities + 3 findings, every path under 5 coverage roots claimed exactly once` |
+| Stayed green | `test`, `SonarCloud Code Analysis`, `codecov/patch` |
+
+The first defect is the one that matters. Validating the rows that exist proves
+nothing about the capability nobody wrote down, so the ledger's real failure mode
+was "someone forgot" — which no check can see. Coverage converts that into a red.
+
+### `Provenance boundary` — manifest harvest resolution (HAC-321)
+
+The review that produced this receipt found the first draft had added two
+free-text manifest fields that **nothing validated**, under a schema with
+`additionalProperties: true`. One of them held `NOT RESOLVED - status PLANNED,
+never built` — a value outside HAC-321's six-disposition vocabulary, sitting in a
+field named as though it were a disposition, under a green gate.
+
+| Injected defect | Observed failure |
+| --- | --- |
+| Set `resolvedHarvestDisposition` to `NOT RESOLVED - never built` | `must be one of HARVEST_INTEGRATIONS, … (got "NOT RESOLVED - never built")` |
+| Removed `harvestOwnerIssue` from a `HARVEST_*` resolution | `names no "harvestOwnerIssue". HAC-321 requires a durable owner issue that was filed or amended` |
+
+| Field | Value |
+| --- | --- |
+| Source app | `github-actions` (15368), inside `Provenance boundary` |
+| Posture | blocking — **required** |
+| Repair | `initialHarvestDisposition` / `resolvedHarvestDisposition` / `harvestScopeStatus` validated against enums in `check-provenance.mjs`; `localMachinery` closed to `additionalProperties: false` |
+| Stayed green | `test`, `SonarCloud Code Analysis`, `codecov/patch` |
+
+Recorded because the failure was not the wrong value — it was **a field that
+looked authoritative and was checked by nothing.** `additionalProperties: true`
+meant the schema accepted it silently, and the script never read it. That is the
+same shape as the vacuous-green cases this file exists to catch, arriving inside
+the file's own repository.
+
 ### Deliberately **not** required
 
 * **The six `codecov/patch/<component>` statuses.** They reported `success` on both
@@ -213,9 +264,22 @@ mutate manifests with a targeted edit, not a serializer round trip.
 
 ## Still unproven
 
-| Repository | Check | Source app | Blocker |
-| --- | --- | --- | --- |
-| `workspacejson/standard` | `SonarCloud Code Analysis` | `sonarqubecloud` | Never observed red — four PR analyses, all `OK`. Needs an injected proof before promotion. |
-| `workspacejson/cli` | `SonarCloud Code Analysis` | `sonarqubecloud` | Gate status `NONE`: one analysis ever, so no new-code baseline exists. Must be fixed before the check could ever be required. |
-| `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | `github-actions` | Required before this pass; inherited, not independently proven here. |
-| `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | `github-actions` | As above. |
+Each row below is now carried under an explicit waiver — owner, expiry, and risk —
+in [`merge-gate-matrix.md` §7](merge-gate-matrix.md#7-waiver-register), per
+META-337's final acceptance clause. A waiver records that the gap was measured and
+deliberately carried; it does not convert any row here into a proof.
+
+Updated at the 2026-08-25 re-read.
+
+| Repository | Check | Source app | Blocker | Waiver |
+| --- | --- | --- | --- | --- |
+| `workspacejson/standard` | `SonarCloud Code Analysis` | `sonarqubecloud` | Never observed red — gate still `OK` at re-read. Needs an injected proof before promotion. | [W-6](merge-gate-matrix.md#w-6) |
+| `workspacejson/cli` | `SonarCloud Code Analysis` | `sonarqubecloud` | ~~Gate status `NONE`~~ — a baseline now exists and the gate reads **`ERROR`**: `new_reliability_rating` 4, `new_security_rating` 2, both against threshold 1. Findings untriaged; check not required. | [W-2](merge-gate-matrix.md#w-2) |
+| `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | `github-actions` | Required before this pass; inherited, not independently proven here. | [W-5](merge-gate-matrix.md#w-5) |
+| `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | `github-actions` | As above. | [W-5](merge-gate-matrix.md#w-5) |
+
+The `cli` row moved in the wrong direction between readings. `NONE` was a gate
+that could not produce a verdict; `ERROR` is a gate producing one that nothing is
+required to act on. Recorded here rather than in the matrix alone, because this
+file's premise is that an unobserved gate and a skipped gate are indistinguishable
+— and a gate whose red is ignored is a third case worth keeping visible.

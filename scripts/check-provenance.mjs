@@ -46,6 +46,29 @@ const HARVEST = new Set([
   'DELETE_AFTER_SUBMISSION',
 ]);
 
+/** What bootstrap recorded before the evidence to choose existed (HAC-328). */
+const INITIAL_HARVEST = new Set(['HARVEST_OR_DELETE_AFTER_SUBMISSION', 'DELETE_AFTER_SUBMISSION']);
+
+/** Whether HAC-321 could reach a disposition at all. */
+const HARVEST_SCOPE = new Set(['RESOLVED', 'OUT_OF_SCOPE_NOT_BUILT']);
+
+/**
+ * HAC-321's disposition vocabulary. Kept identical to `dispositions` in
+ * provenance/harvest-inventory.json; check-harvest.mjs enforces that file, this
+ * one enforces the manifest, and both must name the same six values or the two
+ * records can drift into disagreeing about what a disposition is.
+ */
+const LEDGER_DISPOSITIONS = new Set([
+  'HARVEST_INTEGRATIONS',
+  'HARVEST_STANDARD_RESEARCH',
+  'HARVEST_STUDIO',
+  'HARVEST_SWARM',
+  'KEEP_INTERLOCK',
+  'DELETE_HACKATHON_ONLY',
+]);
+
+const LINEAR_ID = /^[A-Z]{2,5}-\d+$/;
+
 /**
  * Values that look like credentials. The manifest records environment variable
  * NAMES and never their values, so any hit here is a real leak, not a false
@@ -202,13 +225,38 @@ for (const item of manifest.submissionLocalMachinery ?? []) {
   requireString(item, 'id', where, { pattern: ID });
   requireString(item, 'purpose', where, { min: 20 });
   requireString(item, 'disclosureLanguage', where, { min: 40 });
-  requireEnum(item, 'status', new Set(['PLANNED', 'IN_PROGRESS', 'BUILT', 'REMOVED']), where);
-  requireEnum(
-    item,
-    'harvestDisposition',
-    new Set(['HARVEST_OR_DELETE_AFTER_SUBMISSION', 'DELETE_AFTER_SUBMISSION']),
-    where,
-  );
+  const status = requireEnum(item, 'status', new Set(['PLANNED', 'IN_PROGRESS', 'BUILT', 'REMOVED']), where);
+
+  // Bootstrap recorded a deferral; HAC-321 spends it. Both values are kept and
+  // both are validated. Overwriting the deferral would erase the fact that this
+  // was carried undecided from bootstrap until now; leaving the resolution
+  // unvalidated would let an arbitrary string ride under a green gate, which is
+  // how a disposition outside HAC-321's vocabulary got in during review.
+  requireEnum(item, 'initialHarvestDisposition', INITIAL_HARVEST, where);
+  const scope = requireEnum(item, 'harvestScopeStatus', HARVEST_SCOPE, where);
+  requireString(item, 'harvestLedger', where);
+
+  if (scope === 'RESOLVED') {
+    const resolved = requireEnum(item, 'resolvedHarvestDisposition', LEDGER_DISPOSITIONS, where);
+    if (resolved?.startsWith('HARVEST_') && !LINEAR_ID.test(item.harvestOwnerIssue ?? '')) {
+      fail(
+        `${where}: resolved to ${resolved} but names no "harvestOwnerIssue". ` +
+        `HAC-321 requires a durable owner issue that was filed or amended, not a disposition alone.`,
+      );
+    }
+  } else {
+    // OUT_OF_SCOPE_NOT_BUILT: a capability that does not exist cannot hold a
+    // disposition, and recording one would assert work that did not happen.
+    if (item.resolvedHarvestDisposition !== undefined) {
+      fail(
+        `${where}: harvestScopeStatus is ${scope}, so it must not carry a resolvedHarvestDisposition. ` +
+        `Nothing was built; there is nothing to dispose of.`,
+      );
+    }
+    if (status !== 'PLANNED') {
+      fail(`${where}: harvestScopeStatus ${scope} is only valid while status is PLANNED (got "${status}")`);
+    }
+  }
 
   if (item.notPartOfReleasedStandard !== true) {
     fail(

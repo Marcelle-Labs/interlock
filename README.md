@@ -46,7 +46,7 @@ displayed; nothing is executed to produce this comparison.
 The Run is a verification surface over one pinned, frozen evidence object.
 Nothing in it executes — every value is read out of a frozen record.
 
-![The Run cockpit rendering the HAC-330 treatment arm: run identity hac330-local, checks 24/24, two intents marked locally valid, a coupled shared environment with joint bound 130, the WITHHOLD_SERIALIZE decision, and 140 > 130 beside 120 <= 130.](media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x566-runhac330local.png)
+![The Run cockpit rendering the HAC-330 treatment arm: run identity hac330-local, checks 24/24, two intents marked locally valid, a coupled shared environment with joint bound 130, the WITHHOLD_SERIALIZE decision, and 140 > 130 beside 120 <= 130.](media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x776-runhac330local.png)
 
 <sub>Real capture of `media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1` at 1440×900, cropped to the rendered content.</sub>
 
@@ -207,6 +207,18 @@ The broader evaluation (HAC-319) — precision, recall, fleet-scale behaviour �
 **not bound**. HAC-343 below is a bounded child of it, not a substitute.
 
 [`DISCLOSURE.md`](./DISCLOSURE.md) is the full provenance statement.
+
+## Licence
+
+This repository carries **no open-source licence**. The source is published so the
+experiment, the evidence packets and the verifier can be inspected and re-run; it is
+not offered for reuse or redistribution, and all rights are reserved. `package.json`
+records this as `UNLICENSED`.
+
+The `workspace.json` specification and toolchain that Interlock consumes are separately
+Apache-2.0 and are not covered by this notice — see
+[`provenance/manifest.json`](./provenance/manifest.json) for the exact pinned
+revisions.
 
 ---
 
