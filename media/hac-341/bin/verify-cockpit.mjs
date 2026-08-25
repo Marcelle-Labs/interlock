@@ -1389,12 +1389,28 @@ for (const rule of vercelConfig.headers ?? []) {
     + 'A returning visitor gets new HTML against a stale module or stylesheet; if an export moved, '
     + 'the page renders blank. Use must-revalidate, or fingerprint the filename.');
 }
-// The document itself must never be the stale half of that pair.
+/**
+ * The other half of the pair.
+ *
+ * A stale *document* against fresh modules fails the same way in reverse: old
+ * HTML importing an export the new module has moved or renamed. Vercel serves
+ * HTML `max-age=0, must-revalidate` by default and no rule here targets the
+ * document today, so this matches nothing — it exists to refuse a rule that
+ * starts to.
+ *
+ * Deliberately not a regex. An alternation carrying anchors invites the reader
+ * to guess where the anchors bind, and a predicate that has to be guessed at is
+ * a poor guard for a defect this subtle.
+ */
+const targetsDocument = (source) => source.includes('.html')
+  || source.includes('/cockpit')
+  || source === '/(.*)';
 for (const rule of vercelConfig.headers ?? []) {
-  if (!/cockpit|\/\(\.\*\)$/.test(rule.source)) continue;
+  if (!targetsDocument(rule.source)) continue;
   const cacheControl = (rule.headers ?? []).find((h) => /^cache-control$/i.test(h.key))?.value ?? '';
-  if (/max-age=[1-9]/.test(cacheControl) && !/must-revalidate|no-cache/.test(cacheControl)) {
-    fail(`vercel.json caches the document "${rule.source}" without revalidation`);
+  if (!/must-revalidate|no-cache|max-age=0\b/.test(cacheControl)) {
+    fail(`vercel.json caches the document "${rule.source}" as "${cacheControl}", without revalidation. `
+      + 'Stale HTML against fresh modules fails the same way a stale module does.');
   }
 }
 
