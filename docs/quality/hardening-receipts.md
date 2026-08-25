@@ -213,9 +213,22 @@ mutate manifests with a targeted edit, not a serializer round trip.
 
 ## Still unproven
 
-| Repository | Check | Source app | Blocker |
-| --- | --- | --- | --- |
-| `workspacejson/standard` | `SonarCloud Code Analysis` | `sonarqubecloud` | Never observed red — four PR analyses, all `OK`. Needs an injected proof before promotion. |
-| `workspacejson/cli` | `SonarCloud Code Analysis` | `sonarqubecloud` | Gate status `NONE`: one analysis ever, so no new-code baseline exists. Must be fixed before the check could ever be required. |
-| `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | `github-actions` | Required before this pass; inherited, not independently proven here. |
-| `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | `github-actions` | As above. |
+Each row below is now carried under an explicit waiver — owner, expiry, and risk —
+in [`merge-gate-matrix.md` §7](merge-gate-matrix.md#7-waiver-register), per
+META-337's final acceptance clause. A waiver records that the gap was measured and
+deliberately carried; it does not convert any row here into a proof.
+
+Updated at the 2026-08-25 re-read.
+
+| Repository | Check | Source app | Blocker | Waiver |
+| --- | --- | --- | --- | --- |
+| `workspacejson/standard` | `SonarCloud Code Analysis` | `sonarqubecloud` | Never observed red — gate still `OK` at re-read. Needs an injected proof before promotion. | [W-6](merge-gate-matrix.md#w-6) |
+| `workspacejson/cli` | `SonarCloud Code Analysis` | `sonarqubecloud` | ~~Gate status `NONE`~~ — a baseline now exists and the gate reads **`ERROR`**: `new_reliability_rating` 4, `new_security_rating` 2, both against threshold 1. Findings untriaged; check not required. | [W-2](merge-gate-matrix.md#w-2) |
+| `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | `github-actions` | Required before this pass; inherited, not independently proven here. | [W-5](merge-gate-matrix.md#w-5) |
+| `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | `github-actions` | As above. | [W-5](merge-gate-matrix.md#w-5) |
+
+The `cli` row moved in the wrong direction between readings. `NONE` was a gate
+that could not produce a verdict; `ERROR` is a gate producing one that nothing is
+required to act on. Recorded here rather than in the matrix alone, because this
+file's premise is that an unobserved gate and a skipped gate are indistinguishable
+— and a gate whose red is ignored is a third case worth keeping visible.

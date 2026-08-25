@@ -7,10 +7,16 @@ wrong, which single tool is responsible for catching it, and is that tool
 actually able to block a merge?**
 
 Every value in the "measured" tables was read back from the GitHub, SonarCloud, or
-Codecov API on **2026-08-12**, not inferred from configuration files. Where
-something has not been measured, this document says so rather than guessing. The
-APIs are the authority; if they disagree with this file, this file is stale and
-correcting it is part of the PR that noticed.
+Codecov API, not inferred from configuration files. Where something has not been
+measured, this document says so rather than guessing. The APIs are the authority;
+if they disagree with this file, this file is stale and correcting it is part of
+the PR that noticed.
+
+Readings: **2026-08-12** (Phase A inventory) and **2026-08-25** (re-read before
+submission freeze). The re-read found two drifts. They are recorded in
+[§6](#6-re-read-2026-08-25) with the superseded value kept beside the current
+one, rather than silently overwritten — a matrix that only ever shows today's
+value cannot show that a gate was removed.
 
 ```bash
 gh api repos/OWNER/REPO/branches/main/protection
@@ -96,16 +102,22 @@ recorded here so it is not mistaken for an incidental setting.
 
 ### 3b. WorkspaceJSON ecosystem repositories
 
-Full stack, where each tool has a distinct job.
+Full stack, where each tool has a distinct job. Values current as of the
+**2026-08-25** re-read; superseded 2026-08-12 values are in [§6](#6-re-read-2026-08-25).
 
 | Repository | CI (blocking) | Greptile | Sonar | Codecov | Sourcery |
 | --- | --- | --- | --- | --- | --- |
-| `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | **required** | reporting, **not required** — never observed red | absent | advisory |
-| `workspacejson/integrations` | `build-and-smoke (20)`, `build-and-smoke (22)`, `standard-candidate-consumption`, `parity-receipt-reproduction` | **not required** — trial exhausted, see §5 | **required** | absent | advisory |
-| `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | reporting, **deliberately not required** | **gate status `NONE`** | absent | advisory |
+| `workspacejson/standard` | `test (20)`, `test (22)`, `Four-path producer conformance` | **no longer required** — see §6 drift 1 | reporting, **not required** — never observed red; gate `OK` | absent | advisory |
+| `workspacejson/integrations` | `build-and-smoke (20)`, `build-and-smoke (22)`, `standard-candidate-consumption`, `parity-receipt-reproduction` | **not required** — trial exhausted, see §5 | **required**; gate `OK` | absent | advisory |
+| `workspacejson/cli` | `test (20)`, `test (22)`, `Compatibility parity vs frozen source` | reporting, **deliberately not required** | reporting, **not required**; gate **`ERROR`** — see §6 drift 2 | absent | advisory |
 
 `workspacejson/cli` not requiring Greptile is a deliberate outcome of the META-321
 calibration, not an oversight. It is preserved.
+
+Semantic and authority-boundary review — the failure class §1 assigns to Greptile
+— is therefore **unowned on all three** WorkspaceJSON repositories as of the
+re-read. §1 still names an owner; no repository currently enforces it. That is the
+single largest hole in this matrix and it is waived, not closed: [W-1](#w-1).
 
 ### 3c. Supporting repositories
 
@@ -135,11 +147,20 @@ produces a false green.
    what META-337 §8 prescribes. It is stronger evidence of detection and weaker
    evidence of control — nobody chose what the gate would see. Recorded as such.
 
-2. **`workspacejson/cli`'s SonarCloud gate returns status `NONE`** and its check
-   concludes `neutral` on `main`. The analyzer is not producing a verdict at all.
-   Because the check is not required this does not currently admit a bad merge —
-   but it is precisely the "analysis was skipped" state META-337 forbids treating
-   as green, and it must be fixed before the check is ever promoted.
+2. ~~**`workspacejson/cli`'s SonarCloud gate returns status `NONE`**~~ — **the
+   `NONE` condition closed** by the 2026-08-25 re-read. A new-code baseline now
+   exists and the analyzer produces a verdict.
+
+   The verdict is **`ERROR`**: `new_reliability_rating` is `4` against a threshold
+   of `1`, and `new_security_rating` is `2` against a threshold of `1`.
+
+   This is worse than the state it replaced, not better. `NONE` was a gate that
+   could not speak; `ERROR` is a gate that is speaking, is being ignored, and is
+   not required — the exact condition that justified promoting Sonar on
+   `integrations` in gap 1. The difference is that on `integrations` the finding
+   was triaged before promotion, and here it has not been. Promotion without
+   triage would make `main` unmergeable on `cli` during freeze week, which is why
+   this is waived rather than acted on now: [W-2](#w-2).
 
 3. **Sonar's coverage condition is absent from every project's gate.** The
    "Sonar way" gate nominally includes `new_coverage`, but SonarCloud drops the
@@ -182,12 +203,28 @@ produces a false green.
    because META-337 asks specifically that merge protection "not grant routine
    agent bypass", and this is the setting that decides that.
 
+   Re-read 2026-08-25: unchanged on all three. **`Marcelle-Labs/interlock` is
+   `enforce_admins: true`** — the submission repository does not grant the bypass,
+   which is the asymmetry worth naming: the repository being judged is the strict
+   one. Waived for the three ecosystem repositories: [W-3](#w-3).
+
 7. **Documentation drift in `workspacejson/standard`.**
    `.github/REVIEW-MERGE-PROTOCOL.md` states that Greptile "did not run" and is
    "Planned (not yet required)", and that code-owner review is "currently
-   required". The API says Greptile Review *is* a required context and
-   `require_code_owner_reviews` is `false`. The remediation sequence in that
+   required". On 2026-08-12 the API said Greptile Review *was* a required context
+   and `require_code_owner_reviews` was `false`. The remediation sequence in that
    document was executed; the document was not updated to match.
+
+   Re-read 2026-08-25: the drift **inverted on one half and persists on the
+   other**. Greptile Review is no longer required (§6 drift 1), so the document's
+   "not yet required" is now accidentally accurate — it describes the current state
+   for a reason that is not the reason it gives. `require_code_owner_reviews` is
+   still `false`, so "currently required" is still wrong.
+
+   A document that becomes true by drifting past a change and back is not a
+   documented state; it is a coincidence. Correcting it needs a write to
+   `workspacejson/standard`, which the HAC-328 permissions matrix makes read-only
+   and pinned to this repository. It cannot be fixed from here: [W-4](#w-4).
 
 ## 5. Open decisions, recorded rather than assumed
 
@@ -218,3 +255,167 @@ produces a false green.
   are a paid org plan or an explicit waiver with owner, expiry, and risk.
 * **`Marcelle-Labs/director`** has no CI to require. Protecting it is premature
   while it is read-only.
+
+## 6. Re-read 2026-08-25
+
+The §3 tables were re-read from the APIs before submission freeze, thirteen days
+after the Phase A inventory. The commands are the ones at the top of this file.
+
+Two values had drifted. Neither drift was announced by anything — no check turned
+red, no workflow changed, no PR mentioned it. That is the argument for re-reading
+rather than trusting a matrix: **a required check can stop being required without
+producing a single signal**, and the only way to notice is to ask the API again.
+
+### Drift 1 — `Greptile Review` is no longer required on `workspacejson/standard`
+
+| | |
+| --- | --- |
+| 2026-08-12 | `standard` required contexts included `Greptile Review` |
+| 2026-08-25 | `test (20)`, `test (22)`, `Four-path producer conformance` — **only** |
+| Command | `gh api repos/workspacejson/standard/branches/main/protection --jq '.required_status_checks.contexts'` |
+
+§5 already recorded Greptile being stood down on `integrations` when the trial
+expired, and explicitly noted that `standard` "still requires `Greptile Review`
+and still has credits". That is no longer true of the requirement. The Sonar gate
+for `standard` reads `OK`, so nothing is currently red behind the removal.
+
+The consequence is stated in §3b: the failure class §1 assigns to Greptile —
+WorkspaceJSON semantic and authority boundaries — is now unowned on every
+repository in the set. See [W-1](#w-1).
+
+### Drift 2 — `workspacejson/cli`'s Sonar gate moved `NONE` → `ERROR`
+
+| | |
+| --- | --- |
+| 2026-08-12 | `projectStatus.status: NONE` — no new-code baseline, check concluded `neutral` |
+| 2026-08-25 | `projectStatus.status: ERROR` — `new_reliability_rating` 4 (threshold 1), `new_security_rating` 2 (threshold 1) |
+| Command | `curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=workspacejson_cli"` |
+
+Gap 2 asked for exactly this — a baseline — and getting it revealed real findings.
+See [W-2](#w-2).
+
+### Unchanged at re-read
+
+* `Marcelle-Labs/interlock` — four required contexts, `enforce_admins: true`.
+* `workspacejson/integrations` — five required contexts including
+  `SonarCloud Code Analysis` pinned to app `12526`; gate `OK`.
+* `enforce_admins: false` on all three WorkspaceJSON repositories.
+* `require_code_owner_reviews: false` and `required_approving_review_count: 0`
+  on all four repositories.
+* No repository in the set uses rulesets; protection is classic branch protection
+  throughout, so the `rulesets` reading is empty by configuration, not by error.
+
+## 7. Waiver register
+
+META-337's final acceptance clause permits a remaining gap to close as an explicit
+waiver "with owner, expiry, and risk" rather than as work. This register discharges
+that clause for every gap left open in §4, §5 and §6.
+
+A waiver is not a dismissal. It records that a gap was measured, that the cost of
+closing it now was judged higher than the risk of carrying it, and **when that
+judgment expires**. An expired waiver is a defect. None of these outlive the
+submission window by more than one sprint.
+
+Owner is `qmarcelle` throughout — the repositories have a sole administrator, and
+naming a fictional second owner would be the kind of decorative control this
+document exists to refuse.
+
+<a id="w-1"></a>
+### W-1 · Semantic and authority-boundary review is unowned
+
+| | |
+| --- | --- |
+| **Gap** | §3b, §6 drift 1, §5 Greptile decision |
+| **Scope** | `workspacejson/standard`, `workspacejson/cli`, `workspacejson/integrations` |
+| **Owner** | `qmarcelle` |
+| **Expires** | 2026-09-14 |
+| **Risk accepted** | A change that is locally well-formed but violates a WorkspaceJSON authority boundary — descriptive-not-prescriptive, evidence falsifiability, missing-is-not-green, reader/producer separation — can reach `main` without any tool objecting. This is the highest-value class in §1 and it is the one now uncovered. |
+| **Why not closed now** | Restoring it requires Greptile credits (GTM-45), a paid decision outside META-337's scope, during a freeze week in which the ecosystem repositories are under a development freeze anyway. |
+| **Compensating control** | The freeze itself. Through submission freeze the participating repositories accept only break/fix, security, and Interlock-pulled work — the change classes least likely to move an authority boundary. This control lapses when the freeze does, which is why the expiry is two weeks out and not longer. |
+| **Discharge condition** | Either credits restored and `Greptile Review` required again on `standard` and `integrations`, or an explicit decision to retire Greptile and reassign the §1 row to a named replacement. Recorded in GTM-45. |
+
+<a id="w-2"></a>
+### W-2 · `workspacejson/cli` carries an unrequired red Sonar gate
+
+| | |
+| --- | --- |
+| **Gap** | §4 gap 1 (open half), §4 gap 2, §6 drift 2 |
+| **Scope** | `workspacejson/cli` |
+| **Owner** | `qmarcelle` |
+| **Expires** | 2026-09-07 |
+| **Risk accepted** | Two new-code findings — one reliability at rating 4, one security at rating 2 — are visible, unresolved, and cannot block a merge. Their content has not been triaged, so their severity is unknown; the rating alone does not establish exploitability. |
+| **Why not closed now** | Requiring the check today makes `main` unmergeable on `cli` until the findings are resolved, and `cli` is on the evidence path for META-382/383. Gap 1 promoted Sonar on `integrations` only *after* the finding there was read and understood; doing less here would be promoting a gate without knowing what it will block. |
+| **Compensating control** | None. The check reports on every PR and is visible; nothing forces anyone to look. Recorded as absent rather than invented. |
+| **Discharge condition** | Triage both findings, fix or file them, then require `SonarCloud Code Analysis` on `cli` pinned to app `12526`, matching `integrations`. |
+
+<a id="w-3"></a>
+### W-3 · `enforce_admins: false` on the three WorkspaceJSON repositories
+
+| | |
+| --- | --- |
+| **Gap** | §4 gap 6 |
+| **Scope** | `workspacejson/standard`, `workspacejson/cli`, `workspacejson/integrations` |
+| **Owner** | `qmarcelle` |
+| **Expires** | 2026-09-14 |
+| **Risk accepted** | Every required check on those three repositories is administrator-bypassable, and the implementation agents hold admin credentials. META-337 asks specifically that protection "not grant routine agent bypass"; this setting grants it. |
+| **Why not closed now** | `standard`'s `REVIEW-MERGE-PROTOCOL.md` records the sole-code-owner deadlock behind the choice: with one admin and `required_approving_review_count: 0`, enforcing admins can leave a repository with no path to merge its own fix. That reasoning is sound and has not changed. |
+| **Compensating control** | `Marcelle-Labs/interlock`, the repository actually under judgement, runs `enforce_admins: true`. The bypass exists only upstream of the submission, and the submission consumes those repositories at pinned SHAs recorded in `provenance/manifest.json` — a bypassed merge upstream cannot silently enter the submission without a manifest change, and `check-provenance.mjs` gates that. |
+| **Discharge condition** | A second administrator or a documented break-glass procedure, then `enforce_admins: true`. |
+
+<a id="w-4"></a>
+### W-4 · `standard`'s `REVIEW-MERGE-PROTOCOL.md` misstates its own protection
+
+| | |
+| --- | --- |
+| **Gap** | §4 gap 7 |
+| **Scope** | `workspacejson/standard` |
+| **Owner** | `qmarcelle` |
+| **Expires** | 2026-09-14 |
+| **Risk accepted** | A contributor reading that document believes code-owner review is required when it is not, and believes Greptile is merely "planned" when it was required and has since been removed. The document is currently accidentally right about Greptile for the wrong reason. |
+| **Why not closed now** | The HAC-328 permissions matrix makes `workspacejson/standard` read-only and pinned for the duration; changing it requires a separately approved Standard issue, which this issue does not authorize. Editing it from here would be the boundary violation this repository's own provenance gate exists to prevent. |
+| **Compensating control** | This matrix is the authoritative reading, and §6 records both the measured value and its date. Anyone routed here gets the true state. |
+| **Discharge condition** | A Standard-owned issue that rewrites the document from a fresh API reading. Not filed under META-337, which cannot authorize it. |
+
+<a id="w-5"></a>
+### W-5 · CI checks on `standard` and `cli` are inherited, not independently proven
+
+| | |
+| --- | --- |
+| **Gap** | `hardening-receipts.md` § *Still unproven*, rows 3 and 4 |
+| **Scope** | `standard` — `test (20)`, `test (22)`, `Four-path producer conformance`; `cli` — `test (20)`, `test (22)`, `Compatibility parity vs frozen source` |
+| **Owner** | `qmarcelle` |
+| **Expires** | 2026-09-14 |
+| **Risk accepted** | These six contexts were required before this hardening pass and were not put through the §8 bidirectional proof. A gate that has never been observed failing has not been distinguished from a gate that is silently skipped — the premise of the receipts file. Each could in principle be passing vacuously. |
+| **Why not closed now** | Injecting a defect into `standard` or `cli` requires a write to a repository the HAC-328 matrix holds read-only and pinned, on the evidence path for META-382/383, during freeze. The proof is cheap; the write permission is what is missing. |
+| **Compensating control** | Partial and worth naming as partial: all six are observed *passing* on real PRs continuously, and `Four-path producer conformance` and `Compatibility parity vs frozen source` are purpose-built assertions that would have to be actively broken to pass vacuously. Neither fact is a substitute for an injected red. |
+| **Discharge condition** | One injected-defect proof per context on a throwaway branch, recorded in `hardening-receipts.md`, once the freeze lifts and the repositories are writable. |
+
+<a id="w-6"></a>
+### W-6 · Sonar never observed red on `workspacejson/standard`
+
+| | |
+| --- | --- |
+| **Gap** | §4 gap 1 (remaining half), `hardening-receipts.md` § *Still unproven*, row 1 |
+| **Scope** | `workspacejson/standard` |
+| **Owner** | `qmarcelle` |
+| **Expires** | 2026-09-14 |
+| **Risk accepted** | The gate reads `OK` and has read `OK` on every analysis. It is not required, and there is no evidence it *can* fail — an analyzer misconfigured to examine nothing would produce exactly this record. |
+| **Why not closed now** | Same write-permission constraint as W-5. |
+| **Compensating control** | The same analyzer, same app `12526`, is proven capable of failing on `integrations` (§4 gap 1) and is currently failing on `cli` (§6 drift 2). The tool works; what is unproven is that it is pointed correctly here. |
+| **Discharge condition** | One injected new-code defect on a throwaway branch, observed red from app `12526`, then promotion. |
+
+### Waivers at a glance
+
+| ID | Gap | Expires | Blocked by |
+| --- | --- | --- | --- |
+| [W-1](#w-1) | semantic review unowned on all three | 2026-09-14 | Greptile credits — GTM-45 |
+| [W-2](#w-2) | `cli` red Sonar gate, not required | 2026-09-07 | triage of two findings |
+| [W-3](#w-3) | admin bypass on all three | 2026-09-14 | second admin or break-glass |
+| [W-4](#w-4) | `standard` protocol doc misstates protection | 2026-09-14 | Standard-owned issue |
+| [W-5](#w-5) | six inherited CI contexts unproven | 2026-09-14 | write access after freeze |
+| [W-6](#w-6) | Sonar unproven on `standard` | 2026-09-14 | write access after freeze |
+
+Every waiver above is blocked by permission, credit, or triage — none by effort.
+That is the honest summary of this hardening pass: the submission repository's
+gates are proven and enforced against its own administrator, and the ecosystem
+repositories are measured, understood, and deliberately carried.
