@@ -496,17 +496,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "07e1a93f8d575b7bb03db1195b4a26594a8aad32",
+      "capturedFromSha": "e4516ef5b9d963cb5d31726031fe6ab12a4c23e2",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "readme+devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x774-runhac330local.png",
+          "file": "media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x776-runhac330local.png",
           "width": 1440,
-          "height": 774,
-          "sha256": "ae84c67ba8655bb31f60a44092f542e8d0f6e95e0f37cf6d6187f23e1e88b65b",
+          "height": 776,
+          "sha256": "a375cda511208609b46a9746acb3cf97976fc61fb098d715a65d8a0a1ebb658b",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -540,17 +540,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "07e1a93f8d575b7bb03db1195b4a26594a8aad32",
+      "capturedFromSha": "e4516ef5b9d963cb5d31726031fe6ab12a4c23e2",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "readme+devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x887-runhac330local.png",
+          "file": "media/hac-335/captures/IL-COCK-011-run-local-perturbed-1440x890-runhac330local.png",
           "width": 1440,
-          "height": 887,
-          "sha256": "63aca750f302d45db2ed3d06a21fe77e98fa1224198f136099da11e18033f219",
+          "height": 890,
+          "sha256": "5abfa608bfe6eca2b2db6d16ef735dff4e70f2075d367db43a6921599ce4148f",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -584,7 +584,7 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "07e1a93f8d575b7bb03db1195b4a26594a8aad32",
+      "capturedFromSha": "e4516ef5b9d963cb5d31726031fe6ab12a4c23e2",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
@@ -594,7 +594,7 @@
           "file": "media/hac-335/captures/IL-COCK-012-run-cloud-overview-1440x653-runilkhac340cloud1786730369123.png",
           "width": 1440,
           "height": 653,
-          "sha256": "e32bf8c880232914aa17f7d3aac882039871ccc7af351d316e87a2ad123ce47d",
+          "sha256": "9e8360db97cf6be314eb9e80e860fc12806d84b157160695c0c92c2cb331bddb",
           "cropAnchor": "main#app",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }
@@ -644,17 +644,17 @@
       "canonicalMasterIssue": null,
       "authoredBy": "HAC-335",
       "capturedFrom": "HAC-341 merged cockpit",
-      "capturedFromSha": "07e1a93f8d575b7bb03db1195b4a26594a8aad32",
+      "capturedFromSha": "e4516ef5b9d963cb5d31726031fe6ab12a4c23e2",
       "sourceUrl": "/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview&static=1",
       "sourceFormat": "live surface (html)",
       "exportFormat": "png",
       "exports": [
         {
           "surface": "devpost-screenshot",
-          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x817-runilkhac340cloud1786730369123.png",
+          "file": "media/hac-335/captures/IL-COCK-013-run-cloud-evidence-1440x835-runilkhac340cloud1786730369123.png",
           "width": 1440,
-          "height": 817,
-          "sha256": "319ab8eabeba0b4d7d03c69840d6d2898b540f2e0dfd2194923fb13c12c460c9",
+          "height": 835,
+          "sha256": "39125a5ef1895572ffdb6cf3b4b4cfbd28006b106a66564d9b8e6df63c67dc69",
           "cropAnchor": "union:main#app,aside#drawer",
           "cropRule": "measured bounding box of the rendered content; unused canvas only"
         }

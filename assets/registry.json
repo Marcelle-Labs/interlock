@@ -312,6 +312,101 @@
       "classification": "evidence-bound",
       "designSource": "templates/judge-cockpit/TheRun.dc.html",
       "status": "identifier ported; export metadata deferred to HAC-335"
+    },
+    {
+      "id": "IL-ICON-001",
+      "name": "Semantic icon vocabulary (vendored Lucide primitives)",
+      "classification": "third-party-vendored",
+      "designSource": "https://github.com/lucide-icons/lucide @ 1a60fd28ed7111bbf6acedc0896f3d83cd73945a (release 1.34.0)",
+      "dimensions": "24 \u00d7 24 viewBox, scalable; rendered at 13\u201322px against --stroke-1",
+      "formats": [
+        "svg"
+      ],
+      "license": "ISC \u2014 assets/icons/LICENSE-lucide.txt",
+      "consumedBy": [
+        "hac-341 cockpit"
+      ],
+      "note": "Generic concepts only. The Interlock mechanism is drawn with IL-LOGO-* geometry; no padlock, shield or generic gate may stand in for it. Path data is inlined in media/hac-341/lib/icons.mjs and checked against these bytes by verify-cockpit.mjs.",
+      "files": [
+        {
+          "file": "assets/icons/lucide/ban.svg",
+          "sha256": "2eba67f86d70bbd5d22e4211d44d7dda86c3397410f714765a12c3cd3ca0ebe3",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/circle-check-big.svg",
+          "sha256": "25f075fd621df48282ace8326680a4cd165965e61458d2fd0cc1303cefc179ac",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/circle-x.svg",
+          "sha256": "bcd8788901e6f29e1b231a81ba5e707d083d06cb4848a28f29407fab4f8e0b64",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/external-link.svg",
+          "sha256": "3891241b8c3bfc3a8a930078f26ffc5a7e9763da6d0162ace2050b28d4c1d1fe",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/file-check.svg",
+          "sha256": "c64133f05e44d87830e37c7a9c45a439c5146017f86e91e563f806ff8a2ad4c1",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/gauge.svg",
+          "sha256": "d7710543a5085c5a61d0bbac1da8b89ef28e541b38ed739357991dff33d475b5",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/git-branch.svg",
+          "sha256": "041f04acc8f92657b849540f0440e2e85d0df0b8da2365611e81b9bebfafc4eb",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/git-compare-arrows.svg",
+          "sha256": "312a5913462dd0bd33bb3dae8e136ee2a4396e0906b917be4a2c1dd3c2d2a2a2",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/rotate-ccw.svg",
+          "sha256": "622685386ab4017eabfde01cd74550a20b1924df233b353f73b6b155371f2afd",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/route.svg",
+          "sha256": "fc169fd38a9963b016ad6d60fd72baa2b0ea8e0cec085bbc53287297c3d8121a",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/scan-search.svg",
+          "sha256": "a2919e740bb122bb737542119c1d3c1042bcd62c79d702804553cc95ac768e1e",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/lucide/triangle-alert.svg",
+          "sha256": "4866f38b8560d410f21e3226413e0b77997b6dfbb6931fadfe0a0d5aef9ffeb4",
+          "portability": "fully portable (pure vector geometry, currentColor, no live text)",
+          "containsLiveText": false
+        },
+        {
+          "file": "assets/icons/LICENSE-lucide.txt",
+          "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57",
+          "portability": "licence text carried with the vendored geometry",
+          "containsLiveText": false
+        }
+      ]
     }
   ]
 }

@@ -159,6 +159,43 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{background:var(--pa
 .chip[data-s="observed"]{color:var(--observed);border-style:dotted}
 .chip[data-s="blocked"]{color:var(--blocked);border-style:solid;border-width:2px}
 
+/* ── semantic icon vocabulary (HAC-345) ──
+   Twelve vendored Lucide primitives for the generic concepts that repeat on
+   this surface: proof path, evidence, comparison, threshold, lineage, pass,
+   unsafe, warning, refusal, replay, artifact, external. The map is
+   lib/icons.mjs and the gate checks each inlined body against the vendored
+   bytes under assets/icons/lucide.
+
+   Every one of them is decorative. Nothing here is the only carrier of a proof,
+   status or control meaning — the label beside the glyph says the same thing in
+   words, and colour is never the distinction between two states either. Removing
+   the whole vocabulary would cost scan speed and no semantics.
+
+   Stroke weight is the frozen --stroke-1, not the source files' 2/24 ratio: at
+   the 13-15px sizes used here that ratio renders a 0.8px hairline beside 1.5px
+   chip borders, and the icons would read as a lighter system laid over the
+   grammar rather than as part of it. `vector-effect` is set on the shapes
+   themselves because it does not inherit. */
+.il-ic{flex:none;display:inline-block;vertical-align:-.14em;stroke-width:var(--stroke-1,1.5px)}
+.il-ic *{vector-effect:non-scaling-stroke}
+.il-ic--sm{width:13px;height:13px}
+.il-ic--md{width:15px;height:15px}
+.il-ic--lg{width:22px;height:22px}
+/* A control that carries a glyph lays it out beside its label rather than
+   letting it sit on the text baseline as a floating outline. */
+.actions button,.guide-choice button,.guide-reentry button,.guide-ablate button,
+.guide-step .acts button{display:inline-flex;align-items:center;gap:7px}
+/* A trailing glyph — the external-evidence mark — stays inline so the link's
+   underline runs under the whole affordance rather than stopping short of it. */
+.il-ic--after{margin-left:4px}
+.env .bound{display:inline-flex;align-items:center;gap:6px}
+.notonpath,.unavail,.cmp-scaffold{display:flex;align-items:baseline;gap:7px}
+/* The outcome state glyph scales with the numeral it qualifies, exactly as the
+   ✓/✕ character it replaces did, so the responsive type steps carry it too. A
+   heavier stroke at that size keeps the shape reading as one closed form. */
+.res .v{display:flex;align-items:center;gap:9px}
+.res .v .il-ic{width:.58em;height:.58em;stroke-width:var(--stroke-2,2px)}
+
 /* ── causal connectors ──
    The relationship used to be carried by nothing but stacking order, so the
    two intents converged on nothing and the decision pointed at no result. The
@@ -221,7 +258,10 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{background:var(--pa
 .results{display:flex;flex-direction:column;gap:8px}
 .res{border:1px solid var(--border-default);border-left:3px solid currentColor;
   border-radius:3px;padding:11px 14px;background:var(--surface-card)}
-.res .v::before{content:attr(data-glyph) " ";font-weight:500}
+/* The ✓/✕ character that used to be injected here is now the pass/unsafe glyph
+   from the semantic vocabulary: same channel, same job, a closed form instead of
+   a hairline tick at 40px. `data-glyph` stays on the element as the recorded
+   state character — nothing reads it for presentation any more. */
 .res .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted)}
 .res .v{font-family:var(--mono);font-size:40px;font-weight:500;line-height:1.06;margin-top:2px}
 .res .n{font-size:11.5px;color:var(--text-muted);margin-top:3px}
@@ -396,12 +436,53 @@ html[data-static="true"] main.frame{transition:none!important}
 .env[data-il-motion="arm"]{animation-delay:0ms}
 .delta[data-il-motion="arm"],.decision[data-il-motion="arm"]{animation-delay:var(--delay-step,90ms)}
 .results[data-il-motion="arm"]{animation-delay:calc(var(--delay-step,90ms) * 2)}
-html[data-static="true"] [data-il-motion]{animation:none!important}
+
+/* ── the walk's two other sequences (HAC-346) ─────────────────────────────
+   Both are one-shot, both are triggered by a reader action, and both settle at
+   a state the address already names. Neither invents a beat the record does
+   not have: a step change is a real change of what the reader is being asked
+   to look at, and the ablation's held/changed markers are derived from the two
+   frozen arms by `ablationDelta`.
+
+   What is deliberately NOT animated: the joint bound. `ablationDelta` reports
+   it as a held-constant row across every recorded arm, and a threshold that
+   never moves may not be given a resolution beat — the motion would contradict
+   the "held constant" marker standing beside it. The threshold's job here is to
+   stay still while the evidence around it changes, and that is what it does. */
+
+/* Step progression. The step copy arrives first, then the stage it names — and
+   only a stage that was NOT already current, so a stage the walk keeps looking
+   at does not re-arrive and read as a second thing. Travel is downward because
+   that is the direction the spine is read in. */
+[data-il-motion="step"]{animation:il-stage-in var(--dur-base,220ms) var(--ease-standard) both}
+.guide-step[data-il-motion="step"]{animation-delay:0ms}
+.causal-stage[data-il-motion="step"],.evidence-band[data-il-motion="step"],
+.decision-bar[data-il-motion="step"],.outcome-stage[data-il-motion="step"],
+.arm-switcher[data-il-motion="step"]{animation-delay:var(--delay-step,90ms)}
+
+/* The ablation's reading order, which is the order the claim is made in:
+   what was held constant, then what changed, then what the change produced.
+   Revealed in that order rather than all at once — the markers are the whole
+   argument of step 05, and three simultaneous rows do not make an argument.
+   The values themselves are never hidden or delayed; only the markers that
+   qualify them are staged, so nothing a reader is looking for is withheld. */
+[data-il-motion="ablate"] .mk{animation:il-appear var(--dur-base,220ms) var(--ease-standard) both}
+[data-il-motion="ablate"] .mk[data-mk="held"]{animation-delay:0ms}
+[data-il-motion="ablate"] .mk[data-mk="changed"]{animation-delay:var(--delay-step,90ms)}
+[data-il-motion="ablate"] .res .mk[data-mk="changed"]{animation-delay:calc(var(--delay-step,90ms) * 2)}
+
+html[data-static="true"] [data-il-motion],html[data-static="true"] [data-il-motion] *{animation:none!important}
 /* The resolved reduced-motion state — OS preference or the manual control —
    substitutes immediate state changes for staged ones. It is applied as its own
    attribute rather than reusing ?static=1 so the two stay independently
    observable, and it never removes a step, a marker or a line of copy. */
-html[data-reduced-motion="true"] [data-il-motion]{animation:none!important}
+/* The descendant selector is load-bearing. A sequence that stages its children
+   hangs its attribute on the container, so killing only the container would
+   leave the staggered markers animating under a preference that asked for
+   none — and the manual control does not zero the duration tokens the way the
+   OS media query does. */
+html[data-reduced-motion="true"] [data-il-motion],
+html[data-reduced-motion="true"] [data-il-motion] *{animation:none!important}
 html[data-reduced-motion="true"] .drawer{transition:none!important}
 html[data-reduced-motion="true"] main.frame{transition:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -439,6 +520,24 @@ body[data-proof="cloud"] .frame{background:var(--ink)}
 .evidence-ledger b{text-transform:uppercase;letter-spacing:.09em;font-size:8px;color:var(--text-muted)}.evidence-band .delta{margin:0;border-width:1px;border-left:0;border-right:0;border-bottom:0;border-radius:0;padding:10px 16px}
 .evidence-band .delta .dtext{max-width:76ch}.causal-drop{width:2px;height:24px;margin:0 0 0 28px}.causal-drop svg{width:2px}
 .resolution-grid{display:grid;grid-template-columns:minmax(17rem,.85fr) minmax(22rem,1.15fr);gap:18px;align-items:stretch}
+/* ── the decision gate (HAC-347) ──
+   The signature object of this surface, and the only place the Interlock
+   mechanism is drawn. It occupies the space the decision stage was leaving
+   empty above its token, so it costs no evidence its own room.
+
+   Three positions, three geometries: leaves absent, leaves interlocked, leaves
+   apart. The distinction is shape, never colour — the mark is currentColor in
+   both proof classes — and the caption beside it says the same thing in words,
+   so a reader who does not read the picture loses nothing. */
+.ilgate{display:flex;align-items:center;gap:16px;margin:4px 0 12px}
+.ilgate__mark{flex:none;width:64px;height:64px;color:currentColor}
+.ilgate .gs{display:flex;flex-direction:column;gap:2px}
+.ilgate .gs b{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.10em;
+  text-transform:uppercase;line-height:1.2;color:var(--text-body)}
+.ilgate .gs span{font-size:12px;line-height:1.35;color:var(--text-muted);max-width:26ch}
+/* Interlock disabled: there is no gate to be in a state, so the leaves are not
+   drawn at all and the caption carries the whole fact. */
+.ilgate[data-gate="absent"] .gs b{font-weight:500;color:var(--text-muted)}
 .decision-bar{display:flex;flex-direction:column;margin:0;border-left-width:3px;padding:14px 16px;background:var(--surface-card)}
 .decision-bar .stage-head{margin-bottom:16px}.decision-bar .tok{font-size:clamp(20px,2.1vw,28px);line-height:1.05}.decision-bar .why{margin-top:8px;line-height:1.45}.decision__body{margin-top:auto}
 .outcome-stage{border-left:1px solid var(--border-hair);padding-left:18px}.outcome-stage .stage-head{margin-bottom:8px}
@@ -481,6 +580,7 @@ pre.shiki-proof .line{min-height:1.55em}
   .evidence-band .stage-head{padding-top:6px;margin-bottom:3px}.evidence-band .env__body{padding-bottom:6px}
   .env .attr{margin-top:3px;line-height:1.25}.evidence-ledger{margin-top:4px;padding-top:4px}
   .causal-drop{height:14px}.decision-bar{padding:9px 12px}.decision-bar .stage-head{margin-bottom:8px}
+  .ilgate{gap:12px;margin:0 0 8px}.ilgate__mark{width:52px;height:52px}.ilgate .gs b{font-size:10px}.ilgate .gs span{font-size:11px}
   .decision-bar .tok{font-size:20px}.decision-bar .why{margin-top:4px}.decision-bar .frozen{margin-top:2px}
   .outcome-stage .stage-head{margin-bottom:5px}.results{gap:5px}.res{padding:7px 10px}.res .cause{margin-bottom:2px}
   .res[data-selected="false"] .v{font-size:22px}.res[data-selected="true"]{padding:8px 12px}.res[data-selected="true"] .v{font-size:34px}
@@ -687,6 +787,7 @@ body[data-proof="cloud"] .cmp-strats button[aria-pressed="true"]{background:var(
 @media (max-width:640px){
   .frame{max-width:100%}.run-header,.run-thesis,.causal-layout{padding-left:16px;padding-right:16px}.run-header__identity{flex-wrap:wrap;gap:9px}.run-header__identity .eyebrow{padding-right:9px}
   .ptitle{font-size:11px;padding-left:9px}.switch .btns{max-width:100%;overflow:auto}.switch button{white-space:normal;min-height:44px}.stage-head{grid-template-columns:22px 1fr}.stage-head>span:last-child{display:none}
+  .ilgate{gap:12px}.ilgate__mark{width:48px;height:48px}
   .intents{flex-direction:column}.intent-card{min-height:auto}.causal-stage .cxn{display:none}.evidence-band{margin-top:14px}.resolution-grid{margin-top:14px}.arm-switcher .arms{flex-direction:column}.arm-switcher .actions{width:100%}.arm-switcher .actions button{flex:1}
 }
 </style>
@@ -704,7 +805,7 @@ body[data-proof="cloud"] .cmp-strats button[aria-pressed="true"]{background:var(
    from frozen evidence. A field that is absent there is absent here.
    What the *selected arm* shows is derived in lib/arm-view.mjs, so the binding
    between an arm and its evidence can be asserted without a browser. */
-import { armView } from '/media/hac-341/lib/arm-view.mjs';
+import { armView, gateState } from '/media/hac-341/lib/arm-view.mjs';
 /* The guided layer's derivation. It lives beside arm-view.mjs for the same
    reason: step 5 claims that four things were held constant and four changed,
    and a claim like that has to be checked against the frozen arms rather than
@@ -712,6 +813,13 @@ import { armView } from '/media/hac-341/lib/arm-view.mjs';
    moved, so a marker that has stopped being true fails the gate. */
 import { guideView, guideRoute, stateOfStep, stepOfState, GUIDE_STEPS,
   GUIDE_FREE_STATE } from '/media/hac-341/lib/guide.mjs';
+/* The semantic icon vocabulary. One concept, one glyph, declared once so the
+   same meaning cannot be drawn two ways on two screens. Every glyph it emits is
+   decorative and aria-hidden: the words beside it are what carry the meaning,
+   and no proof, status or control depends on recognising an outline. The
+   Interlock mechanism is deliberately absent from it — the gate and the mark
+   are the canonical geometry below, never a stock padlock or shield. */
+import { icon } from '/media/hac-341/lib/icons.mjs';
 
 const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');
@@ -741,19 +849,72 @@ const STATE_OF = {
   observation: { s: 'observed', g: '◎', t: 'OBSERVED' },
 };
 
+/* Which semantic concept each verification control is. Declared beside the
+   other vocabularies rather than inline at the two call sites, so the same
+   action cannot pick up one glyph in the persistent row and another in the
+   step panel that offers it. `claim` is `refused` because the claim boundary is
+   a prohibition on inference — the same meaning the degraded surface uses when
+   it declines to substitute a run. No experimental outcome uses it. */
+const ACTION_ICON = { verify: 'evidence', compare: 'comparison', raw: 'artifact', claim: 'refused' };
+
+/* The canonical mark, as data. Both the header lockup and the decision gate
+   draw these exact strings — the identity gate reconciles them against
+   assets/brand/logo-geometry.js, so one surface cannot quietly acquire a second
+   version of the mark. The four arms never move; the two leaves are the only
+   parts that do, and how far is GATE_TRAVEL, not a number chosen here. */
+const IL_ARMS = [
+  'M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z',
+  'M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z',
+  'M2.889 42 L9.111 42 L17.2 33.911 L17.2 27.689 Z',
+  'M45.111 42 L38.889 42 L30.8 33.911 L30.8 27.689 Z',
+];
+const IL_LEAF_L = 'M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z';
+const IL_LEAF_R = 'M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z';
+const armPaths = IL_ARMS.map((d) => `<path d="${d}"></path>`).join('');
+
 const brandHtml = `
     <div class="brand">
       <svg class="mark" viewBox="0 0 48 48" width="20" height="20" fill="currentColor" aria-hidden="true">
-        <path d="M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z"></path>
-        <path d="M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z"></path>
-        <path d="M2.889 42 L9.111 42 L17.2 33.911 L17.2 27.689 Z"></path>
-        <path d="M45.111 42 L38.889 42 L30.8 33.911 L30.8 27.689 Z"></path>
-        <path class="leaf leaf-l" d="M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z"></path>
-        <path class="leaf leaf-r" d="M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z"></path>
+        ${armPaths}
+        <path class="leaf leaf-l" d="${IL_LEAF_L}"></path>
+        <path class="leaf leaf-r" d="${IL_LEAF_R}"></path>
       </svg>
       <span class="word">Interlock</span>
     </div>
     <span class="eyebrow">The Run</span>`;
+
+/**
+ * The Interlock gate, in the position the recorded decision determines.
+ *
+ * This is the one place on the surface where the mechanism itself is drawn, and
+ * it is drawn with the product's own geometry — never a padlock, a shield or a
+ * stock gate. `gateState` is a pure function of the frozen arm's decision, so
+ * the picture cannot say something the token beneath it does not.
+ *
+ * It is a state, not a sequence. Nothing here approaches, evaluates, resolves
+ * or settles: the packets record a decision and the basis it was taken on, and
+ * a deliberation they never captured is not representable. When the reader
+ * selects another arm, the whole decision region steps in once with the rest of
+ * the attribution order; the leaves do not travel across the screen as though
+ * the gate had just decided something.
+ *
+ * The caption is not decoration. Three positions of two quadrilaterals are not
+ * self-explanatory, and this surface never lets a picture be the only carrier
+ * of a meaning.
+ */
+function gateHtml(arm) {
+  const state = gateState(arm);
+  if (!state) return '';
+  const leaves = state.id === 'absent' ? '' : `
+        <path class="leaf leaf-l" transform="translate(${-state.travel} 0)" d="${IL_LEAF_L}"></path>
+        <path class="leaf leaf-r" transform="translate(${state.travel} 0)" d="${IL_LEAF_R}"></path>`;
+  return `<div class="ilgate" data-gate="${esc(state.id)}">
+      <svg class="ilgate__mark" viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false">
+        ${armPaths}${leaves}
+      </svg>
+      <p class="gs"><b>${esc(state.label)}</b><span>${esc(state.gloss)}</span></p>
+    </div>`;
+}
 
 let MODEL = null;
 let lastFocus = null;
@@ -763,6 +924,11 @@ let lastLocalArm = null;
 /* Which guided beat was on screen last, so a step change announces once and a
    re-render for another reason does not. */
 let lastGuideState = null;
+/* Which regions the previous beat was about. A stage that stays current across
+   two steps must not arrive twice: the step sequence exists to point at what
+   has just become relevant, and re-pointing at the unchanged region is how a
+   reader loses track of which one actually moved. */
+let lastGuideFocus = [];
 /* Which side panel is open. One field, because only one panel may be open: two
    booleans would permit a state the layout has no room for. */
 let openPanel = 'none';
@@ -797,11 +963,13 @@ function degraded(id, requested) {
     ?? { id, message: 'Could not read the pinned record.', forbiddenInference: 'any result' };
   document.body.dataset.proof = 'local';
   lastLocalArm = null;
+  lastGuideFocus = [];
+  document.documentElement.dataset.motion = 'settled';
   app.innerHTML = `<header class="degraded-head">${brandHtml}</header>
   <div class="degraded" data-state="${esc(id)}">
-    <h2>${esc(d.message)}</h2>
+    <h2>${icon('warning', { size: 'lg' })} ${esc(d.message)}</h2>
     ${requested ? `<p class="mono">Requested: ${esc(requested)}</p>` : ''}
-    <p class="refused">Substitution refused. The canonical run is not shown in place of what was asked for.</p>
+    <p class="refused">${icon('refused', { size: 'md' })} Substitution refused. The canonical run is not shown in place of what was asked for.</p>
     <p class="note" style="margin-top:12px">Do not infer ${esc(d.forbiddenInference)}.</p>
     <div class="next"><span class="k">Where to go instead</span>
     <p><a href="?run=hac330-local&proof=local&state=run.local.treatment">Open the controlled local experiment</a>
@@ -815,11 +983,14 @@ function degraded(id, requested) {
 /** The evidence line for the selected arm, in that arm's own terms. */
 function evidenceLine(v) {
   const cp = v.evidence.couplings[0];
+  // The glyph tracks the state rather than the region: an arm that consulted no
+  // evidence has no revision to be bound to, so it is marked as the caveat it
+  // is instead of claiming a lineage it does not have.
   if (!v.evidence.consulted) {
-    return `${esc(v.evidence.source)} · not consulted<br>Interlock was disabled in this arm`;
+    return `${icon('warning', { size: 'sm' })} ${esc(v.evidence.source)} · not consulted<br>Interlock was disabled in this arm`;
   }
   const basis = `basis <b>${esc(short(v.evidence.basis))}</b>`;
-  return `${esc(v.evidence.source)} · revision-bound<br>${basis} · ${cp
+  return `${icon('lineage', { size: 'sm' })} ${esc(v.evidence.source)} · revision-bound<br>${basis} · ${cp
     ? `coupling support ${esc(cp.support)}/${esc(cp.occurrences)}`
     : 'no qualifying coupling'}`;
 }
@@ -844,7 +1015,7 @@ const outcomeCard = (row, selectedArm, g) => `
         <div class="cause"><span class="cxl" aria-hidden="true"></span>
           <span class="sr">Cause:</span><span class="ctok">${esc(row.cause)}</span></div>
         <div class="k">${esc(row.label)}${row.key === 'selected' ? marker(g, 'outcome') : ''}</div>
-        <div class="v" data-glyph="${row.outcome.holds ? '✓' : '✕'}">${esc(row.outcome.expression)}</div>
+        <div class="v" data-glyph="${row.outcome.holds ? '✓' : '✕'}">${icon(row.outcome.holds ? 'pass' : 'unsafe', { size: 'lg' })}<span>${esc(row.outcome.expression)}</span></div>
         <div class="n">${esc(row.outcome.verdict)}${row.checksLabel ? ` · run checks ${esc(row.checksLabel)}` : ''}</div>
       </div>`;
 
@@ -899,7 +1070,7 @@ const choiceHtml = () => `
     <p>Two actions can be valid alone and unsafe together. Follow the recorded
       proof, or inspect everything yourself.</p>
     <div class="picks">
-      <button data-guide-start>Walk the proof</button>
+      <button data-guide-start>${icon('proofPath')}Walk the proof</button>
       <button data-guide-free>Explore freely</button>
     </div>
   </section>`;
@@ -954,13 +1125,13 @@ function guideBarHtml(g) {
         <h2 id="guide-step-title">${esc(g.title)}</h2>
         <p>${esc(g.copy)}</p>
         ${g.isAblation ? `<div class="guide-ablate">
-          <button data-guide-ablate="${esc(g.ablation.targetArm)}">${esc(g.ablation.label)}</button>
+          <button data-guide-ablate="${esc(g.ablation.targetArm)}">${icon('replay')}${esc(g.ablation.label)}</button>
           <span class="hint">${esc(g.ablation.note)} Each arm is a recorded result;
             nothing is executed in the browser.</span>
         </div>` : ''}
         ${g.isHandoff ? `<div class="acts">
-          <button data-drawer="verify">Verify this decision</button>
-          <button data-drawer="compare">Compare coordination strategies</button>
+          <button data-drawer="verify">${icon(ACTION_ICON.verify)}Verify this decision</button>
+          <button data-drawer="compare">${icon(ACTION_ICON.compare)}Compare coordination strategies</button>
           <button data-guide-exit>Explore the complete cockpit</button>
         </div>
         <p class="guide-aside">Also recorded \u00b7 Google Cloud participation is a separate proof
@@ -973,7 +1144,7 @@ function guideBarHtml(g) {
 /** Free inspection keeps the way back in visible rather than one-way. */
 const reentryHtml = () => `
   <div class="guide-reentry">
-    <button data-guide-start>Walk the proof</button>
+    <button data-guide-start>${icon('proofPath')}Walk the proof</button>
     <span class="n">Free inspection \u00b7 every control is live \u00b7 nothing is executed in the browser</span>
   </div>`;
 
@@ -1020,7 +1191,7 @@ function renderLocal(run, armId, g) {
         <div class="row"><span class="lbl">Shared environment</span>
           ${v.coupled ? '<span class="chip" data-s="coupled" data-glyph="⧉">Coupled</span>' : ''}
           ${marker(g, 'environment')}
-          <span class="bound">joint bound &lt;= ${esc(v.constraint.bound)}</span>${marker(g, 'bound')}</div>
+          <span class="bound">${icon('threshold', { size: 'md' })}joint bound &lt;= ${esc(v.constraint.bound)}</span>${marker(g, 'bound')}</div>
         <div class="attr">${evidenceLine(v)} ${marker(g, 'evidence.basis')}</div>
         <div class="evidence-ledger"><span><b>finding</b> ${esc(evidenceState)}${marker(g, 'evidence.finding')}</span>${coupling ? `<span><b>files</b> ${esc(coupling.files.join(' · '))}</span>` : '<span><b>effect</b> evidence does not establish coupling</span>'}</div>
       </div>
@@ -1031,6 +1202,7 @@ function renderLocal(run, armId, g) {
     <div class="resolution-grid">
       <section class="decision decision-bar" aria-labelledby="decision-title"${em(g, 'decision')}>
         <div class="stage-head"><span class="stage-no">03</span><h2 id="decision-title">Coordination decision</h2><span>recorded, not recomputed</span></div>
+        ${gateHtml(v.arm)}
         <div class="decision__body">
         <div class="dk">Interlock decision · deterministic${marker(g, 'decision')}</div>
         <div class="tok">${esc(v.arm.decision ?? 'no decision — Interlock disabled')}</div>
@@ -1080,7 +1252,7 @@ function actionsHtml(g) {
   ].filter(([kind]) => !duplicated.has(kind));
   return `<div class="actions" aria-label="Verification actions"
     data-guide-weight="${g.mode === 'guided' ? 'secondary' : 'primary'}">
-        ${all.map(([kind, label]) => `<button data-drawer="${kind}">${esc(label)}</button>`).join('')}
+        ${all.map(([kind, label]) => `<button data-drawer="${kind}">${icon(ACTION_ICON[kind])}${esc(label)}</button>`).join('')}
       </div>`;
 }
 
@@ -1119,7 +1291,7 @@ ${brandHtml}
     <div class="col">
       <h2>What actually ran</h2>
       <div class="hops">${cloudHops(run)}</div>
-      <div class="notonpath">Not on the recorded path — ${run.notOnPath.map(esc).join(' · ')}</div>
+      <div class="notonpath">${icon('refused', { size: 'sm' })}<span>Not on the recorded path — ${run.notOnPath.map(esc).join(' · ')}</span></div>
     </div>
     <div class="col">
       <h2>Decision, effect, observation</h2>
@@ -1148,9 +1320,9 @@ ${brandHtml}
       </div>
       <p class="note">${esc(run.negativeControlsNote)}</p>
       <div class="actions" aria-label="Verification actions">
-        <button data-drawer="verify">Verify this run</button>
-        <button data-drawer="raw">Show me the raw proof</button>
-        <button data-drawer="claim">What is not claimed?</button>
+        <button data-drawer="verify">${icon(ACTION_ICON.verify)}Verify this run</button>
+        <button data-drawer="raw">${icon(ACTION_ICON.raw)}Show me the raw proof</button>
+        <button data-drawer="claim">${icon(ACTION_ICON.claim)}What is not claimed?</button>
       </div>
     </div>
   </div>`;
@@ -1212,7 +1384,7 @@ function comparisonHtml() {
   const s = c.strategies[Math.max(0, Math.min(c.strategies.length - 1, compareStrategy))];
   const caption = (dim) => c.captions.find((x) => x.dimension === dim);
   return `
-    ${c.resolved ? '' : `<p class="cmp-head"><span class="cmp-scaffold">${esc(c.unresolvedLabel)}</span></p>`}
+    ${c.resolved ? '' : `<p class="cmp-head"><span class="cmp-scaffold">${icon('warning', { size: 'sm' })}<span>${esc(c.unresolvedLabel)}</span></span></p>`}
     <p class="note" style="margin-bottom:10px">${esc(c.separateExperiment)}</p>
     <div class="cmp-strats" data-strat-group role="group"
       aria-label="Coordination strategy · left and right arrow keys move between strategies">
@@ -1243,7 +1415,7 @@ function comparisonHtml() {
     <section><h3>Source</h3><dl class="kv">
       ${c.artifacts.map((a) => `<dt>artifact</dt><dd>${esc(a)}</dd>`).join('')}
       <dt>canonical result</dt><dd>${esc(c.canonicalResultCommit)}</dd>
-    </dl>${c.resolved ? '' : `<div class="unavail">${esc(c.unresolvedNote)}</div>`}</section>`;
+    </dl>${c.resolved ? '' : `<div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(c.unresolvedNote)}</span></div>`}</section>`;
 }
 
 function drawerHtml(kind, proof, run) {
@@ -1313,7 +1485,7 @@ function localRaw(run) {
            <p class="proof-source">Source · ${esc(run.rawProof.source)}</p>
            <pre class="shiki-proof" id="cp-arms">${run.rawProof.html}</pre></section>
          <section><h3>Not present in this run</h3>
-           <div class="unavail">No receipt, protected target, independent observer, cloud runtime or Cloud Logging exists in HAC-330. These fields are absent, not empty.</div></section>`;
+           <div class="unavail">${icon('warning', { size: 'sm' })}<span>No receipt, protected target, independent observer, cloud runtime or Cloud Logging exists in HAC-330. These fields are absent, not empty.</span></div></section>`;
 }
 
 function cloudVerify(run) {
@@ -1321,9 +1493,9 @@ function cloudVerify(run) {
   const rp = run.runtimeProvenance;
   return `
       <section><h3>Immutable public evidence</h3><dl class="kv">
-        <dt>evidence</dt><dd><a href="${esc(p.cloudEvidenceUrl)}" target="_blank" rel="noreferrer">cloud-run.public.json</a></dd>
-        <dt>verifier</dt><dd><a href="${esc(p.hac340VerifierUrl)}" target="_blank" rel="noreferrer">verify-public-packet.mjs</a></dd>
-        <dt>redaction</dt><dd><a href="${esc(p.redactionManifestUrl)}" target="_blank" rel="noreferrer">redaction-manifest.json</a></dd>
+        <dt>evidence</dt><dd><a href="${esc(p.cloudEvidenceUrl)}" target="_blank" rel="noreferrer">cloud-run.public.json${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
+        <dt>verifier</dt><dd><a href="${esc(p.hac340VerifierUrl)}" target="_blank" rel="noreferrer">verify-public-packet.mjs${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
+        <dt>redaction</dt><dd><a href="${esc(p.redactionManifestUrl)}" target="_blank" rel="noreferrer">redaction-manifest.json${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
       </dl><p class="note">Pinned to commit ${esc(short(p.evidencePublicationSha))} — not to a branch.</p></section>
       <section><h3>Transport provenance</h3><dl class="kv">
         <dt>caller</dt><dd>${esc(run.transportProvenance.caller)}</dd>
@@ -1346,7 +1518,7 @@ function cloudVerify(run) {
         <dt>snapshot</dt><dd>${copyable(rp.runtimeSourceSnapshotSha256, 'the runtime snapshot digest')}</dd>
         <dt>revision</dt><dd>${esc(rp.revisionName)}</dd>
       </dl>
-      <div class="unavail">${esc(rp.runtimeSourceUrl.reason)} The public snapshot records the executed source content separately, across ${esc(rp.snapshotFileCount)} files.</div>
+      <div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(rp.runtimeSourceUrl.reason)} The public snapshot records the executed source content separately, across ${esc(rp.snapshotFileCount)} files.</span></div>
       <p class="note">${esc(rp.revisionNote)}</p></section>`;
 }
 
@@ -1360,9 +1532,9 @@ function cloudRaw(run) {
         <dt>sourcePacketSha256</dt><dd>${copyable(p.sourcePacketSha256, 'the source packet digest')}</dd>
         <dt>evidencePublicationSha</dt><dd>${copyable(p.evidencePublicationSha, 'the evidence publication sha')}</dd>
         <dt>publicationBindingsSha</dt><dd>${copyable(p.publicationBindingsSha, 'the publication bindings sha')}</dd>
-      </dl><div class="unavail">${esc(p.sourcePacketNote)}</div></section>
+      </dl><div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(p.sourcePacketNote)}</span></div></section>
       <section><h3>Architecture</h3><dl class="kv">
-        <dt>deployment</dt><dd><a href="../hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png" target="_blank" rel="noreferrer">IL-DIAG-012 — exact deployment and trust boundaries</a></dd>
+        <dt>deployment</dt><dd><a href="../hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png" target="_blank" rel="noreferrer">IL-DIAG-012 — exact deployment and trust boundaries${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
       </dl><p class="note">The frozen architecture visual bound to this run. Architecture verifies the result; it is never the first comprehension layer.</p></section>
       <section><h3>Negative controls</h3><dl class="kv">
         ${run.negativeControls.map((c) => `<dt>${esc(c.status)}</dt><dd>${esc(c.label)}${c.note ? `<br><span style="color:var(--text-muted)">${esc(c.note)}</span>` : ''}</dd>`).join('')}
@@ -1371,7 +1543,7 @@ function cloudRaw(run) {
         <dt>status</dt><dd>${esc(run.teardown.status)}</dd><dt>source</dt><dd>${esc(run.teardown.source)}</dd>
         <dt>packet field</dt><dd>${esc(run.teardown.packetField)}</dd></dl></section>
       <section><h3>Reserved evaluation · HAC-319</h3>
-        <div class="unavail">${esc(MODEL.reserved.message)} ${esc(MODEL.reserved.rule)}</div>
+        <div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(MODEL.reserved.message)} ${esc(MODEL.reserved.rule)}</span></div>
         <div class="regimes">${MODEL.reserved.regimes.map((r) => `<div class="r"><div class="t">${esc(r)}</div><div class="u">NOT BOUND</div></div>`).join('')}</div>
       </section>`;
 }
@@ -1491,6 +1663,73 @@ function markArmChange() {
   }
 }
 
+/** Which element draws each region the guided layer can make current. */
+const REGION_SELECTOR = {
+  intents: '.causal-stage',
+  evidence: '.evidence-band',
+  decision: '.decision-bar',
+  outcome: '.outcome-stage',
+  control: '.arm-switcher',
+};
+
+/**
+ * Steps the step copy, then the stage the step has just moved the reader to.
+ *
+ * Only a stage that was *not* already current arrives. Steps 02 and 03 both
+ * include the evidence band; re-animating it on 03 would say "here is a new
+ * thing" about the one region the reader has not stopped looking at, and the
+ * genuinely new region — the decision — would have to compete with it.
+ */
+function markStepChange(focus, previousFocus) {
+  app.querySelector('.guide-step')?.setAttribute('data-il-motion', 'step');
+  for (const region of focus) {
+    if (previousFocus.includes(region)) continue;
+    app.querySelector(REGION_SELECTOR[region])?.setAttribute('data-il-motion', 'step');
+  }
+}
+
+/**
+ * Stages the ablation markers in the order the ablation's claim is made:
+ * held constant, then changed, then the outcome the change produced.
+ *
+ * The container carries the attribute and the stylesheet delays the markers
+ * inside it. No value is delayed — every number is on screen from the first
+ * frame — and the markers are derived from both frozen arms, so the sequence
+ * orders a claim the record already supports rather than performing one.
+ */
+function markAblation() {
+  app.querySelector('.causal-layout')?.setAttribute('data-il-motion', 'ablate');
+}
+
+/* ---- the named hold state ----
+   Motion on this surface always settles, and a capture, a screenshot or a test
+   needs to know when. `data-motion` on the document is that contract:
+   `stepping` while a one-shot sequence is running, `settled` once nothing in
+   the run is animating. It is derived from the animations the browser is
+   actually running, not from a timer that guesses how long they take — a
+   setTimeout would be a second, silently wrong authority on a duration the
+   stylesheet already owns. Under `?static=1`, under the OS preference and
+   under the manual control there is nothing to run, so the first paint is
+   already `settled`. */
+let motionToken = 0;
+function settleWhenIdle() {
+  motionToken += 1;
+  const token = motionToken;
+  const running = typeof app.getAnimations === 'function'
+    ? app.getAnimations({ subtree: true }).filter((a) => a.playState === 'running')
+    : [];
+  if (!running.length) {
+    document.documentElement.dataset.motion = 'settled';
+    return;
+  }
+  document.documentElement.dataset.motion = 'stepping';
+  Promise.allSettled(running.map((a) => a.finished)).then(() => {
+    // A newer sequence started while this one was finishing and owns the state.
+    if (token !== motionToken) return;
+    settleWhenIdle();
+  });
+}
+
 /**
  * Resolve an address to a renderable state, or to the address that earned a
  * refusal. Returns `{ missing }` — the requested address, echoed back — or
@@ -1550,17 +1789,28 @@ function renderRoute(r) {
       mode: r.guide.mode, step: r.guide.step, armId: r.armId, reducedMotion: reducedMotion(),
     });
     const armChanged = lastLocalArm !== null && lastLocalArm !== r.armId;
+    const stepChanged = lastGuideState !== null && lastGuideState !== g.stateId;
+    const previousFocus = lastGuideFocus;
     app.innerHTML = renderLocal(MODEL.runs.local, r.armId, g);
     document.documentElement.dataset.guideState = g.stateId;
-    // The one explanatory transition: the three regions an arm change actually
-    // moves, stepped in the order evidence -> decision -> outcome. Reduced
-    // motion replaces it with an immediate swap; the markers and the copy that
-    // say what changed stay on screen either way.
+    // Three one-shot sequences, none of which may run on a first paint or on a
+    // re-render that changed nothing. Each marks something the reader did:
+    //   arm   — the three regions an arm change actually moves, in the order
+    //           evidence -> decision -> outcome, which is the attribution order;
+    //   step  — the step copy, then the stage the walk has just moved them to;
+    //   ablate— the ablation's markers in the order its claim is made.
+    // Reduced motion replaces every one of them with an immediate swap. The
+    // markers and the copy that say what changed stay on screen either way, so
+    // the interpretation does not depend on having seen the transition.
     if (armChanged) markArmChange();
+    if (stepChanged) markStepChange(g.focus, previousFocus);
+    if (g.showMarkers && (armChanged || stepChanged)) markAblation();
     announce(g, r.armId, armChanged);
     lastLocalArm = r.armId;
     lastGuideState = g.stateId;
+    lastGuideFocus = g.focus;
     if (key) app.querySelector(`[data-focus-key="${key}"]`)?.focus({ preventScroll: true });
+    settleWhenIdle();
     return;
   }
   document.body.dataset.proof = 'cloud';
@@ -1573,6 +1823,8 @@ function renderRoute(r) {
   document.documentElement.dataset.guideState = 'none';
   lastLocalArm = null;
   lastGuideState = null;
+  lastGuideFocus = [];
+  settleWhenIdle();
 }
 
 /**

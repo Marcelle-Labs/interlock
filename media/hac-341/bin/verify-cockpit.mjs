@@ -14,8 +14,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { armView } from '../lib/arm-view.mjs';
+import { armView, gateState } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS } from '../lib/guide.mjs';
+import { icon, lucideBody, CONCEPTS, ICONS, ICON_SOURCE, SEMANTICS } from '../lib/icons.mjs';
 import { jobSteps, jobControls, jobEnforcementDefect, jobKeyDefect, workflowEnvDefect,
   runDefaultsDefect, checkoutDefect, shapeDefects, workflowShapeDefects } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
@@ -32,6 +33,21 @@ const bindings = read('experiments', 'hac-342', 'evidence', 'publication-binding
 
 const errors = [];
 const fail = (m) => errors.push(m);
+
+/**
+ * Byte-stable ordering for the names this gate prints back.
+ *
+ * Deliberately not a bare `.sort()`, which orders by UTF-16 code unit only as
+ * an implementation detail, and deliberately not `localeCompare`: this output
+ * is a gate's own record of what it checked, and CI and a laptop have to agree
+ * on it. Locale-aware collation is not guaranteed identical across
+ * environments or ICU builds. Comparing code units is. Same reasoning, and the
+ * same shape, as `byPath` in media/hac-335/bin/lib/capture-source.mjs.
+ */
+const byCodeUnit = (a, b) => {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+};
 const { local, cloud } = model.runs;
 
 /* --- local identity assets must survive constrained preview hosts -------- */
@@ -702,6 +718,259 @@ for (const region of ['.env', '.delta', '.decision', '.results']) {
   if (!cockpit.includes(`'${region}'`)) fail(`the arm transition no longer steps ${region}`);
 }
 
+/* --- every sequence is declared, bounded, and settles (HAC-346) ---------- */
+
+/**
+ * The motion contract is a document, not a habit.
+ *
+ * `docs/development/cockpit-motion-contract.md` lists every animation on this
+ * surface with its semantic job, its evidence binding, its static equivalent
+ * and the state it settles at. These checks refuse a sequence that exists in
+ * the executable and not in the table — the failure mode being an animation
+ * added during polish that nobody ever wrote down, and that therefore nobody
+ * ever asked what it was representing.
+ */
+const motionContract = existsSync(join(repoRoot, 'docs', 'development', 'cockpit-motion-contract.md'))
+  ? readFileSync(join(repoRoot, 'docs', 'development', 'cockpit-motion-contract.md'), 'utf8')
+  : '';
+if (!motionContract) fail('the cockpit motion contract is not documented');
+const sequences = new Set([...cockpit.matchAll(/setAttribute\('data-il-motion', '(\w+)'\)/g)].map((m) => m[1]));
+if (!sequences.size) fail('no motion sequence is declared; the arm transition has been dropped');
+for (const name of sequences) {
+  if (!new RegExp(String.raw`\[data-il-motion="${name}"\]`).test(cockpit)) {
+    fail(`sequence "${name}" is applied but has no stylesheet rule; it would animate nothing`);
+  }
+  if (!motionContract.includes(`data-il-motion="${name}"`)) {
+    fail(`sequence "${name}" is not in the motion contract; an undocumented animation represents nothing`);
+  }
+}
+for (const name of new Set([...cockpit.matchAll(/\[data-il-motion="(\w+)"\]/g)].map((m) => m[1]))) {
+  if (!sequences.has(name)) fail(`the stylesheet declares sequence "${name}", which nothing applies`);
+}
+// Keyframes come from the frozen motion tokens. A keyframe defined inline here
+// would be a second motion authority beside the identity system.
+const KEYFRAME_IN_COCKPIT = /@keyframes\s+([\w-]+)/.exec(styleBlock);
+if (KEYFRAME_IN_COCKPIT) {
+  fail(`the cockpit defines keyframe ${KEYFRAME_IN_COCKPIT[1]} locally; motion belongs to assets/tokens/motion.css`);
+}
+for (const [, keyframe] of styleBlock.matchAll(/animation:\s*(il-[\w-]+)/g)) {
+  if (!new RegExp(String.raw`@keyframes\s+${keyframe}\b`).test(motionTokens)) {
+    fail(`the cockpit animates with "${keyframe}", which the frozen motion tokens do not declare`);
+  }
+}
+// Both staged sequences stay inside the same budget the ablation does. The
+// numbers are read from the tokens, so raising one fails here rather than
+// shipping a longer sequence than the system permits.
+for (const [label, steps] of [['step progression', 1], ['ablation staging', 2], ['arm change', 2]]) {
+  const total = delayStep * steps + durBase;
+  if (Number.isFinite(total) && total > durHold) {
+    fail(`the ${label} sequence runs ${total}ms, past the ${durHold}ms motion budget`);
+  }
+}
+// The hold state is derived from the animations that are actually running.
+if (!/getAnimations\(\{ subtree: true \}\)/.test(cockpit)) {
+  fail('the settled hold state is not derived from the running animations');
+}
+if (!/dataset\.motion = 'settled'/.test(cockpit) || !/dataset\.motion = 'stepping'/.test(cockpit)) {
+  fail('the cockpit declares no named hold state for capture');
+}
+if (/setTimeout\([^)]*dataset\.motion|setTimeout\([^)]*settle/.test(cockpit)) {
+  fail('the hold state is decided by a timer rather than by the animations it describes');
+}
+// A staged sequence hangs its attribute on a container and delays the children
+// inside it. Killing only the container leaves those children animating under a
+// preference that asked for none — and the manual control, unlike the OS media
+// query, does not zero the duration tokens.
+for (const root of ['html\\[data-static="true"\\]', 'html\\[data-reduced-motion="true"\\]']) {
+  if (!new RegExp(`${root} \\[data-il-motion\\] \\*`).test(cockpit)) {
+    fail(`${root.replace(/\\/g, '')} does not stop a staged sequence's children`);
+  }
+}
+if (!/\[data-il-motion\], \[data-il-motion\] \* \{ animation: none/.test(motionTokens)) {
+  fail('the frozen reduced-motion block does not stop a staged sequence\'s children');
+}
+// A stage that is already current may not arrive twice: re-pointing at the one
+// region the reader has not stopped looking at is how they lose track of which
+// region actually moved.
+if (!/if \(previousFocus\.includes\(region\)\) continue;/.test(cockpit)) {
+  fail('the step sequence re-animates a stage that was already current');
+}
+// The threshold is a held constant in every recorded arm. Animating it would
+// contradict the marker beside it, so nothing may.
+const boundRow = delta.rows.find((r) => r.id === 'bound');
+if (!boundRow || boundRow.kind !== 'held' || boundRow.differs) {
+  fail('the joint bound is no longer a held constant; the motion contract\'s threshold rejection needs re-deriving');
+}
+for (const { selector, body } of cssRules(styleBlock)) {
+  if (/\.bound\b/.test(selector) && /animation\s*:/.test(body)) {
+    fail(`\`${selector}\` animates the threshold, which is held constant across every recorded arm`);
+  }
+}
+
+/* --- the decision gate is a position, not a performance (HAC-347) ------- */
+
+/**
+ * The gate draws the mechanism, so it is held to the mechanism's rules.
+ *
+ * Every recorded decision must map to a position. A token this map does not
+ * carry returns `null` and the surface draws nothing — which is correct
+ * behaviour and a broken cockpit, so it fails here instead of shipping.
+ */
+for (const arm of local.arms) {
+  const state = gateState(arm);
+  if (!state) {
+    fail(`the gate has no position for recorded decision "${arm.decision}" (arm ${arm.armId}); `
+      + 'add it to GATE_STATES rather than letting the surface draw nothing');
+    continue;
+  }
+  if (!state.label || !state.gloss) fail(`the ${arm.armId} gate position has no visible caption`);
+  // The picture may not disagree with the token beneath it.
+  const permits = state.id === 'open';
+  if (permits !== (arm.decision === 'ALLOW_PARALLEL')) {
+    fail(`the gate shows "${state.id}" for decision ${arm.decision}; the picture contradicts the record`);
+  }
+  if (arm.interlock === 'disabled' && state.id !== 'absent') {
+    fail(`the ${arm.armId} arm ran with Interlock disabled but draws an engaged gate`);
+  }
+}
+// The mechanism is the canonical geometry. If the gate ever stops drawing the
+// frozen leaves it has become an approximation of the mark.
+for (const d of ['M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z', 'M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z']) {
+  if (!cockpit.includes(`\${IL_LEAF_${d.startsWith('M18.6') ? 'L' : 'R'}}`)) {
+    fail('the decision gate does not draw the canonical leaf geometry');
+  }
+}
+// A position, not a sequence. The five-state gate stinger encodes a
+// review-then-open lifecycle the frozen packets never emitted, and HARVEST.md
+// already rejected the module that carried it. It may not return here.
+for (const [re, label] of [
+  [/animation:[^;]*il-gate-open/, 'the gate-opening stinger'],
+  [/animation:[^;]*il-converge/, 'the trajectory-convergence stinger'],
+  [/animation:[^;]*il-pass/, 'the passage stinger'],
+  [/--mot-p[1-5]-/, 'the five-phase stinger cadence'],
+]) {
+  if (re.test(cockpit)) {
+    fail(`the cockpit plays ${label}; the gate represents a recorded decision, not a deliberation`);
+  }
+}
+if (/\blottie|dotlottie|\.lottie\b|\brive\b|\bgsap\b|framer-motion/i.test(cockpit)) {
+  fail('an animation runtime reached the cockpit; HAC-347 recorded the dependency as REJECTED');
+}
+
+/* --- the semantic icon vocabulary (HAC-345) ----------------------------- */
+
+/**
+ * One concept, one glyph, and the glyph is the bytes we vendored.
+ *
+ * Three failures these prevent, in the order they are likely:
+ *
+ *   1. Drift. Inlining path data for speed is fine; inlining it and letting the
+ *      vendored file move underneath is a copy that quietly stops being the
+ *      thing it claims provenance for. Both sides run through one normalizer.
+ *   2. Synonyms. `Verify this decision` acquiring a magnifier in the action row
+ *      and a shield in the drawer costs a judge the thing the vocabulary was
+ *      added to buy. The map has to be injective in both directions.
+ *   3. Substitution. A padlock or shield standing in for the Interlock
+ *      mechanism makes the product-specific claim with a stock outline. The
+ *      vocabulary may not contain one at all, so it cannot be reached for.
+ */
+if (!/from '\/media\/hac-341\/lib\/icons\.mjs'/.test(cockpit)) {
+  fail('cockpit does not consume the shared semantic icon vocabulary');
+}
+for (const [name, body] of Object.entries(ICONS)) {
+  const file = join(repoRoot, ICON_SOURCE.vendorDir, `${name}.svg`);
+  if (!existsSync(file)) {
+    fail(`the icon vocabulary inlines ${name}, which is not vendored under ${ICON_SOURCE.vendorDir}`);
+    continue;
+  }
+  if (lucideBody(readFileSync(file, 'utf8')) !== body) {
+    fail(`the inlined geometry for ${name} has drifted from ${ICON_SOURCE.vendorDir}/${name}.svg`);
+  }
+}
+if (!existsSync(join(repoRoot, ICON_SOURCE.licenseFile))) {
+  fail('the vendored icon geometry is carried without its licence');
+}
+// The registry digest-gates the bytes. A vendored file nobody registered is a
+// file `check:identity` will not notice changing.
+const registryFiles = new Set(
+  read('assets', 'registry.json').assets.flatMap((a) => (a.files ?? []).map((f) => f.file)),
+);
+for (const name of Object.keys(ICONS)) {
+  const rel = `${ICON_SOURCE.vendorDir}/${name}.svg`;
+  if (!registryFiles.has(rel)) fail(`${rel} is vendored but not registered; its bytes are not digest-gated`);
+}
+if (!registryFiles.has(ICON_SOURCE.licenseFile)) {
+  fail(`${ICON_SOURCE.licenseFile} is not registered; the licence is not digest-gated`);
+}
+// The map is a bijection: no concept drawn two ways, no glyph meaning two things.
+const drawnBy = new Map();
+for (const concept of CONCEPTS) {
+  const glyph = SEMANTICS[concept].icon;
+  if (!(glyph in ICONS)) fail(`concept ${concept} names ${glyph}, which the vocabulary does not carry`);
+  if (drawnBy.has(glyph)) {
+    fail(`${glyph} draws both ${drawnBy.get(glyph)} and ${concept}; one glyph may carry one meaning`);
+  }
+  drawnBy.set(glyph, concept);
+  if (!SEMANTICS[concept].meaning) fail(`concept ${concept} declares no meaning a call site can be checked against`);
+}
+for (const glyph of Object.keys(ICONS)) {
+  if (!drawnBy.has(glyph)) fail(`${glyph} is vendored and inlined but names no concept; the vocabulary has dead weight`);
+}
+// The mechanism is Interlock's own geometry. The vocabulary may not offer a
+// generic stand-in for it, at any name.
+for (const glyph of Object.keys(ICONS)) {
+  if (/lock|shield|key|gate|fingerprint|scan-face/.test(glyph)) {
+    fail(`the generic vocabulary carries "${glyph}"; the Interlock mechanism is drawn with assets/logo geometry`);
+  }
+}
+// Every concept the cockpit draws is one the map declares, and every concept
+// the map declares is one the cockpit draws.
+// Every `icon(...)` call site, arguments and all — a concept is often chosen by
+// a ternary on recorded state, so matching only a leading literal would miss
+// exactly the call sites that matter most.
+const NON_CONCEPT_ARGS = new Set(['sm', 'md', 'lg', 'il-ic--after']);
+const drawnConcepts = new Set();
+for (const [, args] of cockpit.matchAll(/\bicon\(([^)]*)\)/g)) {
+  if (args.includes('ACTION_ICON')) continue;
+  for (const [, literal] of args.matchAll(/'([A-Za-z][\w-]*)'/g)) {
+    if (NON_CONCEPT_ARGS.has(literal)) continue;
+    if (!CONCEPTS.includes(literal)) fail(`the cockpit draws an undeclared concept "${literal}"`);
+    drawnConcepts.add(literal);
+  }
+}
+// ACTION_ICON is the indirection the two action rows share; its values are
+// concepts too, and a typo there would silently throw at render time.
+const actionMap = /const ACTION_ICON = \{([^}]*)\}/.exec(cockpit)?.[1] ?? '';
+if (!actionMap) fail('the verification action row declares no shared icon map');
+for (const [, value] of actionMap.matchAll(/:\s*'([A-Za-z]+)'/g)) {
+  if (!CONCEPTS.includes(value)) fail(`ACTION_ICON maps a control to undeclared concept "${value}"`);
+  drawnConcepts.add(value);
+}
+for (const c of CONCEPTS) {
+  if (!drawnConcepts.has(c)) fail(`concept ${c} is declared but never drawn; the vocabulary has dead weight`);
+}
+// Icons supplement text and never announce themselves: the label beside them
+// already says it, and a glyph with a name makes a screen reader say it twice.
+for (const c of CONCEPTS) {
+  const svg = icon(c);
+  if (!svg.includes('aria-hidden="true"')) fail(`the ${c} glyph is not hidden from assistive technology`);
+  if (/aria-label|role="img"|<title/.test(svg)) fail(`the ${c} glyph names itself; it must supplement the label, not repeat it`);
+}
+// Colour is never the distinction. The two outcome states are different shapes,
+// not one shape in two hues.
+if (SEMANTICS.pass.icon === SEMANTICS.unsafe.icon) {
+  fail('pass and unsafe share a glyph; the state would be carried by colour alone');
+}
+if (!/icon\(row\.outcome\.holds \? 'pass' : 'unsafe'/.test(cockpit)) {
+  fail('the outcome card does not draw its state from the recorded holds flag');
+}
+// The vocabulary is decoration if it is drawn without its words. Each control
+// row keeps the label the glyph sits beside.
+for (const label of ['Verify this decision', 'Compare coordination strategies',
+  'Show me the raw proof', 'What is not claimed?', 'Walk the proof']) {
+  if (!cockpit.includes(label)) fail(`"${label}" lost its visible label to an icon`);
+}
+
 /* --- keyboard: one global key, two scoped groups ------------------------ */
 
 if (!/e\.target\.closest\?\.\('\[data-guide-rail\]'\)/.test(cockpit)) {
@@ -1098,6 +1367,10 @@ process.stdout.write(
   + `  ${model.degradedStates.length} degraded states, evidence links pinned to immutable commits\n`
   + `  guided walk: ${GUIDE_STEPS.length} steps, ${GUIDE_STATES.length} addressable states,`
   + ` ${delta.held.length} held / ${delta.changed.length} changed verified against the frozen arms\n`
+  + `  motion: ${[...sequences].sort(byCodeUnit).join(', ')} — one-shot, documented, budget ${durHold}ms,`
+  + ' settling at data-motion="settled"\n'
+  + `  icon vocabulary: ${CONCEPTS.length} concepts, ${Object.keys(ICONS).length} vendored glyphs`
+  + ` verified against ${ICON_SOURCE.vendorDir} @ ${ICON_SOURCE.commit.slice(0, 12)}, no generic mechanism stand-in\n`
   + `  HAC-343 comparison: ${model.comparison?.strategies.length ?? 0} strategies x ${model.comparison?.dimensions.length ?? 0} dimensions,`
   + ` ${model.comparison?.resolved ? 'all bindings resolved' : `${model.comparison?.unresolved.length ?? 0} unresolved bindings shown as [BIND: ...]`}\n`,
 );
