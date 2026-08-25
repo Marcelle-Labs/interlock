@@ -436,12 +436,53 @@ html[data-static="true"] main.frame{transition:none!important}
 .env[data-il-motion="arm"]{animation-delay:0ms}
 .delta[data-il-motion="arm"],.decision[data-il-motion="arm"]{animation-delay:var(--delay-step,90ms)}
 .results[data-il-motion="arm"]{animation-delay:calc(var(--delay-step,90ms) * 2)}
-html[data-static="true"] [data-il-motion]{animation:none!important}
+
+/* ── the walk's two other sequences (HAC-346) ─────────────────────────────
+   Both are one-shot, both are triggered by a reader action, and both settle at
+   a state the address already names. Neither invents a beat the record does
+   not have: a step change is a real change of what the reader is being asked
+   to look at, and the ablation's held/changed markers are derived from the two
+   frozen arms by `ablationDelta`.
+
+   What is deliberately NOT animated: the joint bound. `ablationDelta` reports
+   it as a held-constant row across every recorded arm, and a threshold that
+   never moves may not be given a resolution beat — the motion would contradict
+   the "held constant" marker standing beside it. The threshold's job here is to
+   stay still while the evidence around it changes, and that is what it does. */
+
+/* Step progression. The step copy arrives first, then the stage it names — and
+   only a stage that was NOT already current, so a stage the walk keeps looking
+   at does not re-arrive and read as a second thing. Travel is downward because
+   that is the direction the spine is read in. */
+[data-il-motion="step"]{animation:il-stage-in var(--dur-base,220ms) var(--ease-standard) both}
+.guide-step[data-il-motion="step"]{animation-delay:0ms}
+.causal-stage[data-il-motion="step"],.evidence-band[data-il-motion="step"],
+.decision-bar[data-il-motion="step"],.outcome-stage[data-il-motion="step"],
+.arm-switcher[data-il-motion="step"]{animation-delay:var(--delay-step,90ms)}
+
+/* The ablation's reading order, which is the order the claim is made in:
+   what was held constant, then what changed, then what the change produced.
+   Revealed in that order rather than all at once — the markers are the whole
+   argument of step 05, and three simultaneous rows do not make an argument.
+   The values themselves are never hidden or delayed; only the markers that
+   qualify them are staged, so nothing a reader is looking for is withheld. */
+[data-il-motion="ablate"] .mk{animation:il-appear var(--dur-base,220ms) var(--ease-standard) both}
+[data-il-motion="ablate"] .mk[data-mk="held"]{animation-delay:0ms}
+[data-il-motion="ablate"] .mk[data-mk="changed"]{animation-delay:var(--delay-step,90ms)}
+[data-il-motion="ablate"] .res .mk[data-mk="changed"]{animation-delay:calc(var(--delay-step,90ms) * 2)}
+
+html[data-static="true"] [data-il-motion],html[data-static="true"] [data-il-motion] *{animation:none!important}
 /* The resolved reduced-motion state — OS preference or the manual control —
    substitutes immediate state changes for staged ones. It is applied as its own
    attribute rather than reusing ?static=1 so the two stay independently
    observable, and it never removes a step, a marker or a line of copy. */
-html[data-reduced-motion="true"] [data-il-motion]{animation:none!important}
+/* The descendant selector is load-bearing. A sequence that stages its children
+   hangs its attribute on the container, so killing only the container would
+   leave the staggered markers animating under a preference that asked for
+   none — and the manual control does not zero the duration tokens the way the
+   OS media query does. */
+html[data-reduced-motion="true"] [data-il-motion],
+html[data-reduced-motion="true"] [data-il-motion] *{animation:none!important}
 html[data-reduced-motion="true"] .drawer{transition:none!important}
 html[data-reduced-motion="true"] main.frame{transition:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -818,6 +859,11 @@ let lastLocalArm = null;
 /* Which guided beat was on screen last, so a step change announces once and a
    re-render for another reason does not. */
 let lastGuideState = null;
+/* Which regions the previous beat was about. A stage that stays current across
+   two steps must not arrive twice: the step sequence exists to point at what
+   has just become relevant, and re-pointing at the unchanged region is how a
+   reader loses track of which one actually moved. */
+let lastGuideFocus = [];
 /* Which side panel is open. One field, because only one panel may be open: two
    booleans would permit a state the layout has no room for. */
 let openPanel = 'none';
@@ -852,6 +898,8 @@ function degraded(id, requested) {
     ?? { id, message: 'Could not read the pinned record.', forbiddenInference: 'any result' };
   document.body.dataset.proof = 'local';
   lastLocalArm = null;
+  lastGuideFocus = [];
+  document.documentElement.dataset.motion = 'settled';
   app.innerHTML = `<header class="degraded-head">${brandHtml}</header>
   <div class="degraded" data-state="${esc(id)}">
     <h2>${icon('warning', { size: 'lg' })} ${esc(d.message)}</h2>
@@ -1549,6 +1597,73 @@ function markArmChange() {
   }
 }
 
+/** Which element draws each region the guided layer can make current. */
+const REGION_SELECTOR = {
+  intents: '.causal-stage',
+  evidence: '.evidence-band',
+  decision: '.decision-bar',
+  outcome: '.outcome-stage',
+  control: '.arm-switcher',
+};
+
+/**
+ * Steps the step copy, then the stage the step has just moved the reader to.
+ *
+ * Only a stage that was *not* already current arrives. Steps 02 and 03 both
+ * include the evidence band; re-animating it on 03 would say "here is a new
+ * thing" about the one region the reader has not stopped looking at, and the
+ * genuinely new region — the decision — would have to compete with it.
+ */
+function markStepChange(focus, previousFocus) {
+  app.querySelector('.guide-step')?.setAttribute('data-il-motion', 'step');
+  for (const region of focus) {
+    if (previousFocus.includes(region)) continue;
+    app.querySelector(REGION_SELECTOR[region])?.setAttribute('data-il-motion', 'step');
+  }
+}
+
+/**
+ * Stages the ablation markers in the order the ablation's claim is made:
+ * held constant, then changed, then the outcome the change produced.
+ *
+ * The container carries the attribute and the stylesheet delays the markers
+ * inside it. No value is delayed — every number is on screen from the first
+ * frame — and the markers are derived from both frozen arms, so the sequence
+ * orders a claim the record already supports rather than performing one.
+ */
+function markAblation() {
+  app.querySelector('.causal-layout')?.setAttribute('data-il-motion', 'ablate');
+}
+
+/* ---- the named hold state ----
+   Motion on this surface always settles, and a capture, a screenshot or a test
+   needs to know when. `data-motion` on the document is that contract:
+   `stepping` while a one-shot sequence is running, `settled` once nothing in
+   the run is animating. It is derived from the animations the browser is
+   actually running, not from a timer that guesses how long they take — a
+   setTimeout would be a second, silently wrong authority on a duration the
+   stylesheet already owns. Under `?static=1`, under the OS preference and
+   under the manual control there is nothing to run, so the first paint is
+   already `settled`. */
+let motionToken = 0;
+function settleWhenIdle() {
+  motionToken += 1;
+  const token = motionToken;
+  const running = typeof app.getAnimations === 'function'
+    ? app.getAnimations({ subtree: true }).filter((a) => a.playState === 'running')
+    : [];
+  if (!running.length) {
+    document.documentElement.dataset.motion = 'settled';
+    return;
+  }
+  document.documentElement.dataset.motion = 'stepping';
+  Promise.allSettled(running.map((a) => a.finished)).then(() => {
+    // A newer sequence started while this one was finishing and owns the state.
+    if (token !== motionToken) return;
+    settleWhenIdle();
+  });
+}
+
 /**
  * Resolve an address to a renderable state, or to the address that earned a
  * refusal. Returns `{ missing }` — the requested address, echoed back — or
@@ -1608,17 +1723,28 @@ function renderRoute(r) {
       mode: r.guide.mode, step: r.guide.step, armId: r.armId, reducedMotion: reducedMotion(),
     });
     const armChanged = lastLocalArm !== null && lastLocalArm !== r.armId;
+    const stepChanged = lastGuideState !== null && lastGuideState !== g.stateId;
+    const previousFocus = lastGuideFocus;
     app.innerHTML = renderLocal(MODEL.runs.local, r.armId, g);
     document.documentElement.dataset.guideState = g.stateId;
-    // The one explanatory transition: the three regions an arm change actually
-    // moves, stepped in the order evidence -> decision -> outcome. Reduced
-    // motion replaces it with an immediate swap; the markers and the copy that
-    // say what changed stay on screen either way.
+    // Three one-shot sequences, none of which may run on a first paint or on a
+    // re-render that changed nothing. Each marks something the reader did:
+    //   arm   — the three regions an arm change actually moves, in the order
+    //           evidence -> decision -> outcome, which is the attribution order;
+    //   step  — the step copy, then the stage the walk has just moved them to;
+    //   ablate— the ablation's markers in the order its claim is made.
+    // Reduced motion replaces every one of them with an immediate swap. The
+    // markers and the copy that say what changed stay on screen either way, so
+    // the interpretation does not depend on having seen the transition.
     if (armChanged) markArmChange();
+    if (stepChanged) markStepChange(g.focus, previousFocus);
+    if (g.showMarkers && (armChanged || stepChanged)) markAblation();
     announce(g, r.armId, armChanged);
     lastLocalArm = r.armId;
     lastGuideState = g.stateId;
+    lastGuideFocus = g.focus;
     if (key) app.querySelector(`[data-focus-key="${key}"]`)?.focus({ preventScroll: true });
+    settleWhenIdle();
     return;
   }
   document.body.dataset.proof = 'cloud';
@@ -1631,6 +1757,8 @@ function renderRoute(r) {
   document.documentElement.dataset.guideState = 'none';
   lastLocalArm = null;
   lastGuideState = null;
+  lastGuideFocus = [];
+  settleWhenIdle();
 }
 
 /**

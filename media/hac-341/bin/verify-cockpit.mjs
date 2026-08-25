@@ -703,6 +703,95 @@ for (const region of ['.env', '.delta', '.decision', '.results']) {
   if (!cockpit.includes(`'${region}'`)) fail(`the arm transition no longer steps ${region}`);
 }
 
+/* --- every sequence is declared, bounded, and settles (HAC-346) ---------- */
+
+/**
+ * The motion contract is a document, not a habit.
+ *
+ * `docs/development/cockpit-motion-contract.md` lists every animation on this
+ * surface with its semantic job, its evidence binding, its static equivalent
+ * and the state it settles at. These checks refuse a sequence that exists in
+ * the executable and not in the table — the failure mode being an animation
+ * added during polish that nobody ever wrote down, and that therefore nobody
+ * ever asked what it was representing.
+ */
+const motionContract = existsSync(join(repoRoot, 'docs', 'development', 'cockpit-motion-contract.md'))
+  ? readFileSync(join(repoRoot, 'docs', 'development', 'cockpit-motion-contract.md'), 'utf8')
+  : '';
+if (!motionContract) fail('the cockpit motion contract is not documented');
+const sequences = new Set([...cockpit.matchAll(/setAttribute\('data-il-motion', '(\w+)'\)/g)].map((m) => m[1]));
+if (!sequences.size) fail('no motion sequence is declared; the arm transition has been dropped');
+for (const name of sequences) {
+  if (!new RegExp(String.raw`\[data-il-motion="${name}"\]`).test(cockpit)) {
+    fail(`sequence "${name}" is applied but has no stylesheet rule; it would animate nothing`);
+  }
+  if (!motionContract.includes(`data-il-motion="${name}"`)) {
+    fail(`sequence "${name}" is not in the motion contract; an undocumented animation represents nothing`);
+  }
+}
+for (const name of new Set([...cockpit.matchAll(/\[data-il-motion="(\w+)"\]/g)].map((m) => m[1]))) {
+  if (!sequences.has(name)) fail(`the stylesheet declares sequence "${name}", which nothing applies`);
+}
+// Keyframes come from the frozen motion tokens. A keyframe defined inline here
+// would be a second motion authority beside the identity system.
+const KEYFRAME_IN_COCKPIT = /@keyframes\s+([\w-]+)/.exec(styleBlock);
+if (KEYFRAME_IN_COCKPIT) {
+  fail(`the cockpit defines keyframe ${KEYFRAME_IN_COCKPIT[1]} locally; motion belongs to assets/tokens/motion.css`);
+}
+for (const [, keyframe] of styleBlock.matchAll(/animation:\s*(il-[\w-]+)/g)) {
+  if (!new RegExp(String.raw`@keyframes\s+${keyframe}\b`).test(motionTokens)) {
+    fail(`the cockpit animates with "${keyframe}", which the frozen motion tokens do not declare`);
+  }
+}
+// Both staged sequences stay inside the same budget the ablation does. The
+// numbers are read from the tokens, so raising one fails here rather than
+// shipping a longer sequence than the system permits.
+for (const [label, steps] of [['step progression', 1], ['ablation staging', 2], ['arm change', 2]]) {
+  const total = delayStep * steps + durBase;
+  if (Number.isFinite(total) && total > durHold) {
+    fail(`the ${label} sequence runs ${total}ms, past the ${durHold}ms motion budget`);
+  }
+}
+// The hold state is derived from the animations that are actually running.
+if (!/getAnimations\(\{ subtree: true \}\)/.test(cockpit)) {
+  fail('the settled hold state is not derived from the running animations');
+}
+if (!/dataset\.motion = 'settled'/.test(cockpit) || !/dataset\.motion = 'stepping'/.test(cockpit)) {
+  fail('the cockpit declares no named hold state for capture');
+}
+if (/setTimeout\([^)]*dataset\.motion|setTimeout\([^)]*settle/.test(cockpit)) {
+  fail('the hold state is decided by a timer rather than by the animations it describes');
+}
+// A staged sequence hangs its attribute on a container and delays the children
+// inside it. Killing only the container leaves those children animating under a
+// preference that asked for none — and the manual control, unlike the OS media
+// query, does not zero the duration tokens.
+for (const root of ['html\\[data-static="true"\\]', 'html\\[data-reduced-motion="true"\\]']) {
+  if (!new RegExp(`${root} \\[data-il-motion\\] \\*`).test(cockpit)) {
+    fail(`${root.replace(/\\/g, '')} does not stop a staged sequence's children`);
+  }
+}
+if (!/\[data-il-motion\], \[data-il-motion\] \* \{ animation: none/.test(motionTokens)) {
+  fail('the frozen reduced-motion block does not stop a staged sequence\'s children');
+}
+// A stage that is already current may not arrive twice: re-pointing at the one
+// region the reader has not stopped looking at is how they lose track of which
+// region actually moved.
+if (!/if \(previousFocus\.includes\(region\)\) continue;/.test(cockpit)) {
+  fail('the step sequence re-animates a stage that was already current');
+}
+// The threshold is a held constant in every recorded arm. Animating it would
+// contradict the marker beside it, so nothing may.
+const boundRow = delta.rows.find((r) => r.id === 'bound');
+if (!boundRow || boundRow.kind !== 'held' || boundRow.differs) {
+  fail('the joint bound is no longer a held constant; the motion contract\'s threshold rejection needs re-deriving');
+}
+for (const { selector, body } of cssRules(styleBlock)) {
+  if (/\.bound\b/.test(selector) && /animation\s*:/.test(body)) {
+    fail(`\`${selector}\` animates the threshold, which is held constant across every recorded arm`);
+  }
+}
+
 /* --- the semantic icon vocabulary (HAC-345) ----------------------------- */
 
 /**
@@ -1213,6 +1302,8 @@ process.stdout.write(
   + `  ${model.degradedStates.length} degraded states, evidence links pinned to immutable commits\n`
   + `  guided walk: ${GUIDE_STEPS.length} steps, ${GUIDE_STATES.length} addressable states,`
   + ` ${delta.held.length} held / ${delta.changed.length} changed verified against the frozen arms\n`
+  + `  motion: ${[...sequences].sort().join(', ')} — one-shot, documented, budget ${durHold}ms,`
+  + ' settling at data-motion="settled"\n'
   + `  icon vocabulary: ${CONCEPTS.length} concepts, ${Object.keys(ICONS).length} vendored glyphs`
   + ` verified against ${ICON_SOURCE.vendorDir} @ ${ICON_SOURCE.commit.slice(0, 12)}, no generic mechanism stand-in\n`
   + `  HAC-343 comparison: ${model.comparison?.strategies.length ?? 0} strategies x ${model.comparison?.dimensions.length ?? 0} dimensions,`
