@@ -648,7 +648,55 @@ function checkSequenceOrder({ sequence, shots }, fail) {
 
 /* -- run ------------------------------------------------------------------- */
 
+/* -- prose asset references resolve on disk ------------------------------- */
+
+/**
+ * A README image that 404s is worse here than in most repositories: this one
+ * opens with "What changed because Interlock existed?" and answers it in
+ * pictures, so a missing capture reads as evidence that is not there.
+ *
+ * This is not hypothetical. The README pointed at
+ * `IL-COCK-010-...-1440x566-...png` while the file on disk — and the entry in
+ * capture-manifest.json — was `1440x774`. The capture had been retaken at a
+ * different crop height and the prose reference never followed it. Every
+ * other gate passed, because nothing compared a prose link against the
+ * filesystem.
+ *
+ * Scoped to media assets rather than every relative link. Document links are a
+ * different concern, and checking them here would tie this gate to how
+ * completely test/hac-335-package-gates.test.mjs mirrors the repository into
+ * its scratch directory — a fixture detail that should not decide whether the
+ * package is judged sound.
+ */
+const ASSET_EXT = /\.(?:png|jpg|jpeg|gif|webp|svg|mp4|webm|pdf)$/i;
+
+function checkProseAssetsResolve({ root, prose }, fail) {
+  // Markdown inline links and images: ](target "optional title").
+  const TARGET = /\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+
+  for (const [file, text] of Object.entries(prose)) {
+    const fromDir = dirname(join(root, file));
+
+    for (const [, raw] of text.matchAll(TARGET)) {
+      if (/^(?:https?:|mailto:|data:|#)/.test(raw)) continue;
+
+      // A fragment or query still leaves a real file that has to exist.
+      const path = raw.replace(/[#?].*$/, '');
+      if (!path || !ASSET_EXT.test(path)) continue;
+
+      const resolved = path.startsWith('/')
+        ? join(root, path.slice(1))
+        : join(fromDir, path);
+
+      if (!existsSync(resolved)) {
+        fail(`${file} references ${raw}, which does not exist`);
+      }
+    }
+  }
+}
+
 const CHECKS = [
+  checkProseAssetsResolve,
   checkProofClassSeparation,
   checkUnsupportedStates,
   checkCloudControls,
