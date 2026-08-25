@@ -159,6 +159,43 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{background:var(--pa
 .chip[data-s="observed"]{color:var(--observed);border-style:dotted}
 .chip[data-s="blocked"]{color:var(--blocked);border-style:solid;border-width:2px}
 
+/* ── semantic icon vocabulary (HAC-345) ──
+   Twelve vendored Lucide primitives for the generic concepts that repeat on
+   this surface: proof path, evidence, comparison, threshold, lineage, pass,
+   unsafe, warning, refusal, replay, artifact, external. The map is
+   lib/icons.mjs and the gate checks each inlined body against the vendored
+   bytes under assets/icons/lucide.
+
+   Every one of them is decorative. Nothing here is the only carrier of a proof,
+   status or control meaning — the label beside the glyph says the same thing in
+   words, and colour is never the distinction between two states either. Removing
+   the whole vocabulary would cost scan speed and no semantics.
+
+   Stroke weight is the frozen --stroke-1, not the source files' 2/24 ratio: at
+   the 13-15px sizes used here that ratio renders a 0.8px hairline beside 1.5px
+   chip borders, and the icons would read as a lighter system laid over the
+   grammar rather than as part of it. `vector-effect` is set on the shapes
+   themselves because it does not inherit. */
+.il-ic{flex:none;display:inline-block;vertical-align:-.14em;stroke-width:var(--stroke-1,1.5px)}
+.il-ic *{vector-effect:non-scaling-stroke}
+.il-ic--sm{width:13px;height:13px}
+.il-ic--md{width:15px;height:15px}
+.il-ic--lg{width:22px;height:22px}
+/* A control that carries a glyph lays it out beside its label rather than
+   letting it sit on the text baseline as a floating outline. */
+.actions button,.guide-choice button,.guide-reentry button,.guide-ablate button,
+.guide-step .acts button{display:inline-flex;align-items:center;gap:7px}
+/* A trailing glyph — the external-evidence mark — stays inline so the link's
+   underline runs under the whole affordance rather than stopping short of it. */
+.il-ic--after{margin-left:4px}
+.env .bound{display:inline-flex;align-items:center;gap:6px}
+.notonpath,.unavail,.cmp-scaffold{display:flex;align-items:baseline;gap:7px}
+/* The outcome state glyph scales with the numeral it qualifies, exactly as the
+   ✓/✕ character it replaces did, so the responsive type steps carry it too. A
+   heavier stroke at that size keeps the shape reading as one closed form. */
+.res .v{display:flex;align-items:center;gap:9px}
+.res .v .il-ic{width:.58em;height:.58em;stroke-width:var(--stroke-2,2px)}
+
 /* ── causal connectors ──
    The relationship used to be carried by nothing but stacking order, so the
    two intents converged on nothing and the decision pointed at no result. The
@@ -221,7 +258,10 @@ body[data-proof="cloud"] .switch button[aria-pressed="true"]{background:var(--pa
 .results{display:flex;flex-direction:column;gap:8px}
 .res{border:1px solid var(--border-default);border-left:3px solid currentColor;
   border-radius:3px;padding:11px 14px;background:var(--surface-card)}
-.res .v::before{content:attr(data-glyph) " ";font-weight:500}
+/* The ✓/✕ character that used to be injected here is now the pass/unsafe glyph
+   from the semantic vocabulary: same channel, same job, a closed form instead of
+   a hairline tick at 40px. `data-glyph` stays on the element as the recorded
+   state character — nothing reads it for presentation any more. */
 .res .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted)}
 .res .v{font-family:var(--mono);font-size:40px;font-weight:500;line-height:1.06;margin-top:2px}
 .res .n{font-size:11.5px;color:var(--text-muted);margin-top:3px}
@@ -712,6 +752,13 @@ import { armView } from '/media/hac-341/lib/arm-view.mjs';
    moved, so a marker that has stopped being true fails the gate. */
 import { guideView, guideRoute, stateOfStep, stepOfState, GUIDE_STEPS,
   GUIDE_FREE_STATE } from '/media/hac-341/lib/guide.mjs';
+/* The semantic icon vocabulary. One concept, one glyph, declared once so the
+   same meaning cannot be drawn two ways on two screens. Every glyph it emits is
+   decorative and aria-hidden: the words beside it are what carry the meaning,
+   and no proof, status or control depends on recognising an outline. The
+   Interlock mechanism is deliberately absent from it — the gate and the mark
+   are the canonical geometry below, never a stock padlock or shield. */
+import { icon } from '/media/hac-341/lib/icons.mjs';
 
 const app = document.getElementById('app');
 const drawer = document.getElementById('drawer');
@@ -740,6 +787,14 @@ const STATE_OF = {
   effect: { s: 'executed', g: '⦿', t: 'EXECUTED' },
   observation: { s: 'observed', g: '◎', t: 'OBSERVED' },
 };
+
+/* Which semantic concept each verification control is. Declared beside the
+   other vocabularies rather than inline at the two call sites, so the same
+   action cannot pick up one glyph in the persistent row and another in the
+   step panel that offers it. `claim` is `refused` because the claim boundary is
+   a prohibition on inference — the same meaning the degraded surface uses when
+   it declines to substitute a run. No experimental outcome uses it. */
+const ACTION_ICON = { verify: 'evidence', compare: 'comparison', raw: 'artifact', claim: 'refused' };
 
 const brandHtml = `
     <div class="brand">
@@ -799,9 +854,9 @@ function degraded(id, requested) {
   lastLocalArm = null;
   app.innerHTML = `<header class="degraded-head">${brandHtml}</header>
   <div class="degraded" data-state="${esc(id)}">
-    <h2>${esc(d.message)}</h2>
+    <h2>${icon('warning', { size: 'lg' })} ${esc(d.message)}</h2>
     ${requested ? `<p class="mono">Requested: ${esc(requested)}</p>` : ''}
-    <p class="refused">Substitution refused. The canonical run is not shown in place of what was asked for.</p>
+    <p class="refused">${icon('refused', { size: 'md' })} Substitution refused. The canonical run is not shown in place of what was asked for.</p>
     <p class="note" style="margin-top:12px">Do not infer ${esc(d.forbiddenInference)}.</p>
     <div class="next"><span class="k">Where to go instead</span>
     <p><a href="?run=hac330-local&proof=local&state=run.local.treatment">Open the controlled local experiment</a>
@@ -815,11 +870,14 @@ function degraded(id, requested) {
 /** The evidence line for the selected arm, in that arm's own terms. */
 function evidenceLine(v) {
   const cp = v.evidence.couplings[0];
+  // The glyph tracks the state rather than the region: an arm that consulted no
+  // evidence has no revision to be bound to, so it is marked as the caveat it
+  // is instead of claiming a lineage it does not have.
   if (!v.evidence.consulted) {
-    return `${esc(v.evidence.source)} · not consulted<br>Interlock was disabled in this arm`;
+    return `${icon('warning', { size: 'sm' })} ${esc(v.evidence.source)} · not consulted<br>Interlock was disabled in this arm`;
   }
   const basis = `basis <b>${esc(short(v.evidence.basis))}</b>`;
-  return `${esc(v.evidence.source)} · revision-bound<br>${basis} · ${cp
+  return `${icon('lineage', { size: 'sm' })} ${esc(v.evidence.source)} · revision-bound<br>${basis} · ${cp
     ? `coupling support ${esc(cp.support)}/${esc(cp.occurrences)}`
     : 'no qualifying coupling'}`;
 }
@@ -844,7 +902,7 @@ const outcomeCard = (row, selectedArm, g) => `
         <div class="cause"><span class="cxl" aria-hidden="true"></span>
           <span class="sr">Cause:</span><span class="ctok">${esc(row.cause)}</span></div>
         <div class="k">${esc(row.label)}${row.key === 'selected' ? marker(g, 'outcome') : ''}</div>
-        <div class="v" data-glyph="${row.outcome.holds ? '✓' : '✕'}">${esc(row.outcome.expression)}</div>
+        <div class="v" data-glyph="${row.outcome.holds ? '✓' : '✕'}">${icon(row.outcome.holds ? 'pass' : 'unsafe', { size: 'lg' })}<span>${esc(row.outcome.expression)}</span></div>
         <div class="n">${esc(row.outcome.verdict)}${row.checksLabel ? ` · run checks ${esc(row.checksLabel)}` : ''}</div>
       </div>`;
 
@@ -899,7 +957,7 @@ const choiceHtml = () => `
     <p>Two actions can be valid alone and unsafe together. Follow the recorded
       proof, or inspect everything yourself.</p>
     <div class="picks">
-      <button data-guide-start>Walk the proof</button>
+      <button data-guide-start>${icon('proofPath')}Walk the proof</button>
       <button data-guide-free>Explore freely</button>
     </div>
   </section>`;
@@ -954,13 +1012,13 @@ function guideBarHtml(g) {
         <h2 id="guide-step-title">${esc(g.title)}</h2>
         <p>${esc(g.copy)}</p>
         ${g.isAblation ? `<div class="guide-ablate">
-          <button data-guide-ablate="${esc(g.ablation.targetArm)}">${esc(g.ablation.label)}</button>
+          <button data-guide-ablate="${esc(g.ablation.targetArm)}">${icon('replay')}${esc(g.ablation.label)}</button>
           <span class="hint">${esc(g.ablation.note)} Each arm is a recorded result;
             nothing is executed in the browser.</span>
         </div>` : ''}
         ${g.isHandoff ? `<div class="acts">
-          <button data-drawer="verify">Verify this decision</button>
-          <button data-drawer="compare">Compare coordination strategies</button>
+          <button data-drawer="verify">${icon(ACTION_ICON.verify)}Verify this decision</button>
+          <button data-drawer="compare">${icon(ACTION_ICON.compare)}Compare coordination strategies</button>
           <button data-guide-exit>Explore the complete cockpit</button>
         </div>
         <p class="guide-aside">Also recorded \u00b7 Google Cloud participation is a separate proof
@@ -973,7 +1031,7 @@ function guideBarHtml(g) {
 /** Free inspection keeps the way back in visible rather than one-way. */
 const reentryHtml = () => `
   <div class="guide-reentry">
-    <button data-guide-start>Walk the proof</button>
+    <button data-guide-start>${icon('proofPath')}Walk the proof</button>
     <span class="n">Free inspection \u00b7 every control is live \u00b7 nothing is executed in the browser</span>
   </div>`;
 
@@ -1020,7 +1078,7 @@ function renderLocal(run, armId, g) {
         <div class="row"><span class="lbl">Shared environment</span>
           ${v.coupled ? '<span class="chip" data-s="coupled" data-glyph="⧉">Coupled</span>' : ''}
           ${marker(g, 'environment')}
-          <span class="bound">joint bound &lt;= ${esc(v.constraint.bound)}</span>${marker(g, 'bound')}</div>
+          <span class="bound">${icon('threshold', { size: 'md' })}joint bound &lt;= ${esc(v.constraint.bound)}</span>${marker(g, 'bound')}</div>
         <div class="attr">${evidenceLine(v)} ${marker(g, 'evidence.basis')}</div>
         <div class="evidence-ledger"><span><b>finding</b> ${esc(evidenceState)}${marker(g, 'evidence.finding')}</span>${coupling ? `<span><b>files</b> ${esc(coupling.files.join(' · '))}</span>` : '<span><b>effect</b> evidence does not establish coupling</span>'}</div>
       </div>
@@ -1080,7 +1138,7 @@ function actionsHtml(g) {
   ].filter(([kind]) => !duplicated.has(kind));
   return `<div class="actions" aria-label="Verification actions"
     data-guide-weight="${g.mode === 'guided' ? 'secondary' : 'primary'}">
-        ${all.map(([kind, label]) => `<button data-drawer="${kind}">${esc(label)}</button>`).join('')}
+        ${all.map(([kind, label]) => `<button data-drawer="${kind}">${icon(ACTION_ICON[kind])}${esc(label)}</button>`).join('')}
       </div>`;
 }
 
@@ -1119,7 +1177,7 @@ ${brandHtml}
     <div class="col">
       <h2>What actually ran</h2>
       <div class="hops">${cloudHops(run)}</div>
-      <div class="notonpath">Not on the recorded path — ${run.notOnPath.map(esc).join(' · ')}</div>
+      <div class="notonpath">${icon('refused', { size: 'sm' })}<span>Not on the recorded path — ${run.notOnPath.map(esc).join(' · ')}</span></div>
     </div>
     <div class="col">
       <h2>Decision, effect, observation</h2>
@@ -1148,9 +1206,9 @@ ${brandHtml}
       </div>
       <p class="note">${esc(run.negativeControlsNote)}</p>
       <div class="actions" aria-label="Verification actions">
-        <button data-drawer="verify">Verify this run</button>
-        <button data-drawer="raw">Show me the raw proof</button>
-        <button data-drawer="claim">What is not claimed?</button>
+        <button data-drawer="verify">${icon(ACTION_ICON.verify)}Verify this run</button>
+        <button data-drawer="raw">${icon(ACTION_ICON.raw)}Show me the raw proof</button>
+        <button data-drawer="claim">${icon(ACTION_ICON.claim)}What is not claimed?</button>
       </div>
     </div>
   </div>`;
@@ -1212,7 +1270,7 @@ function comparisonHtml() {
   const s = c.strategies[Math.max(0, Math.min(c.strategies.length - 1, compareStrategy))];
   const caption = (dim) => c.captions.find((x) => x.dimension === dim);
   return `
-    ${c.resolved ? '' : `<p class="cmp-head"><span class="cmp-scaffold">${esc(c.unresolvedLabel)}</span></p>`}
+    ${c.resolved ? '' : `<p class="cmp-head"><span class="cmp-scaffold">${icon('warning', { size: 'sm' })}<span>${esc(c.unresolvedLabel)}</span></span></p>`}
     <p class="note" style="margin-bottom:10px">${esc(c.separateExperiment)}</p>
     <div class="cmp-strats" data-strat-group role="group"
       aria-label="Coordination strategy · left and right arrow keys move between strategies">
@@ -1243,7 +1301,7 @@ function comparisonHtml() {
     <section><h3>Source</h3><dl class="kv">
       ${c.artifacts.map((a) => `<dt>artifact</dt><dd>${esc(a)}</dd>`).join('')}
       <dt>canonical result</dt><dd>${esc(c.canonicalResultCommit)}</dd>
-    </dl>${c.resolved ? '' : `<div class="unavail">${esc(c.unresolvedNote)}</div>`}</section>`;
+    </dl>${c.resolved ? '' : `<div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(c.unresolvedNote)}</span></div>`}</section>`;
 }
 
 function drawerHtml(kind, proof, run) {
@@ -1313,7 +1371,7 @@ function localRaw(run) {
            <p class="proof-source">Source · ${esc(run.rawProof.source)}</p>
            <pre class="shiki-proof" id="cp-arms">${run.rawProof.html}</pre></section>
          <section><h3>Not present in this run</h3>
-           <div class="unavail">No receipt, protected target, independent observer, cloud runtime or Cloud Logging exists in HAC-330. These fields are absent, not empty.</div></section>`;
+           <div class="unavail">${icon('warning', { size: 'sm' })}<span>No receipt, protected target, independent observer, cloud runtime or Cloud Logging exists in HAC-330. These fields are absent, not empty.</span></div></section>`;
 }
 
 function cloudVerify(run) {
@@ -1321,9 +1379,9 @@ function cloudVerify(run) {
   const rp = run.runtimeProvenance;
   return `
       <section><h3>Immutable public evidence</h3><dl class="kv">
-        <dt>evidence</dt><dd><a href="${esc(p.cloudEvidenceUrl)}" target="_blank" rel="noreferrer">cloud-run.public.json</a></dd>
-        <dt>verifier</dt><dd><a href="${esc(p.hac340VerifierUrl)}" target="_blank" rel="noreferrer">verify-public-packet.mjs</a></dd>
-        <dt>redaction</dt><dd><a href="${esc(p.redactionManifestUrl)}" target="_blank" rel="noreferrer">redaction-manifest.json</a></dd>
+        <dt>evidence</dt><dd><a href="${esc(p.cloudEvidenceUrl)}" target="_blank" rel="noreferrer">cloud-run.public.json${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
+        <dt>verifier</dt><dd><a href="${esc(p.hac340VerifierUrl)}" target="_blank" rel="noreferrer">verify-public-packet.mjs${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
+        <dt>redaction</dt><dd><a href="${esc(p.redactionManifestUrl)}" target="_blank" rel="noreferrer">redaction-manifest.json${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
       </dl><p class="note">Pinned to commit ${esc(short(p.evidencePublicationSha))} — not to a branch.</p></section>
       <section><h3>Transport provenance</h3><dl class="kv">
         <dt>caller</dt><dd>${esc(run.transportProvenance.caller)}</dd>
@@ -1346,7 +1404,7 @@ function cloudVerify(run) {
         <dt>snapshot</dt><dd>${copyable(rp.runtimeSourceSnapshotSha256, 'the runtime snapshot digest')}</dd>
         <dt>revision</dt><dd>${esc(rp.revisionName)}</dd>
       </dl>
-      <div class="unavail">${esc(rp.runtimeSourceUrl.reason)} The public snapshot records the executed source content separately, across ${esc(rp.snapshotFileCount)} files.</div>
+      <div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(rp.runtimeSourceUrl.reason)} The public snapshot records the executed source content separately, across ${esc(rp.snapshotFileCount)} files.</span></div>
       <p class="note">${esc(rp.revisionNote)}</p></section>`;
 }
 
@@ -1360,9 +1418,9 @@ function cloudRaw(run) {
         <dt>sourcePacketSha256</dt><dd>${copyable(p.sourcePacketSha256, 'the source packet digest')}</dd>
         <dt>evidencePublicationSha</dt><dd>${copyable(p.evidencePublicationSha, 'the evidence publication sha')}</dd>
         <dt>publicationBindingsSha</dt><dd>${copyable(p.publicationBindingsSha, 'the publication bindings sha')}</dd>
-      </dl><div class="unavail">${esc(p.sourcePacketNote)}</div></section>
+      </dl><div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(p.sourcePacketNote)}</span></div></section>
       <section><h3>Architecture</h3><dl class="kv">
-        <dt>deployment</dt><dd><a href="../hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png" target="_blank" rel="noreferrer">IL-DIAG-012 — exact deployment and trust boundaries</a></dd>
+        <dt>deployment</dt><dd><a href="../hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png" target="_blank" rel="noreferrer">IL-DIAG-012 — exact deployment and trust boundaries${icon('external', { size: 'sm', extraClass: 'il-ic--after' })}</a></dd>
       </dl><p class="note">The frozen architecture visual bound to this run. Architecture verifies the result; it is never the first comprehension layer.</p></section>
       <section><h3>Negative controls</h3><dl class="kv">
         ${run.negativeControls.map((c) => `<dt>${esc(c.status)}</dt><dd>${esc(c.label)}${c.note ? `<br><span style="color:var(--text-muted)">${esc(c.note)}</span>` : ''}</dd>`).join('')}
@@ -1371,7 +1429,7 @@ function cloudRaw(run) {
         <dt>status</dt><dd>${esc(run.teardown.status)}</dd><dt>source</dt><dd>${esc(run.teardown.source)}</dd>
         <dt>packet field</dt><dd>${esc(run.teardown.packetField)}</dd></dl></section>
       <section><h3>Reserved evaluation · HAC-319</h3>
-        <div class="unavail">${esc(MODEL.reserved.message)} ${esc(MODEL.reserved.rule)}</div>
+        <div class="unavail">${icon('warning', { size: 'sm' })}<span>${esc(MODEL.reserved.message)} ${esc(MODEL.reserved.rule)}</span></div>
         <div class="regimes">${MODEL.reserved.regimes.map((r) => `<div class="r"><div class="t">${esc(r)}</div><div class="u">NOT BOUND</div></div>`).join('')}</div>
       </section>`;
 }

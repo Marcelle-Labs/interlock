@@ -16,6 +16,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { armView } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS } from '../lib/guide.mjs';
+import { icon, lucideBody, CONCEPTS, ICONS, ICON_SOURCE, SEMANTICS } from '../lib/icons.mjs';
 import { jobSteps, jobControls, jobEnforcementDefect, jobKeyDefect, workflowEnvDefect,
   runDefaultsDefect, checkoutDefect, shapeDefects, workflowShapeDefects } from './lib/workflow.mjs';
 import { buildComparison, judgeFacing, JUDGE_FACING_FIELDS, DIMENSIONS, STRATEGY_ARMS, BINDINGS } from '../lib/comparison.mjs';
@@ -702,6 +703,120 @@ for (const region of ['.env', '.delta', '.decision', '.results']) {
   if (!cockpit.includes(`'${region}'`)) fail(`the arm transition no longer steps ${region}`);
 }
 
+/* --- the semantic icon vocabulary (HAC-345) ----------------------------- */
+
+/**
+ * One concept, one glyph, and the glyph is the bytes we vendored.
+ *
+ * Three failures these prevent, in the order they are likely:
+ *
+ *   1. Drift. Inlining path data for speed is fine; inlining it and letting the
+ *      vendored file move underneath is a copy that quietly stops being the
+ *      thing it claims provenance for. Both sides run through one normalizer.
+ *   2. Synonyms. `Verify this decision` acquiring a magnifier in the action row
+ *      and a shield in the drawer costs a judge the thing the vocabulary was
+ *      added to buy. The map has to be injective in both directions.
+ *   3. Substitution. A padlock or shield standing in for the Interlock
+ *      mechanism makes the product-specific claim with a stock outline. The
+ *      vocabulary may not contain one at all, so it cannot be reached for.
+ */
+if (!/from '\/media\/hac-341\/lib\/icons\.mjs'/.test(cockpit)) {
+  fail('cockpit does not consume the shared semantic icon vocabulary');
+}
+for (const [name, body] of Object.entries(ICONS)) {
+  const file = join(repoRoot, ICON_SOURCE.vendorDir, `${name}.svg`);
+  if (!existsSync(file)) {
+    fail(`the icon vocabulary inlines ${name}, which is not vendored under ${ICON_SOURCE.vendorDir}`);
+    continue;
+  }
+  if (lucideBody(readFileSync(file, 'utf8')) !== body) {
+    fail(`the inlined geometry for ${name} has drifted from ${ICON_SOURCE.vendorDir}/${name}.svg`);
+  }
+}
+if (!existsSync(join(repoRoot, ICON_SOURCE.licenseFile))) {
+  fail('the vendored icon geometry is carried without its licence');
+}
+// The registry digest-gates the bytes. A vendored file nobody registered is a
+// file `check:identity` will not notice changing.
+const registryFiles = new Set(
+  read('assets', 'registry.json').assets.flatMap((a) => (a.files ?? []).map((f) => f.file)),
+);
+for (const name of Object.keys(ICONS)) {
+  const rel = `${ICON_SOURCE.vendorDir}/${name}.svg`;
+  if (!registryFiles.has(rel)) fail(`${rel} is vendored but not registered; its bytes are not digest-gated`);
+}
+if (!registryFiles.has(ICON_SOURCE.licenseFile)) {
+  fail(`${ICON_SOURCE.licenseFile} is not registered; the licence is not digest-gated`);
+}
+// The map is a bijection: no concept drawn two ways, no glyph meaning two things.
+const drawnBy = new Map();
+for (const concept of CONCEPTS) {
+  const glyph = SEMANTICS[concept].icon;
+  if (!(glyph in ICONS)) fail(`concept ${concept} names ${glyph}, which the vocabulary does not carry`);
+  if (drawnBy.has(glyph)) {
+    fail(`${glyph} draws both ${drawnBy.get(glyph)} and ${concept}; one glyph may carry one meaning`);
+  }
+  drawnBy.set(glyph, concept);
+  if (!SEMANTICS[concept].meaning) fail(`concept ${concept} declares no meaning a call site can be checked against`);
+}
+for (const glyph of Object.keys(ICONS)) {
+  if (!drawnBy.has(glyph)) fail(`${glyph} is vendored and inlined but names no concept; the vocabulary has dead weight`);
+}
+// The mechanism is Interlock's own geometry. The vocabulary may not offer a
+// generic stand-in for it, at any name.
+for (const glyph of Object.keys(ICONS)) {
+  if (/lock|shield|key|gate|fingerprint|scan-face/.test(glyph)) {
+    fail(`the generic vocabulary carries "${glyph}"; the Interlock mechanism is drawn with assets/logo geometry`);
+  }
+}
+// Every concept the cockpit draws is one the map declares, and every concept
+// the map declares is one the cockpit draws.
+// Every `icon(...)` call site, arguments and all — a concept is often chosen by
+// a ternary on recorded state, so matching only a leading literal would miss
+// exactly the call sites that matter most.
+const NON_CONCEPT_ARGS = new Set(['sm', 'md', 'lg', 'il-ic--after']);
+const drawnConcepts = new Set();
+for (const [, args] of cockpit.matchAll(/\bicon\(([^)]*)\)/g)) {
+  if (args.includes('ACTION_ICON')) continue;
+  for (const [, literal] of args.matchAll(/'([A-Za-z][\w-]*)'/g)) {
+    if (NON_CONCEPT_ARGS.has(literal)) continue;
+    if (!CONCEPTS.includes(literal)) fail(`the cockpit draws an undeclared concept "${literal}"`);
+    drawnConcepts.add(literal);
+  }
+}
+// ACTION_ICON is the indirection the two action rows share; its values are
+// concepts too, and a typo there would silently throw at render time.
+const actionMap = /const ACTION_ICON = \{([^}]*)\}/.exec(cockpit)?.[1] ?? '';
+if (!actionMap) fail('the verification action row declares no shared icon map');
+for (const [, value] of actionMap.matchAll(/:\s*'([A-Za-z]+)'/g)) {
+  if (!CONCEPTS.includes(value)) fail(`ACTION_ICON maps a control to undeclared concept "${value}"`);
+  drawnConcepts.add(value);
+}
+for (const c of CONCEPTS) {
+  if (!drawnConcepts.has(c)) fail(`concept ${c} is declared but never drawn; the vocabulary has dead weight`);
+}
+// Icons supplement text and never announce themselves: the label beside them
+// already says it, and a glyph with a name makes a screen reader say it twice.
+for (const c of CONCEPTS) {
+  const svg = icon(c);
+  if (!svg.includes('aria-hidden="true"')) fail(`the ${c} glyph is not hidden from assistive technology`);
+  if (/aria-label|role="img"|<title/.test(svg)) fail(`the ${c} glyph names itself; it must supplement the label, not repeat it`);
+}
+// Colour is never the distinction. The two outcome states are different shapes,
+// not one shape in two hues.
+if (SEMANTICS.pass.icon === SEMANTICS.unsafe.icon) {
+  fail('pass and unsafe share a glyph; the state would be carried by colour alone');
+}
+if (!/icon\(row\.outcome\.holds \? 'pass' : 'unsafe'/.test(cockpit)) {
+  fail('the outcome card does not draw its state from the recorded holds flag');
+}
+// The vocabulary is decoration if it is drawn without its words. Each control
+// row keeps the label the glyph sits beside.
+for (const label of ['Verify this decision', 'Compare coordination strategies',
+  'Show me the raw proof', 'What is not claimed?', 'Walk the proof']) {
+  if (!cockpit.includes(label)) fail(`"${label}" lost its visible label to an icon`);
+}
+
 /* --- keyboard: one global key, two scoped groups ------------------------ */
 
 if (!/e\.target\.closest\?\.\('\[data-guide-rail\]'\)/.test(cockpit)) {
@@ -1098,6 +1213,8 @@ process.stdout.write(
   + `  ${model.degradedStates.length} degraded states, evidence links pinned to immutable commits\n`
   + `  guided walk: ${GUIDE_STEPS.length} steps, ${GUIDE_STATES.length} addressable states,`
   + ` ${delta.held.length} held / ${delta.changed.length} changed verified against the frozen arms\n`
+  + `  icon vocabulary: ${CONCEPTS.length} concepts, ${Object.keys(ICONS).length} vendored glyphs`
+  + ` verified against ${ICON_SOURCE.vendorDir} @ ${ICON_SOURCE.commit.slice(0, 12)}, no generic mechanism stand-in\n`
   + `  HAC-343 comparison: ${model.comparison?.strategies.length ?? 0} strategies x ${model.comparison?.dimensions.length ?? 0} dimensions,`
   + ` ${model.comparison?.resolved ? 'all bindings resolved' : `${model.comparison?.unresolved.length ?? 0} unresolved bindings shown as [BIND: ...]`}\n`,
 );
