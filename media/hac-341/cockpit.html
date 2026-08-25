@@ -520,6 +520,24 @@ body[data-proof="cloud"] .frame{background:var(--ink)}
 .evidence-ledger b{text-transform:uppercase;letter-spacing:.09em;font-size:8px;color:var(--text-muted)}.evidence-band .delta{margin:0;border-width:1px;border-left:0;border-right:0;border-bottom:0;border-radius:0;padding:10px 16px}
 .evidence-band .delta .dtext{max-width:76ch}.causal-drop{width:2px;height:24px;margin:0 0 0 28px}.causal-drop svg{width:2px}
 .resolution-grid{display:grid;grid-template-columns:minmax(17rem,.85fr) minmax(22rem,1.15fr);gap:18px;align-items:stretch}
+/* ── the decision gate (HAC-347) ──
+   The signature object of this surface, and the only place the Interlock
+   mechanism is drawn. It occupies the space the decision stage was leaving
+   empty above its token, so it costs no evidence its own room.
+
+   Three positions, three geometries: leaves absent, leaves interlocked, leaves
+   apart. The distinction is shape, never colour — the mark is currentColor in
+   both proof classes — and the caption beside it says the same thing in words,
+   so a reader who does not read the picture loses nothing. */
+.ilgate{display:flex;align-items:center;gap:16px;margin:4px 0 12px}
+.ilgate__mark{flex:none;width:64px;height:64px;color:currentColor}
+.ilgate .gs{display:flex;flex-direction:column;gap:2px}
+.ilgate .gs b{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.10em;
+  text-transform:uppercase;line-height:1.2;color:var(--text-body)}
+.ilgate .gs span{font-size:12px;line-height:1.35;color:var(--text-muted);max-width:26ch}
+/* Interlock disabled: there is no gate to be in a state, so the leaves are not
+   drawn at all and the caption carries the whole fact. */
+.ilgate[data-gate="absent"] .gs b{font-weight:500;color:var(--text-muted)}
 .decision-bar{display:flex;flex-direction:column;margin:0;border-left-width:3px;padding:14px 16px;background:var(--surface-card)}
 .decision-bar .stage-head{margin-bottom:16px}.decision-bar .tok{font-size:clamp(20px,2.1vw,28px);line-height:1.05}.decision-bar .why{margin-top:8px;line-height:1.45}.decision__body{margin-top:auto}
 .outcome-stage{border-left:1px solid var(--border-hair);padding-left:18px}.outcome-stage .stage-head{margin-bottom:8px}
@@ -562,6 +580,7 @@ pre.shiki-proof .line{min-height:1.55em}
   .evidence-band .stage-head{padding-top:6px;margin-bottom:3px}.evidence-band .env__body{padding-bottom:6px}
   .env .attr{margin-top:3px;line-height:1.25}.evidence-ledger{margin-top:4px;padding-top:4px}
   .causal-drop{height:14px}.decision-bar{padding:9px 12px}.decision-bar .stage-head{margin-bottom:8px}
+  .ilgate{gap:12px;margin:0 0 8px}.ilgate__mark{width:52px;height:52px}.ilgate .gs b{font-size:10px}.ilgate .gs span{font-size:11px}
   .decision-bar .tok{font-size:20px}.decision-bar .why{margin-top:4px}.decision-bar .frozen{margin-top:2px}
   .outcome-stage .stage-head{margin-bottom:5px}.results{gap:5px}.res{padding:7px 10px}.res .cause{margin-bottom:2px}
   .res[data-selected="false"] .v{font-size:22px}.res[data-selected="true"]{padding:8px 12px}.res[data-selected="true"] .v{font-size:34px}
@@ -768,6 +787,7 @@ body[data-proof="cloud"] .cmp-strats button[aria-pressed="true"]{background:var(
 @media (max-width:640px){
   .frame{max-width:100%}.run-header,.run-thesis,.causal-layout{padding-left:16px;padding-right:16px}.run-header__identity{flex-wrap:wrap;gap:9px}.run-header__identity .eyebrow{padding-right:9px}
   .ptitle{font-size:11px;padding-left:9px}.switch .btns{max-width:100%;overflow:auto}.switch button{white-space:normal;min-height:44px}.stage-head{grid-template-columns:22px 1fr}.stage-head>span:last-child{display:none}
+  .ilgate{gap:12px}.ilgate__mark{width:48px;height:48px}
   .intents{flex-direction:column}.intent-card{min-height:auto}.causal-stage .cxn{display:none}.evidence-band{margin-top:14px}.resolution-grid{margin-top:14px}.arm-switcher .arms{flex-direction:column}.arm-switcher .actions{width:100%}.arm-switcher .actions button{flex:1}
 }
 </style>
@@ -785,7 +805,7 @@ body[data-proof="cloud"] .cmp-strats button[aria-pressed="true"]{background:var(
    from frozen evidence. A field that is absent there is absent here.
    What the *selected arm* shows is derived in lib/arm-view.mjs, so the binding
    between an arm and its evidence can be asserted without a browser. */
-import { armView } from '/media/hac-341/lib/arm-view.mjs';
+import { armView, gateState } from '/media/hac-341/lib/arm-view.mjs';
 /* The guided layer's derivation. It lives beside arm-view.mjs for the same
    reason: step 5 claims that four things were held constant and four changed,
    and a claim like that has to be checked against the frozen arms rather than
@@ -837,19 +857,64 @@ const STATE_OF = {
    it declines to substitute a run. No experimental outcome uses it. */
 const ACTION_ICON = { verify: 'evidence', compare: 'comparison', raw: 'artifact', claim: 'refused' };
 
+/* The canonical mark, as data. Both the header lockup and the decision gate
+   draw these exact strings — the identity gate reconciles them against
+   assets/brand/logo-geometry.js, so one surface cannot quietly acquire a second
+   version of the mark. The four arms never move; the two leaves are the only
+   parts that do, and how far is GATE_TRAVEL, not a number chosen here. */
+const IL_ARMS = [
+  'M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z',
+  'M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z',
+  'M2.889 42 L9.111 42 L17.2 33.911 L17.2 27.689 Z',
+  'M45.111 42 L38.889 42 L30.8 33.911 L30.8 27.689 Z',
+];
+const IL_LEAF_L = 'M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z';
+const IL_LEAF_R = 'M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z';
+const armPaths = IL_ARMS.map((d) => `<path d="${d}"></path>`).join('');
+
 const brandHtml = `
     <div class="brand">
       <svg class="mark" viewBox="0 0 48 48" width="20" height="20" fill="currentColor" aria-hidden="true">
-        <path d="M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z"></path>
-        <path d="M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z"></path>
-        <path d="M2.889 42 L9.111 42 L17.2 33.911 L17.2 27.689 Z"></path>
-        <path d="M45.111 42 L38.889 42 L30.8 33.911 L30.8 27.689 Z"></path>
-        <path class="leaf leaf-l" d="M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z"></path>
-        <path class="leaf leaf-r" d="M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z"></path>
+        ${armPaths}
+        <path class="leaf leaf-l" d="${IL_LEAF_L}"></path>
+        <path class="leaf leaf-r" d="${IL_LEAF_R}"></path>
       </svg>
       <span class="word">Interlock</span>
     </div>
     <span class="eyebrow">The Run</span>`;
+
+/**
+ * The Interlock gate, in the position the recorded decision determines.
+ *
+ * This is the one place on the surface where the mechanism itself is drawn, and
+ * it is drawn with the product's own geometry — never a padlock, a shield or a
+ * stock gate. `gateState` is a pure function of the frozen arm's decision, so
+ * the picture cannot say something the token beneath it does not.
+ *
+ * It is a state, not a sequence. Nothing here approaches, evaluates, resolves
+ * or settles: the packets record a decision and the basis it was taken on, and
+ * a deliberation they never captured is not representable. When the reader
+ * selects another arm, the whole decision region steps in once with the rest of
+ * the attribution order; the leaves do not travel across the screen as though
+ * the gate had just decided something.
+ *
+ * The caption is not decoration. Three positions of two quadrilaterals are not
+ * self-explanatory, and this surface never lets a picture be the only carrier
+ * of a meaning.
+ */
+function gateHtml(arm) {
+  const state = gateState(arm);
+  if (!state) return '';
+  const leaves = state.id === 'absent' ? '' : `
+        <path class="leaf leaf-l" transform="translate(${-state.travel} 0)" d="${IL_LEAF_L}"></path>
+        <path class="leaf leaf-r" transform="translate(${state.travel} 0)" d="${IL_LEAF_R}"></path>`;
+  return `<div class="ilgate" data-gate="${esc(state.id)}">
+      <svg class="ilgate__mark" viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false">
+        ${armPaths}${leaves}
+      </svg>
+      <p class="gs"><b>${esc(state.label)}</b><span>${esc(state.gloss)}</span></p>
+    </div>`;
+}
 
 let MODEL = null;
 let lastFocus = null;
@@ -1137,6 +1202,7 @@ function renderLocal(run, armId, g) {
     <div class="resolution-grid">
       <section class="decision decision-bar" aria-labelledby="decision-title"${em(g, 'decision')}>
         <div class="stage-head"><span class="stage-no">03</span><h2 id="decision-title">Coordination decision</h2><span>recorded, not recomputed</span></div>
+        ${gateHtml(v.arm)}
         <div class="decision__body">
         <div class="dk">Interlock decision · deterministic${marker(g, 'decision')}</div>
         <div class="tok">${esc(v.arm.decision ?? 'no decision — Interlock disabled')}</div>

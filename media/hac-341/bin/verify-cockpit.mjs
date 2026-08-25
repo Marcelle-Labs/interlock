@@ -14,7 +14,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { armView } from '../lib/arm-view.mjs';
+import { armView, gateState } from '../lib/arm-view.mjs';
 import { ablationDelta, guideRoute, GUIDE_STATES, GUIDE_STEPS } from '../lib/guide.mjs';
 import { icon, lucideBody, CONCEPTS, ICONS, ICON_SOURCE, SEMANTICS } from '../lib/icons.mjs';
 import { jobSteps, jobControls, jobEnforcementDefect, jobKeyDefect, workflowEnvDefect,
@@ -790,6 +790,56 @@ for (const { selector, body } of cssRules(styleBlock)) {
   if (/\.bound\b/.test(selector) && /animation\s*:/.test(body)) {
     fail(`\`${selector}\` animates the threshold, which is held constant across every recorded arm`);
   }
+}
+
+/* --- the decision gate is a position, not a performance (HAC-347) ------- */
+
+/**
+ * The gate draws the mechanism, so it is held to the mechanism's rules.
+ *
+ * Every recorded decision must map to a position. A token this map does not
+ * carry returns `null` and the surface draws nothing — which is correct
+ * behaviour and a broken cockpit, so it fails here instead of shipping.
+ */
+for (const arm of local.arms) {
+  const state = gateState(arm);
+  if (!state) {
+    fail(`the gate has no position for recorded decision "${arm.decision}" (arm ${arm.armId}); `
+      + 'add it to GATE_STATES rather than letting the surface draw nothing');
+    continue;
+  }
+  if (!state.label || !state.gloss) fail(`the ${arm.armId} gate position has no visible caption`);
+  // The picture may not disagree with the token beneath it.
+  const permits = state.id === 'open';
+  if (permits !== (arm.decision === 'ALLOW_PARALLEL')) {
+    fail(`the gate shows "${state.id}" for decision ${arm.decision}; the picture contradicts the record`);
+  }
+  if (arm.interlock === 'disabled' && state.id !== 'absent') {
+    fail(`the ${arm.armId} arm ran with Interlock disabled but draws an engaged gate`);
+  }
+}
+// The mechanism is the canonical geometry. If the gate ever stops drawing the
+// frozen leaves it has become an approximation of the mark.
+for (const d of ['M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z', 'M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z']) {
+  if (!cockpit.includes(`\${IL_LEAF_${d.startsWith('M18.6') ? 'L' : 'R'}}`)) {
+    fail('the decision gate does not draw the canonical leaf geometry');
+  }
+}
+// A position, not a sequence. The five-state gate stinger encodes a
+// review-then-open lifecycle the frozen packets never emitted, and HARVEST.md
+// already rejected the module that carried it. It may not return here.
+for (const [re, label] of [
+  [/animation:[^;]*il-gate-open/, 'the gate-opening stinger'],
+  [/animation:[^;]*il-converge/, 'the trajectory-convergence stinger'],
+  [/animation:[^;]*il-pass/, 'the passage stinger'],
+  [/--mot-p[1-5]-/, 'the five-phase stinger cadence'],
+]) {
+  if (re.test(cockpit)) {
+    fail(`the cockpit plays ${label}; the gate represents a recorded decision, not a deliberation`);
+  }
+}
+if (/\blottie|dotlottie|\.lottie\b|\brive\b|\bgsap\b|framer-motion/i.test(cockpit)) {
+  fail('an animation runtime reached the cockpit; HAC-347 recorded the dependency as REJECTED');
 }
 
 /* --- the semantic icon vocabulary (HAC-345) ----------------------------- */

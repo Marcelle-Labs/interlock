@@ -130,6 +130,21 @@ and drove already-muted labels to 1.81:1.
 | Static / reduced-motion equivalent | The panel and the reflow apply immediately |
 | Named hold state | `body[data-drawer="open"\|"closed"]`, `.drawer[data-panel]` |
 
+## The signature gate
+
+The Interlock gate in stage 03 is a **position**, not a sequence. It is drawn
+with the canonical mark geometry and shows the state the recorded decision
+determines — leaves absent, interlocked, or apart. It has no animation of its
+own: an arm change steps the whole decision region once, with the rest of the
+attribution order.
+
+Why it is not animated, and why no animation runtime was added to make it
+smoother, is recorded in
+[`hac-347-lottie-decision.md`](./hac-347-lottie-decision.md). The short version:
+the sequence HAC-347 proposed is a deliberation the frozen packets never
+recorded, so it is unrepresentable in any runtime — and the runtime measured
+7.9x the entire cockpit's gzipped payload.
+
 ## Deliberately not animated
 
 ### The threshold
