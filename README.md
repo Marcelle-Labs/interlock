@@ -208,6 +208,18 @@ The broader evaluation (HAC-319) — precision, recall, fleet-scale behaviour �
 
 [`DISCLOSURE.md`](./DISCLOSURE.md) is the full provenance statement.
 
+## Licence
+
+This repository carries **no open-source licence**. The source is published so the
+experiment, the evidence packets and the verifier can be inspected and re-run; it is
+not offered for reuse or redistribution, and all rights are reserved. `package.json`
+records this as `UNLICENSED`.
+
+The `workspace.json` specification and toolchain that Interlock consumes are separately
+Apache-2.0 and are not covered by this notice — see
+[`provenance/manifest.json`](./provenance/manifest.json) for the exact pinned
+revisions.
+
 ---
 
 ## Reproducing and building
