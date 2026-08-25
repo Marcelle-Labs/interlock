@@ -382,6 +382,8 @@ const NEEDED = [
   // reproduced. A copy without them is not a copy of this repository.
   'experiments/hac-343/bin',
   '.github',
+  // The gate refuses a motion sequence the contract does not carry.
+  'docs/development/cockpit-motion-contract.md',
 ];
 
 let pristine;
@@ -459,7 +461,7 @@ describe('the gate refuses a walk that has stopped being an attention layer', ()
   });
 
   it('fails when the entry preselects a path', () => {
-    const r = broken((a) => a.edit(COCKPIT, '<button data-guide-start>Walk the proof</button>',
+    const r = broken((a) => a.edit(COCKPIT, '<button data-guide-start>${icon(\'proofPath\')}Walk the proof</button>',
       '<button data-guide-start autofocus aria-pressed="true">Walk the proof</button>'));
     expect(r.code).not.toBe(0);
     expect(r.out).toMatch(/preselects a path/);

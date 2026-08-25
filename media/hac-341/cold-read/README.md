@@ -59,6 +59,22 @@ Open the L1 default URL. Start the timer.
 Then repeat steps 1–4 with `&static=1` and **keyboard only** (no mouse). The
 semantic answers must match; presentation may differ.
 
+Then run **pass 3**, on the default URL, mouse allowed. These questions test
+what HAC-345, HAC-346 and HAC-347 added. They are diagnostic, not scored.
+
+6. *"Walk me through it: evidence, then the threshold, then the decision, then
+   what was permitted or refused."* Say nothing else. Do not name the stages.
+7. Point at the mark beside the decision — **do not name it** — and ask *"What
+   is that showing you?"*
+8. *"Was there anything on the page that moved? Did it help or distract?"*
+9. For each icon the reader used to find something, point at it and ask *"What
+   does that mean?"* Record the answer verbatim, against the concept list on
+   the response sheet.
+
+An icon a reader reads as a *different concept* is an ambiguity finding: remove
+or revise it. Do not explain it to the next reader, and do not keep it because
+the second reader got it right.
+
 ## Targets
 
 | # | Question | Target |
@@ -80,7 +96,13 @@ regardless of questions 1–4:
   `EXECUTED` as `OBSERVED`;
 - a reader concludes Interlock is **universally** safe, production-ready, or
   that it prevents collisions in general;
-- the keyboard/reduced-motion pass yields a **different semantic answer**.
+- the keyboard/reduced-motion pass yields a **different semantic answer**;
+- a reader believes the **animation timing** shows how long something took to
+  execute, or that the **animation produced** the Interlock decision;
+- a reader reads the gate beside the decision as a **padlock, a security badge
+  or a general safety claim**, rather than as the state of an evidence-bound
+  authorization;
+- a reader takes an **icon as the only evidence** for a proof or status meaning.
 
 ## Recording the result
 
