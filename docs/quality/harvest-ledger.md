@@ -157,6 +157,7 @@ scripts are not needed to preserve it.
 | Judge verification cockpit | `hac-341` | `KEEP` | — |
 | Evidence-bound architecture visual suite | `hac-334` | `HARVEST → Studio v3` | **HAC-324** |
 | Judge package and asset registry | `hac-335` | `HARVEST → Studio v3` | **HAC-324** |
+| Evidence-bound final cut assembly | `hac-336` | `HARVEST → Studio v3` | **HAC-324** |
 | Muted storyboard assembly | `hac-333` | `DELETE` | — |
 
 **The asset registry is the Studio harvest worth naming.** Binding every exported
@@ -218,26 +219,26 @@ a search that had to be widened to find one.
 
 ## Summary
 
-<!-- counts: {"total":25,"KEEP_INTERLOCK":11,"HARVEST_STANDARD_RESEARCH":4,"HARVEST_STUDIO":4,"HARVEST_SWARM":3,"HARVEST_INTEGRATIONS":1,"DELETE_HACKATHON_ONLY":2} -->
+<!-- counts: {"total":26,"KEEP_INTERLOCK":11,"HARVEST_STANDARD_RESEARCH":4,"HARVEST_STUDIO":5,"HARVEST_SWARM":3,"HARVEST_INTEGRATIONS":1,"DELETE_HACKATHON_ONLY":2} -->
 
 | Disposition | Count |
 | --- | --- |
 | `KEEP → Interlock reference app` | 11 |
 | `HARVEST → workspacejson/standard research` | 4 |
-| `HARVEST → Studio v3` | 4 |
+| `HARVEST → Studio v3` | 5 |
 | `HARVEST → ai-swarm / Swarm Evolution` | 3 |
 | `HARVEST → workspacejson/integrations` | 1 |
 | `DELETE → hackathon-only machinery` | 2 |
-| **Total** | **25** |
+| **Total** | **26** |
 
-22 capabilities and 3 findings. These counts are checked against the inventory on
+23 capabilities and 3 findings. These counts are checked against the inventory on
 every run, so they cannot drift.
 
 **An earlier draft of this file claimed 29 rows.** That count was arithmetically
 correct over a hand-written table and is not reproducible from the repository:
 several rows split one directory into multiple entries, and one row recorded a
 `workspacejson.dev` accessibility finding that is not an Interlock capability at
-all. 25 is what the inventory produces. The discrepancy is the argument for the
+all. 26 is what the inventory produces. The discrepancy is the argument for the
 gate.
 
 ## Deliberate absences

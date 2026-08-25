@@ -214,6 +214,17 @@
       "rationale": "Binds every exported asset to an asset ID, judge question, source run, supported claim, runtime source SHA and evidence-publication SHA. The general capability is evidence-bound media."
     },
     {
+      "id": "final-cut-assembly",
+      "title": "Evidence-bound final cut assembly",
+      "paths": [
+        "media/hac-336"
+      ],
+      "disposition": "HARVEST_STUDIO",
+      "ownerIssue": "HAC-324",
+      "ownerAmendedAt": "2026-08-25",
+      "rationale": "Composes a cut from an authored edit decision list and frozen artifacts, and gates the result against them: an input manifest with content digests, a scene map from timestamp to source artifact to claim, and a render manifest read back out of the encoded file. The general capability is an edit that cannot outrun its evidence, which is the same Studio customer as hac-334 and hac-335. The frames and the cut itself are this submission's, and are carried as the pipeline's output rather than as a second capability."
+    },
+    {
       "id": "storyboard-assembly",
       "title": "Muted storyboard assembly",
       "paths": [
