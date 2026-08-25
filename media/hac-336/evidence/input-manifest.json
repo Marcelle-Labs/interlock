@@ -1,0 +1,810 @@
+{
+  "manifestId": "HAC-336-input-manifest",
+  "revision": "r01",
+  "issue": "HAC-336",
+  "note": "Derived by media/hac-336/bin/build-input-manifest.mjs. Do not hand-edit. Every artifact the final cut consumes, with its content digest; every declared revision, with whether it could be checked against frozen evidence and whether it agreed.",
+  "generator": "media/hac-336/bin/build-input-manifest.mjs",
+  "declaredRevisions": [
+    {
+      "name": "interlockSha",
+      "value": "6da9884bc7922a199003ea9babcdf47dbba104df",
+      "checkable": false,
+      "meaning": "Marcelle-Labs/interlock main at the revision this cut was assembled from. The assembly commit is its descendant."
+    },
+    {
+      "name": "directorSha",
+      "value": "81a0535acac9a3b58b2b948ed9e600a9c2c59af9",
+      "checkable": false,
+      "meaning": "Marcelle-Labs/director (Studio v3) main at assembly time. Studio produced the HAC-324 capture package; it is not a build input to this repository, and the revision that actually performed the capture is recorded separately as capturePackage.productRevision."
+    },
+    {
+      "name": "hac343CanonicalResult",
+      "value": "7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0",
+      "checkable": true,
+      "source": "experiments/hac-343/evidence/judge-export.json",
+      "pointer": "/provenance/canonicalResultCommit",
+      "agrees": true
+    },
+    {
+      "name": "filmedRunId",
+      "value": "ilk-hac340-cloud-1787536029323",
+      "checkable": true,
+      "source": "experiments/hac-324/evidence/filmed-run.json",
+      "pointer": "/correlationId",
+      "agrees": true
+    },
+    {
+      "name": "receiptId",
+      "value": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d",
+      "checkable": true,
+      "source": "experiments/hac-324/evidence/filmed-run.json",
+      "pointer": "/receiptId",
+      "agrees": true
+    },
+    {
+      "name": "runtimeSourceSha",
+      "value": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+      "checkable": true,
+      "source": "experiments/hac-324/evidence/filmed-run.json",
+      "pointer": "/commitSha",
+      "agrees": true
+    }
+  ],
+  "capturePackage": {
+    "packageId": "HAC-324-authoritative-filmed-run",
+    "filmedRunId": "ilk-hac340-cloud-1787536029323",
+    "correlationId": "ilk-hac340-cloud-1787536029323",
+    "receiptId": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d",
+    "runtimeSourceSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+    "productRevision": "director 0beeb4a40283687ccfc518f16115e9e3a3277664",
+    "model": "gemini-3.5-flash",
+    "adk": "Google ADK 1.35.1 / Vertex AI",
+    "region": "us-central1",
+    "allFramesPassQuality": true,
+    "teardown": {
+      "status": "completed",
+      "deletedAt": "2026-08-24T01:50:43.559Z",
+      "projectLifecycleState": "DELETE_REQUESTED"
+    },
+    "note": "productRevision is the Director revision that performed the capture. It is deliberately not the same value as the declared directorSha, which is Director main at assembly time."
+  },
+  "promotedScenes": [
+    {
+      "sceneId": "agent-traversal",
+      "sha256": "102cafb35c0c02f9df1d9518e3be9fd9f361480f12d6f7bb37b3f1e640a1a490",
+      "bytes": 93288,
+      "source": "live agent traversal executed during capture",
+      "qualityPass": true,
+      "usedInCut": true,
+      "beats": [
+        "B12"
+      ]
+    },
+    {
+      "sceneId": "gemini-adk-attribution",
+      "sha256": "ee007e9c29c5fea3719fcec6d63d68c1ead5af33fceef4d90a8d1775f24f85c0",
+      "bytes": 146792,
+      "source": "live Cloud Run config: model + pinned ADK image",
+      "qualityPass": true,
+      "usedInCut": true,
+      "beats": [
+        "B10"
+      ]
+    },
+    {
+      "sceneId": "cloud-run-topology",
+      "sha256": "ae6bd02c7f4ebf0dc2b55ad76eb5b91d03ec32eba672672433480dd75b80e779",
+      "bytes": 99108,
+      "source": "live Cloud Run services and revisions",
+      "qualityPass": true,
+      "usedInCut": true,
+      "beats": [
+        "B11"
+      ]
+    },
+    {
+      "sceneId": "cloud-logging-correlation",
+      "sha256": "ccd916391f6a8f38dde906477c6e16423db8a509bde55f64b59945517087fee8",
+      "bytes": 133422,
+      "source": "live Cloud Logging filtered to this run",
+      "qualityPass": true,
+      "usedInCut": true,
+      "beats": [
+        "B15"
+      ]
+    },
+    {
+      "sceneId": "receipt-mutation-observation",
+      "sha256": "381c629fa64bbafec37b07ad4b22c8d074cb2f67a24b2f25e1b2fddd54860d8c",
+      "bytes": 233212,
+      "source": "evidence packet emitted by scene 1's traversal",
+      "qualityPass": true,
+      "usedInCut": true,
+      "beats": [
+        "B13",
+        "B14"
+      ]
+    }
+  ],
+  "unusedPromotedScenes": {
+    "sceneIds": [],
+    "note": "None. Every promoted scene appears in the cut."
+  },
+  "inputs": [
+    {
+      "path": "experiments/hac-324/evidence/capture-package.json",
+      "roles": [
+        "authoritative filmed run - capture manifest"
+      ],
+      "bytes": 5221,
+      "sha256": "58dde0cc6ba94c60f4bdc555a7175f0e3a28676490add3c3c07d1f5189363fa5"
+    },
+    {
+      "path": "experiments/hac-324/evidence/filmed-run.json",
+      "roles": [
+        "authoritative filmed run - record"
+      ],
+      "bytes": 6113,
+      "sha256": "bf31c4ef79806c3590bc08de2f9b977a4b249f315414ca887c8602e800d21a11"
+    },
+    {
+      "path": "experiments/hac-324/evidence/filmed-run.raw.json",
+      "roles": [
+        "authoritative filmed run - emitted bytes"
+      ],
+      "bytes": 4876,
+      "sha256": "297e89303834e3a24ea41eb3731d2f6dffb251aee3ae8421665dfe5b66c61f07"
+    },
+    {
+      "path": "experiments/hac-324/frames/scene-agent-traversal.png",
+      "roles": [
+        "promoted capture scene used at B12"
+      ],
+      "bytes": 93288,
+      "sha256": "102cafb35c0c02f9df1d9518e3be9fd9f361480f12d6f7bb37b3f1e640a1a490"
+    },
+    {
+      "path": "experiments/hac-324/frames/scene-cloud-logging-correlation.png",
+      "roles": [
+        "promoted capture scene used at B15"
+      ],
+      "bytes": 133422,
+      "sha256": "ccd916391f6a8f38dde906477c6e16423db8a509bde55f64b59945517087fee8"
+    },
+    {
+      "path": "experiments/hac-324/frames/scene-cloud-run-topology.png",
+      "roles": [
+        "promoted capture scene used at B11"
+      ],
+      "bytes": 99108,
+      "sha256": "ae6bd02c7f4ebf0dc2b55ad76eb5b91d03ec32eba672672433480dd75b80e779"
+    },
+    {
+      "path": "experiments/hac-324/frames/scene-gemini-adk-attribution.png",
+      "roles": [
+        "promoted capture scene used at B10"
+      ],
+      "bytes": 146792,
+      "sha256": "ee007e9c29c5fea3719fcec6d63d68c1ead5af33fceef4d90a8d1775f24f85c0"
+    },
+    {
+      "path": "experiments/hac-324/frames/scene-receipt-mutation-observation.png",
+      "roles": [
+        "promoted capture scene used at B13",
+        "promoted capture scene used at B14"
+      ],
+      "bytes": 233212,
+      "sha256": "381c629fa64bbafec37b07ad4b22c8d074cb2f67a24b2f25e1b2fddd54860d8c"
+    },
+    {
+      "path": "experiments/hac-330/evidence/arms.json",
+      "roles": [
+        "controlled local experiment - arms"
+      ],
+      "bytes": 5117,
+      "sha256": "dcadc10eb4b963427bdf38916bb9a4a758c035902037bad116325815293795c9"
+    },
+    {
+      "path": "experiments/hac-330/evidence/results.json",
+      "roles": [
+        "controlled local experiment - results"
+      ],
+      "bytes": 12583,
+      "sha256": "acf6ed87d67647f06f7da38467323b3fc8000edd8acda5e8a7d70301e98006aa"
+    },
+    {
+      "path": "experiments/hac-342/evidence/cloud-run.public.json",
+      "roles": [
+        "frozen HAC-340 reference packet"
+      ],
+      "bytes": 4698,
+      "sha256": "ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d"
+    },
+    {
+      "path": "experiments/hac-343/evidence/judge-export.json",
+      "roles": [
+        "bounded evaluation - judge export"
+      ],
+      "bytes": 12191,
+      "sha256": "e3688e86cf5d35b15869bcf212960031c05878b6d5f342b9741f5fa5f8e99dae"
+    },
+    {
+      "path": "media/hac-333/scene-manifest.json",
+      "roles": [
+        "storyboard contract"
+      ],
+      "bytes": 23329,
+      "sha256": "b5afcef606618f89e7d3c63eab8ab2ab5fb9e60d7c24209d3fd7752198816a9c"
+    },
+    {
+      "path": "media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1920x1080-runhac330local.png",
+      "roles": [
+        "frozen export used at B05"
+      ],
+      "bytes": 116084,
+      "sha256": "cf9055667978d78a1a5f65816ac376f56722f5594eaab6abef229e8b3a4ab53a"
+    },
+    {
+      "path": "media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1920x1080-runhac330local.png",
+      "roles": [
+        "frozen export used at B06"
+      ],
+      "bytes": 112823,
+      "sha256": "26ba70a6c1cda6f1645ae213e2149bced9541f92753968bc67b1cdd470a7c639"
+    },
+    {
+      "path": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png",
+      "roles": [
+        "frozen export used at B19"
+      ],
+      "bytes": 171199,
+      "sha256": "11f1d61ee8445d1f0800d7895bf7a54335613c3d462a4eab8e517843f1d0b1a9"
+    },
+    {
+      "path": "media/hac-335/evidence/claim-ledger.json",
+      "roles": [
+        "judge-package claim ledger"
+      ],
+      "bytes": 16945,
+      "sha256": "3dd3a1cfb5e6cf0720d2988fa80d545bed445eca4f1f910c6125f4e5c890df4d"
+    },
+    {
+      "path": "media/hac-335/exports/IL-SCAF-010-video-title-card-1920x1080.png",
+      "roles": [
+        "frozen export used at B01"
+      ],
+      "bytes": 48536,
+      "sha256": "0d238422b53d960ceb2b75f7871f042799bd8578969fd20d2944c7d84e080fa2"
+    },
+    {
+      "path": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+      "roles": [
+        "frozen export used at B21"
+      ],
+      "bytes": 87427,
+      "sha256": "0fd186af922178a972e049f9d70351ceae62e63494270b182dbc8a9ec5ae1946"
+    },
+    {
+      "path": "media/hac-336/evidence/cut.json",
+      "roles": [
+        "edit decision list"
+      ],
+      "bytes": 15625,
+      "sha256": "f3c954113494606d8a63cf3b4930c6bc26fc8762f8d0858ccfabc313a7c6f7d8"
+    },
+    {
+      "path": "media/hac-336/evidence/filmed-run-claims.json",
+      "roles": [
+        "filmed-run claim rows"
+      ],
+      "bytes": 6960,
+      "sha256": "ef4253a3bd3d28cc4bc9bcc9ac31cea304f69b37714f7686c3c232c878990885"
+    },
+    {
+      "path": "media/hac-336/masters/IL-DIAG-020-filmed-run-path-boundary.svg",
+      "roles": [
+        "film board master used at B17"
+      ],
+      "bytes": 4792,
+      "sha256": "222bc44997e9732b28c047e493a29aeae9e3f56e99bf7e627562bed5489c01ef"
+    },
+    {
+      "path": "media/hac-336/masters/IL-DIAG-020-filmed-run-path-path.svg",
+      "roles": [
+        "film board master used at B16"
+      ],
+      "bytes": 10139,
+      "sha256": "b67d8ccf796ff761d5f74491e99302689cb23049e1b4310dea14b6880b837e40"
+    },
+    {
+      "path": "media/hac-336/masters/IL-PROOF-020-composition-hazard-baseline.svg",
+      "roles": [
+        "film board master used at B04"
+      ],
+      "bytes": 3830,
+      "sha256": "9d62da859c43c74e6623f8267f0a542905168a1f1234d9542a9a7b1b89864ca3"
+    },
+    {
+      "path": "media/hac-336/masters/IL-PROOF-020-composition-hazard-coupled.svg",
+      "roles": [
+        "film board master used at B03"
+      ],
+      "bytes": 5492,
+      "sha256": "4c512891c728aa84cf698d5f29b07a1be81781db326b7a316b2c332b969c6925"
+    },
+    {
+      "path": "media/hac-336/masters/IL-PROOF-020-composition-hazard-intents.svg",
+      "roles": [
+        "film board master used at B02"
+      ],
+      "bytes": 3443,
+      "sha256": "567da3a0bbb76eace11b4829fd3c1935c6224acf409c2bcb6be4803f5efe09ac"
+    },
+    {
+      "path": "media/hac-336/masters/IL-PROOF-021-bounded-four-arm-comparison-ablation.svg",
+      "roles": [
+        "film board master used at B08"
+      ],
+      "bytes": 7479,
+      "sha256": "40cbb5f977cbebe24663a6a39f3452a33f342befc17d8b8e840b9abf8d63aa81"
+    },
+    {
+      "path": "media/hac-336/masters/IL-PROOF-021-bounded-four-arm-comparison-comparison.svg",
+      "roles": [
+        "film board master used at B07"
+      ],
+      "bytes": 6917,
+      "sha256": "b1c7e284dcca5a1a2e5f6bf557a8e03aabb6fcec3a6c2ca39501ffda447c8b05"
+    },
+    {
+      "path": "media/hac-336/masters/IL-PROOF-022-evaluation-bounds-bounds.svg",
+      "roles": [
+        "film board master used at B18"
+      ],
+      "bytes": 6187,
+      "sha256": "b6e89f22fea263976acc24a696adbfc3c71d63abb3ed78c6bbf7fe296b9e5ed1"
+    },
+    {
+      "path": "media/hac-336/masters/IL-SCAF-020-proof-class-reset-reset.svg",
+      "roles": [
+        "film board master used at B09"
+      ],
+      "bytes": 4066,
+      "sha256": "71c40a0df15799ffb85abd3017c9017e9b9336eb2fe2151a886b00e94dfdc7b3"
+    },
+    {
+      "path": "media/hac-336/masters/IL-SCAF-021-closing-thesis-thesis.svg",
+      "roles": [
+        "film board master used at B20"
+      ],
+      "bytes": 3199,
+      "sha256": "6274f887c139dfc4f9151d8af6f766efe230707b481671bdd4015e147def7175"
+    }
+  ],
+  "claims": [
+    {
+      "id": "CL-001",
+      "text": "Two changes can each be locally valid yet jointly violate a shared constraint.",
+      "classification": "EDITORIAL",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "Framing for the HAC-330 experiment; the concrete instance is CL-003."
+    },
+    {
+      "id": "CL-002",
+      "text": "Interlock reads revision-bound environment evidence before shared-state mutation and selects a deterministic coordination decision.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-330/evidence/arms.json; media/hac-341/evidence/view-model.json (runs.local.environmentEvidence, runs.local.arms)"
+    },
+    {
+      "id": "CL-003",
+      "text": "Without Interlock the two intents produce 140 > 130, an invalid joint state against the bound sum(services[].reserved) <= 130.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-330/evidence/arms.json (baseline arm); experiments/hac-330/evidence/results.json"
+    },
+    {
+      "id": "CL-004",
+      "text": "With Interlock enabled and the original evidence, the decision is WITHHOLD_SERIALIZE and the joint outcome is 120 <= 130.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-330/evidence/arms.json (treatment arm)"
+    },
+    {
+      "id": "CL-005",
+      "text": "The controlled local experiment reports 24/24 checks.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-330/evidence/results.json"
+    },
+    {
+      "id": "CL-006",
+      "text": "Changing the environment evidence changes the decision to ALLOW_PARALLEL and returns the joint outcome to 140 > 130.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-330/evidence/perturbed.evidence.json; experiments/hac-330/evidence/perturbed.selection.json; experiments/hac-330/evidence/arms.json (perturbed arm)"
+    },
+    {
+      "id": "CL-007",
+      "text": "Each arm is a recorded result; the perturbation is a frozen arm, not a live re-run.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-334/masters/IL-PROOF-011-evidence-load-bearing-runhac330local.svg; media/hac-341/evidence/view-model.json (runs.local.arms)"
+    },
+    {
+      "id": "CL-009",
+      "text": "HAC-330 and HAC-340 are two separate runs with separate evidence. Neither is evidence for the other.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-334/masters/IL-PROOF-014-claim-boundary.svg; media/hac-333/scene-manifest.json (SB-06); media/hac-341/evidence/view-model.json (intentionallyAbsent on both runs)"
+    },
+    {
+      "id": "CL-014",
+      "text": "Three recorded refusals are three controls, not comprehensive attack coverage.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014"
+    },
+    {
+      "id": "CL-015",
+      "text": "Cloud Run IAM establishes transport provenance. It does not establish Google-managed proposer, reviewer or authorizer roles inside Interlock.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json (runtimeProof); media/hac-334/masters/IL-DIAG-012-deployment-trust-boundaries-runilkhac340cloud1786730369123.svg"
+    },
+    {
+      "id": "CL-017",
+      "text": "The public cloud packet is published immutably at commit 75253e38791e69f7e2a4bb3a041044a9114c32f0 and its bytes hash to publicPacketSha256 ea1d6993ca937bb5ae14ad43954e48bd1a91ceb5e959719f8a99492b0b0dbf0d, which any reader can recompute.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-342/evidence/publication-bindings.json; experiments/hac-342/bin/verify-public-packet.mjs"
+    },
+    {
+      "id": "CL-020",
+      "text": "HAC-340 does not reproduce the HAC-330 counterfactual in Google Cloud.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014"
+    },
+    {
+      "id": "CL-027",
+      "text": "HAC-330 did not run on Google Cloud. It is a controlled experiment executed locally.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-010 non-claim strip; media/hac-341/evidence/view-model.json (runs.local.intentionallyAbsent)"
+    },
+    {
+      "id": "CL-021",
+      "text": "Agent Runtime, Agent Gateway and CONTENT_AUTHZ are not on the recorded HAC-340 path.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-342/evidence/cloud-run.public.json; media/hac-334 IL-DIAG-012 (ABSENT FROM THIS DEPLOYMENT)"
+    },
+    {
+      "id": "CL-022",
+      "text": "Wrong-audience token rejection is controlled local parity evidence, not a HAC-340 cloud result.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-341/evidence/view-model.json (negativeControlsNote); media/hac-333/scene-manifest.json (globalNonClaims)"
+    },
+    {
+      "id": "CL-023",
+      "text": "No safety, security, verification, certification or production-readiness guarantee is claimed. ALLOW is not VERIFIED, OBSERVED is not SAFE, and WITHHOLD_SERIALIZE is not human approval, joint authorization or an AUTHORIZED lifecycle state.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014; DISCLOSURE.md"
+    },
+    {
+      "id": "CL-024",
+      "text": "No exactly-once execution, restart-safety, recovery guarantee, fleet-scale readiness or universal collision prevention is claimed.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "media/hac-333/scene-manifest.json (globalNonClaims); media/hac-334 IL-PROOF-014"
+    },
+    {
+      "id": "CL-028",
+      "text": "On a frozen sixteen-scenario corpus, four coordination strategies compare as: Uncoordinated 2/2 hazards unsafe and 2/2 independent opportunities parallel; Global lock 0/2 and 0/2; Per-target lock 2/2 and 2/2; Interlock 0/2 and 2/2.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows"
+    },
+    {
+      "id": "CL-029",
+      "text": "The per-target lock baseline is credible rather than a straw man: it serialized same-target contention 2/2, parallelised cross-target pairs 4/4, and missed cross-target hazards 2/2. A composition hazard spanning two lock keys is not visible to any per-key discipline.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#panel1.perTargetLockCredibility"
+    },
+    {
+      "id": "CL-030",
+      "text": "Interlock's safety in this corpus is evidence-derived: with coupling evidence present it produced 0/2 invalid outcomes, and with that evidence removed the same core produced 2/2 invalid outcomes.",
+      "classification": "EVIDENCED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows"
+    },
+    {
+      "id": "CL-031",
+      "text": "Interlock is not 0% unsafe, is not safer than locking, and the sixteen-scenario corpus is not collapsed into one denominator. No interval or statistical significance is claimed, and no exactly-once, restart-safety or production-readiness result was tested.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-335 claim ledger",
+      "proofSource": "experiments/hac-343/evidence/judge-export.json#mustNotClaim"
+    },
+    {
+      "id": "FR-001",
+      "text": "The recorded traversal ran gemini-3.5-flash.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/model",
+          "value": "gemini-3.5-flash"
+        }
+      ]
+    },
+    {
+      "id": "FR-002",
+      "text": "The agent reached the model through Google ADK 1.35.1 with Vertex AI access, from an image pinned to the runtime source commit.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/adkPath",
+          "value": "Google ADK 1.35.1 / Vertex AI"
+        },
+        {
+          "source": "experiments/hac-324/evidence/capture-package.json",
+          "pointer": "/adk",
+          "value": "Google ADK 1.35.1 / Vertex AI"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/resources/vertexLocation",
+          "value": "global"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/resources/agentImage",
+          "value": "us-central1-docker.pkg.dev/interlock-film-260823/interlock-hac340/interlock-adk:ae6d0d3"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/commitSha",
+          "value": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a"
+        }
+      ]
+    },
+    {
+      "id": "FR-003",
+      "text": "Three Cloud Run services in us-central1 carried the run: the ADK agent, the Interlock MCP proxy and the protected target.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/capture-package.json",
+          "pointer": "/region",
+          "value": "us-central1"
+        },
+        {
+          "source": "experiments/hac-324/evidence/capture-package.json",
+          "pointer": "/revisions/agent",
+          "value": "interlock-hac340-agent-00001-hbk"
+        },
+        {
+          "source": "experiments/hac-324/evidence/capture-package.json",
+          "pointer": "/revisions/proxy",
+          "value": "interlock-hac340-proxy-00001-s76"
+        },
+        {
+          "source": "experiments/hac-324/evidence/capture-package.json",
+          "pointer": "/revisions/target",
+          "value": "interlock-hac340-target-00001-sng"
+        }
+      ]
+    },
+    {
+      "id": "FR-004",
+      "text": "Interlock returned ALLOW with an authorization receipt, under one correlation id.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/decision",
+          "value": "ALLOW"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/receiptId",
+          "value": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/receiptDigest",
+          "value": "sha256:7fb65efe30d89bab241d1f5b8ea00ca58fb732a30b9fb87288a09deab411743f"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/correlationId",
+          "value": "ilk-hac340-cloud-1787536029323"
+        }
+      ]
+    },
+    {
+      "id": "FR-005",
+      "text": "The protected mutation is EXECUTED against that receipt, moving the target from one revision to the next.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/protectedMutation/status",
+          "value": "EXECUTED"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/protectedMutation/receiptId",
+          "value": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/protectedMutation/revisionBefore",
+          "value": "sha256:c78fe996446426339788c38a6a6edaf6b1b8ab72f984c9c72786637148615a10"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/protectedMutation/revisionAfter",
+          "value": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27"
+        }
+      ]
+    },
+    {
+      "id": "FR-006",
+      "text": "The resulting invariant on the protected target is total 105 <= 130.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/protectedMutation/invariant/detail",
+          "value": "total 105 <= 130"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/protectedMutation/invariant/holds",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "FR-007",
+      "text": "The read-back was performed by a dedicated keyless observer service account, independently authenticated and distinct from the provisioning operator.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/resources/observerPrincipal",
+          "value": "serviceAccount:interlock-hac340-observer@interlock-film-260823.iam.gserviceaccount.com"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/resources/operatorPrincipal",
+          "value": "user:qwynn@marcellelabs.io"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/principalProjection/correction/classification",
+          "value": "NON_MATERIAL"
+        },
+        {
+          "source": "experiments/hac-324/evidence/capture-package.json",
+          "pointer": "/externalCallerPrincipal",
+          "value": "serviceAccount:interlock-hac340-observer@interlock-film-260823.iam.gserviceaccount.com"
+        }
+      ]
+    },
+    {
+      "id": "FR-008",
+      "text": "That observation read alpha=45 at the post-mutation revision.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/observation/revision",
+          "value": "sha256:6a8acad8a0f7f4df96548ba9b60714b4a7e350cc480c1ef86f4d677db62b8a27"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/observation/state/services/alpha",
+          "value": 45
+        }
+      ]
+    },
+    {
+      "id": "FR-009",
+      "text": "Three fail-closed controls were recorded on this run: a forged identity header returned 403, an invalid bearer token returned 401, and a direct target call carrying no receipt returned 403.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/controls/forgedHeaderStatus",
+          "value": 403
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/controls/wrongAudienceStatus",
+          "value": 401
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/controls/directBypassStatus",
+          "value": 403
+        }
+      ]
+    },
+    {
+      "id": "FR-010",
+      "text": "Cloud Logging carries a proxy request for this run's correlation id, with the agent identity as the platform verified it and the Cloud Run revision that served it.",
+      "classification": "EVIDENCED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/runtimeProof/proxyLogEntries/0/jsonPayload/correlationId",
+          "value": "ilk-hac340-cloud-1787536029323"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/runtimeProof/proxyLogEntries/0/jsonPayload/identitySource",
+          "value": "oidc-id-token/platform-verified:email"
+        },
+        {
+          "source": "experiments/hac-324/evidence/filmed-run.json",
+          "pointer": "/runtimeProof/proxyLogEntries/0/resource/labels/revision_name",
+          "value": "interlock-hac340-proxy-00001-s76"
+        }
+      ]
+    },
+    {
+      "id": "FR-011",
+      "text": "Agent Runtime, Agent Gateway and CONTENT_AUTHZ were not on the recorded path, and Cloud Run IAM establishes transport provenance only.",
+      "classification": "NOT CLAIMED",
+      "source": "HAC-336 filmed-run claim rows",
+      "resolved": [
+        {
+          "source": "media/hac-333/scene-manifest.json",
+          "pointer": "/globalNonClaims",
+          "value": [
+            "HAC-330 did not run on Google Cloud",
+            "HAC-340 does not reproduce the 140/120 counterfactual",
+            "Agent Runtime did not participate",
+            "Agent Gateway did not participate",
+            "CONTENT_AUTHZ is not on the HAC-340 path",
+            "wrong-audience-token rejection is local parity evidence, not a HAC-340 cloud result",
+            "HAC-316 is failed/pivoted provenance and is not a passing proof packet",
+            "WITHHOLD_SERIALIZE is not human approval, joint authorization or certification",
+            "ALLOW plus receipt is not an AUTHORIZED lifecycle state; no HAC-317 lifecycle vocabulary is imported",
+            "no exactly-once, restart-safety or recovery guarantee is claimed (HAC-327 out of scope)",
+            "no safety, security, verification or production-readiness guarantee is claimed",
+            "three cloud negative controls are three controls, not comprehensive attack coverage"
+          ]
+        }
+      ]
+    }
+  ],
+  "narrationSource": {
+    "path": "media/hac-336/evidence/cut.json",
+    "sha256": "f3c954113494606d8a63cf3b4930c6bc26fc8762f8d0858ccfabc313a7c6f7d8",
+    "note": "The narration and caption text is authored in the cut and nowhere else. The caption files are generated from it, so a caption cannot drift from the scene map."
+  },
+  "timeline": {
+    "totalSeconds": 229.5,
+    "holdSum": 237.5,
+    "transitions": 20,
+    "beats": 21
+  }
+}
