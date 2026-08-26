@@ -192,6 +192,15 @@
       "rationale": "The judge-facing surface for pinned runs, including the cold-read kit. Product."
     },
     {
+      "id": "judge-landing-surface",
+      "title": "Consequence-first judge landing surface",
+      "paths": [
+        "media/hac-349"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "This submission's front door, its claim gate and its cold-read kit. Product, on the same reasoning as the cockpit beside it: the surface explains one frozen experiment and its copy is bounded by that experiment's own mustNotClaim list, so there is nothing to generalize without generalizing the claim boundary with it. The reusable half — binding judge-facing prose to frozen evidence pointers and mechanically refusing forbidden claims — is already claimed one row up as evidence-bound media under judge-package-and-asset-registry; a second harvest row for the same general capability would split one owner across two."
+    },
+    {
       "id": "architecture-visual-suite",
       "title": "Evidence-bound architecture visual suite",
       "paths": [

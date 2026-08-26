@@ -155,6 +155,7 @@ scripts are not needed to preserve it.
 | Capability | Path | Disposition | Owner |
 | --- | --- | --- | --- |
 | Judge verification cockpit | `hac-341` | `KEEP` | — |
+| Consequence-first judge landing surface | `hac-349` | `KEEP` | — |
 | Evidence-bound architecture visual suite | `hac-334` | `HARVEST → Studio v3` | **HAC-324** |
 | Judge package and asset registry | `hac-335` | `HARVEST → Studio v3` | **HAC-324** |
 | Evidence-bound final cut assembly | `hac-336` | `HARVEST → Studio v3` | **HAC-324** |
@@ -219,17 +220,17 @@ a search that had to be widened to find one.
 
 ## Summary
 
-<!-- counts: {"total":26,"KEEP_INTERLOCK":11,"HARVEST_STANDARD_RESEARCH":4,"HARVEST_STUDIO":5,"HARVEST_SWARM":3,"HARVEST_INTEGRATIONS":1,"DELETE_HACKATHON_ONLY":2} -->
+<!-- counts: {"total":27,"KEEP_INTERLOCK":12,"HARVEST_STANDARD_RESEARCH":4,"HARVEST_STUDIO":5,"HARVEST_SWARM":3,"HARVEST_INTEGRATIONS":1,"DELETE_HACKATHON_ONLY":2} -->
 
 | Disposition | Count |
 | --- | --- |
-| `KEEP → Interlock reference app` | 11 |
+| `KEEP → Interlock reference app` | 12 |
 | `HARVEST → workspacejson/standard research` | 4 |
 | `HARVEST → Studio v3` | 5 |
 | `HARVEST → ai-swarm / Swarm Evolution` | 3 |
 | `HARVEST → workspacejson/integrations` | 1 |
 | `DELETE → hackathon-only machinery` | 2 |
-| **Total** | **26** |
+| **Total** | **27** |
 
 23 capabilities and 3 findings. These counts are checked against the inventory on
 every run, so they cannot drift.
@@ -238,8 +239,9 @@ every run, so they cannot drift.
 correct over a hand-written table and is not reproducible from the repository:
 several rows split one directory into multiple entries, and one row recorded a
 `workspacejson.dev` accessibility finding that is not an Interlock capability at
-all. 26 is what the inventory produces. The discrepancy is the argument for the
-gate.
+all. The inventory is what produces the number, and it moves when the
+repository does: 26 when that draft was written, 27 once HAC-349 added the judge
+landing surface. The discrepancy is the argument for the gate.
 
 ## Deliberate absences
 
