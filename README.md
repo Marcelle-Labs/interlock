@@ -50,12 +50,18 @@ Nothing in it executes — every value is read out of a frozen record.
 
 <sub>Real capture of `media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1` at 1440×900, cropped to the rendered content.</sub>
 
-Serve the repository root — the cockpit resolves its identity assets from
-`/assets` — and open the deep links:
+Serve the repository root — every surface resolves its identity assets from
+`/assets` — and start at the judge path:
 
 ```sh
 python3 -m http.server 4173
 ```
+
+[`/media/hac-349/landing.html`](http://127.0.0.1:4173/media/hac-349/landing.html)
+is the front door (`/` in deployment): the composition problem, why a credible
+per-target lock does not cover it, the bounded four-arm comparison and the
+evidence ablation, with routes into the cockpit from there. The cockpit is the
+verification layer, reachable directly by deep link:
 
 | | |
 | -- | -- |
@@ -251,6 +257,7 @@ Individual gates:
 | `pnpm check:packet` | the frozen HAC-330 experiment packet |
 | `pnpm check:packet:public` | the HAC-342 public cloud packet and its bindings |
 | `pnpm check:cockpit` | the HAC-341 judge cockpit contract |
+| `pnpm check:landing` | the HAC-349 judge landing contract and its claim gate |
 | `pnpm check:visuals` | the HAC-334 visual suite against frozen evidence |
 | `pnpm check:storyboard` | the HAC-333 storyboard timing and proof classes |
 | `pnpm check:identity` | the HAC-332 identity boundary |
