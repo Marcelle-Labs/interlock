@@ -763,6 +763,118 @@ jobs:
             echo "required semantic regions merely to recover green."
           } >> "$GITHUB_STEP_SUMMARY"
 
+  landing-contract-gate:
+    name: Judge landing contract gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the judge landing contract
+        run: pnpm run check:landing
+
+      - name: The landing model is derived, not hand-edited
+        run: |
+          set -euo pipefail
+          # Rebuilding from frozen HAC-343 evidence must reproduce the committed
+          # bytes. If it does not, a judge-facing figure was typed in rather than
+          # bound, and the front door no longer describes the experiment.
+          cp media/hac-349/evidence/landing-model.json /tmp/committed-landing-model.json
+          pnpm run landing:build
+          diff -u /tmp/committed-landing-model.json media/hac-349/evidence/landing-model.json
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Judge landing contract gate failed"
+            echo
+            echo "**Invariant.** Every figure on \`/\` is bound to a pointer into frozen"
+            echo "HAC-343 evidence; the four-arm comparison never ships without the"
+            echo "evidence-ablation panel beside it; the per-target lock is shown as credible"
+            echo "before it is shown as limited; the exact decision tokens keep their glosses"
+            echo "rather than being replaced by them; no forbidden claim from"
+            echo "\`judge-export.json#mustNotClaim\` is asserted; and the local evaluation and"
+            echo "the Google Cloud run do not share a value."
+            echo
+            echo "**Why it matters.** This is the first thing a judge reads. A figure that is"
+            echo "easier to read than the evidence supports is the most expensive defect on"
+            echo "this surface, and it is invisible without a gate."
+            echo
+            echo "**Authority.** Repository CI, reported as \`Judge landing contract gate\`."
+            echo
+            echo "**Evidence required.** \`pnpm run check:landing\` passing, and"
+            echo "\`pnpm run landing:build\` reproducing the committed landing model."
+            echo
+            echo "**Do not weaken.** Do not hand-edit the landing model, do not delete a"
+            echo "forbidden-claim pattern to ship a headline, and do not drop the corpus bound"
+            echo "to make a sentence shorter. If the evidence changed, rebuild from it."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  landing-visual-contract-gate:
+    name: Judge landing visual contract gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install repository dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # Browser tooling stays external to the repository package, for the same
+      # reason the cockpit visual gate keeps it there: the evidence gates must
+      # still install without a browser.
+      - name: Install pinned browser runner
+        run: |
+          set -euo pipefail
+          npm install --ignore-scripts --prefix /tmp/interlock-playwright playwright@1.56.1
+          /tmp/interlock-playwright/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Verify the rendered judge path
+        env:
+          PLAYWRIGHT_MODULE: /tmp/interlock-playwright/node_modules/playwright
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/interlock-landing-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 20); do
+            curl --fail --silent http://127.0.0.1:4173/media/hac-349/landing.html >/dev/null && break
+            sleep 0.25
+          done
+          curl --fail --silent http://127.0.0.1:4173/media/hac-349/landing.html >/dev/null
+          pnpm run check:landing:visual -- --base http://127.0.0.1:4173
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Judge landing visual contract gate failed"
+            echo
+            echo "**Invariant.** The complete L1 proposition — thesis, two agents, two distinct"
+            echo "targets, one shared constraint, both local validities and the invalid joint"
+            echo "outcome, and one continuation — is inside the first frame unscrolled at"
+            echo "1440x900 and 1280x800 with 48px headroom, and needs no HAC id, decision enum"
+            echo "or digest to read. Reduced motion and \`?static=1\` render the same text"
+            echo "character for character. Every keyboard stop has a name, a visible focus ring"
+            echo "and a 44px target. No off-origin request is made. Mobile unfolds vertically"
+            echo "instead of compressing the desktop argument."
+            echo
+            echo "**Evidence required.** Run a repository-root server and then"
+            echo "\`PLAYWRIGHT_MODULE=/path/to/playwright pnpm run check:landing:visual\`."
+            echo "Repair the layout; do not lower the viewport, the headroom or the required"
+            echo "first-frame regions to recover green."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   visual-suite-gate:
     name: Visual suite gate
     runs-on: ubuntu-24.04
