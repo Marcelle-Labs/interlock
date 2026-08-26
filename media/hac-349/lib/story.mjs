@@ -195,6 +195,19 @@ export const FORBIDDEN_CLAIMS = [
   [/\block(s|ing)?\s+(do\s+not|don.t|doesn.t|never)\s+work\b/i, 'the per-target lock is a credible baseline and is not a straw man', { absolute: true }],
   [/\bpaused\s+for\s+safety\b/i, 'WITHHOLD_SERIALIZE is a coordination decision, not a safety verdict'],
   [/\bcatastroph/i, 'an invalid joint state is not characterised as a catastrophe', { absolute: true }],
+  /* HAC-343 established a *scope* boundary: the hazard spans two lock keys and
+     is outside a per-key discipline's visibility. It established nothing about
+     what an agent knew, could have discovered, or was capable of observing —
+     no arm of the experiment modelled agent cognition at all. The two claims
+     read almost identically and are not the same claim, and the second is the
+     easier one to write by accident.
+     Absolute, for the reason the two patterns above are: the natural phrasing
+     is "*neither* agent could see it", and `neither` is a negator, so a
+     windowed pattern would excuse the sentence it exists to catch. */
+  [/\b(agents?|intents?)\b[^.]{0,40}\b(could|can|would|did)\s+(not\s+)?(see|know|detect|observe|tell)\b/i,
+    'the experiment measured a coordination scope boundary, not what an agent knew or could observe', { absolute: true }],
+  [/\b(agents?|intents?)\b[^.]{0,25}\b(knew|unaware|oblivious)\b/i,
+    'no arm of the experiment modelled agent knowledge', { absolute: true }],
   [/\bthe\s+route\s+is\s+secure\b/i, 'three recorded controls are three controls, not general security coverage'],
   [/statistical(ly)?\s+significan/i, 'the corpus is an exhaustive deterministic enumeration, not a sample'],
   [/confidence\s+interval/i, 'no interval is claimed'],

@@ -138,6 +138,9 @@ describe('the claim gate bites', () => {
     'Locks do not work for this problem.',
     'The intent was paused for safety.',
     'Without coordination the result is a catastrophic failure of the budget.',
+    'Neither agent could see that from its own target.',
+    'The agents could not detect the relationship between the two files.',
+    'Each agent was unaware of the other reservation.',
     'The three controls show the route is secure.',
     'The improvement is statistically significant.',
     'We report a 95% confidence interval on the rate.',
@@ -174,9 +177,21 @@ describe('the claim gate bites', () => {
     // were marked absolute the window read that negator as a disclaimer and
     // passed them.
     for (const copy of ['Locks do not work for this problem.',
-      'Without coordination the result is a catastrophic failure.']) {
+      'Without coordination the result is a catastrophic failure.',
+      // `Neither` is a negator, so the window excused this one too. HAC-343
+      // measured a coordination scope boundary, not agent cognition.
+      'Neither agent could see that from its own target.']) {
       expect(forbiddenHits(copy), copy).not.toEqual([]);
     }
+  });
+
+  it('separates the scope boundary from a claim about agent cognition', () => {
+    // The distinction the surface has to hold: what a per-key discipline can
+    // represent is measured; what an agent knew is not.
+    expect(forbiddenHits('A lock scoped to either target cannot represent the relationship.')).toEqual([]);
+    expect(forbiddenHits('The constraint belongs to the environment, not to either target.')).toEqual([]);
+    expect(forbiddenHits('It locked exactly what a lock can see.')).toEqual([]);
+    expect(forbiddenHits('Neither agent could see the relationship.')).not.toEqual([]);
   });
 
   it('still applies the negation window to the patterns that need it', () => {
