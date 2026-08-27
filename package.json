@@ -25,7 +25,7 @@
     "check:packet:s2": "node experiments/hac-326/bin/verify-packet.mjs",
     "check:packet:eval": "pnpm run build && node experiments/hac-343/bin/verify-packet.mjs",
     "check:filmed-run": "node experiments/hac-324/bin/verify-filmed-run.mjs",
-    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:packet:eval && pnpm run check:filmed-run && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:visuals && pnpm run check:identity && pnpm run check:package && pnpm run check:film",
+    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:packet:eval && pnpm run check:filmed-run && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:visuals && pnpm run check:identity && pnpm run check:package && pnpm run check:film && pnpm run check:replay",
     "check:cockpit": "node media/hac-341/bin/verify-cockpit.mjs",
     "check:cockpit:visual": "node media/hac-341/bin/verify-cockpit-visual.mjs",
     "check:package": "node media/hac-335/bin/verify-package.mjs",
@@ -46,7 +46,11 @@
     "check:film": "node media/hac-336/bin/verify-film.mjs",
     "film:build": "node media/hac-336/bin/build-boards.mjs && node media/hac-336/bin/build-frames.mjs && node media/hac-336/bin/build-captions.mjs && node media/hac-336/bin/build-input-manifest.mjs",
     "film:derive": "node media/hac-336/bin/build-boards.mjs && node media/hac-336/bin/build-captions.mjs && node media/hac-336/bin/build-input-manifest.mjs",
-    "film:render": "node media/hac-336/bin/build-video.mjs"
+    "film:render": "node media/hac-336/bin/build-video.mjs",
+    "check:replay": "node media/hac-350/bin/verify-replay.mjs",
+    "replay:build": "node media/hac-350/bin/build-bindings.mjs && node media/hac-350/bin/render-frames.mjs && node media/hac-350/bin/render-frames.mjs --reduced",
+    "replay:render": "node media/hac-350/bin/build-video.mjs",
+    "replay:review": "node media/hac-350/bin/render-frames.mjs --debug"
   },
   "devDependencies": {
     "@resvg/resvg-js": "2.6.2",
