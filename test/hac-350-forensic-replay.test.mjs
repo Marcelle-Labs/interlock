@@ -19,7 +19,8 @@ import {
 } from '../media/hac-334/bin/lib/motion.mjs';
 import { plateAt, semanticsAt, seq, SCENES } from '../media/hac-350/bin/lib/replay.mjs';
 import { composePlate } from '../media/hac-350/bin/lib/plate.mjs';
-import { assertWorldInvariants, FRAME, ruleY, SCALE, COLUMNS } from '../media/hac-350/bin/lib/world.mjs';
+import { assertWorldInvariants, FRAME, ruleY, SCALE, COLUMNS, BAR_W, heightOf } from '../media/hac-350/bin/lib/world.mjs';
+import { frameTimes as _frameTimes } from '../media/hac-334/bin/lib/motion.mjs';
 
 const repoRoot = join(import.meta.dirname, '..');
 const bindings = JSON.parse(readFileSync(join(repoRoot, 'media/hac-350/evidence/bindings.json'), 'utf8'));
@@ -194,6 +195,78 @@ describe('semantic state matches the frozen HAC-343 record', () => {
     for (const held of ['same intents', 'same final tree', 'same commit count', 'history perturbed']) {
       expect(t).toContain(held);
     }
+  });
+});
+
+/* -- the S7 -> S8 discontinuity ------------------------------------------- */
+
+/**
+ * The causal climax, guarded structurally.
+ *
+ * S7 records that the peer was withheld and *not applied in that run*. S8 is a
+ * different run under a perturbed history. The failure mode this whole block
+ * exists to forbid is the reading "beta waited, and then resumed" — which is
+ * what the plate would show if beta's bar filled in from its withheld outline
+ * while alpha stayed where S7 left it.
+ *
+ * A comment saying the cut re-enters from the pre-state is not a control. These
+ * are: the two bars must move in lockstep for every frame of S8, alpha's height
+ * must *drop* across the boundary, and the withheld treatment must not appear
+ * in S8 at all. Together they make the continuation reading unrepresentable
+ * rather than merely absent.
+ */
+describe('S7 -> S8 is a re-entry, not a continuation', () => {
+  const S8 = { start: 25.5, end: 29.0 };
+  const barAt = (t, name) => nodesAt(t)
+    .find((n) => n.t === 'rect' && n.x === COLUMNS[name] && n.w === BAR_W) ?? null;
+  const s8Frames = _frameTimes(30, 30).filter((t) => t >= S8.start && t < S8.end);
+  const pre = heightOf(bindings.targets.beta.pre);
+  const intent = heightOf(bindings.targets.beta.intent);
+
+  it('drops alpha across the boundary instead of carrying it over', () => {
+    const last7 = barAt(25.467, 'alpha');
+    const first8 = barAt(25.5, 'alpha');
+    expect(last7.h).toBe(intent);
+    expect(first8.h).toBe(pre);
+    // The discontinuity itself. A continuation keeps alpha at its intent value.
+    expect(first8.h).toBeLessThan(last7.h);
+  });
+
+  it('re-enters with both targets at the pre-state', () => {
+    for (const name of ['alpha', 'beta']) {
+      expect(barAt(25.5, name).h, name).toBe(heightOf(bindings.targets[name].pre));
+    }
+  });
+
+  it('moves alpha and beta in lockstep through every frame of S8', () => {
+    // "beta resumed after waiting" requires the two to differ. They never do.
+    for (const t of s8Frames) {
+      expect(barAt(t, 'beta').h, `t=${t}`).toBe(barAt(t, 'alpha').h);
+    }
+  });
+
+  it('never shows the withheld treatment in S8', () => {
+    for (const t of s8Frames) {
+      const beta = barAt(t, 'beta');
+      expect(beta.dash, `t=${t}`).toBeFalsy();
+      expect(beta.fill, `t=${t}`).toBeTruthy();
+    }
+  });
+
+  it('never fills the withheld peer at any instant of S7', () => {
+    for (const t of _frameTimes(30, 30).filter((x) => x >= 21.5 && x < 25.5)) {
+      const beta = barAt(t, 'beta');
+      expect(beta.h, `t=${t}`).toBe(pre);
+      expect(beta.dash, `t=${t}`).toBeTruthy();
+      expect(beta.fill, `t=${t}`).toBeNull();
+    }
+  });
+
+  it('keeps the recorded outcomes on opposite sides of the ceiling', () => {
+    expect(bindings.scenes.S7.holds).toBe(true);
+    expect(bindings.scenes.S8.holds).toBe(false);
+    expect(bindings.scenes.S7.total).toBeLessThan(bindings.invariant.ceiling);
+    expect(bindings.scenes.S8.total).toBeGreaterThan(bindings.invariant.ceiling);
   });
 });
 

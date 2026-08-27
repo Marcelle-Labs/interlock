@@ -1055,6 +1055,80 @@ jobs:
   # runner and adding it would make the gate depend on a tool that can be absent,
   # which is how a gate becomes a comment. `verify-film.mjs` reads the committed
   # MP4's own boxes instead.
+  forensic-replay-gate:
+    name: Forensic replay gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Verify the thirty-second replay
+        run: pnpm run check:replay
+
+      # The bindings are a pure function of the frozen HAC-343 and HAC-330
+      # artifacts. The stills are not — resvg's text rasterisation is not
+      # byte-identical across hosts — so the SVG masters are rebuilt and diffed
+      # and the PNGs are bound by their source digest, as HAC-334 established.
+      - name: The bindings and masters are derived, not hand-edited
+        run: |
+          set -euo pipefail
+          pnpm run replay:build
+          if ! git diff --exit-code -- \
+            media/hac-350/evidence/bindings.json \
+            media/hac-350/masters/*.svg; then
+            echo "::error::a derived replay artifact differs from its rebuild"
+            exit 1
+          fi
+
+      - name: Every replay invariant is proven to fail when violated
+        run: pnpm vitest run test/hac-350-forensic-replay.test.mjs
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Forensic replay gate failed"
+            echo
+            echo "**Invariant.** The thirty-second cut renders a record and does not run"
+            echo "one. Every figure on screen is read out of a frozen HAC-343 or HAC-330"
+            echo "artifact and carries the JSON pointer it came from. The frame at t is a"
+            echo "pure function of t, so a canonical still is frame n of the export rather"
+            echo "than a second rendering of the scene. One persistent world: the three"
+            echo "target anchors are identical in every scene that draws the strip, and S8"
+            echo "draws the same boundary rectangle as S7. Semantic state never"
+            echo "interpolates. The reduced-motion path settles rather than disabling. No"
+            echo "annotation, no readiness or guarantee claim, no broken-lock imagery, no"
+            echo "live-execution language, no class-B Cloud material and no receipt-level"
+            echo "counts reach a production master."
+            echo
+            echo "**Why it matters.** S7 records that the peer was withheld and not applied"
+            echo "in that run; S8 records a different run under a perturbed history. If the"
+            echo "cut let beta fill in from its withheld outline it would be animating the"
+            echo "withheld peer executing, which is the one thing the record says did not"
+            echo "happen. The S7 -> S8 discontinuity is asserted structurally, not described"
+            echo "in a comment."
+            echo
+            echo "**Authority.** HAC-343 is the frozen evidence authority; the approved"
+            echo "Forensic Replay storyboard is the visual and motion contract; HAC-350 is"
+            echo "the execution contract; HAC-334 owns the display list and the time axis."
+            echo
+            echo "**Evidence required.** \`pnpm run check:replay\` passing, the bindings and"
+            echo "SVG masters matching their rebuild, and the test suite showing each"
+            echo "invariant still fails when violated."
+            echo
+            echo "**Do not weaken.** Do not hand-edit \`evidence/bindings.json\` — re-run"
+            echo "\`pnpm run replay:build\`. Do not move a target column to make a label fit."
+            echo "Do not bring the ceiling rule inside a policy boundary. Do not soften the"
+            echo "S8 re-entry into a continuation, and do not add a crossfade across a scene"
+            echo "boundary: a blend of two scenes is a state the record does not contain."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   final-media-gate:
     name: Final media gate
     runs-on: ubuntu-24.04
