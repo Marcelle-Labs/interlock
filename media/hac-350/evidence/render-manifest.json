@@ -1,0 +1,31 @@
+{
+  "issue": "HAC-350",
+  "kind": "render-manifest",
+  "file": "IL-MOT-021-forensic-replay-1920x1080.mp4",
+  "sha256": "73c408ed9b89c9cdb4408379c844a9e9e782c4fc18ba2d79c2b2bc40b30e0958",
+  "bytes": 1196852,
+  "reduced": false,
+  "authoredDuration": 30,
+  "measuredDuration": 30,
+  "width": 1920,
+  "height": 1080,
+  "codec": "h264",
+  "pixelFormat": "yuv420p",
+  "frames": 900,
+  "fps": 30,
+  "framesPerScene": {
+    "S1": 120,
+    "S2": 120,
+    "S3": 150,
+    "S4": 120,
+    "S5": 75,
+    "S6": 60,
+    "S7": 120,
+    "S8": 105,
+    "END": 30
+  },
+  "audioStreams": 0,
+  "encoder": "ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers",
+  "encoderPath": "/opt/homebrew/bin/ffmpeg",
+  "bindingsSha256": "b3a092a5ea3815dbf2e765ad2c7bf9c86ab6db9e038f500a9994bec12f76b887"
+}
