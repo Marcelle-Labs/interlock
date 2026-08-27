@@ -240,6 +240,14 @@ const FORBIDDEN = [
   const dir = join(pkgDir, 'masters');
   const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.svg')) : [];
   if (files.length === 0) fail('no rendered masters to check — run render-frames.mjs');
+  // Both passes, whole. The reduced pass used to clear the normal one's output,
+  // which left a half set that no check noticed because the two carry the same
+  // text; the count is what makes the omission visible.
+  const expected = canonicalTimes(seq).length;
+  const normal = files.filter((f) => !f.includes('-reduced.')).length;
+  const reducedCount = files.filter((f) => f.includes('-reduced.')).length;
+  if (normal !== expected) fail(`masters: ${normal} normal stills, expected ${expected}`);
+  if (reducedCount !== expected) fail(`masters: ${reducedCount} reduced-motion stills, expected ${expected}`);
   for (const f of files) {
     const body = readFileSync(join(dir, f), 'utf8').toLowerCase();
     for (const [needle, why] of FORBIDDEN) {
