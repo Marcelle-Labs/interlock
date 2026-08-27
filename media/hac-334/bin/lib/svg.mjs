@@ -11,6 +11,8 @@ const esc = (s) => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const dashAttr = (d) => (d ? ` stroke-dasharray="${d}"` : '');
+/** Emitted only when it is not 1, so a board that never fades encodes unchanged. */
+const op = (n) => ((n.opacity ?? 1) === 1 ? '' : ` opacity="${n.opacity}"`);
 const num = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, ''));
 
 function node(n) {
@@ -22,15 +24,15 @@ function node(n) {
     case 'line':
       return `<line x1="${num(n.x1)}" y1="${num(n.y1)}" x2="${num(n.x2)}" y2="${num(n.y2)}"`
         + ` stroke="${n.stroke}" stroke-width="${num(n.width)}"${dashAttr(n.dash)}`
-        + ` stroke-linecap="${n.cap}"/>`;
+        + ` stroke-linecap="${n.cap}"${op(n)}/>`;
     case 'path':
       return `<path d="${n.d}" fill="${n.fill ?? 'none'}" stroke="${n.stroke ?? 'none'}"`
         + ` stroke-width="${num(n.width)}"${dashAttr(n.dash)} stroke-linecap="${n.cap}"`
-        + ` stroke-linejoin="${n.join}"/>`;
+        + ` stroke-linejoin="${n.join}"${op(n)}/>`;
     case 'circle':
       return `<circle cx="${num(n.cx)}" cy="${num(n.cy)}" r="${num(n.r)}"`
         + ` fill="${n.fill ?? 'none'}" stroke="${n.stroke ?? 'none'}" stroke-width="${num(n.width)}"`
-        + `${dashAttr(n.dash)}/>`;
+        + `${dashAttr(n.dash)}${op(n)}/>`;
     case 'text': {
       const anchor = n.anchor === 'start' ? '' : ` text-anchor="${n.anchor === 'end' ? 'end' : 'middle'}"`;
       return `<text x="${num(n.x)}" y="${num(n.y)}"`
