@@ -208,8 +208,8 @@
       ],
       "disposition": "HARVEST_STUDIO",
       "ownerIssue": "HAC-324",
-      "ownerAmendedAt": "2026-08-25",
-      "rationale": "Generates architecture and proof visuals from machine-readable state. test/hac-334-gate-perturbation.test.mjs travels with it: a pipeline that cannot demonstrate its own gate failing is the vacuous-green case META-337 eliminated."
+      "ownerAmendedAt": "2026-08-27",
+      "rationale": "Generates architecture and proof visuals from machine-readable state. test/hac-334-gate-perturbation.test.mjs travels with it: a pipeline that cannot demonstrate its own gate failing is the vacuous-green case META-337 eliminated. bin/lib/motion.mjs extends the same library with a time axis — semantic and presentation tracks, deterministic state-at-time, and a reduced-motion equivalent — earned by HAC-350 needing a frame at t that does not depend on having played the cut. It is Interlock-agnostic and harvests with the rest of the suite."
     },
     {
       "id": "judge-package-and-asset-registry",
@@ -232,6 +232,15 @@
       "ownerIssue": "HAC-324",
       "ownerAmendedAt": "2026-08-25",
       "rationale": "Composes a cut from an authored edit decision list and frozen artifacts, and gates the result against them: an input manifest with content digests, a scene map from timestamp to source artifact to claim, and a render manifest read back out of the encoded file. The general capability is an edit that cannot outrun its evidence, which is the same Studio customer as hac-334 and hac-335. The frames and the cut itself are this submission's, and are carried as the pipeline's output rather than as a second capability."
+    },
+    {
+      "id": "forensic-replay-composition",
+      "title": "Forensic Replay motion composition",
+      "paths": [
+        "media/hac-350"
+      ],
+      "disposition": "KEEP_INTERLOCK",
+      "rationale": "Renders the frozen thirty-second Forensic Replay as deterministic coded motion. What it contains is Interlock story and proof semantics: the eight-scene contract, the target geometry, the withheld-peer and evidence-ablation grammar, and presentation bindings read out of HAC-343 and HAC-330. None of that generalises, and generalising it into Studio would put product semantics in a rendering substrate. The reusable half — a deterministic state-at-time timeline over the display list — was earned by this composition and placed in hac-334's library instead, where it travels under that row's HARVEST_STUDIO disposition."
     },
     {
       "id": "storyboard-assembly",

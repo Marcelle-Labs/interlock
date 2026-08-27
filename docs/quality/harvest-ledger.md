@@ -159,6 +159,7 @@ scripts are not needed to preserve it.
 | Evidence-bound architecture visual suite | `hac-334` | `HARVEST → Studio v3` | **HAC-324** |
 | Judge package and asset registry | `hac-335` | `HARVEST → Studio v3` | **HAC-324** |
 | Evidence-bound final cut assembly | `hac-336` | `HARVEST → Studio v3` | **HAC-324** |
+| Forensic Replay motion composition | `hac-350` | `KEEP` | — |
 | Muted storyboard assembly | `hac-333` | `DELETE` | — |
 
 **The asset registry is the Studio harvest worth naming.** Binding every exported
@@ -220,7 +221,7 @@ a search that had to be widened to find one.
 
 ## Summary
 
-<!-- counts: {"total":27,"KEEP_INTERLOCK":12,"HARVEST_STANDARD_RESEARCH":4,"HARVEST_STUDIO":5,"HARVEST_SWARM":3,"HARVEST_INTEGRATIONS":1,"DELETE_HACKATHON_ONLY":2} -->
+<!-- counts: {"total":28,"KEEP_INTERLOCK":13,"HARVEST_STANDARD_RESEARCH":4,"HARVEST_STUDIO":5,"HARVEST_SWARM":3,"HARVEST_INTEGRATIONS":1,"DELETE_HACKATHON_ONLY":2} -->
 
 | Disposition | Count |
 | --- | --- |
