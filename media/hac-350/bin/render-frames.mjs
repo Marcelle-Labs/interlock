@@ -59,14 +59,19 @@ if (has('--at')) {
   times = canonicalTimes(seq);
 }
 
+const suffix = reduced ? '-reduced' : '';
+
 mkdirSync(outDir, { recursive: true });
 if (!has('--at')) {
+  // Clear only this pass's own output. Clearing the whole directory meant the
+  // reduced-motion pass deleted the normal stills, and since `replay:build`
+  // runs normal then reduced, the committed masters were always half a set —
+  // with nothing red, because the two passes carry the same text.
+  const mine = (f) => (reduced ? f.includes('-reduced.') : !f.includes('-reduced.'));
   for (const f of existsSync(outDir) ? readdirSync(outDir) : []) {
-    if (f.endsWith('.svg') || f.endsWith('.png')) rmSync(join(outDir, f));
+    if ((f.endsWith('.svg') || f.endsWith('.png')) && mine(f)) rmSync(join(outDir, f));
   }
 }
-
-const suffix = reduced ? '-reduced' : '';
 const manifest = [];
 
 for (const { id, t } of times) {
