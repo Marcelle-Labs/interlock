@@ -27,7 +27,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { plateAt, semanticsAt, seq, SCENES, buildTracks } from './lib/replay.mjs';
 import { composePlate } from './lib/plate.mjs';
-import { assertWorldInvariants, SCALE, BASE_Y, COLUMNS, FRAME, ruleY } from './lib/world.mjs';
+import { assertWorldInvariants, SCALE, BASE_Y, COLUMNS, BAR_W, FRAME, ruleY, heightOf } from './lib/world.mjs';
 import { frameTimes, canonicalTimes, settle, frameAt } from '../../hac-334/bin/lib/motion.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -141,6 +141,59 @@ if (bindings.scenes.S8.couplings !== 0) fail('S8: the perturbed record still car
 if (bindings.scenes.S8.total !== 140 || bindings.scenes.S8.holds !== false) fail('S8: the recorded total is not a failing 140');
 if (bindings.scenes.S1.total !== 140) fail('S1: the recorded joint total is not 140');
 if (bindings.scenes.S2.total !== 120) fail('S2: the single-intent replays do not total 120');
+
+/**
+ * The S7 -> S8 discontinuity.
+ *
+ * S7 records that the peer was withheld and not applied in that run. S8 records
+ * a different run under a perturbed history. The reading this refuses is "beta
+ * waited, and then resumed", which is what the plate would show if beta filled
+ * in from its withheld outline while alpha stayed where S7 left it.
+ *
+ * Asserted rather than commented, because it is the causal climax of the cut
+ * and the failure would look like a smoother transition.
+ */
+{
+  const barAt = (t, name) => plateAt(t, bindings).nodes
+    .find((n) => n.t === 'rect' && n.x === COLUMNS[name] && n.w === BAR_W) ?? null;
+  const preH = heightOf(bindings.targets.beta.pre);
+  const intentH = heightOf(bindings.targets.beta.intent);
+
+  const lastS7 = barAt(25.467, 'alpha');
+  const firstS8 = barAt(25.5, 'alpha');
+  if (!lastS7 || !firstS8) fail('S7/S8: the alpha bar is not on its canonical column across the boundary');
+  else if (!(firstS8.h < lastS7.h)) {
+    fail(`S7/S8: alpha carries over the boundary (${lastS7.h} -> ${firstS8.h}). `
+      + 'S8 must re-enter from the pre-state, not continue S7.');
+  }
+
+  for (const t of frameTimes(seq.duration, 30)) {
+    if (t >= 21.5 && t < 25.5) {
+      const beta = barAt(t, 'beta');
+      if (!beta || beta.h !== preH || !beta.dash || beta.fill !== null) {
+        fail(`S7: the withheld peer is not an unfilled outline held at ${bindings.targets.beta.pre} at t=${t}`);
+        break;
+      }
+    }
+  }
+  for (const t of frameTimes(seq.duration, 30)) {
+    if (t >= 25.5 && t < 29.0) {
+      const a = barAt(t, 'alpha');
+      const b = barAt(t, 'beta');
+      if (!a || !b || a.h !== b.h) {
+        fail(`S8: alpha and beta do not move in lockstep at t=${t} (${a?.h} vs ${b?.h}). `
+          + 'Differing heights are the signature of a withheld peer resuming.');
+        break;
+      }
+      if (b.dash || !b.fill) {
+        fail(`S8: the withheld treatment still appears at t=${t}; the ablation is a different run, not a resumption`);
+        break;
+      }
+    }
+  }
+  if (barAt(25.5, 'beta')?.h !== preH) fail('S8: beta does not re-enter at the pre-state');
+  if (barAt(28.9, 'beta')?.h !== intentH) fail('S8: beta does not reach its intent value');
+}
 
 /* -- 5. persistent geometry ----------------------------------------------- */
 
