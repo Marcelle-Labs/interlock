@@ -1,0 +1,22 @@
+{
+  "manifestId": "IL-SCAF-012-hero-end-card",
+  "issue": "HAC-335",
+  "role": "Brand resolution for the Veo hero sequence. Not a claim surface.",
+  "note": "IL-SCAF-011 remains the final cut's evidence end card. This card carries no figure, proof class, run identity or issue number, and restates one already-frozen sentence.",
+  "thesis": "Evidence-bound coordination before shared-state mutation.",
+  "thesisAuthorities": [
+    "README.md",
+    "media/hac-333/scene-manifest.json",
+    "media/hac-335/devpost/01-short-description.md"
+  ],
+  "master": "media/hac-335/veo-hero/cards/IL-SCAF-012-hero-end-card.svg",
+  "masterSha256": "c861c685064f556a53fd09f31657dde5a57f6035c285f07716d5f4da2e28c666",
+  "export": {
+    "file": "media/hac-335/veo-hero/exports/IL-SCAF-012-hero-end-card-1920x1080.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "1324af63981ad30b1a78f653272430bee77b9418ff87dc3a87f2b7cb2be1cfee"
+  },
+  "lockupSource": "assets/logo/interlock-lockup-horizontal-white.svg",
+  "lockupSourceSha256": "2b68b49f5434882230ca7647b03efed83e8e530cc9c95b539b38470a597fc2f5"
+}

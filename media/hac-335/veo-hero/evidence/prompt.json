@@ -1,0 +1,58 @@
+{
+  "manifestId": "IL-MOT-030-prompt",
+  "issue": "HAC-335",
+  "revision": 1,
+  "note": "The generation prompt, frozen so its SHA-256 can be recorded against every candidate. Adapted from the production brief where repository motion authority required a correction; each correction is recorded below rather than applied silently.",
+  "motionAuthority": {
+    "source": "assets/tokens/motion.css",
+    "model": "the five-state pass, in the order the product works",
+    "phases": [
+      { "id": "p1", "name": "independent", "token": "--mot-p1-independent", "ms": 560 },
+      { "id": "p2", "name": "constraint", "token": "--mot-p2-constraint", "ms": 340 },
+      { "id": "p3", "name": "coupling", "token": "--mot-p3-coupling", "ms": 440 },
+      { "id": "p4", "name": "authorization", "token": "--mot-p4-authorization", "ms": 1220, "composition": "--dur-hold (700ms) held, then --dur-gate (520ms)" },
+      { "id": "p5", "name": "passage", "token": "--mot-p5-passage", "ms": 520 }
+    ],
+    "holdMs": 700,
+    "gateMs": 520,
+    "easing": "--ease-mech cubic-bezier(0.85, 0, 0.15, 1) — the gate leaves are mechanical"
+  },
+  "correctionsFromBrief": [
+    {
+      "field": "authorization pause",
+      "brief": "approximately three quarters of a second",
+      "applied": "0.7 seconds",
+      "why": "--dur-hold in assets/tokens/motion.css is 700ms and is described there as 'the authorization pause: deliberately felt'. The repository is the authority for its own motion grammar, so the frozen token is used rather than the brief's approximation."
+    },
+    {
+      "field": "gate opening duration",
+      "brief": "unspecified",
+      "applied": "roughly half a second",
+      "why": "--dur-gate is 520ms. Stating it keeps the generated mechanics inside the same grammar the product surfaces animate."
+    },
+    {
+      "field": "state vocabulary",
+      "brief": "independent trajectories -> shared constraint -> coupling -> halt -> authorization -> gate opens -> passage",
+      "applied": "unchanged",
+      "why": "It already matches assets/logo/interlock-state-1..5.svg exactly: state-1 arms alone, state-2 the 0.3-opacity centre seam, state-3 the closed gate, state-4 the 0.4-opacity coupled span, state-5 the open gate. No replacement geometry was invented."
+    },
+    {
+      "field": "audio",
+      "brief": "restrained environmental tone, one mechanical engagement, near silence at the pause, soft release",
+      "applied": "kept in the prompt; stripped from the cut-integration copy",
+      "why": "HAC-336 froze the final cut as muted and its gate fails if an audio track appears. The direction is retained because it shapes the model's pacing and because the standalone asset may be used on surfaces where audio is permitted; verify-veo-hero.mjs requires the integration copy to carry no audio stream."
+    }
+  ],
+  "prompt": "Create one continuous eight-second cinematic architectural product shot connecting the exact supplied first frame to the exact supplied last frame.\n\nThe central structure is a monumental precision-machined physical realization of the Interlock geometry. Preserve its identity and symmetry. The environment is near-black and minimal with immense negative space. Materials are matte ivory ceramic-metal with subtle real surface texture, crisp hard edges, restrained specular highlights and genuine physical mass.\n\nTwo independent paired trajectories approach the same shared boundary with precise controlled movement. They are individually coherent but jointly constrained. As their coupling at the shared boundary becomes apparent, all motion stops completely.\n\nHold a clearly perceptible authorization pause of seven tenths of a second. During this beat the trajectories are stationary, the gate is stationary, and camera movement becomes nearly imperceptible.\n\nOnly after that pause may the gate change state.\n\nThe central gate then opens through physically plausible precision mechanics over roughly half a second, with a mechanical rather than organic easing. The gate must reach its fully authorized open state before either trajectory resumes.\n\nOnce fully open, both trajectories continue through the shared aperture together in synchronized controlled motion.\n\nCamera: one continuous shot, no cuts. Begin with an intimate macro architectural perspective and perform an exceptionally slow, controlled dolly backward that gradually reveals the complete structure. Camera motion settles during the authorization pause and resumes subtly during passage.\n\nAesthetic: premium architectural product film, museum-grade industrial design cinematography, severe composition, monumental scale, deep blacks, controlled highlights, physically believable mechanics, restraint rather than spectacle.\n\nAudio: extremely restrained low environmental tone, subtle material resonance during approach, one precise mechanical engagement at coupling, near silence during the authorization pause, then a soft precision-machined release when the gate opens. No music, narration, dialogue, electronic UI sounds, or trailer effects.\n\nThe video is a physical metaphor for evidence-bound coordination, not a depiction of robots or artificial-intelligence characters.\n\nNo generated text or typography.",
+  "negativePrompt": "humans, people, humanoids, robots, faces, hands, brains, floating code, computer interfaces, dashboards, holograms, cyberpunk, neon, glowing blue circuitry, particle clouds, energy beams, science-fiction portals, liquid morphing, rubber deformation, warped geometry, asymmetric geometry, extra gate leaves, extra trajectories, text, letters, captions, subtitles, watermarks, lens flare, excessive bloom, explosions, fantasy effects",
+  "claimBoundary": {
+    "isEvidence": false,
+    "statement": "This sequence is a visual synthesis of already-proven behaviour. It is not experimental proof, it depicts no run, and it carries no figure, decision, receipt, correlation id or proof class. HAC-330 owns the causal counterfactual; HAC-324 owns the filmed cloud run; neither is represented here.",
+    "mustNotBeDescribedAs": [
+      "a recording of Interlock executing",
+      "a depiction of an agent",
+      "evidence of any kind",
+      "a Google Cloud runtime capture"
+    ]
+  }
+}

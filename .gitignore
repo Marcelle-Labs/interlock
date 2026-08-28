@@ -35,3 +35,8 @@ gha-creds-*.json
 # working directory when the cockpit or storyboard is inspected in a browser.
 # Inspection output is not evidence and must never reach a commit.
 .playwright-mcp/
+
+# HAC-335 Veo hero: generated candidates are large and only the selected one is
+# promoted into the package. The ledger records every round either way, so a
+# discarded candidate is still a fact even when its bytes are not committed.
+media/hac-335/veo-hero/candidates/*.mp4

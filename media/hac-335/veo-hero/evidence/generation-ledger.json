@@ -1,0 +1,230 @@
+{
+  "manifestId": "IL-MOT-030-generation-ledger",
+  "issue": "HAC-335",
+  "note": "Every billable Veo round, in order. A candidate file with no row here is not a candidate. No credential value is ever recorded; `account` and `project` are identities, not secrets.",
+  "maxBillableRoundsWithoutApproval": 3,
+  "rounds": [
+    {
+      "round": 1,
+      "tier": "fast",
+      "billable": true,
+      "backend": "vertex-ai",
+      "model": "veo-3.1-fast-generate-001",
+      "region": "us-central1",
+      "project": "nimble-octagon-505403-n3",
+      "account": "nimble-octagon-505403-n3",
+      "aspectRatio": "16:9",
+      "resolution": "1080p",
+      "durationSeconds": 8,
+      "personGeneration": "dont_allow",
+      "seed": 20260824,
+      "promptSha256": "1d7646c2a2fbd57839d017b9e32dac252ce2d7e47afb910ae80039790ad68c66",
+      "negativePromptSha256": "8b1e99342807637199ff199bbb41fd704a3222466695f9e49a1e8d4eb798d1b0",
+      "startFrame": "media/hac-335/veo-hero/keyframes/IL-MOT-030-veo-hero-start-1920x1080.png",
+      "startFrameSha256": "82f3c1620d4e8060b39a62473a71f411fa67d26d81b6d5578a5c7605d6a2c2e2",
+      "endFrame": "media/hac-335/veo-hero/keyframes/IL-MOT-030-veo-hero-end-1920x1080.png",
+      "endFrameSha256": "7248d44b8c1dc6d0644022208bac1e4f3102ea2b00bff353ee691fda509347af",
+      "requestedAt": "2026-08-24T20:48:19.533Z",
+      "completedAt": "2026-08-24T20:49:55.050Z",
+      "operationId": "projects/nimble-octagon-505403-n3/locations/us-central1/publishers/google/models/veo-3.1-fast-generate-001/operations/125d5615-b969-49cb-84c1-3c4b465d7857",
+      "status": "SUCCEEDED",
+      "file": "media/hac-335/veo-hero/candidates/IL-MOT-030-veo-hero-candidate-fast-01-1920x1080.mp4",
+      "fileSha256": "462a300966e8c679c9978ade2ae4bfe9352ef661cbcc21e08f3140ee78c787f8",
+      "fileBytes": 3280387,
+      "note": "First structural probe: validates pause placement, gate ordering and geometry fidelity before any Standard spend.",
+      "adjudication": {
+        "selected": false,
+        "verdict": "REJECTED",
+        "why": "Endpoint fidelity is excellent and the material/aesthetic direction landed, but the causal structure the sequence exists to carry is absent. The gate opens continuously from t=0.42s and reaches the canonical open aperture by t=2.33s \u2014 before any pause. The mark is then pushed out of frame for roughly 3.5s, closes again at t=6.9s, and re-opens at t=7.25s to land the supplied last frame. Two open events, one close event, and the authorization pause sits after the first opening rather than before it. A viewer cannot read authorization-then-passage from this clip; they read an object oscillating.",
+        "measurementMethod": "Per-frame mean absolute luminance difference at 240x135 for the motion curve, and a scale-invariant central-aperture ratio (leaf gap divided by mean leaf bar width, sampled on the row through the bright-pixel vertical centroid) at full 1920x1080 for gate state. Scale invariance matters because the camera changes the mark's size throughout.",
+        "referenceRatios": {
+          "closed": 0.348,
+          "open": 1.6,
+          "note": "derived from canonical geometry: closed gap 1.6/bar 4.6; open gap 4.8/bar 3.0"
+        },
+        "rejectionChecklist": [
+          {
+            "criterion": "canonical geometry not materially distorted",
+            "result": "FAIL",
+            "evidence": "From t=2.0s to t=5.5s the mark is scaled past the frame edge; all four arms are cropped and the composition reads as an abstract diamond, not the Interlock mark."
+          },
+          {
+            "criterion": "central symmetry preserved",
+            "result": "PASS",
+            "evidence": "Left/right leaf runs stay symmetric about the frame centre in every measured frame."
+          },
+          {
+            "criterion": "no new limbs, gate leaves or trajectories",
+            "result": "PASS",
+            "evidence": "Exactly two bright runs bracket the centre in all 192 frames (runs=2 throughout)."
+          },
+          {
+            "criterion": "gate does not open before the pause",
+            "result": "FAIL",
+            "evidence": "Aperture ratio rises from 0.349 at t=0.000 to 1.600 (canonical open) by t=2.333s and peaks at 2.19 by t=3.083s. The nearest still window is t=3.58-3.79s \u2014 after the gate is fully open."
+          },
+          {
+            "criterion": "trajectories stationary during the pause",
+            "result": "PARTIAL",
+            "evidence": "A near-halt exists at t=3.58-3.79s but never reaches the settled noise floor of 0.133; residual camera drift continues throughout."
+          },
+          {
+            "criterion": "authorization pause is 700 ms",
+            "result": "FAIL",
+            "evidence": "Longest mid-clip still run is ~208 ms at 4.6x the noise floor (frames 86-90). Required: 700 ms (--dur-hold). Delivered: under one third."
+          },
+          {
+            "criterion": "trajectories do not pass before the gate is fully open",
+            "result": "FAIL",
+            "evidence": "Not assessable as authored: there is no single ordered open-then-pass event. The gate opens, the mark leaves frame, the gate closes, then re-opens at t=7.25s."
+          },
+          {
+            "criterion": "final state matches the supplied open frame",
+            "result": "PASS",
+            "evidence": "Frames 179-191 hold ratio 1.571-1.610 against the canonical 1.600, with stable bar width 41-42px and correct staging. Visual check of frame 191 matches the supplied end keyframe."
+          },
+          {
+            "criterion": "first state matches the supplied closed frame",
+            "result": "PASS",
+            "evidence": "Frame 0 measures ratio 0.349 against the canonical closed 0.348."
+          },
+          {
+            "criterion": "no generated text or typography",
+            "result": "PASS",
+            "evidence": "No typography observed in 31 inspected frames: 16 evenly spaced across the clip, the 13-frame pause window, and frames 0 and 191."
+          },
+          {
+            "criterion": "no cyberpunk / AI visual tropes",
+            "result": "PASS",
+            "evidence": "No neon, circuitry, particles, holograms or energy effects. Field stays near-black."
+          },
+          {
+            "criterion": "restrained architectural product-film aesthetic",
+            "result": "PASS",
+            "evidence": "Matte ivory ceramic-metal material, crisp hard edges, restrained speculars, genuine mass and contact shadow. This is the strongest aspect of the candidate."
+          },
+          {
+            "criterion": "camera performs a slow dolly backward",
+            "result": "FAIL",
+            "evidence": "The camera dollies IN, not out: mean leaf bar width grows 63px to 199px through t=3.08s before reversing. The prompt asked to begin macro and pull back to reveal the whole structure."
+          },
+          {
+            "criterion": "reads as controlled mechanical authorization, not magic",
+            "result": "FAIL",
+            "evidence": "An open/close/re-open oscillation with no causal trigger reads as an object animating itself, not as a gate responding to authorization."
+          },
+          {
+            "criterion": "carries no factual claim",
+            "result": "PASS",
+            "evidence": "No text, figure, run identity, decision state or interface appears anywhere in the clip."
+          }
+        ],
+        "diagnosis": "Classic first/last-frame interpolation failure: the model satisfied both supplied endpoints and treated the 8s between them as free space, inventing a symmetric excursion rather than a monotonic, causally ordered state change. The prompt's ordering constraints \u2014 pause, THEN gate, THEN passage \u2014 were not honoured as sequencing constraints at all.",
+        "whatWorked": [
+          "endpoint fidelity at both ends",
+          "material and lighting direction",
+          "near-black field discipline",
+          "no typography",
+          "no AI/cyberpunk tropes",
+          "symmetry and leaf count"
+        ],
+        "whatFailed": [
+          "event ordering",
+          "pause duration and placement",
+          "single-event gate semantics",
+          "camera direction",
+          "keeping the mark inside the frame"
+        ]
+      },
+      "usedLastFrame": true,
+      "delta": null
+    },
+    {
+      "round": 2,
+      "tier": "fast",
+      "billable": true,
+      "backend": "vertex-ai",
+      "model": "veo-3.1-fast-generate-001",
+      "region": "us-central1",
+      "project": "nimble-octagon-505403-n3",
+      "account": "nimble-octagon-505403-n3",
+      "aspectRatio": "16:9",
+      "resolution": "1080p",
+      "durationSeconds": 8,
+      "personGeneration": "dont_allow",
+      "seed": 20260824,
+      "promptSha256": "1d7646c2a2fbd57839d017b9e32dac252ce2d7e47afb910ae80039790ad68c66",
+      "negativePromptSha256": "8b1e99342807637199ff199bbb41fd704a3222466695f9e49a1e8d4eb798d1b0",
+      "startFrame": "media/hac-335/veo-hero/keyframes/IL-MOT-030-veo-hero-start-1920x1080.png",
+      "startFrameSha256": "82f3c1620d4e8060b39a62473a71f411fa67d26d81b6d5578a5c7605d6a2c2e2",
+      "usedLastFrame": false,
+      "endFrame": null,
+      "endFrameSha256": null,
+      "delta": "lastFrame removed; all other generation inputs held constant",
+      "requestedAt": "2026-08-24T20:58:43.648Z",
+      "completedAt": "2026-08-24T21:00:19.678Z",
+      "operationId": "projects/nimble-octagon-505403-n3/locations/us-central1/publishers/google/models/veo-3.1-fast-generate-001/operations/571b98e6-25ac-4dca-9364-fd998f04ba8e",
+      "status": "SUCCEEDED",
+      "file": "media/hac-335/veo-hero/candidates/IL-MOT-030-veo-hero-candidate-fast-02-1920x1080.mp4",
+      "fileSha256": "db35822aece76d46fc6c95cbd60b430d35aa113cbb9192f9e18d731628b90367",
+      "fileBytes": 3250981,
+      "note": "Round 2 hypothesis isolation: tests whether first+last-frame interpolation induced the Round 1 causal-ordering failure.",
+      "adjudication": {
+        "selected": false,
+        "verdict": "REJECTED",
+        "hypothesis": "Round 1's causal-ordering failure was materially induced by first+last-frame interpolation: Veo satisfied both endpoints and treated the intermediate trajectory as unconstrained.",
+        "hypothesisResult": "NOT SUPPORTED \u2014 removing lastFrame regressed the result rather than repairing it.",
+        "why": "Withholding the last frame removed the only constraint that was holding the Interlock geometry together. Within 0.2s the mark stops being the mark: by t=0.5s the four arms and two leaves have been replaced by an invented sculptural machine with plinths, ledges and hook forms that shares no geometry with the identity. Round 1 at least kept a recognisable silhouette. Causal ordering did not improve either: the aperture still opens, closes and re-opens, and the clip ends at ratio 0.436 \u2014 it never reaches the authorized-open state at all.",
+        "measurementCaveat": "The aperture ratios recorded for this round beyond roughly f4 do NOT measure the Interlock gate. They measure the two central masses of an invented object. They are reported for completeness and must not be read as gate telemetry.",
+        "holdMeasurementCorrection": "An adaptive threshold (3x this clip's own noise floor) initially reported a 2583ms hold. That was an artifact: this clip's floor is 0.453 against Round 1's 0.165, so the adaptive threshold rose to 4.16 and admitted substantial real motion. Re-measured against an absolute stillness threshold applied identically to both rounds, the longest hold is 167-292ms and it sits at t=0.04s, not mid-clip.",
+        "hardGates": [
+          {
+            "gate": "CLOSED_BEFORE_HOLD",
+            "result": "FAIL",
+            "evidence": "No mid-clip hold exists to be closed before. The first aperture excursion is at f38-f40 (t=1.58-1.67s), a discontinuous jump from 0.351 to 2.963 with the leaf-bar width collapsing 57px->27px \u2014 a cut, not an opening."
+          },
+          {
+            "gate": "HOLD_700MS",
+            "result": "FAIL",
+            "evidence": "Longest contiguous still run: 4 frames (167ms) at threshold 0.50; 7 frames (292ms) at 1.00. Required 17 frames (700ms). The clip never settles: its quietest 6-frame window averages 0.453 against Round 1's 0.165."
+          },
+          {
+            "gate": "OPEN_AFTER_HOLD",
+            "result": "FAIL",
+            "evidence": "Opening begins f38; no qualifying hold precedes it."
+          },
+          {
+            "gate": "PASSAGE_AFTER_OPEN",
+            "result": "NOT ASSESSABLE",
+            "evidence": "Vacuous. There is no canonical gate reaching an authorized-open state, so 'passage after open' has no referent. Recorded as not assessable rather than as a pass."
+          }
+        ],
+        "measurements": {
+          "trajectoryMotionDuringHold": "No qualifying hold. Motion floor 0.453 vs Round 1 0.165; the clip is in continuous motion throughout.",
+          "distinctOpenEvents": 2,
+          "closeEventsAfterOpeningBegins": 1,
+          "apertureRatioOverTime": "0.349 at f0, stable ~0.33-0.35 to f36, discontinuous jump to 2.963 at f40, 2.3-3.3 through f80, collapse to 0.320 at f84-f104, re-open to 4.78 by f132, degenerate 33.3 at f136, 9.3 to 1.1 across f140-f168, settling 0.436 at f184-f191. Canonical closed 0.348, open 1.600.",
+          "cameraScaleCurve": "Leaf-bar width 63px at f0, drifting down to 57px by f36, then 27px -> 67px -> 43px -> 18px -> 322px. Ends at 319-322px, roughly 5x the opening scale. The camera dollies IN and stays in; the prompt asked for a slow dolly backward.",
+          "cropping": "190 of 192 frames have bright pixels touching a frame edge. The subject leaves the frame at f4 (t=0.17s) and never returns to a composed shot.",
+          "symmetry": "Mean residual 0.0199, max 1.7073. Round 1 was 0.0047 / 0.0498. Gross asymmetry appears around f136.",
+          "typography": "None observed in 18 inspected frames (16 evenly spaced plus f0 and f191).",
+          "geometryFidelity": "FAIL, severely. The canonical four arms and two leaves survive only to about f4. From f12 onward the object is an invented machine with plinths, ledges and hook forms bearing no relation to assets/brand/logo-geometry.js.",
+          "firstFrameFidelity": "PASS. f0 measures ratio 0.349 against canonical closed 0.348 and is visually the supplied start frame.",
+          "lastFrameFidelity": "FAIL. Ends at ratio 0.436; the canonical open state is 1.600. Without the supplied last frame the clip does not land on the authorized-open geometry."
+        },
+        "aestheticObservations": "Considered purely as a rendered object, this is the more accomplished clip: the material response, contact shadows, floor reflection and lighting are richer than Round 1's. That is precisely the trap. The shot is more beautiful and less true, and the hard gates exist so that this cannot be mistaken for progress.",
+        "comparisonToRound1": "D \u2014 REGRESSED"
+      }
+    }
+  ],
+  "experiment": {
+    "design": "Single-variable isolation across rounds. Each round changes at most one material input, recorded in that round's `delta`.",
+    "round_2_delta": "lastFrame removed; all other generation inputs held constant",
+    "result": {
+      "hypothesis": "first+last-frame interpolation materially induced the Round 1 causal failure",
+      "outcome": "NOT SUPPORTED",
+      "finding": "The last frame was not the cause of the causal-ordering failure; it was the only thing preventing a geometry failure. Removing it left ordering just as broken and additionally destroyed the identity. Both rounds open, close and re-open the aperture, so the ordering defect is independent of the lastFrame variable and is better explained as the model not treating prompt-stated sequencing as a constraint at all.",
+      "verdict": "D \u2014 regressed"
+    }
+  }
+}

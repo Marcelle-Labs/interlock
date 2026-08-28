@@ -933,3 +933,54 @@ jobs:
             echo "stale, re-run \`pnpm run package:build\`; if a capture is stale, re-run"
             echo "\`pnpm run package:capture\` against the merged cockpit."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  veo-hero-gate:
+    name: Veo hero gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # No credential reaches this job and none is needed. The gate reads
+      # committed bytes only; generation is a local, human-authorised step.
+      - name: Verify the Veo hero sequence
+        run: pnpm run check:veo-hero
+
+      - name: Explain the failure
+        if: failure()
+        run: |
+          {
+            echo "## Veo hero gate failed"
+            echo
+            echo "**Invariant.** The hero sequence is a visual synthesis of already-proven"
+            echo "behaviour, and it is never evidence. Its two keyframes are built from the"
+            echo "canonical mark at 1920x1080, the gate travels by exactly the frozen"
+            echo "\`GATE_TRAVEL\`, no typography is handed to the model, the deterministic end"
+            echo "card resolves and restates only language that is still authorised upstream,"
+            echo "no run identity or frozen figure appears anywhere in the package, every"
+            echo "recorded generation round carries complete provenance, and nothing"
+            echo "credential-shaped is committed."
+            echo
+            echo "**Why it matters.** A generated clip is the one asset in this repository"
+            echo "with no underlying record to check it against. If it drifts, it drifts into"
+            echo "looking like a recording of something that happened. The gate keeps it"
+            echo "bound to the identity and stripped of every claim."
+            echo
+            echo "**Authority.** HAC-335 issue contract — 'Generated imagery may frame"
+            echo "metaphor/mood only; factual product state, architecture, metrics and"
+            echo "evidence remain deterministic.' HAC-332 owns the mark and the naming"
+            echo "grammar; \`assets/tokens/motion.css\` owns the motion grammar."
+            echo
+            echo "**Evidence required.** \`pnpm run check:veo-hero\` passing on this commit."
+            echo
+            echo "**Do not weaken.** Do not let the model draw the wordmark, do not add a"
+            echo "figure or a run id to the end card, and do not mark a candidate selected"
+            echo "without its adjudication and a silent integration copy. If a keyframe is"
+            echo "reported stale, re-run \`pnpm run veohero:build\`."
+          } >> "$GITHUB_STEP_SUMMARY"
