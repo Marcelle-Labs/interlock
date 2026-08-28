@@ -65,6 +65,11 @@ export const TARGET_STATE = Object.freeze({
   NOT_APPLIED: 'NOT_APPLIED',
   WITHHELD: 'WITHHELD',
   WAITING: 'WAITING',
+  // Declared, observed, and not yet decided. S6's own word, and the state that
+  // scene always meant: it labelled its bars "pending" while asserting APPLIED,
+  // so the copy and the semantics disagreed and the plate drew the applied
+  // treatment. Naming it is what lets a test hold the two together.
+  PENDING: 'PENDING',
   UNCHANGED: 'UNCHANGED',
   HELD: 'HELD',
 });
@@ -134,15 +139,26 @@ export function targetBar(name, spec) {
   const h = heightOf(shown);
   const y = BASE_Y - h;
 
+  // Three treatments, one per semantic class, so the fill channel alone carries
+  // the distinction a caption should only be confirming:
+  //
+  //   applied / unchanged     filled
+  //   pending                 open, continuous stroke -- declared, not decided
+  //   withheld / not applied  open, broken stroke     -- decided against, this run
+  //
+  // Pending was drawn filled until this pass, which made it identical to applied
+  // at the one moment the scene needs them to differ.
+  const pending = state === TARGET_STATE.PENDING;
   const unresolved = state === TARGET_STATE.WITHHELD || state === TARGET_STATE.NOT_APPLIED;
-  const body = unresolved
-    ? rect(x, y, w, h, { stroke: INK, width: 2, dash: '8 7' })
+  const open = pending || unresolved;
+  const body = open
+    ? rect(x, y, w, h, { stroke: INK, width: 2, dash: pending ? null : '8 7' })
     : rect(x, y, w, h, { fill: muted ? N[30] : INK });
 
   const numeral = state === TARGET_STATE.UNCHANGED || state === TARGET_STATE.HELD
     ? null
     : text(x + w / 2, y + 40, asciify(String(Math.round(shown))), {
-      size: 28, mono: true, anchor: 'middle', fill: unresolved ? INK : PAPER,
+      size: 28, mono: true, anchor: 'middle', fill: open ? INK : PAPER,
     });
 
   return [

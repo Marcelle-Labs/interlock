@@ -143,6 +143,31 @@ if (bindings.scenes.S1.total !== 140) fail('S1: the recorded joint total is not 
 if (bindings.scenes.S2.total !== 120) fail('S2: the single-intent replays do not total 120');
 
 /**
+ * The fill channel separates the three semantic classes.
+ *
+ * S6 drew pending targets with the applied treatment until this pass, which
+ * made "evidence read, nothing decided" and "both of these executed" the same
+ * picture at the one moment the cut needs them apart.
+ */
+{
+  const t = (x) => semanticsAt(x, bindings).treatment;
+  const applied = t(3.5).alpha;
+  const pending = t(21.2).alpha;
+  const withheld = t(24.5).beta;
+  if (pending !== 'OPEN_CONTINUOUS') fail(`S6: pending targets are drawn ${pending}, expected an open continuous outline`);
+  if (withheld !== 'OPEN_BROKEN') fail(`S7: the withheld peer is drawn ${withheld}, expected an open broken outline`);
+  if (applied !== 'APPLIED_OR_PENDING_FILLED') fail(`S1: applied targets are drawn ${applied}, expected filled`);
+  if (pending === applied) fail('S6: pending and applied targets render identically — the plate would read as "both executed"');
+  if (pending === withheld) fail('S6/S7: pending and withheld targets render identically');
+  for (const x of frameTimes(seq.duration, 30)) {
+    if (x >= 19.5 && x < 21.5 && t(x).alpha !== 'OPEN_CONTINUOUS') {
+      fail(`S6: the pending treatment does not hold at t=${x}`);
+      break;
+    }
+  }
+}
+
+/**
  * The S7 -> S8 discontinuity.
  *
  * S7 records that the peer was withheld and not applied in that run. S8 records
