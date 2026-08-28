@@ -83,7 +83,7 @@ is authorized. Until then:
 | `workspacejson/integrations` | **read / inspect** | writable only after S0/S2 prove a reusable seam, under META-330 |
 | `workspacejson/cli` | **execute / read** | run it; do not modify it to make a fixture pass |
 | `Marcelle-Labs/ai-swarm` | **execute / read** | quality/execution infrastructure under META-331/META-337 only |
-| Studio | **not checked out** | read-only for visibility; writable only when an approved Studio issue activates work |
+| Studio (`Marcelle-Labs/director`) | **read-only by default** | writable only within the scope a named approved Studio contract authorizes — currently HAC-324, for its capture/harvest work only. No other issue inherits it. See [Studio](#studio). |
 
 Presence in the workspace is not permission to write. Escalation requires the
 authorizing Linear issue plus an update to this table and to
@@ -198,25 +198,54 @@ file, fixture, or evidence packet.**
 ## Studio
 
 `studio/` is checked out — `Marcelle-Labs/director` at
-`98857b697fc74b3a4ddb55aa72828b4760e6c86f` — **for visibility only, read-only.**
+`98857b697fc74b3a4ddb55aa72828b4760e6c86f` — **read-only by default.**
 
-HAC-328 permits a day-one Studio clone to avoid context switching, and requires
-it stay read-only until an approved Studio issue activates work. No such issue is
-active, so:
+Read-only by default is not the same as read-only always, and the earlier
+wording here said the stronger thing. It claimed no approved Studio work was
+active while HAC-324 was landing merged pull requests against
+`Marcelle-Labs/director` (#7, #8, #9: capture-integrity guarantees that block
+promotion, capturing a declared command rather than a hardcoded one, and
+recording that raw cloud config output is credential-bearing). A boundary that
+describes the repository incorrectly is worse than a loose one, because the next
+agent reads it, finds the merged commits, and has to guess which is true.
+
+The real rule:
+
+- **Studio is read-only by default.** No Interlock issue may write to
+  `Marcelle-Labs/director`, or take a dependency on a pinned Studio revision,
+  without an approved Studio contract that names the writable scope.
+- **A named approved Studio contract may authorize a bounded write scope.**
+  HAC-324 is such a contract, for its specific capture and harvest work.
+- **Authority does not spread.** Other Interlock issues do not inherit HAC-324's
+  write scope by adjacency, by sharing a milestone, or by harvesting toward it.
+- **No currently active contract authorizes HAC-350 to write to or depend on a
+  pinned Studio repository revision.** HAC-324 separately authorizes bounded
+  Director work for its named capture/harvest scope. Studio remains read-only for
+  all other Interlock work unless an approved issue explicitly names the writable
+  scope and revision.
+
+So, for everything that is not HAC-324's named scope:
 
 - do not edit anything under `studio/`;
 - do not create an Interlock dependency on it;
 - it is absent from `provenance/manifest.json` on purpose — the manifest records
   what the submission *consumes*, and Studio is not consumed.
 
+That last point is what keeps HAC-350 honest. Its reusable machinery — the
+deterministic time axis at `media/hac-334/bin/lib/motion.mjs` — is
+`submissionLocalMachinery` harvested *toward* Studio under HAC-324's ownership.
+Harvesting toward a repository is not depending on it: nothing HAC-350 renders
+reads a Studio revision, and the manifest correctly stays silent.
+
 "Studio v3" still does not resolve to one unambiguous line of work: the local
 `demo-studio` and `demo-studio-v3` checkouts both point at
-`Marcelle-Labs/director`. An approved Studio issue should name the revision
-before anything depends on it.
+`Marcelle-Labs/director`, and `demo-studio-v3` is an `architecture/v3-remodel`
+spike whose `@studio/*` packages are empty stubs. An approved Studio issue should
+name the revision before anything depends on it.
 
-When such an issue lands, move Studio into the permissions matrix above, and
-record it in `provenance/manifest.json` with a disclosure line in the same pull
-request as the code that consumes it.
+When such an issue lands, move Studio into the permissions matrix above with the
+scope it authorizes, and record it in `provenance/manifest.json` with a
+disclosure line in the same pull request as the code that consumes it.
 
 ## Merge gates on `main`
 
