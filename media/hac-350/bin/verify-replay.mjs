@@ -257,6 +257,63 @@ if (bindings.scenes.S2.total !== 120) fail('S2: the single-intent replays do not
   if (bad.length) fail(`reduced motion: ${bad.length} frames do not render\n    ${bad.slice(0, 5).join('\n    ')}`);
 }
 
+/* -- 6b. the export is the film the manifest describes --------------------- */
+
+/**
+ * Bind the encoded file to its own render manifest.
+ *
+ * This check exists because its absence let a truncated export reach a commit.
+ * The encoder was still writing when the export directory was staged, so a
+ * 16.5-second, 495-frame prefix landed in history beside a manifest describing
+ * 30 seconds and 900 frames — and every other gate stayed green, because
+ * nothing had ever been asked to compare the two.
+ *
+ * Node builtins only, so this runs in CI without ffmpeg: the manifest records
+ * what ffprobe measured at encode time, and the digest binds the file on disk
+ * to that measurement. A file that changed after the manifest was written
+ * cannot match it.
+ */
+{
+  const manifestPath = join(pkgDir, 'evidence', 'render-manifest.json');
+  if (!existsSync(manifestPath)) {
+    fail('no evidence/render-manifest.json — run build-video.mjs');
+  } else {
+    const m = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    const moviePath = join(pkgDir, 'exports', m.file);
+    if (!existsSync(moviePath)) {
+      fail(`render manifest names ${m.file}, which is not in exports/`);
+    } else {
+      const bytes = readFileSync(moviePath);
+      if (bytes.length !== m.bytes) {
+        fail(`export is ${bytes.length} bytes, the manifest describes ${m.bytes}. `
+          + 'A size mismatch is a partially written or stale encode.');
+      }
+      const digest = sha256(bytes);
+      if (digest !== m.sha256) {
+        fail(`export digest ${digest.slice(0, 12)} != manifest ${String(m.sha256).slice(0, 12)}. `
+          + 'Re-run build-video.mjs; do not hand-edit the manifest.');
+      }
+    }
+    const expectedFrames = frameTimes(seq.duration, m.fps ?? 30).length;
+    if (m.frames !== expectedFrames) fail(`manifest records ${m.frames} frames, the timeline has ${expectedFrames}`);
+    if (Math.abs(m.measuredDuration - seq.duration) > 0.05) {
+      fail(`manifest measured ${m.measuredDuration}s against an authored ${seq.duration}s`);
+    }
+    if (m.width !== 1920 || m.height !== 1080) fail(`manifest records ${m.width}x${m.height}, expected 1920x1080`);
+    if (m.audioStreams !== 0) fail(`manifest records ${m.audioStreams} audio stream(s); the cut carries none`);
+    const bindingsDigest = sha256(readFileSync(join(pkgDir, 'evidence', 'bindings.json')));
+    if (m.bindingsSha256 !== bindingsDigest) {
+      fail('the export was encoded against different bindings than the ones committed');
+    }
+    // Frames per scene are the authored durations, read back out of the encode.
+    for (const s of SCENES) {
+      const want = Math.round((s.end - s.start) * (m.fps ?? 30));
+      const got = m.framesPerScene?.[s.id];
+      if (got !== want) fail(`export holds ${got} frames of ${s.id}, the storyboard authors ${want}`);
+    }
+  }
+}
+
 /* -- 7. the plate carries no annotation and no unsupported claim ---------- */
 
 const FORBIDDEN = [
