@@ -479,6 +479,50 @@ describe('the cut renders a record and does not run one', () => {
       for (const r of refs) expect(r, id).toMatch(/^experiments\/hac-3(30|43)\/evidence\/.+#\//);
     }
   });
+  it('resolves every rendered figure at the pointer it cites', () => {
+    // The control that would have caught S2's typed 120. A binding may cite a
+    // pointer and still carry a number nobody read from it; this walks the
+    // pointer into the frozen artifact and insists the figure is actually there.
+    const artifact = (path) => JSON.parse(readFileSync(join(repoRoot, path), 'utf8'));
+    const resolve = (ref) => {
+      const [file, frag] = ref.split('#');
+      let node = artifact(file);
+      for (const seg of frag.split('/').filter(Boolean)) {
+        node = node[/^\d+$/.test(seg) ? Number(seg) : seg];
+        expect(node, `${ref} does not resolve`).toBeDefined();
+      }
+      return node;
+    };
+    // Every number a scene renders, found at a pointer that scene cites.
+    const totalsIn = (node) => {
+      const found = new Set();
+      if (typeof node?.oracle?.stdout === 'string') found.add(JSON.parse(node.oracle.stdout).total);
+      if (typeof node === 'number') found.add(node);
+      if (typeof node?.total === 'number') found.add(node.total);
+      return found;
+    };
+    for (const [id, scene] of Object.entries(bindings.scenes)) {
+      if (typeof scene.total !== 'number') continue;
+      const refs = [...(scene.totalSources ?? []), ...(Array.isArray(scene.source) ? scene.source : [scene.source])];
+      const reachable = new Set(refs.flatMap((r) => [...totalsIn(resolve(r))]));
+      expect(reachable, `${id}: total ${scene.total} is not present at any pointer it cites`).toContain(scene.total);
+    }
+  });
+
+  it('binds the isolated total to both intents structured events', () => {
+    expect(bindings.scenes.S2.totalSources).toHaveLength(2);
+    const vals = bindings.scenes.S2.totalSources.map((ref) => {
+      const [file, frag] = ref.split('#');
+      let node = JSON.parse(readFileSync(join(repoRoot, file), 'utf8'));
+      for (const seg of frag.split('/').filter(Boolean)) node = node[/^\d+$/.test(seg) ? Number(seg) : seg];
+      return node;
+    });
+    // S2 puts one figure on the gauge and says "either intent alone". Both
+    // intents must agree, or the scene no longer matches the evidence.
+    expect(new Set(vals).size).toBe(1);
+    expect(vals[0]).toBe(bindings.scenes.S2.total);
+  });
+
   it('imports nothing from the Interlock composition engine', () => {
     for (const f of ['replay.mjs', 'plate.mjs', 'world.mjs']) {
       const src = readFileSync(join(repoRoot, 'media/hac-350/bin/lib', f), 'utf8');

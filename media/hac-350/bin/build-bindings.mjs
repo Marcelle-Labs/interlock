@@ -46,6 +46,7 @@ function frozen(relPath) {
 const raw = frozen('experiments/hac-343/evidence/raw-results.json');
 const corpus = frozen('experiments/hac-343/evidence/corpus.json');
 const s1Results = frozen('experiments/hac-330/evidence/results.json');
+const s1Arms = frozen('experiments/hac-330/evidence/arms.json');
 
 /**
  * One frozen HAC-343 record, addressed the way the reader can re-address it.
@@ -73,6 +74,32 @@ function check(id) {
     check: s1Results.checks[i],
     pointer: `experiments/hac-330/evidence/results.json#/checks/${i}`,
   };
+}
+
+/**
+ * The total each intent reaches when replayed alone, read off the structured
+ * event rather than out of a sentence.
+ *
+ * HAC-330's baseline arm records one `PRECONDITION_OK_AT_BASE` event per intent,
+ * each carrying the total that intent projects against the base snapshot. That
+ * is exactly what S2 shows: the same scenario, one intent at a time.
+ *
+ * This existed as a typed `120` until review caught it. The number was right,
+ * which is the problem — a correct constant is indistinguishable from a derived
+ * one right up until the evidence moves and the constant does not. The whole
+ * point of this file is that a change in the record moves the build or breaks
+ * it, and a literal is a place where neither happens.
+ */
+function isolatedTotal(intent) {
+  const events = s1Arms.baseline?.events;
+  if (!Array.isArray(events)) throw new Error('arms.json: baseline arm records no events');
+  const i = events.findIndex((e) => e.intent === intent && e.outcome === 'PRECONDITION_OK_AT_BASE');
+  if (i < 0) throw new Error(`arms.json: no PRECONDITION_OK_AT_BASE event for intent ${intent}`);
+  const total = events[i].total;
+  if (typeof total !== 'number' || !Number.isFinite(total)) {
+    throw new Error(`arms.json: intent ${intent} records a non-numeric isolated total`);
+  }
+  return { total, pointer: `experiments/hac-330/evidence/arms.json#/baseline/events/${i}/total` };
 }
 
 const scenario = (id) => {
@@ -120,6 +147,21 @@ const verdictFor = (entry, index) => {
 };
 
 const coupling = verdictFor(A4base, 0).couplings[0];
+
+/**
+ * The two intents must agree on the isolated total, because S2 puts one figure
+ * on the gauge and says "either intent alone". If the record ever stops
+ * supporting that, the scene needs rewriting and the build should say so rather
+ * than quietly rendering whichever number it read first.
+ */
+const aloneA = isolatedTotal('A');
+const aloneB = isolatedTotal('B');
+if (aloneA.total !== aloneB.total) {
+  throw new Error(
+    `S2 renders one figure for "either intent alone", but the frozen record has `
+    + `A at ${aloneA.total} and B at ${aloneB.total}. The scene no longer matches the evidence.`,
+  );
+}
 
 /* -- the bindings --------------------------------------------------------- */
 
@@ -187,8 +229,11 @@ const bindings = {
     S2: {
       alphaAlone: check('ACC-1').check.detail,
       betaAlone: check('ACC-2').check.detail,
-      total: 120,
-      holds: true,
+      total: aloneA.total,
+      // Two independent structured booleans, not a comparison this file makes.
+      // Whether the invariant held in isolation is HAC-330's finding to record.
+      holds: check('ACC-1').check.passed && check('ACC-2').check.passed,
+      totalSources: [aloneA.pointer, aloneB.pointer],
       source: [check('ACC-1').pointer, check('ACC-2').pointer],
     },
     S3: {

@@ -76,6 +76,10 @@
       "betaAlone": "B alone → total 120 <= 130, verify.mjs exit 0",
       "total": 120,
       "holds": true,
+      "totalSources": [
+        "experiments/hac-330/evidence/arms.json#/baseline/events/0/total",
+        "experiments/hac-330/evidence/arms.json#/baseline/events/1/total"
+      ],
       "source": [
         "experiments/hac-330/evidence/results.json#/checks/4",
         "experiments/hac-330/evidence/results.json#/checks/5"
@@ -161,6 +165,7 @@
   "sourceDigests": {
     "experiments/hac-343/evidence/raw-results.json": "6f737d44c3b33c298b59d1bf84d028d6c56524ba14ce34c7db82e3f5dddec9eb",
     "experiments/hac-343/evidence/corpus.json": "68c60b38087de00886338de78b9a8b673c1467bf056adaf057c4fd211929575c",
-    "experiments/hac-330/evidence/results.json": "acf6ed87d67647f06f7da38467323b3fc8000edd8acda5e8a7d70301e98006aa"
+    "experiments/hac-330/evidence/results.json": "acf6ed87d67647f06f7da38467323b3fc8000edd8acda5e8a7d70301e98006aa",
+    "experiments/hac-330/evidence/arms.json": "dcadc10eb4b963427bdf38916bb9a4a758c035902037bad116325815293795c9"
   }
 }

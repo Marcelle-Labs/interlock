@@ -134,6 +134,23 @@ if (at(24.5).peer !== 'WITHHELD') fail('S7: the peer is not WITHHELD');
 if (bindings.scenes.S7.peer.applied !== false) fail('S7: the frozen record shows the peer applied');
 if (bindings.scenes.S7.peer.decision !== 'WITHHOLD_SERIALIZE') fail('S7: the peer decision is not WITHHOLD_SERIALIZE');
 if (bindings.scenes.S7.leader.decision !== 'ALLOW_SERIALIZED') fail('S7: the leader decision is not ALLOW_SERIALIZED');
+/*
+ * The four figures below are literals on purpose, and the distinction matters.
+ *
+ * In build-bindings.mjs a literal is a defect: that file's job is to derive, and
+ * a typed constant there is indistinguishable from a derived one right up until
+ * the evidence moves and the constant does not. Review caught exactly that with
+ * S2's total.
+ *
+ * Here a literal is the control. This gate exists to notice when the film stops
+ * matching the argument it was built to carry, and an expectation that derives
+ * itself from the same source it is checking asserts nothing. These are pinned
+ * to the frozen HAC-343 / HAC-330 revision recorded in bindings.sourceDigests;
+ * a legitimate re-run of the experiment moves the bindings, turns this red, and
+ * requires a human to update it deliberately. That is the intended workflow, not
+ * a bug — and it is why the relationship assertions below sit beside them: those
+ * hold whatever the numbers become.
+ */
 if (bindings.scenes.S7.total !== 120 || bindings.scenes.S7.holds !== true) fail('S7: the recorded total is not a holding 120');
 
 if (!bindings.scenes.S8.applied.alpha || !bindings.scenes.S8.applied.beta) fail('S8: both intents are not applied');
@@ -141,6 +158,22 @@ if (bindings.scenes.S8.couplings !== 0) fail('S8: the perturbed record still car
 if (bindings.scenes.S8.total !== 140 || bindings.scenes.S8.holds !== false) fail('S8: the recorded total is not a failing 140');
 if (bindings.scenes.S1.total !== 140) fail('S1: the recorded joint total is not 140');
 if (bindings.scenes.S2.total !== 120) fail('S2: the single-intent replays do not total 120');
+
+// Evidence-independent. These survive a re-run that legitimately moves every
+// figure, and they are the actual shape of the argument the cut makes.
+{
+  const c = bindings.invariant.ceiling;
+  const sc = bindings.scenes;
+  if (!(sc.S1.total > c) || sc.S1.holds !== false) fail('S1: the uncoordinated composition does not exceed the ceiling');
+  if (!(sc.S2.total <= c) || sc.S2.holds !== true) fail('S2: an isolated intent does not stay within the ceiling');
+  if (!(sc.S4.total > c) || sc.S4.holds !== false) fail('S4: the two-key composition does not exceed the ceiling');
+  if (!(sc.S7.total <= c) || sc.S7.holds !== true) fail('S7: the withheld run does not stay within the ceiling');
+  if (!(sc.S8.total > c) || sc.S8.holds !== false) fail('S8: the ablated run does not exceed the ceiling');
+  if (!(sc.S7.total < sc.S8.total)) fail('S7/S8: the ablation does not reverse the outcome');
+  if (!Array.isArray(sc.S2.totalSources) || sc.S2.totalSources.length !== 2) {
+    fail('S2: the isolated total is not bound to both intents\' structured events');
+  }
+}
 
 /**
  * The fill channel separates the three semantic classes.
