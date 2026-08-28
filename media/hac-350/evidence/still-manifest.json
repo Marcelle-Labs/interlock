@@ -104,8 +104,8 @@
       "t": 19.6,
       "reduced": false,
       "nodes": 32,
-      "svgSha256": "d839f273b24ed67ec0ceb7dea917b171584d87928cc1e2aeb9e635100a00c4d8",
-      "pngSha256": "efe03d2adbd3df0e7265cb5144bbd64555c9bd589d61292c2a7e78ebb988c749"
+      "svgSha256": "ab57e02ad875611132695ae67a3f3078a7d01bdd02a3059f8db5900db1a954d9",
+      "pngSha256": "9b88655f8dda935326b70ae01034cc59f8c3bb793fe203b5bf47a90a203487a0"
     },
     {
       "id": "S6-out-S6",
@@ -113,8 +113,8 @@
       "t": 21.35,
       "reduced": false,
       "nodes": 35,
-      "svgSha256": "b8d30494189459d0f886396ad525b5da0562a0326ca1b6e21eec3d8947ee7242",
-      "pngSha256": "3233595422147b846df3baae3a775310e91ae511ef66868af78b705be94f0dc7"
+      "svgSha256": "fecddae98be38d8cfccf21495ad093112a591d359b9f2f7b8c1ec1e8e0665290",
+      "pngSha256": "abba63fde36c6ae410e18101c86fffe4746d99d5ed1565f0a3a960642f81724e"
     },
     {
       "id": "S7-in-S7",

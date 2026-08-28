@@ -198,6 +198,64 @@ describe('semantic state matches the frozen HAC-343 record', () => {
   });
 });
 
+/* -- the fill channel carries the semantic class -------------------------- */
+
+/**
+ * Three target treatments, one per semantic class.
+ *
+ * S6 shipped its bars filled at the intent height while labelling them
+ * "pending" and asserting APPLIED underneath — the copy, the semantics and the
+ * picture all disagreed, and at two seconds with the eye on the coupling edge
+ * the plate read as "both of these have executed". That is S6's own
+ * must-not-imply.
+ *
+ * The distinction now lives in the fill channel, where a caption only confirms
+ * it, and these assertions hold the three apart.
+ */
+describe('the fill channel carries the semantic class', () => {
+  const treat = (t) => semanticsAt(t, bindings).treatment;
+
+  it('draws applied targets filled', () => {
+    expect(treat(3.5).alpha).toBe('APPLIED_OR_PENDING_FILLED');
+    expect(treat(3.5).beta).toBe('APPLIED_OR_PENDING_FILLED');
+    expect(treat(28.5).alpha).toBe('APPLIED_OR_PENDING_FILLED');
+    expect(treat(28.5).beta).toBe('APPLIED_OR_PENDING_FILLED');
+  });
+
+  it('draws S6 pending targets open, with a continuous stroke', () => {
+    expect(treat(21.2).alpha).toBe('OPEN_CONTINUOUS');
+    expect(treat(21.2).beta).toBe('OPEN_CONTINUOUS');
+  });
+
+  it('draws the S7 withheld peer open, with a broken stroke', () => {
+    expect(treat(24.5).beta).toBe('OPEN_BROKEN');
+    expect(treat(24.5).alpha).toBe('APPLIED_OR_PENDING_FILLED');
+  });
+
+  it('never renders pending and applied identically', () => {
+    // The whole point. If these ever match, S6 has become "both executed".
+    expect(treat(21.2).alpha).not.toBe(treat(3.5).alpha);
+    expect(treat(21.2).alpha).not.toBe(treat(28.5).alpha);
+  });
+
+  it('never renders pending and withheld identically', () => {
+    expect(treat(21.2).beta).not.toBe(treat(24.5).beta);
+  });
+
+  it('holds the pending treatment for every frame of S6', () => {
+    for (const t of _frameTimes(30, 30).filter((x) => x >= 19.5 && x < 21.5)) {
+      expect(treat(t).alpha, `t=${t}`).toBe('OPEN_CONTINUOUS');
+      expect(treat(t).beta, `t=${t}`).toBe('OPEN_CONTINUOUS');
+    }
+  });
+
+  it('puts no recorded total on the S6 plate', () => {
+    const t = textAt(21.2);
+    expect(t).toMatch(/no decision/);
+    expect(t).not.toMatch(/\b(120|140)\b/);
+  });
+});
+
 /* -- the S7 -> S8 discontinuity ------------------------------------------- */
 
 /**

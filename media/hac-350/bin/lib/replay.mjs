@@ -328,9 +328,13 @@ const RENDER = {
     pathLegend(b.targets),
     boundary(FRAME, 'interlock - observes target keys + extracted transitions'),
     couplingEdge(s.relationship, s.edgeDraw, { label: 'alpha <-> beta - changes together' }),
+    // Declared, not decided. The record at this point in the run carries no
+    // verdict, so the plate must not draw the applied treatment: at two seconds
+    // with the eye on the edge drawing, a filled bar at the intent height reads
+    // as "both of these have executed", which is the scene's own must-not-imply.
     ORDER.map((n) => targetBar(n, {
       from: b.targets[n].intent, value: b.targets[n].intent, fill: 1,
-      state: n === 'gamma' ? TS.UNCHANGED : TS.APPLIED,
+      state: n === 'gamma' ? TS.UNCHANGED : TS.PENDING,
       delta: n === 'gamma' ? 'unchanged' : `${b.targets[n].pre} -> ${b.targets[n].intent}`,
       note: n === 'gamma' ? null : 'pending',
       muted: n === 'gamma',
@@ -450,11 +454,24 @@ export function semanticsAt(t, bindings, opts = {}) {
   const tracks = opts.reduced ? settle(buildTracks(bindings)) : buildTracks(bindings);
   const s = frameAt(tracks, t);
   const scene = seq.sceneAt(t);
+  // Target treatments are read back off the rendered plate rather than
+  // re-declared here. A second table of what each scene "means" would be a
+  // second source of truth, and the first thing it would do is drift from the
+  // one that draws — which is exactly how S6 came to say three different things.
+  const nodes = plateAt(t, bindings, opts).nodes;
+  const treatment = (name) => {
+    const bar = nodes.find((n) => n.t === 'rect' && n.x === COLUMNS[name] && n.w === BAR_W);
+    if (!bar) return null;
+    if (bar.fill) return bar.fill === INK ? 'APPLIED_OR_PENDING_FILLED' : 'MUTED';
+    return bar.dash ? 'OPEN_BROKEN' : 'OPEN_CONTINUOUS';
+  };
+
   return {
     scene: scene.id,
     relationship: s.relationship,
     secondIntent: scene.id === 'S3' ? s.s3SecondState : null,
     peer: scene.id === 'S7' ? s.s7PeerState : null,
+    treatment: { alpha: treatment('alpha'), beta: treatment('beta'), gamma: treatment('gamma') },
     lockScopes: {
       S3: ['alpha'],
       S4: ['alpha', 'beta'],
