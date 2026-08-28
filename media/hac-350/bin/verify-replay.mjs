@@ -355,6 +355,11 @@ const FORBIDDEN = [
   ['production-ready', 'a readiness claim'],
   ['guarantee', 'a guarantee claim'],
   ['always safe', 'a universal safety claim'],
+  // The end card is the last proposition a viewer of the standalone cut
+  // receives, with no surrounding non-claim to bound it. HAC-343 supports a
+  // bounded controlled-corpus result, not product-level safety or reliability.
+  ['safe, reliable', 'a product-level safety and reliability claim'],
+  ['reliability', 'a reliability claim'],
   ['prevents all', 'a universal prevention claim'],
   ['lock failure', 'broken-lock imagery'],
   ['lock broke', 'broken-lock imagery'],

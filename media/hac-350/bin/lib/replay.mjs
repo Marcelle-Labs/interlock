@@ -55,6 +55,20 @@ export const seq = sequence(SCENES);
 
 const VERIFIER_NOTE = 'evaluated after execution by the independent fixture verifier';
 
+/**
+ * The end card's one line.
+ *
+ * A claim boundary, not a caption. This is the last proposition a viewer of the
+ * standalone thirty-second cut receives, and unlike the four-minute film there
+ * is no surrounding non-claim to bound it. "Safe, reliable" reads as a
+ * product-level safety and reliability claim; HAC-343 supports a bounded
+ * controlled-corpus result and nothing wider.
+ *
+ * So the line names the mechanism rather than promising an outcome. It is still
+ * positioning — an end card is — but it is positioning the evidence carries.
+ */
+const END_LINE = 'Evidence-bound coordination for AI-assisted change.';
+
 /* -- track construction --------------------------------------------------- */
 
 /**
@@ -420,7 +434,7 @@ const RENDER = {
       size: 96, weight: 600, fill: PAPER, anchor: 'middle', tracking: 14, opacity: s.endIn,
     }),
     line(W / 2 - 220, 566, W / 2 + 220, 566, { stroke: N[70], width: 1, opacity: s.endIn }),
-    text(W / 2, 626, asciify('Controlled coordination for safe, reliable AI-assisted change.'), {
+    text(W / 2, 626, asciify(END_LINE), {
       size: 32, fill: N[30], anchor: 'middle', opacity: s.endIn,
     }),
   ],

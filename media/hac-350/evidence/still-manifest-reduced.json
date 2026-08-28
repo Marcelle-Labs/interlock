@@ -158,8 +158,8 @@
       "t": 29.1,
       "reduced": true,
       "nodes": 3,
-      "svgSha256": "c9cb0be97d319b841e3d7b6a9ee80ffdf4d6f8b78a43b8f732b77939e9435f90",
-      "pngSha256": "d7f176c7e081be4e5873c93c2d3c90997ab9f9020bf47397f4eb1251766402e1"
+      "svgSha256": "db8c188eb8ce23e79cee3f50102414b6ea4d71c49275ca1e5a1cdfa636d84493",
+      "pngSha256": "e98d79783aa89b107d8ee12745157573d85e41b7ebc01f21f774641865aa480c"
     },
     {
       "id": "END-out-END-reduced",
@@ -167,8 +167,8 @@
       "t": 29.85,
       "reduced": true,
       "nodes": 3,
-      "svgSha256": "de69be516be466520f6c455c4674e3bbf74ef9f622fadc7732838cff385f7441",
-      "pngSha256": "d7f176c7e081be4e5873c93c2d3c90997ab9f9020bf47397f4eb1251766402e1"
+      "svgSha256": "0fe968e616d663594b0ac920048f10565680f0df9fe41d61f4b9757a84dc6b1b",
+      "pngSha256": "e98d79783aa89b107d8ee12745157573d85e41b7ebc01f21f774641865aa480c"
     }
   ]
 }

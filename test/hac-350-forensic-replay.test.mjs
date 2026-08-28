@@ -400,6 +400,16 @@ describe('claim guards', () => {
     }
   });
 
+  it('closes on the mechanism, not on a promised outcome', () => {
+    // The end card is the last proposition a viewer of the standalone cut
+    // receives, and nothing follows it to set a bound. HAC-343 supports a
+    // controlled-corpus result; "safe, reliable" reads wider than that.
+    for (const w of ['safe, reliable', 'reliability']) {
+      expect(everyPlate, w).not.toContain(w);
+    }
+    expect(textAt(29.6)).toContain('Evidence-bound coordination for AI-assisted change.');
+  });
+
   it('shows no broken lock and no refuted baseline', () => {
     for (const w of ['lock failure', 'lock broke', 'lock failed', 'locks are bad']) {
       expect(everyPlate, w).not.toContain(w);
