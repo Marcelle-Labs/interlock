@@ -48,7 +48,15 @@ HAC-325 and HAC-326 pass:
 | `../cli` | `workspacejson/cli` | read, install, **execute** | modify to make a fixture or demo pass |
 | `../integrations` | `workspacejson/integrations` | read, inspect | write; or pre-build the ADK abstraction before S0/S2 contracts exist |
 | `../swarm` | `Marcelle-Labs/ai-swarm` | read, execute quality/orchestration tooling | add product-specific Interlock code |
+| `../studio` | `Marcelle-Labs/director` | read; write **only** inside the scope a named approved Studio contract authorizes | write outside that scope, or take a dependency on a pinned Studio revision without an approved issue naming it |
 | this repository | `Marcelle-Labs/interlock` | write, via an issue branch | push directly to `main` |
+
+Studio is the one row where the default and the exception both matter. It is
+read-only by default, and HAC-324 currently holds a bounded write scope for its
+capture and harvest work — three merged pull requests against `director`. That
+authority is HAC-324's, not the sprint's: no other issue inherits it by
+adjacency, and harvesting a capability *toward* Studio is not a dependency *on*
+it. `docs/development/workspace.md` records the scope in full.
 
 Each sibling carries its own `AGENTS.md` / `OWNERSHIP.md`. Read the one in the
 repository you are about to touch — it outranks this table for that repository.
