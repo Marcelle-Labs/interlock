@@ -1,0 +1,171 @@
+{
+  "issue": "HAC-350",
+  "kind": "forensic-replay-presentation-bindings",
+  "generatedBy": "media/hac-350/bin/build-bindings.mjs",
+  "note": "Derived, not authored. Every value is read from a frozen HAC-343 or HAC-330 artifact and carries the pointer it was read from. This file records what was decided; it decides nothing.",
+  "invariant": {
+    "statement": "sum(services[].reserved) <= budget.totalReservable",
+    "ceiling": 130,
+    "verifierPath": "verify.mjs",
+    "verifierSha256": "b6ba3066cdc47ef513bd31b4b6adfd9edc95e50e8b5f33c5597e95b5785fc644",
+    "evaluatedBy": "independent fixture verifier, after execution",
+    "source": "experiments/hac-343/evidence/raw-results.json#/records/0/oracle"
+  },
+  "targets": {
+    "alpha": {
+      "path": "services/alpha/reservation.json",
+      "pre": 40,
+      "intent": 60
+    },
+    "beta": {
+      "path": "services/beta/reservation.json",
+      "pre": 40,
+      "intent": 60
+    },
+    "gamma": {
+      "path": "services/gamma/reservation.json",
+      "pre": 20,
+      "intent": 20
+    }
+  },
+  "targetSources": {
+    "alpha": "experiments/hac-343/evidence/raw-results.json#/records/7/oracle/state/services/alpha",
+    "beta": "experiments/hac-343/evidence/raw-results.json#/records/6/oracle/state/services/beta",
+    "gamma": "experiments/hac-343/evidence/raw-results.json#/records/0/oracle/state/services/gamma"
+  },
+  "relationship": {
+    "files": [
+      "services/alpha/reservation.json",
+      "services/beta/reservation.json"
+    ],
+    "support": 8,
+    "occurrences": 10,
+    "basis": "eb67a6f56b3bf7e71846e7324d21af44565c0b70",
+    "artifact": "sha256:2c021d0c593aac252c4f7f61d8d6bd03b3bfcccf7a2f647691a1a2b894eb21d6",
+    "absentBasis": "db8a63ec9405191bdd40d0ed0fc69684fca5d17b",
+    "source": "experiments/hac-343/evidence/raw-results.json#/records/6/verdicts/0/couplings/0"
+  },
+  "ablationControls": {
+    "sameIntents": true,
+    "sameFinalTree": "shared final tree fc015c39d48019fd8bb1b3e25ae97f70ebf5262e",
+    "sameCommitCount": "17 commits in each",
+    "source": [
+      "experiments/hac-330/evidence/results.json#/checks",
+      "experiments/hac-343/evidence/raw-results.json#/records/30/intents"
+    ]
+  },
+  "scenes": {
+    "S1": {
+      "scenarioId": "budget/coupled/alpha-beta",
+      "arm": "A1_uncoordinated",
+      "concurrent": true,
+      "applied": {
+        "alpha": true,
+        "beta": true
+      },
+      "total": 140,
+      "holds": false,
+      "lockGroups": [
+        "NONE#i0",
+        "NONE#i1"
+      ],
+      "source": "experiments/hac-343/evidence/raw-results.json#/records/0"
+    },
+    "S2": {
+      "alphaAlone": "A alone → total 120 <= 130, verify.mjs exit 0",
+      "betaAlone": "B alone → total 120 <= 130, verify.mjs exit 0",
+      "total": 120,
+      "holds": true,
+      "totalSources": [
+        "experiments/hac-330/evidence/arms.json#/baseline/events/0/total",
+        "experiments/hac-330/evidence/arms.json#/baseline/events/1/total"
+      ],
+      "source": [
+        "experiments/hac-330/evidence/results.json#/checks/4",
+        "experiments/hac-330/evidence/results.json#/checks/5"
+      ]
+    },
+    "S3": {
+      "scenarioId": "budget/same-target/alpha-alpha",
+      "arm": "A3_per_target_lock",
+      "concurrent": false,
+      "lockGroups": [
+        "services/alpha/reservation.json"
+      ],
+      "leader": {
+        "intentId": "i0",
+        "reserved": 60,
+        "applied": true
+      },
+      "follower": {
+        "intentId": "i1",
+        "reserved": 55,
+        "applied": true
+      },
+      "source": "experiments/hac-343/evidence/raw-results.json#/records/20"
+    },
+    "S4": {
+      "scenarioId": "budget/coupled/alpha-beta",
+      "arm": "A3_per_target_lock",
+      "concurrent": true,
+      "lockGroups": [
+        "services/alpha/reservation.json",
+        "services/beta/reservation.json"
+      ],
+      "total": 140,
+      "holds": false,
+      "source": "experiments/hac-343/evidence/raw-results.json#/records/4"
+    },
+    "S7": {
+      "scenarioId": "budget/coupled/alpha-beta",
+      "arm": "A4_interlock",
+      "concurrent": false,
+      "leader": {
+        "decision": "ALLOW_SERIALIZED",
+        "reasonCode": "SERIALIZED_PRECEDENCE",
+        "applied": true
+      },
+      "peer": {
+        "decision": "WITHHOLD_SERIALIZE",
+        "reasonCode": "COUPLING_OBSERVED",
+        "applied": false,
+        "reason": "WITHHELD_SERIALIZE"
+      },
+      "total": 120,
+      "holds": true,
+      "source": "experiments/hac-343/evidence/raw-results.json#/records/6"
+    },
+    "S8": {
+      "scenarioId": "budget/perturbed/alpha-beta",
+      "arm": "A4_interlock",
+      "concurrent": true,
+      "decisions": [
+        "ALLOW_PARALLEL",
+        "ALLOW_PARALLEL"
+      ],
+      "reasonCodes": [
+        "NO_QUALIFYING_COUPLING",
+        "NO_QUALIFYING_COUPLING"
+      ],
+      "couplings": 0,
+      "applied": {
+        "alpha": true,
+        "beta": true
+      },
+      "total": 140,
+      "holds": false,
+      "source": "experiments/hac-343/evidence/raw-results.json#/records/30"
+    }
+  },
+  "corpusRefs": {
+    "coupled": "experiments/hac-343/evidence/corpus.json#/scenarios/0",
+    "sameTarget": "experiments/hac-343/evidence/corpus.json#/scenarios/2",
+    "perturbed": "experiments/hac-343/evidence/corpus.json#/scenarios/3"
+  },
+  "sourceDigests": {
+    "experiments/hac-343/evidence/raw-results.json": "6f737d44c3b33c298b59d1bf84d028d6c56524ba14ce34c7db82e3f5dddec9eb",
+    "experiments/hac-343/evidence/corpus.json": "68c60b38087de00886338de78b9a8b673c1467bf056adaf057c4fd211929575c",
+    "experiments/hac-330/evidence/results.json": "acf6ed87d67647f06f7da38467323b3fc8000edd8acda5e8a7d70301e98006aa",
+    "experiments/hac-330/evidence/arms.json": "dcadc10eb4b963427bdf38916bb9a4a758c035902037bad116325815293795c9"
+  }
+}

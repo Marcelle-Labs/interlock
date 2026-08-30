@@ -70,6 +70,17 @@ export const stateColor = (key, dark = false) => oklch((dark ? STATE_OKLCH_DARK 
 
 /* -- nodes --------------------------------------------------------------- */
 
+/*
+ * Every node carries `opacity`, defaulting to 1.
+ *
+ * `text` and `rect` always did; `line`, `path` and `circle` did not, so a caller
+ * that faded a stroke got a fully opaque one and no error. That is invisible in
+ * a still suite, where nothing fades, and it is a floating rule under a numeral
+ * that has not appeared yet in a cut, where things do. The backends emit the
+ * attribute only when it is not 1, so a board that never fades encodes exactly
+ * as it did before.
+ */
+
 export const rect = (x, y, w, h, o = {}) => ({
   t: 'rect', x, y, w, h,
   fill: o.fill ?? null, stroke: o.stroke ?? null, width: o.width ?? 1,
@@ -79,6 +90,7 @@ export const rect = (x, y, w, h, o = {}) => ({
 export const line = (x1, y1, x2, y2, o = {}) => ({
   t: 'line', x1, y1, x2, y2,
   stroke: o.stroke ?? N[30], width: o.width ?? 1, dash: o.dash ?? null, cap: o.cap ?? 'butt',
+  opacity: o.opacity ?? 1,
 });
 
 /** `d` is restricted to absolute M/L commands, which both backends implement. */
@@ -86,11 +98,13 @@ export const path = (d, o = {}) => ({
   t: 'path', d,
   fill: o.fill ?? null, stroke: o.stroke ?? null, width: o.width ?? 1,
   dash: o.dash ?? null, cap: o.cap ?? 'butt', join: o.join ?? 'miter',
+  opacity: o.opacity ?? 1,
 });
 
 export const circle = (cx, cy, r, o = {}) => ({
   t: 'circle', cx, cy, r,
   fill: o.fill ?? null, stroke: o.stroke ?? null, width: o.width ?? 1, dash: o.dash ?? null,
+  opacity: o.opacity ?? 1,
 });
 
 export const text = (x, y, s, o = {}) => ({
