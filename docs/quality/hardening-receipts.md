@@ -194,7 +194,7 @@ the file's own repository.
 | Posture | blocking — **required** |
 | Injected defect | Deleted `docs/migration/parity-receipt.json` (`4b77a33`) |
 | Observed failure | Annotation `Missing committed parity receipt` on the `Require a committed parity receipt` step |
-| Repair | Restored the receipt (`4600e18`) |
+| Repair | Restored the receipt (`4600e18` — see the note below; the same commit opens the next proof) |
 | Final state | Required on `main`, pinned to app `15368` |
 
 Promotion was deferred until the gate was worth requiring. Before
@@ -216,7 +216,7 @@ meaningful: the same tree that had been green now fails, and names why. #15 merg
 | Posture | blocking — **required** |
 | Injected defect | Removed `.mcp.json` from the published `files[]` array (`4600e18`) |
 | Observed failure | Harness assertion `tarball contains .mcp.json` failed |
-| Repair | Restored `files[]` (`eff8bc5`) |
+| Repair | Restored `.mcp.json` to `files[]` (`65404e7`) |
 | Final state | Required on `main`, pinned to app `15368` |
 
 Attribution is clean: this job runs no linter and no formatter, so its failure
@@ -224,6 +224,31 @@ cannot be confused with the formatting artifact that invalidated the withdrawn r
 below. `build-and-smoke` also greps the pack log for `.mcp.json`, so the two jobs
 overlap on this assertion — established by reading the workflow, **not** by that
 run.
+
+#### The four commits are a chain, not four independent fixtures
+
+Corrected at the 2026-08-30 audit. Two SHAs above each carry **two roles**, because
+each proof's repair was committed together with the next proof's injection. Read as
+isolated rows the tables look self-contradictory — `4600e18` appeared as a repair
+here and as an injected defect there, with nothing saying why. The commits are
+correct; the tables were describing them one row at a time.
+
+| Commit | Message | Repairs | Injects |
+| --- | --- | --- | --- |
+| `4b77a33` | `PROOF 1/3` — delete the parity receipt | — | `parity-receipt-reproduction` |
+| `4600e18` | `PROOF 2/3` — restore the receipt, drop `.mcp.json` from `files[]` | `parity-receipt-reproduction` | `standard-candidate-consumption` |
+| `65404e7` | `PROOF 3/4` — isolate the consumption defect | `standard-candidate-consumption` | the withdrawn run below |
+| `eff8bc5` | `PROOF 4/4` — restore everything | the withdrawn run below | — |
+
+**One row was wrong, not merely terse.** This receipt previously named `eff8bc5` as
+its repair. `eff8bc5` restores `scripts/install.mjs`, which is the *withdrawn* run's
+defect; the commit that put `.mcp.json` back in `files[]` — the repair this gate
+actually observed green — is `65404e7`. Corrected above. No commit was altered: the
+sibling-repository history is what it always was, and the audit changed the
+description to match it rather than the other way round.
+
+The `n/3` → `n/4` renumbering across the messages is the series being extended
+mid-flight when the isolation attempt was added. It is preserved as written.
 
 ### `SonarCloud Code Analysis`
 
@@ -255,8 +280,11 @@ Both halves failed:
 * the injected defect had no effect — the consumption harness still passed, so
   `scripts/install.mjs` reached the tarball by some route other than `files[]`;
 * `build-and-smoke` went red for an unrelated reason. Rewriting `package.json`
-  through a `JSON.stringify` round trip reformatted the `files` array and tripped
-  biome in the `Lint` step.
+  through a `JSON.stringify` round trip reformatted the `files` array from one
+  line to eight and tripped biome in the `Lint` step. That reformat entered at
+  `4600e18`, one commit earlier, and was still present when this run executed —
+  `65404e7` itself is a targeted two-line swap inside the already-expanded array.
+  The lesson survives the correction; the commit it is attributed to does not.
 
 A run whose red is not attributable to its injected defect proves nothing. It is
 recorded here so it is not later mistaken for evidence, and as a note on method:
