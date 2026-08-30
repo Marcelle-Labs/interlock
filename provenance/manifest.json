@@ -10,7 +10,9 @@
   "notes": [
     "Every dependency below is CONSUMED (linked, installed, or executed in place). No entry is COPIED into this repository.",
     "Pinned SHAs are the exact revisions present at first use during the contest period.",
-    "This manifest is machine-checked by scripts/check-provenance.mjs and enforced in CI."
+    "This manifest is machine-checked by scripts/check-provenance.mjs and enforced in CI.",
+    "Workspace participants are deliberately absent. A repository governed by the workspace permissions matrix is not automatically a manifest entry: this file records what the submission CONSUMES. Marcelle-Labs/mlabs_portfolio (the marcellelabs.io publication surface, writable under MAR-390) and Marcelle-Labs/director (Studio, visibility only) are excluded on the same ground — workspace participant, not submission-consumed dependency. Interlock does not link, install, or execute either one. If that changes, add the entry with a pinned SHA and a DISCLOSURE.md line in the same pull request as the consuming code. See docs/development/workspace.md#outbound-and-non-consumed-surfaces.",
+    "The pinned revisions below are checked out at ~/dev/interlock-workspace/ — the frozen-proof workspace. That environment is the canonical dependency source for reproducing frozen Interlock evidence and must not be renamed, relocated, refreshed or fast-forwarded before submission freeze. Active sibling checkouts under ~/dev/ are development copies, intentionally newer and off-pin, and must never be substituted into an evidence run. Verify with the pin preflight in docs/development/workspace.md before any evidence command; an off-pin run goes green while attesting to a revision that was never published."
   ],
   "dependencies": [
     {
