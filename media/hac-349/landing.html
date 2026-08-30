@@ -75,12 +75,25 @@ header.site{height:var(--hdr);display:flex;align-items:center;gap:16px;
 /* ── L1 ── */
 section.l1{padding-block:clamp(28px,5vh,56px) clamp(24px,4vh,44px)}
 @media (min-width:1024px){
-  section.l1{min-height:calc(100vh - var(--hdr));display:flex;flex-direction:column;justify-content:center}
+  section.l1{min-height:calc(100vh - var(--hdr));display:flex;flex-direction:column;justify-content:center;
+    padding-block:clamp(20px,2.6vh,56px) clamp(24px,4vh,44px)}
+  /* The promoted lede carries a second line now, and the first frame still has
+     to clear the fold at 1280x800 with 48px of headroom. The section is
+     centred, so a pixel of content costs half a pixel at the fold; the
+     compensation is taken from vertical rhythm rather than from type, because
+     the type sizes are the correction. Scoped to the desktop breakpoint: the
+     fold contract is a desktop contract and narrow viewports scroll. */
+  section.l1 .lede--sub{margin-top:8px}
+  section.l1 .scene{margin-top:clamp(16px,2vh,34px)}
+  section.l1 .continue{margin-top:clamp(14px,1.9vh,30px)}
 }
 .thesis{max-width:52rem}
 h1{font-size:clamp(30px,4.4vw,52px);line-height:1.04;letter-spacing:-.03em}
 h1 .half{display:block}
-.lede{margin-top:14px;font-size:clamp(15px,1.35vw,19px);line-height:1.5;color:var(--text-body);max-width:44rem}
+.lede{margin-top:14px;font-size:clamp(17px,1.6vw,23px);line-height:1.4;font-weight:450;
+  color:var(--text-body);max-width:44rem;letter-spacing:-.011em}
+.lede--sub{margin-top:10px;font-size:clamp(14px,1.2vw,16.5px);line-height:1.5;
+  font-weight:400;color:var(--text-muted);letter-spacing:0}
 
 /* ── the scene: two lanes inside one environment ──
    HTML boxes rather than one drawn SVG. The relationship the first frame has to
@@ -165,6 +178,7 @@ h2{font-size:clamp(22px,2.5vw,32px);line-height:1.14;max-width:40rem}
 .realisation{margin-top:clamp(20px,2.6vh,28px);border-left:3px solid var(--ink);padding:4px 0 4px 16px;
   font-size:clamp(15px,1.5vw,19px);line-height:1.4;max-width:40rem}
 .realisation b{font-weight:600}
+.realisation + .realisation{margin-top:10px}
 .footnote{margin-top:14px;font-size:12.5px;color:var(--text-muted);max-width:46rem}
 
 /* ── L2b: four-way contrast, small multiples ── */
@@ -226,6 +240,13 @@ h2{font-size:clamp(22px,2.5vw,32px);line-height:1.14;max-width:40rem}
   letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);text-align:center;
   writing-mode:vertical-rl;padding:0 2px}
 @media (max-width:860px){.delta{writing-mode:horizontal-tb;padding:4px 0}}
+.chain{margin-top:clamp(18px,2.4vh,26px);border-top:1px solid var(--border-hair);
+  padding-top:14px;display:flex;flex-direction:column;gap:9px;max-width:58rem}
+.chain__line{font-size:clamp(12.5px,1.05vw,14px);line-height:1.55}
+.chain__line b{font-weight:600}
+.chain__line .arrow{font-family:var(--mono);color:var(--text-muted);padding:0 2px}
+.chain__line[data-tone="failed"] .fig{color:var(--failed);font-weight:600}
+.chain__line .fig{font-family:var(--mono);font-weight:600}
 
 /* ── L3: verify ── */
 .paths{margin-top:clamp(22px,3vh,32px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -475,10 +496,10 @@ function metric(kind, label, direction, cell) {
    so a reordered export cannot slide a reading onto the wrong strategy. Each is
    a restatement of the two figures above it and adds no result of its own. */
 const ARM_READING = {
-  A1_uncoordinated: 'Every safe parallel opportunity kept, and both coupled compositions came out invalid.',
-  A2_global_lock: 'Both coupled compositions avoided — by allowing no measured parallelism at all.',
-  A3_per_target_lock: 'A real lock, correct on same-target contention, and blind to the hazard that spans two keys.',
-  A4_interlock: 'Both coupled compositions withheld while both safe parallel opportunities were kept — in these conditions.',
+  A1_uncoordinated: 'Every independent opportunity kept parallel, and both coupled compositions came out invalid.',
+  A2_global_lock: 'Avoided the demonstrated invalid coupled outcomes by making the independent work wait too: none of the independent opportunities were kept parallel.',
+  A3_per_target_lock: 'A real lock, correct on same-target contention. The demonstrated hazard spans two keys, which is outside what a per-key discipline covers.',
+  A4_interlock: 'Kept the demonstrated hazardous compositions from proceeding together while the independent work still proceeded together, in these conditions.',
 };
 
 function armHtml(a) {
@@ -489,7 +510,7 @@ function armHtml(a) {
         <span class="arm__id mono">${esc(a.armId)}</span>
       </div>
       ${metric('unsafe', 'Invalid coupled outcomes', 'lower is better', a.invalidCoupled)}
-      ${metric('parallel', 'Safe parallel opportunities retained', 'higher is better', a.safeParallelRetained)}
+      ${metric('parallel', 'Independent opportunities kept parallel', 'higher is better', a.safeParallelRetained)}
       <p class="arm__read">${esc(ARM_READING[a.armId] ?? '')}</p>
     </div>`;
 }
@@ -533,9 +554,10 @@ ${scaffold(M)}
   <div class="frame">
     <div class="thesis">
       <h1 id="thesis"><span class="half">Different targets.</span><span class="half">Same environment.</span></h1>
-      <p class="lede">Two agent actions, each valid on its own, can still compose into an
-      invalid joint outcome — because the thing they share is not the thing either one
-      is touching.</p>
+      <p class="lede">Two agent actions can each be valid alone and still fail together
+      when a shared environmental constraint spans both targets.</p>
+      <p class="lede lede--sub">Each action changes a different target. The constraint is
+      joint: their composition can violate it even when neither action does alone.</p>
     </div>
     ${sceneHtml(s)}
     <div class="continue">
@@ -563,8 +585,8 @@ ${scaffold(M)}
     'The constraint the two actions jointly violate belongs to the environment they share, not to either file they lock. No per-key discipline can see a relationship that is not one of its keys.',
     '', null, L.missed.figure, 'cross-target composition hazards missed')}
     </div>
-    <p class="realisation">The lock worked. It locked exactly what it could see —
-    <b>and the demonstrated hazard crossed two lock keys.</b></p>
+    <p class="realisation">The lock worked for the hazard it could see.</p>
+    <p class="realisation"><b>The demonstrated composition hazard crossed two lock keys.</b></p>
     <p class="footnote">${esc(L.note)}</p>
   </div>
 </section>
@@ -575,6 +597,9 @@ ${scaffold(M)}
     <h2 id="compare-title">What each strategy costs, and what it misses</h2>
     <p class="band__lede">${esc(C.question)} Two dimensions, always read together: either one
     alone ranks the strategies wrongly.</p>
+    <p class="footnote">Independent opportunities kept parallel counts the recorded
+    independent cases whose joint execution remained valid and was still allowed to proceed
+    together. A strategy that makes that independent work wait scores zero here.</p>
     <div class="arms">${C.strategies.map(armHtml).join('')}</div>
     <p class="reading">${esc(C.reading)}</p>
     <div class="bound">
@@ -602,9 +627,25 @@ ${scaffold(M)}
     </div>
     <div class="conditions">
       ${cond(A.rows[0], false)}
-      <div class="delta" aria-hidden="true">Evidence removed</div>
+      <div class="delta" aria-hidden="true">Qualifying coupling evidence removed</div>
       ${cond(A.rows[1], true)}
     </div>
+    <div class="chain">
+      <p class="chain__line"><b>Coupling evidence present</b>
+        <span class="arrow" aria-hidden="true">→</span> decision
+        ${A.rows[0].decisions.map((d) => `<span class="tok">${esc(d)}</span>`).join(' ')}
+        <span class="arrow" aria-hidden="true">→</span> the hazardous compositions were
+        withheld or serialized <span class="arrow" aria-hidden="true">→</span>
+        <span class="fig">${esc(A.rows[0].invalidOutcomes)}</span> invalid coupled outcomes</p>
+      <p class="chain__line" data-tone="failed"><b>Qualifying coupling evidence removed</b>
+        <span class="arrow" aria-hidden="true">→</span> decision
+        ${A.rows[1].decisions.map((d) => `<span class="tok">${esc(d)}</span>`).join(' ')}
+        <span class="arrow" aria-hidden="true">→</span> the same compositions proceeded
+        together <span class="arrow" aria-hidden="true">→</span>
+        <span class="fig">${esc(A.rows[1].invalidOutcomes)}</span> invalid coupled outcomes return</p>
+    </div>
+    <p class="realisation">Changing the available coupling evidence changed the coordination
+    decision, and the changed decision changed the joint outcome.</p>
     <p class="reading">${esc(A.reading)}</p>
     <p class="footnote">${esc(A.framing.recordedNote)}</p>
   </div>
