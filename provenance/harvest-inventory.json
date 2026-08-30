@@ -336,6 +336,26 @@
       "id": "revision-anchor-extension",
       "reason": "provenance/manifest.json records it with status PLANNED. It was never built, has no paths, and therefore cannot receive a disposition. Recording one would assert work that did not happen.",
       "entersInventoryWhen": "never, unless it is actually built"
+    },
+    {
+      "id": "agent-runtime-counterfactual-machinery",
+      "reason": "Lives on hac/316-agent-runtime-counterfactual (pushed 2026-08-30) and is not on main. Its disposition is DELETE_HACKATHON_ONLY, and no owner issue is required. HAC-316 is Canceled as [FAILED/PIVOTED]; the tree is 55 executable files \u2014 ADK agents, provisioning and teardown tooling \u2014 for an Agent Runtime topology that was abandoned. This is the same judgement already recorded for experiments/hac-325: keeping runnable provisioning for an abandoned architecture invites someone to run it. The provenance survives on the pushed branch, which is what HAC-341 means by 'failed/pivoted historical provenance only'; nothing on main references the path.",
+      "entersInventoryWhen": "never \u2014 DELETE is the decision. It would need a row only if the tree were landed on main, which this disposition declines."
+    },
+    {
+      "id": "agent-gateway-viability-forensics",
+      "reason": "Lives on origin/hac/339-agent-gateway-forensics and is not on main. Its disposition is HARVEST_INTEGRATIONS under META-330, recorded there 2026-08-30. Eleven files, zero executables: a current Google support matrix for the Agent Runtime / Agent Gateway topology, a hypothesis matrix narrowing the HAC-325 TLS root cause, and a designed one-shot probe. Unlike hac-325 this is not runnable machinery for an abandoned path, so the DELETE rationale does not reach it \u2014 it is environment-evidence about the Google adapter boundary, which is META-330's scope. HAC-338 remains the sprint-local re-audit issue; META-330 is the post-window durable home.",
+      "entersInventoryWhen": "the HAC-339 branch merges"
+    },
+    {
+      "id": "adk-cloud-protected-action-path",
+      "reason": "Lives on origin/hac/340-minimal-gemini-adk-cloud-path and is not on main. Its disposition is HARVEST_INTEGRATIONS under META-330, recorded there 2026-08-30. It is the Gemini + ADK agent, Cloud Run deployment and frozen evidence for the traversal META-330 names as its entry proof, and the thinnest honest ADK adapter question is the one it answers. Two constraints travel with it: experiments/hac-340/evidence carries the unredacted identifiers and must not be published \u2014 experiments/hac-342 is the public derivative and the only judge-facing form; and those bytes are the referent of the hac-342 sourcePacketSha256 commitment, so the tree must be retained, never deleted, or that commitment becomes permanently uncheckable.",
+      "entersInventoryWhen": "the HAC-340 branch merges"
+    },
+    {
+      "id": "veo-hero-sequence",
+      "reason": "Lives on origin/hac/335-veo-hero and is not on main. Its disposition is HARVEST_STUDIO under HAC-324 \u2014 inherited, not new: the media coverage root is children mode, so media/hac-335 is the covered unit and the existing judge-package-and-asset-registry row already claims it. A separate row would double-claim the path and turn the gate red. Recorded here only because the subtree is not yet on main and an absence should never read as an oversight.",
+      "entersInventoryWhen": "the HAC-335 veo-hero branch merges \u2014 at which point it is already claimed by judge-package-and-asset-registry and needs no new row"
     }
   ]
 }

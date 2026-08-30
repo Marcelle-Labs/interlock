@@ -218,6 +218,65 @@ establishing the value they set out to measure. That is a finding about where
 *not* to invest, and it is worth more than a positive result would have been from
 a search that had to be widened to find one.
 
+## 6. Built but not on `main` — dispositions the gate cannot see
+
+The coverage check reads paths. A capability that never landed has no path, so the
+gate cannot notice it is missing — which makes this the one section the gate does
+not protect, and the one most likely to be where a stranded capability actually
+sits. Five trees were built during the sprint and are not on `main`. Each is
+recorded in the inventory's `notInInventory` array with the same disposition given
+here; none is a row, because a row pointing at a path that does not exist fails
+the check by design.
+
+| Tree | Branch | Disposition | Owner |
+| --- | --- | --- | --- |
+| `experiments/hac-316` | `hac/316-agent-runtime-counterfactual` | `DELETE` | — |
+| `experiments/hac-339` | `hac/339-agent-gateway-forensics` | `HARVEST → integrations` | **META-330** |
+| `experiments/hac-340` | `hac/340-minimal-gemini-adk-cloud-path` | `HARVEST → integrations` | **META-330** |
+| `experiments/meta-383` | `feature/meta-383-…` | `HARVEST → standard research` | **META-384** |
+| `media/hac-335/veo-hero` | `hac/335-veo-hero` | `HARVEST → Studio v3` | **HAC-324** |
+
+All five branches are on `origin` as of 2026-08-30. Before that date three of them
+existed on one laptop only, `hac-340` among them — the tree `experiments/hac-342`
+commits to by digest.
+
+**`hac-316` is `DELETE`, on the `hac-325` precedent.** HAC-316 is Canceled as
+`[FAILED/PIVOTED]`, and the tree is fifty-five executable files — ADK agents,
+provisioning, teardown — for an abandoned Agent Runtime topology. The rationale
+already written for `hac-325` reaches it exactly: keeping runnable provisioning for
+an architecture nobody will use invites someone to run it. `DELETE` here means *not
+carried onto `main`*, not *destroyed*; the branch preserves the provenance HAC-341
+calls "failed/pivoted historical provenance only", and nothing on `main` cites the
+path.
+
+**`hac-339` is not `DELETE`, and the difference from `hac-325` is the point.**
+Eleven files, zero executables: a current Google support matrix, a hypothesis
+matrix narrowing the HAC-325 TLS root cause, and a designed one-shot probe. The
+`hac-325` rationale is about runnable machinery, so it does not reach a document
+packet. This is environment evidence about the Google adapter boundary, which is
+META-330's stated scope. HAC-338 stays the sprint-local re-audit issue; META-330 is
+the durable home that outlives the window.
+
+**`hac-340` carries two constraints, and the second is load-bearing.**
+`experiments/hac-340/evidence` holds the unredacted identifiers, so it must not be
+published — `experiments/hac-342` is the public derivative and the only judge-facing
+form. And those bytes are the referent of hac-342's `sourcePacketSha256`. A
+commitment whose referent has been deleted is not a weaker commitment, it is an
+uncheckable one, so this tree is retained regardless of where the harvest lands.
+
+**`veo-hero` inherits rather than adds.** The `media` coverage root is `children`
+mode, so `media/hac-335` is the covered unit and
+`judge-package-and-asset-registry` already claims it. A second row would
+double-claim the path and turn the gate red. It is listed here only so the subtree
+is not mistaken for an omission.
+
+**`meta-383` was already owned** — META-384 names
+`live-worktree-composition-harness` in its own body and makes reconciliation on
+merge part of its acceptance. Confirmed 2026-08-30, unchanged.
+
+The counts below are unaffected: they describe rows over paths that exist, and none
+of these five is a row.
+
 ## Summary
 
 <!-- counts: {"total":27,"KEEP_INTERLOCK":12,"HARVEST_STANDARD_RESEARCH":4,"HARVEST_STUDIO":5,"HARVEST_SWARM":3,"HARVEST_INTEGRATIONS":1,"DELETE_HACKATHON_ONLY":2} -->
