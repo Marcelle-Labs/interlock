@@ -1,0 +1,382 @@
+{
+  "issue": "HAC-349",
+  "kind": "judge landing model (derived, presentation only)",
+  "artifacts": [
+    "experiments/hac-343/evidence/judge-export.json",
+    "experiments/hac-343/evidence/raw-results.json",
+    "media/hac-341/evidence/view-model.json"
+  ],
+  "scene": {
+    "scenario": "budget/coupled/alpha-beta",
+    "scenarioSource": "experiments/hac-343/evidence/raw-results.json#records[scenarioId=budget/coupled/alpha-beta]",
+    "invariant": "sum(services[].reserved) <= budget.totalReservable",
+    "invariantSource": "experiments/hac-343/evidence/raw-results.json#records.0.oracle.stdout#invariant",
+    "ceiling": 130,
+    "ceilingSource": "experiments/hac-343/evidence/raw-results.json#records.0.oracle.stdout#totalReservable",
+    "actions": [
+      {
+        "actor": "Agent A",
+        "path": "services/alpha/reservation.json",
+        "target": "alpha",
+        "change": 60,
+        "source": "experiments/hac-343/evidence/raw-results.json#records.0.intents.0"
+      },
+      {
+        "actor": "Agent B",
+        "path": "services/beta/reservation.json",
+        "target": "beta",
+        "change": 60,
+        "source": "experiments/hac-343/evidence/raw-results.json#records.0.intents.1"
+      }
+    ],
+    "alone": {
+      "total": 120,
+      "holds": true,
+      "source": "experiments/hac-343/evidence/raw-results.json#records.6.oracle.stdout#total"
+    },
+    "joint": {
+      "total": 140,
+      "holds": false,
+      "source": "experiments/hac-343/evidence/raw-results.json#records.0.oracle.stdout#total"
+    }
+  },
+  "lock": {
+    "sameTarget": {
+      "keys": [
+        "services/alpha/reservation.json"
+      ],
+      "concurrent": false,
+      "figure": "2/2",
+      "figureSource": "experiments/hac-343/evidence/judge-export.json#panel1.perTargetLockCredibility.serializedSameTargetContention.display",
+      "reading": "One key, so the second intent waits. The lock is correct here."
+    },
+    "crossTarget": {
+      "keys": [
+        "services/alpha/reservation.json",
+        "services/beta/reservation.json"
+      ],
+      "concurrent": true,
+      "figure": "4/4",
+      "figureSource": "experiments/hac-343/evidence/judge-export.json#panel1.perTargetLockCredibility.parallelisedCrossTarget.display",
+      "reading": "Two different keys, so ordinary per-key discipline lets both proceed."
+    },
+    "missed": {
+      "figure": "2/2",
+      "figureSource": "experiments/hac-343/evidence/judge-export.json#panel1.perTargetLockCredibility.missedCrossTargetHazards.display",
+      "reading": "The constraint they share is not either key. It is the environment both keys sit in."
+    },
+    "claim": "A3 is a real lock, so its misses are blindness rather than absence of a lock.",
+    "claimSource": "experiments/hac-343/evidence/judge-export.json#panel1.perTargetLockCredibility.claim",
+    "note": "It locked exactly what a lock can see. A composition hazard spanning two lock keys is not visible to any per-key discipline.",
+    "noteSource": "experiments/hac-343/evidence/judge-export.json#panel1.perTargetLockCredibility.note"
+  },
+  "comparison": {
+    "question": "Under the co-change evidence that was available, how do four coordination strategies compare?",
+    "strategies": [
+      {
+        "armId": "A1_uncoordinated",
+        "label": "Uncoordinated",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.0.label",
+        "invalidCoupled": {
+          "display": "2/2",
+          "numerator": 2,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.0.coupledUnsafe.display"
+        },
+        "safeParallelRetained": {
+          "display": "2/2",
+          "numerator": 2,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.0.safeParallelism.display"
+        }
+      },
+      {
+        "armId": "A2_global_lock",
+        "label": "Global lock",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.1.label",
+        "invalidCoupled": {
+          "display": "0/2",
+          "numerator": 0,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.1.coupledUnsafe.display"
+        },
+        "safeParallelRetained": {
+          "display": "0/2",
+          "numerator": 0,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.1.safeParallelism.display"
+        }
+      },
+      {
+        "armId": "A3_per_target_lock",
+        "label": "Per-target lock",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.2.label",
+        "invalidCoupled": {
+          "display": "2/2",
+          "numerator": 2,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.2.coupledUnsafe.display"
+        },
+        "safeParallelRetained": {
+          "display": "2/2",
+          "numerator": 2,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.2.safeParallelism.display"
+        }
+      },
+      {
+        "armId": "A4_interlock",
+        "label": "Interlock",
+        "labelSource": "experiments/hac-343/evidence/judge-export.json#panel1.rows.3.label",
+        "invalidCoupled": {
+          "display": "0/2",
+          "numerator": 0,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.3.coupledUnsafe.display"
+        },
+        "safeParallelRetained": {
+          "display": "2/2",
+          "numerator": 2,
+          "denominator": 2,
+          "source": "experiments/hac-343/evidence/judge-export.json#panel1.rows.3.safeParallelism.display"
+        }
+      }
+    ],
+    "reading": "Global locking preserved safety by eliminating concurrency. Per-target locking preserved concurrency but missed every cross-target composition hazard. Interlock is the only arm in both left-hand columns at once on this corpus.",
+    "readingSource": "experiments/hac-343/evidence/judge-export.json#panel1.reading",
+    "scope": "COUPLED and INDEPENDENT scenarios only. Evidence-ablation scenarios are Panel 2; inadmissible-evidence scenarios are reported under limitations."
+  },
+  "ablation": {
+    "question": "Is Interlock’s safety derived from the evidence, or from something else?",
+    "questionSource": "experiments/hac-343/evidence/judge-export.json#panel2.question",
+    "design": "The perturbed fixtures hold the intents and the final tree identical to their coupled counterparts and change only the commit history, so the coupling is absent from the mined evidence while the composition remains genuinely hazardous.",
+    "designSource": "experiments/hac-343/evidence/judge-export.json#panel2.design",
+    "heldConstant": [
+      "the two intents",
+      "the final file tree",
+      "the verifier that judges the outcome"
+    ],
+    "changed": [
+      "the commit history the coupling evidence is mined from"
+    ],
+    "rows": [
+      {
+        "condition": "Interlock + coupling evidence present",
+        "conditionSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows.0.condition",
+        "invalidOutcomes": "0/2",
+        "invalidOutcomesSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows.0.invalidOutcomes.display",
+        "decisions": [
+          "ALLOW_SERIALIZED",
+          "WITHHOLD_SERIALIZE"
+        ],
+        "decisionSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows.0.decision"
+      },
+      {
+        "condition": "Interlock + coupling evidence removed",
+        "conditionSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows.1.condition",
+        "invalidOutcomes": "2/2",
+        "invalidOutcomesSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows.1.invalidOutcomes.display",
+        "decisions": [
+          "ALLOW_PARALLEL"
+        ],
+        "decisionSource": "experiments/hac-343/evidence/judge-export.json#panel2.rows.1.decision"
+      }
+    ],
+    "reading": "Interlock’s safety is evidence-derived. With revision-bound composition evidence present it withheld both hazardous compositions while retaining both safe parallel opportunities. When that evidence was deliberately removed, the decision reversed and both invariants failed.",
+    "readingSource": "experiments/hac-343/evidence/judge-export.json#panel2.reading",
+    "forbiddenRendering": "A4 must not be described as globally 0% unsafe, and the sixteen-scenario corpus must not be collapsed into a single unsafe-rate denominator. The 0/2 in Panel 1 is bounded to COUPLED scenarios and means nothing without Panel 2 beside it.",
+    "framing": {
+      "recordedLabel": "RECORDED CONDITION · NOT RECOMPUTED",
+      "recordedNote": "Both conditions were run once, offline, and frozen, and are shown side by side above. Nothing on this page is executed, recomputed or simulated."
+    }
+  },
+  "verify": {
+    "heading": "Now go and check it",
+    "lead": "Every figure above resolves to a pointer into a frozen artifact. The cockpit is where those artifacts are opened, compared and read raw.",
+    "routes": [
+      {
+        "id": "evidence",
+        "icon": "evidence",
+        "title": "Inspect the frozen evidence",
+        "blurb": "The revision the coupling evidence is bound to, and the decision taken on it.",
+        "href": "/cockpit?run=hac330-local&proof=local&state=run.local.treatment&guide=guide.local.evidence-decision",
+        "run": "hac330-local",
+        "proof": "local",
+        "state": "run.local.treatment",
+        "guide": "guide.local.evidence-decision",
+        "declared": true
+      },
+      {
+        "id": "why-changed",
+        "icon": "comparison",
+        "title": "Why did this decision change?",
+        "blurb": "The two recorded conditions side by side, with what was held and what moved.",
+        "href": "/cockpit?run=hac330-local&proof=local&state=run.local.perturbed&guide=guide.local.ablation",
+        "run": "hac330-local",
+        "proof": "local",
+        "state": "run.local.perturbed",
+        "guide": "guide.local.ablation",
+        "declared": true
+      },
+      {
+        "id": "raw",
+        "icon": "artifact",
+        "title": "View the four-arm record and the raw proof",
+        "blurb": "The full cockpit: strategy comparison, evidence drawers and raw JSON.",
+        "href": "/cockpit?run=hac330-local&proof=local&state=run.local.treatment&guide=guide.local.free",
+        "run": "hac330-local",
+        "proof": "local",
+        "state": "run.local.treatment",
+        "guide": "guide.local.free",
+        "declared": true
+      },
+      {
+        "id": "cloud",
+        "icon": "evidence",
+        "title": "Inspect the cloud evidence",
+        "blurb": "Receipt digest, revisions, transport provenance, Cloud Logging correlation.",
+        "href": "/cockpit?run=hac340-cloud&proof=cloud&state=run.cloud.overview",
+        "run": "hac340-cloud",
+        "proof": "cloud",
+        "state": "run.cloud.overview",
+        "guide": null,
+        "declared": true
+      }
+    ],
+    "undeclared": [],
+    "contractSource": "media/hac-341/evidence/view-model.json#deepLink"
+  },
+  "cloud": {
+    "heading": "Separate deployment proof",
+    "lead": "One recorded Gemini + Google ADK + Cloud Run traversal through Interlock. A different proof from the evaluation above: it demonstrates participation, not the causal result.",
+    "actors": [
+      {
+        "id": "model",
+        "label": "gemini-3.5-flash",
+        "role": "model"
+      },
+      {
+        "id": "framework",
+        "label": "Google ADK 1.35.1 / Vertex AI",
+        "role": "framework"
+      },
+      {
+        "id": "host",
+        "label": "Cloud Run · us-central1",
+        "role": "host"
+      },
+      {
+        "id": "interlock",
+        "label": "Interlock MCP proxy",
+        "role": "control"
+      },
+      {
+        "id": "target",
+        "label": "Protected target",
+        "role": "target"
+      },
+      {
+        "id": "observer",
+        "label": "Independent principal",
+        "role": "observer"
+      }
+    ],
+    "actorsSource": "media/hac-341/evidence/view-model.json#runs.cloud.actors",
+    "decision": "ALLOW",
+    "decisionSource": "media/hac-341/evidence/view-model.json#runs.cloud.decision.value",
+    "observed": "alpha=45",
+    "observedSource": "media/hac-341/evidence/view-model.json#runs.cloud.observation.observed",
+    "controls": [
+      {
+        "id": "forged-header",
+        "label": "Forged identity header",
+        "status": 403
+      },
+      {
+        "id": "invalid-token",
+        "label": "Invalid bearer token",
+        "status": 401,
+        "note": "The frozen field is named wrongAudienceStatus; the control sent an invalid token. Genuine wrong-audience rejection is controlled local parity, not a cloud result."
+      },
+      {
+        "id": "direct-bypass",
+        "label": "Direct target bypass without receipt",
+        "status": 403
+      }
+    ],
+    "controlsSource": "media/hac-341/evidence/view-model.json#runs.cloud.negativeControls",
+    "controlsNote": "Three recorded refusals. Not a security claim.",
+    "notOnPath": [
+      "Agent Runtime",
+      "Agent Gateway",
+      "CONTENT_AUTHZ"
+    ],
+    "notOnPathSource": "media/hac-341/evidence/view-model.json#runs.cloud.notOnPath",
+    "proves": [
+      "One recorded Gemini + Google ADK + Cloud Run traversal through Interlock.",
+      "A receipt-bound protected mutation, independently read back, correlated in Cloud Logging.",
+      "Three recorded fail-closed refusals."
+    ],
+    "notClaimed": [
+      "does not reproduce the HAC-330 counterfactual in Google Cloud",
+      "Agent Runtime, Agent Gateway and CONTENT_AUTHZ are not on the recorded path",
+      "internal Interlock roles are not Google-managed identities",
+      "wrong-audience rejection is controlled local parity, not a cloud result",
+      "ALLOW is not VERIFIED; OBSERVED is not SAFE; a receipt is not exactly-once",
+      "three controls are not comprehensive attack coverage",
+      "not production readiness, fleet scale, or a recovery guarantee"
+    ],
+    "notClaimedSource": "media/hac-341/evidence/view-model.json#runs.cloud.claimBoundary.notClaimed"
+  },
+  "boundary": {
+    "experiment": "HAC-343",
+    "experimentSource": "experiments/hac-343/evidence/judge-export.json#experiment",
+    "canonicalResultCommit": "7ede0f97e55685c16e5bb762b5e7fbe471a6e8b0",
+    "boundedClaim": "On a frozen sixteen-scenario corpus spanning two structurally different hazard classes — an arithmetic budget ceiling and a referential service registry — global locking preserved safety by eliminating concurrency, per-target locking preserved concurrency but missed every composition hazard spanning distinct targets, and Interlock withheld both hazardous compositions while retaining both safe parallel opportunities. Interlock’s safety is evidence-derived: with the co-change evidence deliberately removed and the intents unchanged, its decision reversed and both invariants failed. Bounded to this corpus; no claim is made about exactly-once execution, restart behaviour, target-side atomicity, or production readiness.",
+    "boundedClaimSource": "experiments/hac-343/evidence/judge-export.json#boundedClaim",
+    "corpusBound": "Sixteen scenarios across two hazard families. Every rate is a property of this corpus and is not a population estimate. No confidence intervals: the decision core is deterministic and the corpus is enumerated exhaustively, so there is no sampling process.",
+    "corpusBoundSource": "experiments/hac-343/evidence/judge-export.json#limitations.corpusBound",
+    "families": [
+      "budget",
+      "registry"
+    ],
+    "scope": "COUPLED and INDEPENDENT scenarios only. Evidence-ablation scenarios are Panel 2; inadmissible-evidence scenarios are reported under limitations.",
+    "scopeSource": "experiments/hac-343/evidence/judge-export.json#panel1.scope",
+    "refusalAgreement": "6/8",
+    "refusalStatement": "Every inadmissible-evidence scenario failed closed and applied no mutation. Exact refusal-reason agreement with the frozen corpus was lower: two scenarios refused with HISTORY_NOT_MINED where the corpus predicted HISTORY_EVIDENCE_UNAVAILABLE. The envelope’s completeness state is NOT_MINED, so the decision core took the correct branch and the corpus expectation was mistaken. Neither mismatch permitted a mutation. The corpus is frozen and stays wrong on the record.",
+    "outsideScope": [
+      "same-target atomicity and target-side compare-and-set",
+      "exactly-once execution",
+      "restart and recovery behaviour",
+      "joint human authorization",
+      "Agent Runtime and Agent Gateway participation"
+    ],
+    "mustNotClaim": [
+      "Interlock is 0% unsafe — it produced invalid joint states in the two evidence-ablation scenarios by design.",
+      "Interlock prevents composition hazards — it withheld the hazardous compositions present in this corpus, given evidence that described them.",
+      "Interlock is safer than locking — it is safe against a hazard class per-key locking cannot see; per-target locking is correct for the hazard it addresses.",
+      "A 100% / 0% headline over all sixteen scenarios — the corpus is heterogeneous and must not share one denominator.",
+      "Statistically significant, or any interval — the corpus is an exhaustive deterministic enumeration, not a sample.",
+      "Production-ready, exactly-once, or restart-safe — none were tested here."
+    ],
+    "mustNotClaimSource": "experiments/hac-343/evidence/judge-export.json#mustNotClaim"
+  },
+  "glosses": [
+    {
+      "term": "WITHHOLD_SERIALIZE",
+      "gloss": "this intent is held back; the other one proceeds alone"
+    },
+    {
+      "term": "ALLOW_PARALLEL",
+      "gloss": "both intents proceed at the same time"
+    },
+    {
+      "term": "ALLOW_SERIALIZED",
+      "gloss": "this intent proceeds alone, ahead of the one it is coupled to"
+    }
+  ],
+  "unresolved": [],
+  "resolved": true,
+  "unresolvedLabel": "Unresolved binding scaffold · not evidence",
+  "unresolvedNote": "A frozen HAC-343 artifact was not readable at build time. The unresolved values render as bindings; no substitute figure is derived from any other run."
+}

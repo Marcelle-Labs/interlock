@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="en" data-landing="HAC-349">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interlock — different targets, same environment</title>
+<meta name="description" content="Two agent actions, each valid on its own, can still compose into an invalid joint outcome. A bounded four-arm evaluation of what coordination strategies do about it.">
+<!-- The frozen HAC-332 identity: tokens, grammar and the self-hosted Geist
+     faces. Relative and local by design — this surface must render identically
+     with networking disabled, or a deterministic capture is not deterministic. -->
+<link rel="preload" href="../../assets/fonts/geist-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/geist-mono-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/styles.css">
+<link rel="icon" href="../../assets/logo/interlock-favicon-light.svg" type="image/svg+xml">
+<style>
+/* Kept alongside the token entry point for the reason the cockpit keeps them:
+   some static preview hosts preserve inline CSS but do not follow CSS imports,
+   and without these the page falls all the way back to the browser serif. The
+   binaries remain the single repository-local copies under assets/fonts. */
+@font-face{font-family:"Geist";src:url("../../assets/fonts/geist-variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:block}
+@font-face{font-family:"Geist Mono";src:url("../../assets/fonts/geist-mono-variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:block}
+
+:root{
+  --n00:#fff;--n05:#f7f8f8;--n10:#eef0f0;--n20:#dde0e0;--n30:#c2c7c7;--n40:#9ba2a2;
+  --n50:#737b7b;--n60:#515858;--n70:#343a3a;--n80:#1e2323;--n90:#141818;--n95:#0f1212;
+  --ink:#0b0d0e;--paper:#fbfbfa;
+  --coupled:oklch(0.52 0.130 250);--blocked:oklch(0.58 0.150 28);--failed:oklch(0.46 0.170 22);
+  --observed:oklch(0.60 0.100 205);
+  --surface-card:#fff;--surface-sunken:#f7f8f8;--border-hair:#dde0e0;--border-default:#c2c7c7;
+  --sans:var(--font-sans, Geist, "Geist Sans", "Helvetica Neue", Helvetica, Arial, sans-serif);
+  --mono:var(--font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+  /* Text hierarchy is carried by colour, never by opacity — the cockpit's
+     reasoning, and its measured tiers. --n60 is 6.84:1 on the sunken surface;
+     --n50 measures 4.07:1 and is deliberately not a third tier. */
+  --text-body:var(--ink);
+  --text-muted:var(--n60);
+  --hdr:52px;
+  --pad:clamp(20px,4vw,48px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+html[data-reduced-motion="true"]{scroll-behavior:auto}
+body{font-family:var(--sans);font-size:15px;line-height:1.5;background:var(--paper);color:var(--ink);
+  overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono)}
+:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+h1,h2,h3{font-weight:500;letter-spacing:-.018em;text-wrap:balance}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.frame{max-width:var(--width-full,90rem);margin:0 auto;width:100%;padding-inline:var(--pad)}
+
+/* ── skip link ── */
+.skip{position:absolute;left:8px;top:-60px;z-index:20;background:var(--ink);color:var(--paper);
+  padding:12px 16px;border-radius:2px;font-size:13px;transition:top var(--dur-fast,140ms)}
+.skip:focus{top:8px}
+
+/* ── header: subdued identity, one outbound path ── */
+header.site{height:var(--hdr);display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid var(--border-hair);position:sticky;top:0;background:var(--paper);z-index:10}
+.brand{display:inline-flex;align-items:center;gap:5.8px;color:currentColor;text-decoration:none;
+  /* A link is a link at any size. The lockup is 20px of drawn mark, so the
+     target it presents has to be padded up to the frozen 44px rather than
+     inheriting the glyph's height. */
+  min-height:var(--tap-target,44px);padding-inline:2px}
+.brand .mark{display:block;flex:none}
+.brand .word{font-weight:500;font-size:14.2px;letter-spacing:-.03em;line-height:1}
+.site .spacer{flex:1}
+.site a.jump{font-family:var(--mono);font-size:11px;letter-spacing:.10em;text-transform:uppercase;
+  text-decoration:none;color:var(--text-muted);display:inline-flex;align-items:center;gap:7px;
+  min-height:var(--tap-target,44px);padding-inline:4px}
+.site a.jump:hover{color:var(--ink)}
+
+/* ── L1 ── */
+section.l1{padding-block:clamp(28px,5vh,56px) clamp(24px,4vh,44px)}
+@media (min-width:1024px){
+  section.l1{min-height:calc(100vh - var(--hdr));display:flex;flex-direction:column;justify-content:center}
+}
+.thesis{max-width:52rem}
+h1{font-size:clamp(30px,4.4vw,52px);line-height:1.04;letter-spacing:-.03em}
+h1 .half{display:block}
+.lede{margin-top:14px;font-size:clamp(15px,1.35vw,19px);line-height:1.5;color:var(--text-body);max-width:44rem}
+
+/* ── the scene: two lanes inside one environment ──
+   HTML boxes rather than one drawn SVG. The relationship the first frame has to
+   carry is containment — two different targets inside one environment — and a
+   border *is* containment, at every viewport, in every reflow, with the text
+   still selectable and still in the reading order. An absolutely positioned
+   overlay would have to be re-derived at each breakpoint and would carry the
+   meaning in geometry alone. */
+.scene{margin-top:clamp(22px,3.4vh,34px);max-width:64rem}
+.env{border:2px solid var(--ink);border-radius:var(--radius-lg,4px);background:var(--surface-card);
+  padding:clamp(14px,1.6vw,20px)}
+.env__head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  padding-bottom:12px;border-bottom:1px solid var(--border-hair)}
+.k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted)}
+.env__rule{font-family:var(--mono);font-size:clamp(12px,1.1vw,14px);color:var(--text-body)}
+.env__rule b{font-weight:600}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.6vw,20px);padding-block:clamp(14px,1.8vh,18px)}
+@media (max-width:700px){.lanes{grid-template-columns:1fr}}
+.lane{border:1px solid var(--border-default);border-radius:var(--radius-md,3px);
+  background:var(--surface-sunken);padding:12px 14px}
+.lane__actor{font-weight:600;font-size:14px;display:block}
+.lane__op{font-family:var(--mono);font-size:11.5px;color:var(--text-muted);margin-top:2px;display:block}
+/* The arrow is decorative: the words above and below it already say that the
+   actor changes the target. */
+.lane__flow{display:block;height:14px;margin:8px 0 6px;border-left:1.5px dashed var(--border-default);margin-left:5px}
+.lane__target{border-left:2px solid var(--ink);padding-left:10px}
+.lane__path{font-family:var(--mono);font-size:clamp(10.5px,0.92vw,12px);font-weight:600;
+  word-break:break-all;display:block;line-height:1.35}
+.lane__check{margin-top:8px;font-size:12.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lane__check .fig{font-family:var(--mono);font-weight:600}
+.verdict-ok{color:var(--text-body)}
+.joint{border-top:2px solid var(--ink);padding-top:12px;display:flex;align-items:baseline;
+  gap:clamp(10px,1.6vw,22px);flex-wrap:wrap}
+.joint__value{font-family:var(--mono);font-size:clamp(20px,2.4vw,30px);font-weight:600;
+  color:var(--failed);letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.joint__read{font-size:clamp(13px,1.1vw,15px);color:var(--text-body);flex:1;min-width:15rem}
+.il-ic{width:1em;height:1em;flex:none;stroke-width:1.6}
+.il-ic--sm{width:13px;height:13px}
+.il-ic--md{width:15px;height:15px}
+.il-ic--lg{width:19px;height:19px}
+
+/* ── the one continuation ── */
+.continue{margin-top:clamp(20px,3vh,30px);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+a.cta{display:inline-flex;align-items:center;gap:10px;min-height:var(--tap-target,44px);
+  padding:0 20px;border:2px solid var(--ink);border-radius:2px;background:var(--ink);color:var(--paper);
+  text-decoration:none;font-weight:500;font-size:14.5px}
+a.cta:hover{background:var(--n80)}
+a.cta .arrow{font-family:var(--mono)}
+.continue .aside{font-size:12.5px;color:var(--text-muted);max-width:26rem}
+
+/* ── generic section furniture ── */
+section.band{padding-block:clamp(40px,7vh,84px);border-top:1px solid var(--border-hair)}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-muted);display:block;margin-bottom:10px}
+h2{font-size:clamp(22px,2.5vw,32px);line-height:1.14;max-width:40rem}
+.band__lede{margin-top:12px;font-size:clamp(14px,1.15vw,16.5px);color:var(--text-body);max-width:42rem}
+
+/* ── L2a: the lock, credible first ── */
+.beats{margin-top:clamp(22px,3vh,34px);display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.4vw,18px)}
+@media (max-width:900px){.beats{grid-template-columns:1fr}}
+.beat{border:1px solid var(--border-default);border-radius:var(--radius-md,3px);
+  background:var(--surface-card);padding:16px;display:flex;flex-direction:column;gap:10px}
+.beat[data-tone="miss"]{border-color:var(--ink);border-width:2px;padding:15px}
+.beat__no{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--text-muted)}
+.beat h3{font-size:15.5px;line-height:1.25}
+/* The lock is shown by its keys, not by a padlock.
+   HAC-349 permits generic lock iconography for the familiar baseline, and the
+   shared vocabulary in media/hac-341/lib/icons.mjs deliberately refuses any
+   lock/shield/key glyph so the mechanism can never be drawn as generic
+   security. Printing the recorded `lockGroups` strings is both stronger and
+   safer: the reader sees that the two keys really are two different strings,
+   which is the entire argument, and no glyph can be mistaken for a claim. */
+.keys{display:flex;flex-direction:column;gap:5px}
+.key{font-family:var(--mono);font-size:11px;font-weight:600;border:1px solid var(--border-default);
+  border-radius:2px;padding:5px 8px;background:var(--surface-sunken);word-break:break-all;line-height:1.3}
+.key .k{display:block;font-weight:400;margin-bottom:2px}
+.beat__fig{font-family:var(--mono);font-size:13px;font-weight:600;
+  border-top:1px solid var(--border-hair);padding-top:10px;margin-top:auto}
+.beat__fig span{display:block;font-family:var(--sans);font-weight:400;font-size:12.5px;
+  color:var(--text-muted);margin-top:3px}
+.beat p{font-size:13.5px}
+.realisation{margin-top:clamp(20px,2.6vh,28px);border-left:3px solid var(--ink);padding:4px 0 4px 16px;
+  font-size:clamp(15px,1.5vw,19px);line-height:1.4;max-width:40rem}
+.realisation b{font-weight:600}
+.footnote{margin-top:14px;font-size:12.5px;color:var(--text-muted);max-width:46rem}
+
+/* ── L2b: four-way contrast, small multiples ── */
+.arms{margin-top:clamp(22px,3vh,34px);display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.2vw,16px)}
+@media (max-width:1080px){.arms{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.arms{grid-template-columns:1fr}}
+.arm{border:1px solid var(--border-default);border-radius:var(--radius-md,3px);background:var(--surface-card);
+  padding:14px;display:flex;flex-direction:column;gap:12px}
+.arm[data-highlight="true"]{border:2px solid var(--ink);padding:13px}
+.arm__name{font-size:15px;font-weight:600;line-height:1.2}
+.arm__id{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;display:block;margin-top:3px}
+.metric{border-top:1px solid var(--border-hair);padding-top:10px}
+.metric__label{font-size:11.5px;color:var(--text-muted);line-height:1.3;display:block}
+.metric__dir{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-muted);display:block;margin-top:2px}
+.metric__row{display:flex;align-items:center;gap:9px;margin-top:7px}
+.pips{display:flex;gap:4px}
+/* Two channels before colour: a filled pip is a solid square, an empty pip is a
+   hollow one, and the exact fraction sits beside them in mono. Under greyscale
+   or colour-vision deficiency the shapes still differ. */
+.pip{width:11px;height:11px;border:1.5px solid var(--ink);border-radius:1px}
+.pip[data-on="true"]{background:var(--ink)}
+.metric[data-kind="unsafe"] .pip[data-on="true"]{background:var(--failed);border-color:var(--failed)}
+.metric__fig{font-family:var(--mono);font-size:13.5px;font-weight:600}
+.arm__read{font-size:12.5px;line-height:1.4;border-top:1px solid var(--border-hair);padding-top:10px;margin-top:auto}
+.reading{margin-top:clamp(18px,2.4vh,26px);font-size:clamp(14px,1.3vw,17px);line-height:1.45;max-width:46rem}
+.bound{margin-top:14px;border:1px dashed var(--border-default);border-radius:2px;padding:12px 14px;
+  font-size:12.5px;color:var(--text-body);max-width:52rem;background:var(--surface-sunken)}
+.bound .k{display:block;margin-bottom:5px}
+
+/* ── L2c: evidence ablation ── */
+.recorded-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border-default);
+  border-radius:2px;padding:5px 9px;color:var(--text-muted);margin-bottom:12px}
+.holds{margin-top:clamp(20px,2.8vh,30px);display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.6vw,22px);max-width:58rem}
+@media (max-width:700px){.holds{grid-template-columns:1fr}}
+.holds ul{list-style:none;display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.holds li{font-size:13px;display:flex;gap:8px;align-items:flex-start;line-height:1.35}
+.holds li::before{font-family:var(--mono);font-weight:600;flex:none}
+.holds [data-kind="held"] li::before{content:"=";color:var(--text-muted)}
+.holds [data-kind="changed"] li::before{content:"Δ";color:var(--coupled)}
+.conditions{margin-top:clamp(22px,3vh,32px);display:grid;grid-template-columns:1fr auto 1fr;
+  gap:clamp(12px,1.6vw,20px);align-items:stretch}
+@media (max-width:860px){.conditions{grid-template-columns:1fr}}
+.cond{border:1px solid var(--border-default);border-radius:var(--radius-md,3px);background:var(--surface-card);padding:16px}
+.cond[data-outcome="failed"]{border-color:var(--failed);border-width:2px;padding:15px}
+.cond h3{font-size:14.5px;line-height:1.3}
+.cond__decisions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+/* The exact token, with its gloss beside it — never instead of it. */
+.tok{font-family:var(--mono);font-size:11.5px;font-weight:600;border:1px solid var(--ink);
+  border-radius:2px;padding:4px 7px;background:var(--surface-sunken)}
+.gloss{font-size:12.5px;color:var(--text-muted);margin-top:8px;line-height:1.4}
+.cond__out{margin-top:14px;border-top:1px solid var(--border-hair);padding-top:12px;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cond__fig{font-family:var(--mono);font-size:clamp(18px,2vw,25px);font-weight:600}
+.cond[data-outcome="failed"] .cond__fig{color:var(--failed)}
+.cond__cap{font-size:12.5px;color:var(--text-muted)}
+.delta{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);text-align:center;
+  writing-mode:vertical-rl;padding:0 2px}
+@media (max-width:860px){.delta{writing-mode:horizontal-tb;padding:4px 0}}
+
+/* ── L3: verify ── */
+.paths{margin-top:clamp(22px,3vh,32px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(10px,1.2vw,14px);max-width:62rem}
+@media (max-width:700px){.paths{grid-template-columns:1fr}}
+a.path{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border-default);
+  border-radius:var(--radius-md,3px);padding:14px 16px;text-decoration:none;background:var(--surface-card);
+  min-height:var(--tap-target,44px);transition:var(--transition-interactive)}
+a.path:hover{border-color:var(--ink);background:var(--surface-sunken)}
+a.path .il-ic{margin-top:2px}
+a.path b{display:block;font-size:14.5px;font-weight:600}
+a.path span{display:block;font-size:12.5px;color:var(--text-muted);margin-top:3px;line-height:1.4}
+.limits{margin-top:clamp(24px,3.2vh,34px);max-width:52rem}
+.limits summary{cursor:pointer;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;
+  text-transform:uppercase;padding:12px 0;min-height:var(--tap-target,44px);display:flex;align-items:center;gap:8px}
+.limits summary::marker{color:var(--text-muted)}
+.limits ul{list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.limits li{font-size:13px;display:flex;gap:9px;align-items:flex-start;line-height:1.4}
+.limits li::before{content:"—";font-family:var(--mono);color:var(--text-muted);flex:none}
+.limits p{font-size:13px;margin-top:12px;line-height:1.5}
+
+/* ── the cloud reset ──
+   A hard change of field, exactly as HAC-333 SB-06 and the cockpit's cloud
+   proof class already establish: a different proof class is a different
+   ground, so a reader cannot carry a value across without noticing. */
+section.cloud{background:var(--ink);color:var(--paper);
+  --surface-card:#0f1212;--surface-sunken:#141818;--border-hair:#1e2323;--border-default:#343a3a;
+  --text-body:var(--paper);--text-muted:var(--n40);
+  --coupled:oklch(0.74 0.120 250);--observed:oklch(0.76 0.090 205);--failed:oklch(0.64 0.170 25);
+  border-top:none}
+section.cloud .k,section.cloud .eyebrow{color:var(--n40)}
+.reset{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--n40);display:flex;align-items:center;gap:14px;padding-bottom:clamp(24px,4vh,40px)}
+.reset::after{content:"";flex:1;height:1px;background:var(--n80)}
+.hops{margin-top:clamp(20px,2.8vh,30px);display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.hop{border:1px solid var(--border-default);border-radius:2px;padding:9px 12px;background:var(--surface-card)}
+.hop .k{display:block;margin-bottom:3px}
+.hop b{font-family:var(--mono);font-size:12px;font-weight:600}
+.hop__sep{display:flex;align-items:center;font-family:var(--mono);font-size:13px;
+  /* --n50 measured exactly 4.50:1 on the inverted field — passing, with no
+     margin at all, and only because the arrows are decorative. --n40 is the
+     measured muted tier for this ground at 6.89:1. A token sitting on the
+     threshold is one rounding change away from failing. */
+  color:var(--text-muted)}
+.cloudfacts{margin-top:clamp(20px,2.8vh,30px);display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(10px,1.4vw,18px);max-width:58rem}
+@media (max-width:800px){.cloudfacts{grid-template-columns:1fr}}
+.fact{border:1px solid var(--border-default);border-radius:var(--radius-md,3px);padding:14px;background:var(--surface-card)}
+.fact b{font-family:var(--mono);font-size:14px;font-weight:600;display:block;margin-top:5px}
+.fact p{font-size:12.5px;color:var(--text-muted);margin-top:6px;line-height:1.4}
+.controls{margin-top:clamp(18px,2.4vh,26px);display:flex;flex-wrap:wrap;gap:8px}
+.ctrl{border:1px solid var(--border-default);border-radius:2px;padding:8px 11px;font-size:12.5px;
+  display:flex;align-items:center;gap:9px;background:var(--surface-card)}
+.ctrl .code{font-family:var(--mono);font-weight:600}
+.notclaimed{margin-top:clamp(22px,3vh,32px);border:1px dashed var(--border-default);border-radius:2px;
+  padding:16px;max-width:56rem}
+.notclaimed ul{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:9px}
+.notclaimed li{font-size:12.5px;display:flex;gap:9px;line-height:1.4}
+.notclaimed li::before{content:"×";font-family:var(--mono);color:var(--n40);flex:none}
+section.cloud a.path{background:var(--surface-card)}
+section.cloud a.path:hover{border-color:var(--n30);background:var(--surface-sunken)}
+
+/* ── footer ── */
+footer{border-top:1px solid var(--border-hair);padding-block:26px;font-size:12px;color:var(--text-muted)}
+footer .row{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+footer a{text-decoration:underline;text-underline-offset:2px;
+  display:inline-flex;align-items:center;min-height:var(--tap-target,44px)}
+footer .mono{font-size:11px}
+
+/* ── the unresolved-binding scaffold ──
+   Shown only when a frozen artifact did not resolve. A scaffold banner over
+   real evidence is its own kind of lie, so it never renders when everything
+   bound. */
+.scaffold{border:2px solid var(--blocked);border-radius:2px;padding:14px 16px;margin-block:16px;
+  font-size:13px;background:var(--surface-card)}
+.scaffold b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--blocked);margin-bottom:6px}
+.degraded{padding:clamp(40px,10vh,96px) 0;max-width:44rem}
+.degraded h2{font-size:22px;display:flex;gap:10px;align-items:center}
+.degraded p{margin-top:12px;font-size:14px}
+
+/* ── motion ──
+   One sequence, on the first frame only, doing three semantic jobs in order:
+   two independent actions exist, they sit inside one environment, and the joint
+   result is not what either action alone said. It plays once on load, settles,
+   and nothing on this page ever moves again. Everything below the fold is
+   static, because a reveal that fires while a section is off screen has no
+   reader to explain anything to. */
+@keyframes hac349-lane-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes hac349-joint-in{from{opacity:0}to{opacity:1}}
+html:not([data-static="true"]):not([data-reduced-motion="true"]) .scene[data-motion="run"] .lane{
+  animation:hac349-lane-in var(--dur-slow,380ms) var(--ease-enter,cubic-bezier(0,0,0,1)) both}
+html:not([data-static="true"]):not([data-reduced-motion="true"]) .scene[data-motion="run"] .lane:nth-child(2){
+  animation-delay:var(--delay-step,90ms)}
+html:not([data-static="true"]):not([data-reduced-motion="true"]) .scene[data-motion="run"] .env{
+  animation:hac349-joint-in var(--dur-base,220ms) var(--ease-standard,cubic-bezier(.2,0,0,1)) both}
+html:not([data-static="true"]):not([data-reduced-motion="true"]) .scene[data-motion="run"] .joint{
+  animation:hac349-joint-in var(--dur-slow,380ms) var(--ease-standard,cubic-bezier(.2,0,0,1)) both;
+  animation-delay:calc(var(--delay-step,90ms) * 3)}
+@media (prefers-reduced-motion: reduce){
+  .scene,.scene *{animation:none !important;transition:none !important}
+}
+html[data-reduced-motion="true"] .scene,html[data-reduced-motion="true"] .scene *,
+html[data-static="true"] .scene,html[data-static="true"] .scene *{animation:none !important;transition:none !important}
+</style>
+</head>
+<body>
+<a class="skip" href="#understand">Skip to the explanation</a>
+<header class="site">
+  <div class="frame" style="display:flex;align-items:center;gap:16px">
+    <a class="brand" href="/" aria-label="Interlock — home">
+      <svg class="mark" viewBox="0 0 48 48" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false">
+        <path d="M2.889 6 L9.111 6 L17.2 14.089 L17.2 20.311 Z"></path>
+        <path d="M45.111 6 L38.889 6 L30.8 14.089 L30.8 20.311 Z"></path>
+        <path d="M2.889 42 L9.111 42 L17.2 33.911 L17.2 27.689 Z"></path>
+        <path d="M45.111 42 L38.889 42 L30.8 33.911 L30.8 27.689 Z"></path>
+        <path d="M18.6 16.2 L23.2 19.4 L23.2 28.6 L18.6 31.8 Z"></path>
+        <path d="M29.4 16.2 L24.8 19.4 L24.8 28.6 L29.4 31.8 Z"></path>
+      </svg>
+      <span class="word">Interlock</span>
+    </a>
+    <span class="spacer"></span>
+    <a class="jump" href="/cockpit" data-cockpit-link>Inspect the evidence</a>
+  </div>
+</header>
+
+<main id="page"></main>
+<p aria-live="polite" class="sr" id="live"></p>
+
+<script type="module">
+/* The landing surface renders the model. It derives no meaning: every figure
+   below comes from media/hac-349/evidence/landing-model.json, which
+   bin/build-landing-model.mjs binds to frozen HAC-343 evidence. A value that is
+   unresolved there renders as a visible [BIND: …] here rather than as a
+   plausible number.
+
+   The semantic icon vocabulary is HAC-345's, imported rather than restated, so
+   the front door and the cockpit cannot draw the same concept two ways. Every
+   glyph it emits is aria-hidden; the words beside it carry the meaning. */
+import { icon } from '/media/hac-341/lib/icons.mjs';
+
+const page = document.getElementById('page');
+const live = document.getElementById('live');
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const params = new URLSearchParams(location.search);
+if (params.get('static') === '1') document.documentElement.dataset.static = 'true';
+
+/* The OS preference is authoritative and observed live, so a reader who changes
+   it mid-session is honoured without a reload. The cockpit's manual override is
+   deliberately not duplicated here: this surface has one short sequence and no
+   controls, so a second preference authority would buy nothing. */
+const motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null;
+const applyMotion = () => { document.documentElement.dataset.reducedMotion = String(Boolean(motionQuery?.matches)); };
+motionQuery?.addEventListener?.('change', applyMotion);
+applyMotion();
+
+/* Cockpit addresses come from the model, which derived them against the
+   cockpit's own declared deep-link contract. Composing them here would put a
+   second authority on what a valid address is, and the one that drifts is
+   always the one nothing checks. */
+const routeHtml = (r) => `
+      <a class="path" href="${esc(r.href)}" data-cockpit-link data-route="${esc(r.id)}">
+        ${icon(r.icon, { size: 'md' })}
+        <span><b>${esc(r.title)}</b><span>${esc(r.blurb)}</span></span>
+      </a>`;
+
+/* ---- degraded state: a first-class render, never a blank success ---- */
+function degraded(reason) {
+  page.innerHTML = `<div class="frame"><div class="degraded">
+    <h2>${icon('warning', { size: 'lg' })} The frozen record could not be read.</h2>
+    <p>This page renders a model built from frozen HAC-343 evidence. It is not showing a
+    substitute, an example or a remembered value.</p>
+    <p class="mono">${esc(reason)}</p>
+    <p><a href="/cockpit">Open the verification cockpit</a></p>
+  </div></div>`;
+  live.textContent = 'The frozen record could not be read.';
+}
+
+/** `[BIND: …]` travels from the model; this is how the page notices. */
+const unbound = (v) => typeof v === 'string' && v.startsWith('[BIND:');
+
+const scaffold = (M) => (M.resolved ? '' : `<div class="frame"><div class="scaffold">
+  <b>${esc(M.unresolvedLabel)}</b>
+  <p>${esc(M.unresolvedNote)}</p>
+  <p class="mono" style="margin-top:8px">${M.unresolved.map(esc).join('<br>')}</p>
+</div></div>`);
+
+/* ---- L1 ---------------------------------------------------------------- */
+
+function sceneHtml(s) {
+  const lane = (a) => `
+      <div class="lane">
+        <span class="lane__actor">${esc(a.actor)}</span>
+        <span class="lane__op">wants to reserve ${esc(a.change)} for <b>${esc(a.target)}</b></span>
+        <span class="lane__flow" aria-hidden="true"></span>
+        <div class="lane__target">
+          <span class="k">Its own target</span>
+          <code class="lane__path">${esc(a.path)}</code>
+        </div>
+        <p class="lane__check verdict-ok">${icon('pass', { size: 'sm' })}
+          <span>On its own:</span> <span class="fig">${esc(s.alone.total)} &le; ${esc(s.ceiling)}</span>
+          <span>— valid</span></p>
+      </div>`;
+  return `
+    <figure class="scene" data-motion="run">
+      <figcaption class="sr">A recorded scenario. Agent A changes
+        ${esc(s.actions[0]?.path)} and Agent B changes ${esc(s.actions[1]?.path)} — two different
+        targets. Both targets sit inside one environment holding a single constraint,
+        ${esc(s.invariant)}, with a ceiling of ${esc(s.ceiling)}. Each change on its own projects a
+        total of ${esc(s.alone.total)}, which satisfies the constraint. Applied together they
+        project ${esc(s.joint.total)}, which does not.</figcaption>
+      <div class="env">
+        <div class="env__head">
+          <span class="k">Shared environment · one constraint</span>
+          <span class="env__rule mono">${esc(s.invariant)} — ceiling <b>${esc(s.ceiling)}</b></span>
+        </div>
+        <div class="lanes">${(s.actions ?? []).map(lane).join('')}</div>
+        <div class="joint">
+          <span class="k">Applied together</span>
+          <p class="joint__value">${icon('unsafe', { size: 'lg' })}
+            <span>${esc(s.joint.total)} &gt; ${esc(s.ceiling)}</span></p>
+          <p class="joint__read">Neither action breaks the constraint. Their composition does
+          — and the constraint they violate belongs to the environment, not to either target.</p>
+        </div>
+      </div>
+    </figure>`;
+}
+
+/* ---- L2b: one strategy card -------------------------------------------- */
+
+function metric(kind, label, direction, cell) {
+  const n = Number(cell.numerator);
+  const d = Number(cell.denominator);
+  const pips = Number.isFinite(d) && d > 0 && d <= 8
+    ? `<span class="pips" aria-hidden="true">${Array.from({ length: d },
+      (_, i) => `<span class="pip" data-on="${i < n}"></span>`).join('')}</span>`
+    : '';
+  return `<div class="metric" data-kind="${kind}">
+      <span class="metric__label">${esc(label)}</span>
+      <span class="metric__dir">${esc(direction)}</span>
+      <div class="metric__row">${pips}<span class="metric__fig">${esc(cell.display)}</span></div>
+    </div>`;
+}
+
+/* One short sentence per arm, keyed to the arm id rather than to its position,
+   so a reordered export cannot slide a reading onto the wrong strategy. Each is
+   a restatement of the two figures above it and adds no result of its own. */
+const ARM_READING = {
+  A1_uncoordinated: 'Every safe parallel opportunity kept, and both coupled compositions came out invalid.',
+  A2_global_lock: 'Both coupled compositions avoided — by allowing no measured parallelism at all.',
+  A3_per_target_lock: 'A real lock, correct on same-target contention, and blind to the hazard that spans two keys.',
+  A4_interlock: 'Both coupled compositions withheld while both safe parallel opportunities were kept — in these conditions.',
+};
+
+function armHtml(a) {
+  const best = a.armId === 'A4_interlock';
+  return `<div class="arm" data-arm="${esc(a.armId)}" data-highlight="${best}">
+      <div>
+        <span class="arm__name">${esc(a.label)}</span>
+        <span class="arm__id mono">${esc(a.armId)}</span>
+      </div>
+      ${metric('unsafe', 'Invalid coupled outcomes', 'lower is better', a.invalidCoupled)}
+      ${metric('parallel', 'Safe parallel opportunities retained', 'higher is better', a.safeParallelRetained)}
+      <p class="arm__read">${esc(ARM_READING[a.armId] ?? '')}</p>
+    </div>`;
+}
+
+/* ---- render ------------------------------------------------------------- */
+
+function render(M) {
+  const s = M.scene;
+  const L = M.lock;
+  const C = M.comparison;
+  const A = M.ablation;
+  const B = M.boundary;
+  const V = M.verify;
+  const cloud = M.cloud;
+  const glossOf = (t) => (M.glosses.find((g) => g.term === t)?.gloss ?? '');
+
+  const beat = (no, tone, title, body, keysLabel, keys, fig, figCap) => `
+    <div class="beat" data-tone="${tone}">
+      <span class="beat__no">${no}</span>
+      <h3>${esc(title)}</h3>
+      <p>${esc(body)}</p>
+      ${keys ? `<div class="keys"><span class="k">${esc(keysLabel)}</span>${
+        keys.map((k) => `<span class="key mono">${esc(k)}</span>`).join('')}</div>` : ''}
+      <p class="beat__fig">${esc(fig)}<span>${esc(figCap)}</span></p>
+    </div>`;
+
+  const cond = (row, failed) => `
+    <div class="cond" data-outcome="${failed ? 'failed' : 'held'}">
+      <h3>${esc(row.condition)}</h3>
+      <div class="cond__decisions">${row.decisions.map((d) => `<span class="tok">${esc(d)}</span>`).join('')}</div>
+      <p class="gloss">${row.decisions.map((d) => `${d} — ${glossOf(d)}`).filter((x) => !x.endsWith('— ')).map(esc).join('<br>')}</p>
+      <div class="cond__out">
+        <span class="cond__fig">${esc(row.invalidOutcomes)}</span>
+        <span class="cond__cap">invalid coupled outcomes</span>
+      </div>
+    </div>`;
+
+  page.innerHTML = `
+${scaffold(M)}
+<section class="l1" id="understand" aria-labelledby="thesis">
+  <div class="frame">
+    <div class="thesis">
+      <h1 id="thesis"><span class="half">Different targets.</span><span class="half">Same environment.</span></h1>
+      <p class="lede">Two agent actions, each valid on its own, can still compose into an
+      invalid joint outcome — because the thing they share is not the thing either one
+      is touching.</p>
+    </div>
+    ${sceneHtml(s)}
+    <div class="continue">
+      <a class="cta" href="#lock">See what a lock can and cannot see <span class="arrow" aria-hidden="true">↓</span></a>
+      <p class="aside">A recorded scenario from a frozen sixteen-scenario evaluation. Nothing on
+      this page is executing.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="lock" aria-labelledby="lock-title">
+  <div class="frame">
+    <span class="eyebrow">The obvious answer, and where it stops</span>
+    <h2 id="lock-title">Lock the target each agent is writing to</h2>
+    <p class="band__lede">This is the discipline a careful engineer already has, and in the
+    evaluation it behaves exactly as it should. Its key is the target being written.</p>
+    <div class="beats">
+      ${beat('01', 'ok', 'Same target: the lock serialises',
+    'Both intents want the same file, so both hash to one key. The second waits for the first. This is the race the lock exists for, and it catches it.',
+    'Lock keys taken', L.sameTarget.keys, L.sameTarget.figure, 'same-target contentions serialised')}
+      ${beat('02', 'ok', 'Different targets: the lock lets both run',
+    'Two different files, so two different keys. Nothing contends, and ordinary per-key discipline correctly permits concurrency. Holding them anyway would be the global lock.',
+    'Lock keys taken', L.crossTarget.keys, L.crossTarget.figure, 'cross-target pairs kept concurrent')}
+      ${beat('03', 'miss', 'The hazard crosses both keys',
+    'The constraint the two actions jointly violate belongs to the environment they share, not to either file they lock. No per-key discipline can see a relationship that is not one of its keys.',
+    '', null, L.missed.figure, 'cross-target composition hazards missed')}
+    </div>
+    <p class="realisation">The lock worked. It locked exactly what it could see —
+    <b>and the demonstrated hazard crossed two lock keys.</b></p>
+    <p class="footnote">${esc(L.note)}</p>
+  </div>
+</section>
+
+<section class="band" id="compare" aria-labelledby="compare-title">
+  <div class="frame">
+    <span class="eyebrow">Four coordination strategies, one frozen corpus</span>
+    <h2 id="compare-title">What each strategy costs, and what it misses</h2>
+    <p class="band__lede">${esc(C.question)} Two dimensions, always read together: either one
+    alone ranks the strategies wrongly.</p>
+    <div class="arms">${C.strategies.map(armHtml).join('')}</div>
+    <p class="reading">${esc(C.reading)}</p>
+    <div class="bound">
+      <span class="k">What these figures are bounded to</span>
+      ${esc(C.scope)} ${esc(B.corpusBound)}
+    </div>
+  </div>
+</section>
+
+<section class="band" id="ablation" aria-labelledby="ablation-title">
+  <div class="frame">
+    <span class="recorded-tag">${icon('artifact', { size: 'sm' })} ${esc(A.framing.recordedLabel)}</span>
+    <span class="eyebrow">The causal follow-through</span>
+    <h2 id="ablation-title">${esc(A.question)}</h2>
+    <p class="band__lede">${esc(A.design)}</p>
+    <div class="holds">
+      <div data-kind="held">
+        <span class="k">Held identical across both conditions</span>
+        <ul>${A.heldConstant.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      </div>
+      <div data-kind="changed">
+        <span class="k">Changed</span>
+        <ul>${A.changed.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="conditions">
+      ${cond(A.rows[0], false)}
+      <div class="delta" aria-hidden="true">Evidence removed</div>
+      ${cond(A.rows[1], true)}
+    </div>
+    <p class="reading">${esc(A.reading)}</p>
+    <p class="footnote">${esc(A.framing.recordedNote)}</p>
+  </div>
+</section>
+
+<section class="band" id="verify" aria-labelledby="verify-title">
+  <div class="frame">
+    <span class="eyebrow">Level three</span>
+    <h2 id="verify-title">${esc(V.heading)}</h2>
+    <p class="band__lede">${esc(V.lead)}</p>
+    <div class="paths">${V.routes.filter((r) => r.proof === 'local').map(routeHtml).join('')}</div>
+    <details class="limits">
+      <summary>${icon('refused', { size: 'sm' })} What this evaluation does not claim</summary>
+      <p>${esc(B.boundedClaim)}</p>
+      <ul>${(B.mustNotClaim ?? []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      <span class="k" style="display:block;margin-top:16px">Outside the scope of this experiment</span>
+      <ul>${(B.outsideScope ?? []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      <span class="k" style="display:block;margin-top:16px">A negative finding, kept on the record</span>
+      <p>${esc(B.refusalStatement)}</p>
+    </details>
+  </div>
+</section>
+
+<section class="band cloud" id="cloud" aria-labelledby="cloud-title">
+  <div class="frame">
+    <p class="reset">Different proof · different experiment · nothing above carries over</p>
+    <span class="eyebrow">Google Cloud participation</span>
+    <h2 id="cloud-title">${esc(cloud.heading)}</h2>
+    <p class="band__lede">${esc(cloud.lead)}</p>
+    <div class="hops">${(cloud.actors ?? []).map((a, i) => `
+      ${i ? '<span class="hop__sep" aria-hidden="true">→</span>' : ''}
+      <div class="hop"><span class="k">${esc(a.role)}</span><b>${esc(a.label)}</b></div>`).join('')}</div>
+    <div class="cloudfacts">
+      <div class="fact"><span class="k">Interlock decision</span><b>${esc(cloud.decision)}</b>
+        <p>A decision, recorded with a receipt. Not a verification and not an authorization.</p></div>
+      <div class="fact"><span class="k">Protected mutation</span><b>EXECUTED</b>
+        <p>The mutation the receipt permitted was applied to the protected target.</p></div>
+      <div class="fact"><span class="k">Independent read-back</span><b>${esc(cloud.observed)}</b>
+        <p>Read by a separately authenticated principal. The model's own output declares nothing.</p></div>
+    </div>
+    <div class="controls">${(cloud.controls ?? []).map((c) => `
+      <span class="ctrl"><span class="code">${esc(c.status)}</span> ${esc(c.label)}</span>`).join('')}</div>
+    <p class="footnote" style="margin-top:10px">${esc(cloud.controlsNote)}</p>
+    <div class="notclaimed">
+      <span class="k">Not claimed by this run</span>
+      <ul>${(cloud.notClaimed ?? []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      <span class="k" style="display:block;margin-top:14px">Not on the recorded path</span>
+      <ul>${(cloud.notOnPath ?? []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    </div>
+    <div class="paths" style="margin-top:26px">${V.routes.filter((r) => r.proof === 'cloud').map(routeHtml).join('')}</div>
+  </div>
+</section>
+
+<footer>
+  <div class="frame row">
+    <span class="mono">${esc(B.experiment)} · canonical result ${esc(String(B.canonicalResultCommit).slice(0, 12))}</span>
+    <span class="spacer" style="flex:1"></span>
+    <a href="/cockpit" data-cockpit-link>Verification cockpit</a>
+    <a href="/storyboard">Production storyboard</a>
+  </div>
+</footer>`;
+
+  /* The scene has played by the time this runs on a static or reduced-motion
+     render, and after one frame otherwise. A named settled state is what the
+     capture harness holds on, exactly as the cockpit does. */
+  const settle = () => { document.documentElement.dataset.motion = 'settled'; };
+  const still = document.documentElement.dataset.static === 'true'
+    || document.documentElement.dataset.reducedMotion === 'true';
+  if (still) settle();
+  else setTimeout(settle, 700);
+
+  const bad = [s.joint.total, s.ceiling, C.strategies[0]?.invalidCoupled?.display].filter(unbound);
+  if (bad.length) live.textContent = 'Some values did not resolve against the frozen evidence.';
+}
+
+try {
+  const res = await fetch('/media/hac-349/evidence/landing-model.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error(`landing-model.json responded ${res.status}`);
+  render(await res.json());
+} catch (error) {
+  degraded(error?.message ?? 'unknown read failure');
+}
+</script>
+</body>
+</html>
