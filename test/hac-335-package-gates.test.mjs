@@ -26,6 +26,8 @@ const NEEDED = [
   'media/hac-334/evidence',
   'media/hac-334/exports',
   'media/hac-333/scene-manifest.json',
+  // The forensic replay export the README links from its "See it" table.
+  'media/hac-350/exports',
   'media/hac-341',
   'experiments/hac-330/evidence/arms.json',
   'experiments/hac-330/evidence/results.json',

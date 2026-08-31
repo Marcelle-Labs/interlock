@@ -9,12 +9,16 @@
 
 ## The problem
 
-Two changes can each be locally valid and still be jointly unsafe.
+Two good agent decisions can still make one bad system decision.
 
-Reviewed independently, each one passes. Applied together against the same
-shared environment, they violate a constraint that neither of them owns. The
-failure is not in either change — it is in the fact that nothing coordinated
-them before they touched shared state.
+One agent raises the reservation on one service. Another raises the reservation
+on a different service. Different services, different files, different lock
+keys — and reviewed independently, each change passes. Applied together against
+the environment they share, they break a ceiling that neither of them owns.
+
+The failure is not in either change. It is that nothing coordinated them before
+they touched shared state — and a per-target lock cannot coordinate a
+relationship that is not either target.
 
 ## The intervention
 
