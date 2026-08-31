@@ -27,7 +27,10 @@ Everything in this repository, beginning at commit
 `c83a5d0f93d0b81af552a4af0fbdaca3f74ad61a` (repository created 2026-08-12):
 
 - the Interlock composition engine and reference application;
-- Google ADK / Agent Runtime / Agent Gateway adapters and deployment configuration;
+- Google ADK integration and the Cloud Run deployment configuration used by
+  the recorded run, together with the Agent Runtime / Agent Gateway
+  `CONTENT_AUTHZ` adapters authored for HAC-325 — that insertion point was
+  falsified and is not on the recorded path;
 - a submission-local, experimental WorkspaceJSON **revision-anchor extension**;
 - frozen fixtures and the evaluation harness specific to Interlock;
 - the protected target/tool implementation used by the reference system;

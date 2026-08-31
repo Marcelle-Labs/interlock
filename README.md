@@ -8,15 +8,24 @@
   <img src="assets/logo/interlock-lockup-horizontal-black.svg" alt="Interlock" height="44">
 </picture>
 
-**Evidence-bound coordination before shared-state mutation.**
+# Two good agent decisions can still make one bad system decision.
 
-Two changes can each be locally valid and still break a shared constraint when
-they land together. Interlock reads revision-bound environment evidence before
-shared-state mutation and selects a deterministic coordination decision.
+One agent raises the reservation on service `alpha`. Another agent raises the
+reservation on service `beta`. Different services, different files, different
+lock keys — and each change is correct when you look at it on its own.
+
+They share one environment, and that environment has a ceiling. Applied
+together, the result is over it.
+
+A per-target lock coordinates contention on a target. It cannot coordinate a
+relationship that is not either target.
+
+**Interlock reads the environment evidence that describes that relationship, and
+makes a coordination decision before anything mutates.**
 
 ---
 
-## What changed because Interlock existed?
+## The failure, concretely
 
 ![Controlled causal counterfactual: with Interlock disabled the two intents total 140 against a joint bound of 130, an invalid joint state; with Interlock enabled the decision is WITHHOLD_SERIALIZE and the total is 120, within the bound, with 24/24 checks.](media/hac-334/exports/IL-PROOF-010-causal-counterfactual-1280x720-runhac330local.png)
 
@@ -28,27 +37,145 @@ Two intents. Each valid on its own. One shared environment, bounded by
 | Decision | *no decision* | `WITHHOLD_SERIALIZE` |
 | Joint outcome | `140 > 130` — invalid joint state | `120 <= 130` — bounded constraint satisfied |
 
-Checks: **24/24**. This is a bounded experiment recorded under **HAC-330**, and it
-ran locally — not on Google Cloud.
+Checks: **24/24**. This is a bounded controlled experiment recorded under
+**HAC-330**, and it ran locally — not on Google Cloud.
+
+## Why the obvious fix does not catch this one
+
+Per-target locking is the right tool for same-target contention, and it is a
+real baseline here rather than a straw man. On the same frozen corpus it
+serialized same-target contention 2/2 and it parallelised cross-target pairs 4/4.
+It locked exactly what a lock can see, and it kept the concurrency that a global
+lock would have destroyed.
+
+It still missed the coupled cross-target hazards 2/2.
+
+Two different lock keys do not imply two independent effects. The constraint
+these intents break is not `alpha`'s key and not `beta`'s key — it belongs to the
+environment both keys sit in, and a per-key discipline has no key for it.
+
+## What Interlock adds
+
+Before shared state is touched:
+
+1. Two independently valid intents arrive.
+2. Interlock reads **revision-bound environment evidence** — evidence about how
+   parts of this environment actually move together, bound to the revision it
+   was true at.
+3. It asks whether these two targets' effects are coupled through a constraint
+   that neither target owns.
+4. It selects a coordination decision — let both proceed, or hold one back and
+   order them — **before** the mutation, not after.
+5. On the protected path the target refuses the mutation unless it is presented
+   with the authorization receipt that decision issued, and validates that
+   receipt itself.
+
+The two decisions above appear in the record as `ALLOW_PARALLEL` — both intents
+proceed at once — and `WITHHOLD_SERIALIZE` — one intent is held back while the
+other proceeds alone. A held intent is not an approval, a rejection, or a human
+sign-off; it is a coordination decision.
+
+## Compared with what?
+
+Four mechanically distinct coordination strategies, run against
+one frozen sixteen-scenario corpus (**HAC-343**). Exact counts, because the
+corpus is an exhaustive enumeration rather than a sample:
+
+| Strategy | Coupled hazards that ended invalid | Independent opportunities kept parallel |
+| --- | --- | --- |
+| Uncoordinated | 2/2 | 2/2 |
+| Global lock | 0/2 | 0/2 |
+| Per-target lock | 2/2 | 2/2 |
+| Interlock | 0/2 | 2/2 |
+
+Fewer is better in the first column; more is better in the second.
+
+Global locking bought safety by eliminating concurrency. Per-target locking kept
+the concurrency and missed both coupled hazards. Interlock is the only arm in
+both left-hand columns at once — **on this corpus**.
+
+These are counts over an exhaustive enumeration of constructed scenarios in two
+hazard families, not rates over a population. Nothing here is a sample, an
+estimate, or an interval.
 
 ## The evidence is load-bearing
 
 ![Perturbation: with the original evidence the decision is WITHHOLD_SERIALIZE and the outcome 120 is within the bound; with perturbed evidence the decision is ALLOW_PARALLEL and the outcome returns to 140 against the bound of 130.](media/hac-334/exports/IL-PROOF-011-evidence-load-bearing-1280x720-runhac330local.png)
 
-Change the environment evidence and the deterministic decision changes with it:
-`ALLOW_PARALLEL`, and the joint outcome returns to `140 > 130`.
+The environment evidence is not decorative context. Hold the intents and the
+final tree identical and remove only the recorded coupling from the history, and
+the deterministic decision reverses to `ALLOW_PARALLEL`:
 
-Both arms are **recorded results**. Selecting an arm changes which frozen arm is
-displayed; nothing is executed to produce this comparison.
+| Condition | Invalid outcomes |
+| --- | --- |
+| Interlock + coupling evidence present | 0/2 |
+| Interlock + coupling evidence removed | 2/2 |
 
-## Can I verify it?
+The safety in the table above is the evidence's, not the engine's. Both
+conditions are **recorded results** — run once, offline, and frozen. Nothing is
+executed to produce this comparison.
 
-The Run is a verification surface over one pinned, frozen evidence object.
-Nothing in it executes — every value is read out of a frozen record.
+Every figure in these two tables is read from
+[`experiments/hac-343/evidence/judge-export.json`](./experiments/hac-343/evidence/judge-export.json),
+anchored at canonical result `7ede0f9`.
+
+## Where this sits in an agent fleet
+
+Interlock is the **pre-mutation composition-safety boundary** for a multi-agent
+fleet: the point where independently valid actions are coordinated when shared
+environment evidence says their effects are coupled, and where a protected
+mutation is gated on the receipt that decision produced.
+
+That is the whole of the role it claims. It is not an agent registry, not agent
+memory, not a fleet catalogue, not a task-delegation layer and not an enterprise
+governance plane. Those are adjacent problems this submission did not solve.
+
+---
+
+## Start here
+
+### See it
+
+| | |
+| -- | -- |
+| The Run — deployed judge cockpit | <https://interlock.marcellelabs.io/cockpit> |
+| Treatment arm | [`?run=hac330-local&proof=local&state=run.local.treatment`](https://interlock.marcellelabs.io/cockpit?run=hac330-local&proof=local&state=run.local.treatment) |
+| Perturbed arm | [`?run=hac330-local&proof=local&state=run.local.perturbed`](https://interlock.marcellelabs.io/cockpit?run=hac330-local&proof=local&state=run.local.perturbed) |
+| The recorded Google Cloud run | [`?run=hac340-cloud&proof=cloud&state=run.cloud.overview`](https://interlock.marcellelabs.io/cockpit?run=hac340-cloud&proof=cloud&state=run.cloud.overview) |
+| Forensic replay of the composition, as coded motion | [`IL-MOT-021-forensic-replay-1920x1080.mp4`](./media/hac-350/exports/IL-MOT-021-forensic-replay-1920x1080.mp4) |
+
+Append `&static=1` for the reduced-motion resolution. The cockpit is a
+verification surface over frozen evidence: nothing in it executes, and every
+value is read out of a recorded packet.
+
+### Verify it
+
+| | |
+| -- | -- |
+| Bounded four-arm evaluation | [`experiments/hac-343/evidence/`](./experiments/hac-343/evidence/) — `pnpm check:packet:eval` |
+| Controlled local experiment packet | [`experiments/hac-330/evidence/`](./experiments/hac-330/evidence/) — `pnpm check:packet` |
+| Public cloud evidence packet | [`experiments/hac-342/evidence/`](./experiments/hac-342/evidence/) — `pnpm check:packet:public` |
+| Every gate at once | `pnpm run check` |
+
+### Understand the deployment
+
+| | |
+| -- | -- |
+| Deployment and trust boundaries | [`IL-DIAG-012`](./media/hac-334/exports/IL-DIAG-012-deployment-trust-boundaries-1920x1080-runilkhac340cloud1786730369123.png) |
+| The recorded Google Cloud traversal | [`IL-DIAG-011`](./media/hac-334/exports/IL-DIAG-011-cloud-participation-1280x720-runilkhac340cloud1786730369123.png) |
+| Enforcement topology | [`docs/architecture/enforcement-topology.md`](./docs/architecture/enforcement-topology.md) |
+| Provenance and what may be claimed | [`DISCLOSURE.md`](./DISCLOSURE.md) · [`provenance/manifest.json`](./provenance/manifest.json) |
+
+### Reproduce it
+
+[Reproducing and building](#reproducing-and-building), below — what runs from
+this checkout alone, and what needs the sibling workspace.
+
+## Can I verify it locally?
 
 ![The Run cockpit rendering the HAC-330 treatment arm: run identity hac330-local, checks 24/24, two intents marked locally valid, a coupled shared environment with joint bound 130, the WITHHOLD_SERIALIZE decision, and 140 > 130 beside 120 <= 130.](media/hac-335/captures/IL-COCK-010-run-local-treatment-1440x776-runhac330local.png)
 
-<sub>Real capture of `media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment&static=1` at 1440×900, cropped to the rendered content.</sub>
+<sub>Real capture of `media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment` at 1440×900, cropped to the rendered content.</sub>
 
 Serve the repository root — the cockpit resolves its identity assets from
 `/assets` — and open the deep links:
@@ -64,22 +191,15 @@ python3 -m http.server 4173
 | Perturbed | [`?run=hac330-local&proof=local&state=run.local.perturbed`](http://127.0.0.1:4173/media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.perturbed) |
 | Google Cloud run | [`?run=hac340-cloud&proof=cloud&state=run.cloud.overview`](http://127.0.0.1:4173/media/hac-341/cockpit.html?run=hac340-cloud&proof=cloud&state=run.cloud.overview) |
 
-Append `&static=1` for the reduced-motion resolution.
-
-Re-run the experiment and its gate yourself:
-
-```sh
-pnpm hac330          # run the controlled local experiment
-pnpm check:packet    # verify the frozen HAC-330 packet
-```
-
 ---
 
 # Context reset — different run, different evidence
 
 **Everything above is the controlled local experiment (HAC-330).** What follows
 is a separate recorded run on Google Cloud (HAC-340). Neither is evidence for
-the other, and no single run produced both.
+the other, and no single run produced both. The first establishes the bounded
+causal comparison; the second establishes that the protected Interlock path was
+also exercised using the required Google stack.
 
 ---
 
@@ -96,6 +216,9 @@ protected target mutation `EXECUTED` → independently authenticated read-back
 
 `EXECUTED` and `OBSERVED` are separate facts: one is what the mutation reported,
 the other is what a separately authenticated principal read back afterwards.
+
+The Google technologies on that recorded path, and nothing else, are listed in
+[`media/hac-335/devpost/04-google-technologies.md`](./media/hac-335/devpost/04-google-technologies.md).
 
 ### Fail-closed controls
 
@@ -164,35 +287,15 @@ joint outcome.
 Cloud Run traversal through Interlock, a receipt-bound protected mutation,
 independently read back and correlated in Cloud Logging.
 
-**Bounded operational utility (HAC-343)** — one frozen sixteen-scenario corpus
-run through four coordination strategies. Exact counts, because the corpus is an
-exhaustive enumeration rather than a sample:
-
-| Strategy | Hazards unsafe | Independent opportunities parallel |
-| --- | --- | --- |
-| Uncoordinated | 2/2 | 2/2 |
-| Global lock | 0/2 | 0/2 |
-| Per-target lock | 2/2 | 2/2 |
-| Interlock | 0/2 | 2/2 |
-
-The per-target lock is a real lock, not a straw man: it serialized same-target
-contention 2/2 and parallelised cross-target pairs 4/4, and still missed
-cross-target hazards 2/2 — a composition hazard spanning two lock keys is
-invisible to any per-key discipline.
-
-The safety is the evidence's, not the engine's. Removing the coupling evidence
-reverses the decision:
-
-| Condition | Invalid outcomes |
-| --- | --- |
-| Interlock + coupling evidence present | 0/2 |
-| Interlock + coupling evidence removed | 2/2 |
+**Bounded operational utility (HAC-343)** — the four-arm comparison and the
+evidence ablation shown above, over one frozen corpus. The per-target lock in it
+is a credible baseline, not a straw man: a composition hazard spanning two lock
+keys is invisible to any per-key discipline, and the figures that establish that
+are in [Why the obvious fix does not catch this one](#why-the-obvious-fix-does-not-catch-this-one).
 
 Interlock is **not** 0% unsafe — it produced invalid joint states in both
 ablation scenarios by design — and it is **not** "safer than locking": per-target
-locking is correct for the hazard it addresses. Every figure is read from
-[`experiments/hac-343/evidence/judge-export.json`](./experiments/hac-343/evidence/judge-export.json),
-anchored at canonical result `7ede0f9`.
+locking is correct for the hazard it addresses.
 
 **Not claimed.** HAC-330 did not run on Google Cloud, and HAC-340 does not
 reproduce the 140/120 counterfactual there. Agent Runtime and Agent Gateway did
@@ -204,7 +307,8 @@ guarantee. No safety, security, verification or production-readiness guarantee.
 No fleet-scale readiness and no universal collision prevention.
 
 The broader evaluation (HAC-319) — precision, recall, fleet-scale behaviour — is
-**not bound**. HAC-343 below is a bounded child of it, not a substitute.
+**not bound**. The bounded four-arm comparison above is a child of it, not a
+substitute.
 
 [`DISCLOSURE.md`](./DISCLOSURE.md) is the full provenance statement.
 
@@ -218,7 +322,10 @@ records this as `UNLICENSED`.
 The `workspace.json` specification and toolchain that Interlock consumes are separately
 Apache-2.0 and are not covered by this notice — see
 [`provenance/manifest.json`](./provenance/manifest.json) for the exact pinned
-revisions.
+revisions. Geist and Geist Mono are vendored under the SIL Open Font License 1.1
+(`assets/fonts/OFL.txt`) and the icon set under
+[`assets/icons/LICENSE-lucide.txt`](./assets/icons/LICENSE-lucide.txt); both are
+recorded in [`assets/HARVEST.md`](./assets/HARVEST.md).
 
 ---
 
@@ -230,14 +337,31 @@ revisions and never copied.
 [`provenance/manifest.json`](./provenance/manifest.json) is the machine-readable
 record CI enforces.
 
-This repository is one root of a multi-repository workspace. Clone it as a
-sibling of the WorkspaceJSON repositories it consumes — the layout, permissions
-matrix and branch policy are in
-[`docs/development/workspace.md`](./docs/development/workspace.md).
+There are three different things a reader might want to do, and they do not need
+the same setup.
+
+### 1. Inspect the judge surfaces — this repository alone, no install
 
 ```sh
-pnpm install
-pnpm run check       # every gate
+git clone https://github.com/Marcelle-Labs/interlock.git
+cd interlock
+python3 -m http.server 4173
+```
+
+Then open `http://127.0.0.1:4173/media/hac-341/cockpit.html` (the deep links are
+[above](#can-i-verify-it-locally)) or
+`http://127.0.0.1:4173/media/hac-333/storyboard.html`. Serve the repository
+root: both surfaces resolve their fonts and identity assets from `/assets`, and
+neither makes an off-origin request.
+
+### 2. Verify the frozen evidence — this repository alone
+
+Requires Node `>=22` and pnpm `10.24.0`. Nothing here reaches the network, and
+no sibling repository is needed.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm run check          # every gate, in one command
 pnpm run typecheck
 pnpm run build
 pnpm test
@@ -249,12 +373,42 @@ Individual gates:
 | -- | -- |
 | `pnpm check:provenance` | the provenance boundary; required in CI |
 | `pnpm check:packet` | the frozen HAC-330 experiment packet |
+| `pnpm check:packet:eval` | the frozen HAC-343 four-arm evaluation packet |
+| `pnpm check:packet:s2` | the frozen HAC-326 enforcement packet |
 | `pnpm check:packet:public` | the HAC-342 public cloud packet and its bindings |
+| `pnpm check:filmed-run` | the HAC-324 authoritative filmed run |
 | `pnpm check:cockpit` | the HAC-341 judge cockpit contract |
 | `pnpm check:visuals` | the HAC-334 visual suite against frozen evidence |
 | `pnpm check:storyboard` | the HAC-333 storyboard timing and proof classes |
 | `pnpm check:identity` | the HAC-332 identity boundary |
 | `pnpm check:package` | the HAC-335 judge-facing package |
+| `pnpm check:film` | the HAC-336 final cut against the evidence it shows |
+| `pnpm check:replay` | the HAC-350 forensic replay |
+
+`pnpm check:packet:eval` re-verifies the four-arm evaluation against its frozen
+contracts by resolving the commits that froze them, so it needs full history —
+a shallow clone fails it.
+
+### 3. Re-run the controlled experiment — needs the sibling workspace
+
+```sh
+pnpm hac330          # re-run the controlled local experiment
+pnpm check:packet    # verify the frozen packet it writes
+```
+
+`pnpm hac330` does **not** run from this repository alone. The co-change
+evidence it consumes is produced by the pre-existing open-source WorkspaceJSON
+mining core, which is executed in place from a sibling checkout at the revision
+[`provenance/manifest.json`](./provenance/manifest.json) pins — it is never
+copied in here, and the run refuses to start against a checkout that has
+drifted or is dirty. Without it the run stops immediately with
+
+```
+FATAL: could not find the pinned workspacejson/cli checkout …
+```
+
+The workspace layout, the permissions matrix and the bootstrap steps are in
+[`docs/development/workspace.md`](./docs/development/workspace.md).
 
 ## Working here
 

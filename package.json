@@ -1,7 +1,7 @@
 {
   "name": "@marcelle-labs/interlock",
   "version": "0.0.0",
-  "description": "Interlock — evidence-bound coordination before shared-state mutation",
+  "description": "Interlock — two valid agent actions can be unsafe together; coordinate them on revision-bound environment evidence before shared-state mutation",
   "private": true,
   "license": "UNLICENSED",
   "homepage": "https://github.com/Marcelle-Labs/interlock#readme",

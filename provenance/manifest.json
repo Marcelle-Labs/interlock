@@ -171,7 +171,7 @@
       "initialSha": "c83a5d0f93d0b81af552a4af0fbdaca3f74ad61a",
       "createdAt": "2026-08-12T23:49:36Z",
       "disposition": "WRITABLE",
-      "purpose": "Contest submission anchor. Owns the Interlock composition engine, Google ADK/Agent Runtime/Gateway adapters, submission-local revision-anchor extension, frozen fixtures and evaluation harness, protected target/tool implementation, pending-intent coordination and receipts, independent verifier, and submission documentation.",
+      "purpose": "Contest submission anchor. Owns the Interlock composition engine, the Google ADK integration and Cloud Run deployment configuration used by the recorded run, the Agent Runtime/Agent Gateway CONTENT_AUTHZ adapters authored for HAC-325 (an insertion point that was falsified and is not on the recorded path), the submission-local revision-anchor extension, frozen fixtures and evaluation harness, protected target/tool implementation, pending-intent coordination and receipts, independent verifier, and submission documentation.",
       "mustNotAbsorb": [
         "copied WorkspaceJSON source",
         "private swarm machinery",

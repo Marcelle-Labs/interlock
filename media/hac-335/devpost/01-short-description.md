@@ -7,16 +7,16 @@
 ## Tagline (≤ 120 characters)
 
 ```
-Evidence-bound coordination before shared-state mutation.
+Two good agent decisions can still make one bad system decision.
 ```
 
 ## Short description (≤ 300 characters)
 
 ```
-Two changes can each be locally valid and still break a shared constraint
-together. Interlock reads revision-bound environment evidence before
-shared-state mutation and picks a deterministic coordination decision. In a
-controlled experiment: 140 > 130 becomes 120 <= 130.
+Two agents change different services. Each change is valid alone; together they
+break the ceiling the services share — 140 > 130. A per-target lock cannot
+coordinate a relationship that is not either target. Interlock reads
+revision-bound environment evidence before shared-state mutation.
 ```
 
-Claims used: `CL-001`, `CL-002`, `CL-003`, `CL-004`.
+Claims used: `CL-001`, `CL-002`, `CL-003`.

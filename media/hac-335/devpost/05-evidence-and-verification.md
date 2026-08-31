@@ -6,19 +6,34 @@
 
 ## The controlled local experiment (HAC-330)
 
-Reproduce it from a clone:
+Verify the frozen packet from a clone of this repository alone — no sibling
+checkout, no network:
 
 ```sh
-pnpm install
-pnpm hac330          # run the controlled local experiment
+pnpm install --frozen-lockfile
 pnpm check:packet    # verify the frozen packet — 24 checks
+pnpm run check       # every gate, including the four-arm evaluation packet
 ```
+
+Re-running the experiment itself needs one more thing. The co-change evidence it
+consumes is produced by the pre-existing open-source WorkspaceJSON mining core,
+executed in place from a sibling checkout at the revision `provenance/manifest.json`
+pins — never copied in here. With that sibling present:
+
+```sh
+pnpm hac330          # re-run the controlled local experiment
+```
+
+Without it the run refuses to start rather than substituting anything. The
+workspace layout is in `docs/development/workspace.md`.
 
 The 24 checks include pinned-revision and clean-checkout assertions on the
 upstream WorkspaceJSON repositories, so a pass also asserts which upstream bytes
 produced the result.
 
-Inspect the arms interactively — serve the repository root, then:
+Inspect the arms interactively on the deployed judge surface —
+<https://interlock.marcellelabs.io/cockpit> — or serve the repository root
+locally and open:
 
 ```
 /media/hac-341/cockpit.html?run=hac330-local&proof=local&state=run.local.treatment
