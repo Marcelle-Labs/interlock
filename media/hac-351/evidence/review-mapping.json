@@ -1,0 +1,60 @@
+{
+  "id": "HAC-351-review-mapping",
+  "issue": "HAC-351",
+  "purpose": "Blind A/B mapping for a directional n=1 human adjudication of the opening.",
+  "doNotShowToReviewer": true,
+  "storedOutsideReviewDirectory": "media/hac-351/review/ contains only the two videos and the questions.",
+  "disposition": "UNCHANGED — VEO_REJECTED. This build decides nothing.",
+  "assignment": {
+    "A": "deterministic",
+    "B": "candidate"
+  },
+  "heldConstant": [
+    "narration copy",
+    "narrator (Voice A)",
+    "audio file and therefore volume",
+    "caption text and timing",
+    "all footage after 6.000s",
+    "total duration",
+    "encode settings"
+  ],
+  "variable": "the first 6.000 seconds only",
+  "treatments": {
+    "deterministic": {
+      "source": "media/hac-336/rc1/exports/IL-MOT-022-interlock-rc1-1920x1080.mp4 [0.000-6.000]"
+    },
+    "candidate": {
+      "source": "media/hac-351/edited/IL-VEO-001-cold-open-30fps.mp4 [0.000-6.000]"
+    }
+  },
+  "sharedTail": "media/hac-336/rc1/exports/IL-MOT-022-interlock-rc1-1920x1080.mp4 [6.000-41.900]",
+  "narration": {
+    "track": "media/hac-351/audition/VOICE-A-opening.mp3",
+    "sha256": "a9514ac5b2ab2c3117cdb9d5f1419fe0022c030492d2f6808caef45ff8b53cdd"
+  },
+  "caveat": "Both candidates carry the HAC-351 opening narration, so the deterministic candidate is not RC1 as it ships. This pair isolates the opening image against one fixed script; it is not an evaluation of RC1’s existing cut.",
+  "outputs": {
+    "REVIEW-A.mp4": {
+      "durationSeconds": 41.9,
+      "width": 1920,
+      "height": 1080,
+      "frameRate": "30/1",
+      "frames": 1257,
+      "hasAudio": true,
+      "sha256": "ad9a71bc5fa620ec230492801790460e751b0d6a13612569203b1e4894f75a6f",
+      "bytes": 2527387,
+      "treatment": "deterministic"
+    },
+    "REVIEW-B.mp4": {
+      "durationSeconds": 41.9,
+      "width": 1920,
+      "height": 1080,
+      "frameRate": "30/1",
+      "frames": 1257,
+      "hasAudio": true,
+      "sha256": "8853990a27868805e753588acc8718b6469d3f615d64e77c8b05476085ca2129",
+      "bytes": 3874660,
+      "treatment": "candidate"
+    }
+  }
+}

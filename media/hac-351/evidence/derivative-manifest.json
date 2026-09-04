@@ -1,0 +1,54 @@
+{
+  "id": "HAC-351-derivative-manifest",
+  "issue": "HAC-351",
+  "claimBoundary": "Editorial metaphor only. Not execution evidence, Google Cloud footage, architecture, telemetry, product UI, or a simulated Interlock decision.",
+  "selectedCandidate": "p2-velocity",
+  "original": {
+    "path": "media/hac-351/original/p2-velocity.mp4",
+    "sha256": "758e17f77be733339a5f000f1f3657bd01408066b7ed3ac37ef24b2237c6b2d1",
+    "preserved": true,
+    "note": "Service-returned bytes, untranscoded. Never overwritten by a derivative.",
+    "width": 1920,
+    "height": 1080,
+    "nativeFrameRate": "24/1",
+    "frames": 192,
+    "durationSeconds": 8,
+    "audioStreams": 0,
+    "c2pa": true,
+    "c2paNote": "Content Credentials are present and speak to media provenance only. They are not evidence that the illustrated scenario occurred."
+  },
+  "edited": {
+    "path": "media/hac-351/edited/IL-VEO-001-cold-open-30fps.mp4",
+    "sha256": "6f0b96a770445ba84896eeb7419376ea6b4070f7b68ca2db765acf9abba9d023",
+    "width": 1920,
+    "height": 1080,
+    "conformedFrameRate": "30/1",
+    "frames": 180,
+    "durationSeconds": 6,
+    "audioStreams": 0
+  },
+  "operations": [
+    {
+      "op": "trim",
+      "to": "0.000-6.000s",
+      "reason": "strongest editorial window; ends before the slight backward drift in the final two seconds"
+    },
+    {
+      "op": "fps-conform",
+      "from": "24/1",
+      "to": "30/1",
+      "method": "whole-frame duplication/drop (ffmpeg fps filter)",
+      "interpolation": "none"
+    }
+  ],
+  "filterChain": "fps=30",
+  "forbiddenFiltersAsserted": [
+    "minterpolate",
+    "framerate=",
+    "tblend",
+    "blend=",
+    "mci",
+    "obmc"
+  ],
+  "overlays": "none — all copy, logo, labels and factual overlays are deterministic and composited in film assembly"
+}

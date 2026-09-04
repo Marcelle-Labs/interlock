@@ -1,0 +1,215 @@
+{
+  "id": "HAC-351-audition-manifest",
+  "issue": "HAC-351",
+  "provider": "elevenlabs",
+  "model": "eleven_multilingual_v2",
+  "settings": {
+    "stability": 0.6,
+    "similarity_boost": 0.75,
+    "style": 0,
+    "use_speaker_boost": true,
+    "speed": 0.96
+  },
+  "voices": {
+    "A": {
+      "voiceId": "Xb7hH8MSUJpSbSDYk0k2",
+      "libraryName": "Alice - Clear, Engaging",
+      "profile": "Adult female, low-to-mid register, light British, calm senior technical peer.",
+      "labels": {
+        "gender": "female",
+        "age": "middle_aged",
+        "accent": "british",
+        "use_case": "informative_educational"
+      },
+      "track": "media/hac-351/audition/VOICE-A-opening.mp3",
+      "trackSha256": "a9514ac5b2ab2c3117cdb9d5f1419fe0022c030492d2f6808caef45ff8b53cdd",
+      "totalSeconds": 41.889,
+      "words": 105,
+      "wordsPerMinute": 150,
+      "lines": [
+        {
+          "lineId": "O01",
+          "beat": "0:00-0:08 new operating reality",
+          "spoken": "A developer no longer runs one agent.",
+          "words": 7,
+          "path": "media/hac-351/audition/voice-A/O01.mp3",
+          "durationSeconds": 2.508,
+          "audioSha256": "6da55f29e3a49d4aa0b93e1acdc6ebdf44406d596610e4fd72341f1e0fe51432"
+        },
+        {
+          "lineId": "O02",
+          "beat": "0:00-0:08 new operating reality",
+          "spoken": "Several workstreams now run at the same time, each making its own changes.",
+          "words": 13,
+          "path": "media/hac-351/audition/voice-A/O02.mp3",
+          "durationSeconds": 5.016,
+          "audioSha256": "c80681c0fc11a8d68191e806f9bcfaa9063dd9781f03b906606c299000f21566"
+        },
+        {
+          "lineId": "O03",
+          "beat": "0:08-0:20 shared consequence",
+          "spoken": "They touch different files, so they look independent.",
+          "words": 8,
+          "path": "media/hac-351/audition/voice-A/O03.mp3",
+          "durationSeconds": 3.297,
+          "audioSha256": "401e0439830ae02e9aecbb6cd597bfd24f0f48db8df9b7fff8b2f61e37cd7bdc"
+        },
+        {
+          "lineId": "O04",
+          "beat": "0:08-0:20 shared consequence",
+          "spoken": "But two changes can each be right on their own, and still be wrong together.",
+          "words": 15,
+          "path": "media/hac-351/audition/voice-A/O04.mp3",
+          "durationSeconds": 4.69,
+          "audioSha256": "2ded857a056550514bc6b5eb035e89562dc9f6e1f4598b25cc1ffa31d09116f3"
+        },
+        {
+          "lineId": "O05",
+          "beat": "0:08-0:20 shared consequence",
+          "spoken": "Different targets. The same environment.",
+          "words": 5,
+          "path": "media/hac-351/audition/voice-A/O05.mp3",
+          "durationSeconds": 2.554,
+          "audioSha256": "d3746b7347af406b8d1fb53b4391b242d6d31a295c5e86e441e289c2c4da0977"
+        },
+        {
+          "lineId": "O06",
+          "beat": "0:20-0:35 the limitation",
+          "spoken": "Checking each action on its own cannot see that. Local validity is not joint validity.",
+          "words": 15,
+          "path": "media/hac-351/audition/voice-A/O06.mp3",
+          "durationSeconds": 5.759,
+          "audioSha256": "8c6a84fb37d4a6f20f1fd52808c9e5a1cc66bb230a796a686e87e85e799f7c11"
+        },
+        {
+          "lineId": "O07",
+          "beat": "0:20-0:35 Interlock",
+          "spoken": "Interlock is not another agent. It is the deterministic boundary those actions pass through before shared state changes.",
+          "words": 18,
+          "path": "media/hac-351/audition/voice-A/O07.mp3",
+          "durationSeconds": 8.173,
+          "audioSha256": "d1894e6a9a03f957f1b4f4f39c83a6ea5ee21e684e9dacbca7dc8a8c71ab6a80"
+        },
+        {
+          "lineId": "O08",
+          "beat": "0:20-0:35 Interlock",
+          "spoken": "It reads revision-bound evidence from the repository, and decides whether they may proceed together.",
+          "words": 14,
+          "path": "media/hac-351/audition/voice-A/O08.mp3",
+          "durationSeconds": 6.502,
+          "audioSha256": "6cc7cb63675a81eab2418954e30703ca47792e5c60fb030b1cf249a2bffef976"
+        },
+        {
+          "lineId": "O09",
+          "beat": "0:35-0:45 into the demonstration",
+          "spoken": "Here is what that does on a small, fixed example.",
+          "words": 10,
+          "path": "media/hac-351/audition/voice-A/O09.mp3",
+          "durationSeconds": 3.39,
+          "audioSha256": "a50814fcf88740df946d263b629beac9cbaf61b07499222bf09385fb0e32793c"
+        }
+      ]
+    },
+    "B": {
+      "voiceId": "onwK4e9ZLuTAKqWW03F9",
+      "libraryName": "Daniel - Steady Broadcaster",
+      "profile": "Adult male, mid register, light British, thoughtful technical-documentary delivery.",
+      "labels": {
+        "gender": "male",
+        "age": "middle_aged",
+        "accent": "british",
+        "use_case": "informative_educational"
+      },
+      "risk": "Library name says \"Broadcaster\". The announcer-affect check in the protocol exists partly for this voice; if readers hear presentation rather than explanation, that is a finding about B, not a reason to retune B.",
+      "track": "media/hac-351/audition/VOICE-B-opening.mp3",
+      "trackSha256": "b7535f32fd4e98a5d6895a06307cde8481dde1bf7b2ffc391e36ddef173d56b3",
+      "totalSeconds": 46.626,
+      "words": 105,
+      "wordsPerMinute": 135,
+      "lines": [
+        {
+          "lineId": "O01",
+          "beat": "0:00-0:08 new operating reality",
+          "spoken": "A developer no longer runs one agent.",
+          "words": 7,
+          "path": "media/hac-351/audition/voice-B/O01.mp3",
+          "durationSeconds": 3.158,
+          "audioSha256": "009287f3bbb0667999f833f27b8601e1a9613e620fbd1a8dacc69503cf667b79"
+        },
+        {
+          "lineId": "O02",
+          "beat": "0:00-0:08 new operating reality",
+          "spoken": "Several workstreams now run at the same time, each making its own changes.",
+          "words": 13,
+          "path": "media/hac-351/audition/voice-B/O02.mp3",
+          "durationSeconds": 5.016,
+          "audioSha256": "c6a4451e735d810e3437b0ebaf6563b7fafd3e04eb38a246ae8bb40c4398cf48"
+        },
+        {
+          "lineId": "O03",
+          "beat": "0:08-0:20 shared consequence",
+          "spoken": "They touch different files, so they look independent.",
+          "words": 8,
+          "path": "media/hac-351/audition/voice-B/O03.mp3",
+          "durationSeconds": 3.715,
+          "audioSha256": "f3767f45abc479ed7fda6e3dc90b307470488207cec2b8f0a71522c025b5dabf"
+        },
+        {
+          "lineId": "O04",
+          "beat": "0:08-0:20 shared consequence",
+          "spoken": "But two changes can each be right on their own, and still be wrong together.",
+          "words": 15,
+          "path": "media/hac-351/audition/voice-B/O04.mp3",
+          "durationSeconds": 5.48,
+          "audioSha256": "491e80ffd8b94a7df1cebc74dcab35eb5f470ff848acbca296a93793404f99f5"
+        },
+        {
+          "lineId": "O05",
+          "beat": "0:08-0:20 shared consequence",
+          "spoken": "Different targets. The same environment.",
+          "words": 5,
+          "path": "media/hac-351/audition/voice-B/O05.mp3",
+          "durationSeconds": 2.972,
+          "audioSha256": "c99b963d665e305a512a84e83d246af707989bcc5cf4871daa543988fff568a8"
+        },
+        {
+          "lineId": "O06",
+          "beat": "0:20-0:35 the limitation",
+          "spoken": "Checking each action on its own cannot see that. Local validity is not joint validity.",
+          "words": 15,
+          "path": "media/hac-351/audition/voice-B/O06.mp3",
+          "durationSeconds": 6.92,
+          "audioSha256": "d9432e8d9284680ed9d8e5b0dbab97ad06744e72c18ec7cdb0985e35ab282223"
+        },
+        {
+          "lineId": "O07",
+          "beat": "0:20-0:35 Interlock",
+          "spoken": "Interlock is not another agent. It is the deterministic boundary those actions pass through before shared state changes.",
+          "words": 18,
+          "path": "media/hac-351/audition/voice-B/O07.mp3",
+          "durationSeconds": 9.242,
+          "audioSha256": "38dc90a521b2519f3cc7015b74d0ac18f7d3381ecf52875aca9a32fe336094b3"
+        },
+        {
+          "lineId": "O08",
+          "beat": "0:20-0:35 Interlock",
+          "spoken": "It reads revision-bound evidence from the repository, and decides whether they may proceed together.",
+          "words": 14,
+          "path": "media/hac-351/audition/voice-B/O08.mp3",
+          "durationSeconds": 5.944,
+          "audioSha256": "bf6ef9882a9c6cbe7f4621d16a4fdc9ec73ba16be23274271428f44a14b5aa55"
+        },
+        {
+          "lineId": "O09",
+          "beat": "0:35-0:45 into the demonstration",
+          "spoken": "Here is what that does on a small, fixed example.",
+          "words": 10,
+          "path": "media/hac-351/audition/voice-B/O09.mp3",
+          "durationSeconds": 4.18,
+          "audioSha256": "245abd7e81660dd9d0cf06572cf8693e497631c29f0619c35c014467e49f4908"
+        }
+      ]
+    }
+  },
+  "note": "Audio only. No listening result is recorded here. The blind comparison is run by human readers under audition/PROTOCOL.md; a model may not fill in a result."
+}

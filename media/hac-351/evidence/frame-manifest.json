@@ -1,0 +1,69 @@
+{
+  "issue": "HAC-351",
+  "role": "Deterministic first/last frame authority for one bounded Veo 3.1 cold open.",
+  "claimBoundary": "Editorial metaphor only. These frames assert no product state, architecture, execution, telemetry or Interlock decision.",
+  "generator": "media/hac-351/bin/build-frames.mjs",
+  "substrate": "media/hac-334/bin/lib/{svg,draw}.mjs (HAC-332 tokens)",
+  "world": {
+    "LANE_X": [
+      -1.3,
+      0,
+      1.3
+    ],
+    "LANE_HALF_W": 0.38,
+    "DECK_T": 0.22,
+    "Z_NEAR": 0.5,
+    "Z_FAR": 22,
+    "PLINTH_Y": 0.62,
+    "PLINTH_T": 0.34,
+    "PLINTH_HALF_W": 2.15,
+    "PLINTH_Z0": 0.5,
+    "PLINTH_Z1": 1.4
+  },
+  "frames": [
+    {
+      "station": "first",
+      "assetId": "IL-VEO-001-cold-open-first",
+      "svg": "media/hac-351/masters/IL-VEO-001-cold-open-first.svg",
+      "svgSha256": "14602a4736f0408b5215aefdf328ebe61949c2951c23e3d84a0b934e38f35b94",
+      "png": "media/hac-351/frames/IL-VEO-001-cold-open-first-1920x1080.png",
+      "pngSha256": "3c579690c490fc36dc673441f74feea2163de0e9d11ff802749c2be7b55de3e4",
+      "pngBytes": 53559,
+      "width": 1920,
+      "height": 1080,
+      "camera": {
+        "z": -4.2,
+        "y": -2.2,
+        "f": 1400
+      },
+      "carriageZ": [
+        3.2,
+        4.4,
+        3.7
+      ],
+      "description": "Three separate matte channels recede across an empty paper field, each carrying one machined block at its own position. No text, no labels, no product state. The support beneath the channels is not yet visible."
+    },
+    {
+      "station": "last",
+      "assetId": "IL-VEO-001-cold-open-last",
+      "svg": "media/hac-351/masters/IL-VEO-001-cold-open-last.svg",
+      "svgSha256": "5fec0becaf546851273ee24180cfaebc3c81718424425250366638600d0af234",
+      "png": "media/hac-351/frames/IL-VEO-001-cold-open-last-1920x1080.png",
+      "pngSha256": "75b5e42a8fadcd1ae49549d9cd03f9ae5a3027f9e88c7a476224444a706ba242",
+      "pngBytes": 51708,
+      "width": 1920,
+      "height": 1080,
+      "camera": {
+        "z": -3.4,
+        "y": -1.05,
+        "f": 1400
+      },
+      "carriageZ": [
+        2.4,
+        3.3,
+        2.75
+      ],
+      "description": "The same three channels seen from closer and lower. A single continuous member is now visible beneath all three, so the separate paths are seen to rest on one shared support. No decision, mechanism or outcome is shown."
+    }
+  ]
+}

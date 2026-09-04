@@ -1,0 +1,62 @@
+{
+  "issue": "HAC-351",
+  "candidate": "p2-velocity",
+  "claimBoundary": "Editorial metaphor only. This clip is not execution evidence, Google Cloud footage, architecture, telemetry, product UI, or a simulated Interlock decision.",
+  "project": "nimble-octagon-505403-n3",
+  "region": "us-central1",
+  "apiVersion": "v1",
+  "endpoint": "https://us-central1-aiplatform.googleapis.com/v1/projects/nimble-octagon-505403-n3/locations/us-central1/publishers/google/models/veo-3.1-fast-generate-001:predictLongRunning",
+  "model": "veo-3.1-fast-generate-001",
+  "sdk": null,
+  "sdkRationale": "Agent Platform v1 REST used directly; no @google/genai in the request path, so no version is pinned. See header comment.",
+  "transport": "node:fetch",
+  "operation": "projects/nimble-octagon-505403-n3/locations/us-central1/publishers/google/models/veo-3.1-fast-generate-001/operations/75718917-aa18-44a6-8577-1fd863f46b70",
+  "requestedAt": "2026-08-31T21:41:40.032Z",
+  "completedAt": "2026-08-31T21:43:18.753Z",
+  "seed": 3512026,
+  "seedClaim": "Recorded for provenance. No deterministic-generation claim is made.",
+  "positivePrompt": "A single continuous dolly forward at one constant slow speed, from the first framing to the last framing, arriving exactly at the end of the shot. The camera never accelerates, never lurches, never stops, and never moves backward at any point. Three independent matte trajectories advance in parallel across separate channels. As the camera approaches, the shared underlying support beneath them comes gradually into view at an even rate. Motion is restrained, mechanically plausible, continuous, and easy to read. Deep focus. Static tripod dolly on rails. No dialogue. No generated text.",
+  "variantDimension": "camera velocity",
+  "negativePrompt": "humanoid robot, cyberpunk, neon city, holographic interface, code rain, floating UI, pseudo-text, letters, numbers, logos, visible watermark, particles, lens flare, excessive bokeh, server racks, sci-fi corridor, explosion, rapid camera movement, shaky camera, distorted geometry, duplicated objects, melting surfaces, unreadable symbols, oversaturated colors, stock-ad aesthetic",
+  "requestedConfig": {
+    "aspectRatio": "16:9",
+    "resolution": "1080p",
+    "durationSeconds": 8,
+    "sampleCount": 1,
+    "seed": 3512026,
+    "negativePrompt": "humanoid robot, cyberpunk, neon city, holographic interface, code rain, floating UI, pseudo-text, letters, numbers, logos, visible watermark, particles, lens flare, excessive bokeh, server racks, sci-fi corridor, explosion, rapid camera movement, shaky camera, distorted geometry, duplicated objects, melting surfaces, unreadable symbols, oversaturated colors, stock-ad aesthetic",
+    "storageUri": "gs://mlabs-interlock-media-backup/hac-351/original/p2-velocity/",
+    "generateAudio": false,
+    "personGeneration": "dont_allow"
+  },
+  "observedParameterBehaviour": {
+    "enhancePrompt": "REQUESTED false -> REJECTED (code 3, \"Veo 3 prompt enhancement cannot be disabled\"). OMITTED. Prompt rewriting is not under our control and is not claimed.",
+    "personGeneration": "REQUESTED \"dont_allow\" -> ACCEPTED, but the field is not enum-validated on this path (a deliberate bogus value was also accepted in preflight), so acceptance is not evidence it was honoured. The deterministic input frames contain no people; any output introducing a person or face is rejected regardless of this field.",
+    "generateAudio": "REQUESTED false -> ACCEPTED. Verified mechanically with ffprobe against the returned original rather than trusted.",
+    "seed": "Recorded. No deterministic-generation claim."
+  },
+  "firstFrame": {
+    "path": "media/hac-351/frames/IL-VEO-001-cold-open-first-1920x1080.png",
+    "sha256": "3c579690c490fc36dc673441f74feea2163de0e9d11ff802749c2be7b55de3e4",
+    "gcsUri": "gs://mlabs-interlock-media-backup/hac-351/frames/IL-VEO-001-cold-open-first-1920x1080.png"
+  },
+  "lastFrame": {
+    "path": "media/hac-351/frames/IL-VEO-001-cold-open-last-1920x1080.png",
+    "sha256": "75b5e42a8fadcd1ae49549d9cd03f9ae5a3027f9e88c7a476224444a706ba242",
+    "gcsUri": "gs://mlabs-interlock-media-backup/hac-351/frames/IL-VEO-001-cold-open-last-1920x1080.png"
+  },
+  "response": {
+    "name": "projects/nimble-octagon-505403-n3/locations/us-central1/publishers/google/models/veo-3.1-fast-generate-001/operations/75718917-aa18-44a6-8577-1fd863f46b70",
+    "done": true,
+    "response": {
+      "@type": "type.googleapis.com/cloud.ai.large_models.vision.GenerateVideoResponse",
+      "raiMediaFilteredCount": 0,
+      "videos": [
+        {
+          "gcsUri": "gs://mlabs-interlock-media-backup/hac-351/original/p2-velocity/3389544290008645655/sample_0.mp4",
+          "mimeType": "video/mp4"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "id": "HAC-351-opening-narration",
+  "issue": "HAC-351",
+  "role": "The revised consequence-first opening narration for the first ~45 seconds of the final film, and the identical copy used for the narrator A/B.",
+  "authority": {
+    "sequence": "HAC-336 / HAC-351 consequence-first hierarchy",
+    "claimGate": "HAC-343 mustNotClaim",
+    "vocabularyGate": "HAC-349 forbidden simplifications"
+  },
+  "constraints": {
+    "noMeasuredNumbers": "No measured result appears in this copy. The evaluation numbers live on the frame, where a muted viewer recovers them.",
+    "noProofVocabulary": "No HAC IDs, proof classes, hashes, receipts or decision enums in the first explanation.",
+    "noUnsupportedClaims": "No 'safe', no 'prevents', no 'catastrophic', no universal claim against ordinary locking.",
+    "notAnAgent": "Interlock is stated as a deterministic boundary, never as another reasoning agent (HAC-336 RC1 brief s4)."
+  },
+  "targetSeconds": [40, 45],
+  "lines": [
+    {
+      "lineId": "O01",
+      "beat": "0:00-0:08 new operating reality",
+      "spoken": "A developer no longer runs one agent.",
+      "note": "Opens on the change, not on the product."
+    },
+    {
+      "lineId": "O02",
+      "beat": "0:00-0:08 new operating reality",
+      "spoken": "Several workstreams now run at the same time, each making its own changes."
+    },
+    {
+      "lineId": "O03",
+      "beat": "0:08-0:20 shared consequence",
+      "spoken": "They touch different files, so they look independent."
+    },
+    {
+      "lineId": "O04",
+      "beat": "0:08-0:20 shared consequence",
+      "spoken": "But two changes can each be right on their own, and still be wrong together."
+    },
+    {
+      "lineId": "O05",
+      "beat": "0:08-0:20 shared consequence",
+      "spoken": "Different targets. The same environment.",
+      "note": "HAC-349 approved consequence-first framing."
+    },
+    {
+      "lineId": "O06",
+      "beat": "0:20-0:35 the limitation",
+      "spoken": "Checking each action on its own cannot see that. Local validity is not joint validity."
+    },
+    {
+      "lineId": "O07",
+      "beat": "0:20-0:35 Interlock",
+      "spoken": "Interlock is not another agent. It is the deterministic boundary those actions pass through before shared state changes."
+    },
+    {
+      "lineId": "O08",
+      "beat": "0:20-0:35 Interlock",
+      "spoken": "It reads revision-bound evidence from the repository, and decides whether they may proceed together."
+    },
+    {
+      "lineId": "O09",
+      "beat": "0:35-0:45 into the demonstration",
+      "spoken": "Here is what that does on a small, fixed example."
+    }
+  ],
+  "pronunciation": {
+    "note": "Aliases are applied only to terms that actually remain in this copy. 'Interlock' is the only one; Gemini, ADK, MCP, WorkspaceJSON and Cloud Run do not appear in the opening and are handled later in the film, where RC1 already established that 'Google ADK' is spoken without its pinned version.",
+    "aliases": { "Interlock": "Inter-lock" }
+  }
+}
