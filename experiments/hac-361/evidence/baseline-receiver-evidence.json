@@ -1,0 +1,50 @@
+{
+  "manifestId": "HAC-361-baseline-receiver-evidence",
+  "issue": "HAC-361",
+  "note": "Verbatim receiver evidence pulled from the two existing Typeform instruments. Quoted exactly, including spelling. Neither instrument was modified.",
+  "provenanceLimit": "Neither baseline stores a digest of the media the respondent actually saw. These are receiver outcomes about the pre-revision experience. Byte-level baseline provenance does not exist and must not be invented.",
+
+  "videoBaseline": {
+    "formId": "NakAGCaC",
+    "title": "Interlock Video Cold Read — Take 0.1",
+    "url": "https://form.typeform.com/to/NakAGCaC",
+    "formCreatedAt": "2026-08-28T15:05:22Z",
+    "completedResponses": 1,
+    "responseSubmittedAt": "2026-08-30T16:40:44Z",
+    "readerBackground": "I do not work in a technical field",
+    "stagePauses": ["0:08", "~0:37", "~1:09", "full film"],
+    "answers": {
+      "core_problem": "No clue. maybe comparisons of three states",
+      "lock_limit": "It was challenging trying to survey the content and read the the subtitles which (for me) was changing too fast",
+      "interlock_adds": "not sure",
+      "comparison_takeaway": "The whole thing looks too cody for me. can't answer your specific question. goin forward i'll just say 'DK'",
+      "cloud_proof": "DK",
+      "proof_separation": "I could not tell how the two sections related",
+      "unsupported_inferences": ["None of these"],
+      "attention_and_pacing": "DK",
+      "keep_investigating": "No",
+      "brutal_verdict": "Not sure, but spoken word might have given it a little more blood in the veins."
+    },
+    "readingNotes": [
+      "The reader disengaged at the four-approach comparison and announced it: 'goin forward i'll just say DK'. Answers after that point are non-informative, NOT wrong. Criteria 2, 3 and 7 therefore have a baseline of 'did not reach', which is a weaker baseline than a naive reading suggests.",
+      "'spoken word might have given it a little more blood in the veins' and 'read the the subtitles' together indicate the baseline copy was captions-only and unnarrated. The frozen artifact is narrated. This is a second, uncontrolled change — see PROTOCOL.md §2.2.",
+      "unsupported_inferences was already 'None of these' at baseline. Criterion 6 was passing before the revision; a pass now is non-regression, not improvement."
+    ]
+  },
+
+  "pageBaseline": {
+    "formId": "UrofcPg8",
+    "title": "Project Cold Read",
+    "url": "https://form.typeform.com/to/UrofcPg8",
+    "completedResponses": 2,
+    "role": "SUPPORTING evidence for the problem-first hypothesis. Not a substitute for the video pre/post.",
+    "knownSignals": [
+      "first-screen readings were 'AI agents' and 'i have no idea...'",
+      "both readers reached value/relevance only around the four-strategy comparison",
+      "one reader still could not distinguish Interlock from global locking",
+      "feedback asked for clearer benefit, practical relevance, and differentiation"
+    ]
+  },
+
+  "statisticalRule": "n=2-3 against n=1. No significance, confidence interval, effect size or percentage may be computed or reported. Only the direction of the receiver outcome is under test."
+}

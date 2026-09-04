@@ -1,0 +1,18 @@
+{
+  "packageId": "HAC-324-live-capture-package",
+  "note": "Deployment facts for the SECOND run, the one RC1 films. Shaped like capture-package.json so the HAC-336 board builder can render RC1 copies of IL-DIAG-020 from it.",
+  "filmedRunId": "ilk-hac340-cloud-1788205950027",
+  "correlationId": "ilk-hac340-cloud-1788205950027",
+  "gcpProject": "nimble-octagon-505403-n3",
+  "region": "us-central1",
+  "vertexLocation": "global",
+  "model": "gemini-3.5-flash",
+  "adk": "Google ADK 1.35.1 / Vertex AI",
+  "revisions": {
+    "agent": "interlock-hac340-agent-00001-krr",
+    "proxy": "interlock-hac340-proxy-00001-92l",
+    "target": "interlock-hac340-target-00001-xlr"
+  },
+  "externalCallerPrincipal": "serviceAccount:interlock-hac340-observer@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+  "capturedAt": "2026-08-31T22:52:10.000Z"
+}

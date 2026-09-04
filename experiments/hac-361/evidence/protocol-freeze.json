@@ -1,0 +1,185 @@
+{
+  "manifestId": "HAC-361-protocol-freeze",
+  "issue": "HAC-361",
+  "note": "The frozen instrument and rubric. Fixed before any respondent begins. A change after the first response opens a new cohort; it does not overwrite this one.",
+  "frozenAt": "2026-09-01",
+
+  "instrument": {
+    "formId": "q781OwQW",
+    "title": "Interlock Video Cold Read — Take 1.0 (HAC-361)",
+    "adminUrl": "https://admin.typeform.com/form/q781OwQW/create",
+    "publicUrl": "https://form.typeform.com/to/q781OwQW",
+    "published": false,
+    "publishBlockedUntil": "the served bytes at the test URL reproduce the frozen sha256",
+    "derivedFrom": "NakAGCaC — duplicated, not edited. The baseline instrument is unmodified.",
+    "workspace": "EYCJA7",
+    "aggregateScore": null,
+    "aggregateScoreNote": "No aggregate communication score is computed, stored or displayed. The seven criteria are reported separately and never summed."
+  },
+
+  "gates": [
+    {
+      "gate": 1,
+      "specified": "5-8 s",
+      "pauseAt": "0:08",
+      "sceneContext": "R01 PROBLEM (EVAL). N01 complete 0:01.0-5.5; N02 begins 0:07.1.",
+      "identicalToBaselinePause": true,
+      "questions": ["core_problem", "problem_matters"]
+    },
+    {
+      "gate": 2,
+      "specified": "~30 s",
+      "pauseAt": "0:29",
+      "sceneContext": "R01 -> R02 act boundary, PROBLEM to MECHANISM (29.000 / 28.600). Whole ordinary-locking demonstration seen; no mechanism yet.",
+      "questions": ["lock_limit", "lock_missed", "lock_matters"]
+    },
+    {
+      "gate": 3,
+      "specified": "~60 s",
+      "pauseAt": "0:46",
+      "sceneContext": "R02 -> R03 act boundary, MECHANISM to COMPARISON (46.321 / 45.921). Four-strategy comparison NOT yet seen.",
+      "deviation": "14 s earlier than the preregistered '~60 s'. Deliberate: the four-strategy comparison is what historically rescued comprehension in the UrofcPg8 page baseline, so observing before it tests whether the revision earns differentiation on its own.",
+      "scoringRule": "Asymmetric, fixed in advance. Demonstrated at 0:46 -> criterion 3 MET (46 < 60, met a fortiori). Not demonstrated at 0:46 -> recorded as 'NOT MET BY 0:46', NOT a failure of criterion 3; the full-artifact stage is then inspected and the outcome reported as 'met later, not by the gate'.",
+      "questions": ["interlock_adds", "interlock_why_useful"]
+    },
+    {
+      "gate": 4,
+      "specified": "full artifact",
+      "pauseAt": "3:35 (end)",
+      "questions": [
+        "comparison_takeaway",
+        "ablation_takeaway",
+        "cloud_proof",
+        "proof_separation",
+        "remains_unproven",
+        "unsupported_inferences",
+        "first_click",
+        "attention_and_pacing",
+        "keep_investigating",
+        "keep_investigating_why",
+        "brutal_verdict",
+        "reader_background"
+      ]
+    }
+  ],
+
+  "preservedUnchangedFromBaseline": [
+    "unsupported_inferences — the 8-option truth-preservation control, all options identical",
+    "proof_separation — the 4-option proof-class control",
+    "keep_investigating — the 3-option limited-patience judge control",
+    "reader_background — still asked last so it cannot prime the cold read"
+  ],
+
+  "criteria": [
+    {
+      "id": 1,
+      "name": "Early problem comprehension",
+      "test": "At 0:08, identifies the joint/concurrent interaction risk in plain language. Not 'AI agents', not 'locks', not 'three states'.",
+      "cohortThreshold": "at least 2 of 3, or all readers if n=2",
+      "scoredFrom": ["core_problem"],
+      "baseline": "FAIL"
+    },
+    {
+      "id": 2,
+      "name": "Relevance",
+      "test": "Can say why the problem matters without needing the four-strategy comparison to discover the stakes.",
+      "cohortThreshold": "the same readers who meet criterion 1",
+      "scoredFrom": ["problem_matters", "first_click"],
+      "baseline": "FAIL"
+    },
+    {
+      "id": 3,
+      "name": "Differentiation",
+      "test": "Explains what Interlock adds beyond ordinary locking or global serialization, in practical terms. Internal vocabulary is not required.",
+      "cohortThreshold": "at least 2 of 3, or all readers if n=2",
+      "scoredFrom": ["interlock_adds", "interlock_why_useful"],
+      "baseline": "FAIL"
+    },
+    {
+      "id": 4,
+      "name": "Attention",
+      "test": "No majority reports working too hard before understanding the problem. Narration/subtitle density must not recreate the earlier pacing failure.",
+      "cohortThreshold": "no majority adverse",
+      "scoredFrom": ["attention_and_pacing", "first_click"],
+      "baseline": "FAIL"
+    },
+    {
+      "id": 5,
+      "name": "Investigation intent",
+      "test": "Materially improves on the baseline 'No'. At minimum, no reader answers 'No' for lack of understanding of the core problem or value.",
+      "cohortThreshold": "no 'No' attributable to non-comprehension",
+      "scoredFrom": ["keep_investigating", "keep_investigating_why"],
+      "baseline": "FAIL"
+    },
+    {
+      "id": 6,
+      "name": "Truth preservation",
+      "test": "Zero readers leave with a material unsupported inference from the prohibited list.",
+      "cohortThreshold": "zero readers",
+      "scoredFrom": ["unsupported_inferences", "cloud_proof", "remains_unproven"],
+      "baseline": "PASS",
+      "baselineCaveat": "Already passing before the revision. A pass here is non-regression, NOT improvement, and may not be counted as evidence the revision worked."
+    },
+    {
+      "id": 7,
+      "name": "Proof separation",
+      "test": "Distinguishes the controlled evaluation from the Google Cloud participation demonstration by the end.",
+      "cohortThreshold": "all readers",
+      "scoredFrom": ["proof_separation", "cloud_proof"],
+      "baseline": "FAIL"
+    }
+  ],
+
+  "prohibitedInferences": [
+    "Interlock guarantees safety in general",
+    "Interlock is production-ready",
+    "The controlled evaluation itself ran in Google Cloud",
+    "Agent Runtime or Agent Gateway was part of the demonstrated path",
+    "The 403 / 401 / 403 controls prove the route is broadly secure",
+    "The animation speed represented real execution timing",
+    "Interlock is basically just another lock"
+  ],
+
+  "cohort": {
+    "size": "2-3 readers",
+    "mustInclude": [
+      "at least one non-technical / non-coding reader",
+      "at least one technically literate reader with no involvement in Interlock"
+    ],
+    "excluded": [
+      "the author (Qwynn Marcelle)",
+      "any implementation agent",
+      "any model — an LLM read is not a receiver outcome and may never be recorded as one or used to fill a missing reader",
+      "prior reviewers who already know the narrative",
+      "anyone who saw the 2026-08-31 feedback or the positioning paragraph",
+      "the NakAGCaC baseline respondent — a second read would confound learning with revision",
+      "anyone who has read experiments/hac-361/PROTOCOL.md"
+    ],
+    "conduct": "Readers must not discuss the film with each other until all have submitted."
+  },
+
+  "dispositions": {
+    "PASS": "Materially better receiver comprehension and investigation intent, with claim/proof integrity preserved. Validates the receiver-validation METHOD only. Earns exactly one thing: a cross-domain receiver-validation experiment in Covenant Academy.",
+    "NOT VALIDATED": "No material improvement in receiver outcomes, improvement only in aesthetics/preference, or new confusion or unsupported inference. Stop. Do not rescue with infrastructure.",
+    "MIXED — ITERATION WARRANTED": "Early comprehension and relevance improve but one narrow, identifiable delivery problem remains. Any next iteration must name the single variable it changes."
+  },
+
+  "promotionGate": {
+    "earnedOnPass": ["a cross-domain receiver-validation experiment applying the receiver contract to Covenant Academy"],
+    "notEarnedEvenOnPass": [
+      "@studio/communication",
+      "generalized communication eligibility scoring",
+      "an automated communication linter",
+      "LLM grading",
+      "adapt()",
+      "broad audience profile packs",
+      "a dashboard",
+      "a new service or repository"
+    ]
+  },
+
+  "confound": {
+    "declaredBeforeResponses": true,
+    "description": "The pre/post spans two changes, not one: (a) narrative order — problem/relevance ahead of mechanism and brand; (b) delivery — spoken narration replacing a captions-only read. Both were human-derived, and HAC-361 criterion 4 contemplates narration. A PASS may NOT be attributed to ordering alone, and the disposition must say so."
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "manifestId": "HAC-361-artifact-freeze",
+  "issue": "HAC-361",
+  "note": "Derived by experiments/hac-361/bin/freeze-artifact.mjs. Digests are recomputed from disk, not copied from another manifest.",
+  "frozenAt": "2026-09-01T14:05:40.150Z",
+  "repository": "Marcelle-Labs/interlock",
+  "branch": "feature/hac-349-interlockjudge-ux-build-consequence-first-judge-landing",
+  "commit": "0fe88da948ec2e10098a51a15ef324be1b800aac",
+  "commitSubject": "HAC-349: answer the four cold-read findings on the landing surface",
+  "testedMedia": {
+    "path": "media/hac-336/rc1/exports/IL-MOT-022-interlock-rc1-1920x1080.mp4",
+    "sha256": "7a5277c7f571362170c31a852397e7d67956f25796fc1c9985462dcbce0f4d74",
+    "bytes": 9644879,
+    "gitTracked": false,
+    "trackingNote": "UNTRACKED at freeze time. The commit binds the pipeline that produced this file; the sha256 binds the file. Do not read the commit as a binding of these bytes.",
+    "runtime": {
+      "seconds": 215.238,
+      "clock": "3:35"
+    },
+    "width": 1920,
+    "height": 1080,
+    "videoCodec": "h264",
+    "frameRate": "30/1",
+    "audioCodec": "aac",
+    "audioSampleRate": 48000,
+    "audioTracks": 1
+  },
+  "pipelineInputs": [
+    {
+      "path": "media/hac-336/rc1/evidence/cut-rc1.json",
+      "sha256": "7f935cdce64b72616658f3720cfa1dd3eadf7ffaa227b906bf531777c281b8ee",
+      "bytes": 25628,
+      "gitTracked": false
+    },
+    {
+      "path": "media/hac-336/rc1/evidence/narration-manifest.json",
+      "sha256": "b9a04acff4ecafe28e27425a43b362ff54e29e3ad09303ed41dff438db04a202",
+      "bytes": 15184,
+      "gitTracked": false
+    },
+    {
+      "path": "media/hac-336/rc1/evidence/scene-manifest.json",
+      "sha256": "dcddd107a447562de2baac7a424cba3ebd268060cb8871daf6ae0c770a1f1dc5",
+      "bytes": 26359,
+      "gitTracked": false
+    },
+    {
+      "path": "media/hac-336/rc1/evidence/asset-source-map.json",
+      "sha256": "79e7e144a3873b9424cbe3a561c47116a318bc5532bf52f263516a2865afe2eb",
+      "bytes": 8371,
+      "gitTracked": false
+    },
+    {
+      "path": "media/hac-336/rc1/evidence/render-manifest.json",
+      "sha256": "3ed522ae22fd2066e42b79f0ea18589156ae65defd1e8df03367204ce32d2eb4",
+      "bytes": 1448,
+      "gitTracked": false
+    },
+    {
+      "path": "media/hac-336/rc1/bin/build-video.mjs",
+      "sha256": "db525e241e12918e6fd81d1e2cdc7e43267478d731b49819f6d6809ab9f719c8",
+      "bytes": 11726,
+      "gitTracked": false
+    },
+    {
+      "path": "media/hac-336/rc1/POSITIONING.md",
+      "sha256": "78e6fe526581efad0ebd34e2529b7a14636ebbf060ceeb646bec70bc3dc423dc",
+      "bytes": 3273,
+      "gitTracked": false
+    }
+  ],
+  "gate": {
+    "command": "pnpm run check:rc1",
+    "script": "media/hac-336/rc1/bin/verify-rc1.mjs",
+    "note": "This gate covers the 215.238s RC1 render. It does not cover any longer assembly."
+  },
+  "deployment": {
+    "status": "PENDING",
+    "note": "Set once the frozen bytes are served. The URL is only valid for this experiment after verify-artifact.mjs confirms the served bytes reproduce the sha256 above.",
+    "testUrl": null,
+    "servedDigestVerified": false
+  }
+}

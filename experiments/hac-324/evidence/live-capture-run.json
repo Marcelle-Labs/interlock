@@ -1,0 +1,87 @@
+{
+  "recordId": "HAC-324-live-capture-run",
+  "note": "The run that appears in the RC1 live Proof-of-Action segment. A SECOND run with its own identity, in a different project. experiments/hac-324/evidence/filmed-run.json is the FIRST run and is not edited: two run identities in one record is the collapse HAC-324 exists to prevent.",
+  "correlationId": "ilk-hac340-cloud-1788205950027",
+  "receiptId": "rcpt-1f876aed-e63c-4028-b943-d44d537f464b",
+  "receiptDigest": "sha256:de234596f8e53ca69662601b39b323a623ca4a2dbac995e1e5eeadbbce4ec58a",
+  "commitSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+  "model": "gemini-3.5-flash",
+  "adkPath": "Google ADK 1.35.1 / Vertex AI",
+  "projectId": "nimble-octagon-505403-n3",
+  "region": "us-central1",
+  "vertexLocation": "global",
+  "agentUrl": "https://interlock-hac340-agent-nb3orxqeuq-uc.a.run.app",
+  "proxyUrl": "https://interlock-hac340-proxy-nb3orxqeuq-uc.a.run.app",
+  "targetUrl": "https://interlock-hac340-target-nb3orxqeuq-uc.a.run.app",
+  "observerPrincipal": "serviceAccount:interlock-hac340-observer@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+  "observerNote": "gcloud refuses audience-scoped identity tokens for a user account, so the read-back authenticates as a dedicated keyless observer service account - the same NON_MATERIAL principal substitution HAC-324 recorded for the first run.",
+  "decision": "ALLOW",
+  "protectedMutation": {
+    "status": "EXECUTED",
+    "revisionBefore": "sha256:771cc4010167c432fe937645f3a2b6e6d9e832ea9e95530e04534ea0f7f0bd3a",
+    "revisionAfter": "sha256:0b27d29149e2e4d7b0bea31193fe7cf34402650fcc6a007db2cb8bb661fea957",
+    "invariant": {
+      "holds": true,
+      "total": 105,
+      "totalReservable": 130,
+      "detail": "total 105 <= 130"
+    },
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    }
+  },
+  "observation": {
+    "revision": "sha256:0b27d29149e2e4d7b0bea31193fe7cf34402650fcc6a007db2cb8bb661fea957",
+    "state": {
+      "totalReservable": 130,
+      "services": {
+        "alpha": 45,
+        "beta": 40,
+        "gamma": 20
+      }
+    }
+  },
+  "controls": {
+    "forgedHeaderStatus": 403,
+    "wrongAudienceStatus": 401,
+    "directBypassStatus": 403
+  },
+  "runtimeProof": {
+    "agentHttpStatus": 200,
+    "proxyLogEntries": [
+      {
+        "insertId": "6a95db810004356fb6490d24",
+        "jsonPayload": {
+          "correlationId": "ilk-hac340-cloud-1788205950027",
+          "event": "proxy.request",
+          "identity": "interlock-hac340-agent@nimble-octagon-505403-n3.iam.gserviceaccount.com",
+          "identitySource": "oidc-id-token/platform-verified:email",
+          "transport": "mcp"
+        },
+        "labels": {
+          "instanceId": "00a41e8c1d8fc87db8197b7a36e8ef3c316ef3e50eb19ec10f09d2df27483a15788ce312620e17da223ab134ed91ed5840316d868f80cbd723b5f994b11813f508dab3bbee8bca8ee384648e9fbfc4"
+        },
+        "logName": "projects/nimble-octagon-505403-n3/logs/run.googleapis.com%2Fstdout",
+        "receiveTimestamp": "2026-08-31T19:52:33.284626842Z",
+        "resource": {
+          "labels": {
+            "configuration_name": "interlock-hac340-proxy",
+            "location": "us-central1",
+            "project_id": "nimble-octagon-505403-n3",
+            "revision_name": "interlock-hac340-proxy-00001-92l",
+            "service_name": "interlock-hac340-proxy"
+          },
+          "type": "cloud_run_revision"
+        },
+        "timestamp": "2026-08-31T19:52:33.275823Z"
+      }
+    ],
+    "note": "The traversal polls Cloud Logging seconds after the request and got 0 entries on this run - ingestion had not caught up. The take shows the row at mark 05, sixteen seconds later, by which time it had. These entries were read back afterwards for the same correlation id; nothing about the run changed, only when the query ran."
+  },
+  "capturedIn": "media/hac-336/rc1/inserts/IL-MOT-023-live-cloud-traversal-1920x1080.mp4"
+}
