@@ -45,8 +45,17 @@ const read = (p) => JSON.parse(readFileSync(join(repoRoot, p), 'utf8'));
 const arms = read('experiments/hac-330/evidence/arms.json');
 const results = read('experiments/hac-330/evidence/results.json');
 const judge = read('experiments/hac-343/evidence/judge-export.json');
-const filmed = read('experiments/hac-324/evidence/filmed-run.json');
-const capture = read('experiments/hac-324/evidence/capture-package.json');
+/*
+ * The filmed run is overridable, and the defaults are the frozen first run.
+ *
+ * RC1 replaced its Proof of Action with a continuous live recording of a SECOND
+ * run, in a different project. These two boards name the run they describe, so
+ * left on the defaults they would put two run identities in one act - the exact
+ * collapse HAC-324 exists to prevent. Overriding lets RC1 render its own copies
+ * from its own evidence WITHOUT touching the masters the silent cut is gated on.
+ */
+const filmed = read(process.env.HAC336_FILMED_RUN ?? 'experiments/hac-324/evidence/filmed-run.json');
+const capture = read(process.env.HAC336_CAPTURE_PACKAGE ?? 'experiments/hac-324/evidence/capture-package.json');
 
 const checks = { passed: results.checks.filter((c) => c.passed).length, total: results.checks.length };
 const bound = arms.baseline.invariant.report.totalReservable;
@@ -469,7 +478,9 @@ boards.push({
 
 /* -- emit ----------------------------------------------------------------- */
 
-const mastersDir = join(repoRoot, 'media', 'hac-336', 'masters');
+const mastersDir = process.env.HAC336_BOARDS_OUT
+  ? join(repoRoot, process.env.HAC336_BOARDS_OUT)
+  : join(repoRoot, 'media', 'hac-336', 'masters');
 mkdirSync(mastersDir, { recursive: true });
 for (const f of readdirSync(mastersDir)) if (f.endsWith('.svg')) rmSync(join(mastersDir, f));
 

@@ -1,0 +1,14 @@
+# Video and audio masters are large binary artifacts that no diff can read and
+# that a checkout must never try to merge. They live in Git LFS so the object
+# database stays clonable; the working tree still holds real bytes, so the
+# digest gates in media/**/bin/verify-*.mjs verify exactly what they always did.
+#
+# CI note: no workflow currently runs check:film, check:rc1 or check:veo, which
+# are the only gates that hash these files. Any workflow that starts running one
+# MUST set `lfs: true` on actions/checkout, or it will hash pointer files and
+# fail with a digest mismatch that looks like corrupted evidence.
+*.mp4  filter=lfs diff=lfs merge=lfs -text
+*.mov  filter=lfs diff=lfs merge=lfs -text
+*.wav  filter=lfs diff=lfs merge=lfs -text
+*.m4a  filter=lfs diff=lfs merge=lfs -text
+*.mp3  filter=lfs diff=lfs merge=lfs -text

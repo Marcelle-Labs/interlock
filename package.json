@@ -1,7 +1,7 @@
 {
   "name": "@marcelle-labs/interlock",
   "version": "0.0.0",
-  "description": "Interlock — evidence-bound coordination before shared-state mutation",
+  "description": "Interlock \u2014 evidence-bound coordination before shared-state mutation",
   "private": true,
   "license": "UNLICENSED",
   "homepage": "https://github.com/Marcelle-Labs/interlock#readme",
@@ -25,7 +25,7 @@
     "check:packet:s2": "node experiments/hac-326/bin/verify-packet.mjs",
     "check:packet:eval": "pnpm run build && node experiments/hac-343/bin/verify-packet.mjs",
     "check:filmed-run": "node experiments/hac-324/bin/verify-filmed-run.mjs",
-    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:packet:eval && pnpm run check:filmed-run && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:landing && pnpm run check:visuals && pnpm run check:identity && pnpm run check:package && pnpm run check:film",
+    "check": "pnpm run check:provenance && pnpm run check:packet && pnpm run check:packet:s2 && pnpm run check:packet:public && pnpm run check:packet:eval && pnpm run check:filmed-run && pnpm run check:storyboard && pnpm run check:cockpit && pnpm run check:landing && pnpm run check:visuals && pnpm run check:identity && pnpm run check:package && pnpm run check:film && pnpm run check:rc1 && pnpm run check:veo",
     "check:cockpit": "node media/hac-341/bin/verify-cockpit.mjs",
     "check:landing": "node media/hac-349/bin/verify-landing.mjs",
     "check:landing:visual": "node media/hac-349/bin/verify-landing-visual.mjs",
@@ -47,9 +47,14 @@
     "hac330": "node experiments/hac-330/bin/run-experiment.mjs",
     "hac326": "pnpm run build && node experiments/hac-326/bin/run-experiment.mjs",
     "check:film": "node media/hac-336/bin/verify-film.mjs",
+    "check:veo": "node media/hac-351/bin/verify-veo.mjs",
     "film:build": "node media/hac-336/bin/build-boards.mjs && node media/hac-336/bin/build-frames.mjs && node media/hac-336/bin/build-captions.mjs && node media/hac-336/bin/build-input-manifest.mjs",
     "film:derive": "node media/hac-336/bin/build-boards.mjs && node media/hac-336/bin/build-captions.mjs && node media/hac-336/bin/build-input-manifest.mjs",
-    "film:render": "node media/hac-336/bin/build-video.mjs"
+    "film:render": "node media/hac-336/bin/build-video.mjs",
+    "rc1:narrate": "doppler run --project dev_week_26_openai --config prd_qwen_hackathon_26 -- node media/hac-336/rc1/bin/build-narration.mjs",
+    "rc1:derive": "node media/hac-336/rc1/bin/build-label.mjs && node media/hac-336/rc1/bin/build-captions.mjs && node media/hac-336/rc1/bin/build-manifests.mjs",
+    "rc1:render": "node media/hac-336/rc1/bin/build-video.mjs && node media/hac-336/rc1/bin/build-manifests.mjs",
+    "check:rc1": "node media/hac-336/rc1/bin/verify-rc1.mjs"
   },
   "devDependencies": {
     "@resvg/resvg-js": "2.6.2",

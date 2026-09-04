@@ -14,6 +14,7 @@ coverage/
 # deterministically by `npm run hac330` and must never be nested git histories
 # inside this one.
 experiments/**/.work/
+media/**/.work/
 
 # Never commit environment values. Record variable NAMES in the bootstrap
 # receipt instead; DISCLOSURE.md and check-provenance.mjs both depend on this.
@@ -35,3 +36,13 @@ gha-creds-*.json
 # working directory when the cockpit or storyboard is inspected in a browser.
 # Inspection output is not evidence and must never reach a commit.
 .playwright-mcp/
+
+# RC1 narration: the trimmed .wav is a deterministic ffmpeg function of the
+# .mp3 beside it, rebuilt by media/hac-336/rc1/bin/build-narration.mjs without
+# an API key. Committing 20M of PCM that a checkout can regenerate is waste.
+media/hac-336/rc1/narration/*.wav
+
+# RC1 audition derivatives: both are one ffmpeg stream-copy away from the
+# master and add 12M for no new information.
+media/hac-336/rc1/audition/*.mp4
+media/hac-336/rc1/audition/*.m4a
