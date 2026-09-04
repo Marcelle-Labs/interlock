@@ -13,7 +13,7 @@ coverage/
 # The committed evidence packet is the record; the fixtures are rebuilt
 # deterministically by `npm run hac330` and must never be nested git histories
 # inside this one.
-experiments/**/.work/
+**/.work/
 
 # Never commit environment values. Record variable NAMES in the bootstrap
 # receipt instead; DISCLOSURE.md and check-provenance.mjs both depend on this.

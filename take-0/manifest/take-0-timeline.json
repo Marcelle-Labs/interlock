@@ -1,0 +1,523 @@
+{
+  "manifestId": "TAKE-0-timeline",
+  "revision": "r02",
+  "status": "PROVISIONAL",
+  "note": "Take 0.1 backup cut. Authored here, not derived. Every beat points at an asset that already exists and is already gated elsewhere in this repository; this file adds ordering, duration, narration and focus cues only. It is not evidence and must never be cited as such. r01 is kept beside it as take-0-timeline.r01.json - the picture-lock that was reviewed.",
+  "captureWorktree": "hac-350-forensic-replay",
+  "captureWorktreeHead": "774c860c76b442e81e74d855034170e9f6cfb247",
+  "geometry": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "aspect": "16:9"
+  },
+  "assembly": {
+    "transition": "HARD_CUT",
+    "why": "Take 0 assembles with hard cuts so the assembled file is exactly sum(seconds) and every beat boundary is frame-exact. Crossfades are a Canva operation and are specified per-beat in canva/canva-timeline.csv. The two joins marked HARD_CUT_REQUIRED must stay hard cuts in Canva as well.",
+    "audio": "none in the assembled file; VO is delivered as eight separate segments under voice/"
+  },
+  "wordRate": 2.7,
+  "proofClasses": {
+    "PROBLEM": "Statement of the hazard. Frames carry the CONTROLLED LOCAL EXPERIMENT banner and their own non-claim footer.",
+    "EVAL": "PROVEN IN CONTROLLED EVALUATION - HAC-343, frozen sixteen-scenario corpus.",
+    "REPLAY": "Deterministic rendering of HAC-343/HAC-330 recorded results. Renders facts, owns none.",
+    "RESET": "Proof-class boundary. Carries no evidence of its own.",
+    "CLOUD": "PROVEN ON GOOGLE CLOUD - HAC-324 authoritative filmed run ilk-hac340-cloud-1787536029323.",
+    "BOUNDS": "What is NOT CLAIMED.",
+    "CLOSE": "Bounded restatement. No new result."
+  },
+  "beats": [
+    {
+      "id": "T03",
+      "block": "COLD_OPEN",
+      "proofClass": "PROBLEM",
+      "seconds": 8.0,
+      "asset": "media/hac-336/frames/B04-IL-PROOF-020-baseline.png",
+      "assetId": "IL-PROOF-020/baseline",
+      "sourceIssue": "HAC-336 B04",
+      "provenance": "HAC-330 controlled local experiment",
+      "vo": "VO-01",
+      "narration": "Two changes. Each valid on its own. Together, 140 against a bound of 130.",
+      "onScreen": "140 > 130 at display size, marked INVALID JOINT STATE.",
+      "transitionOut": "HARD_CUT",
+      "state": "FINAL",
+      "focus": [],
+      "note": "Opens the film. T01 (intents) and T02 (coupled) were cut in r02: the replay re-tells that setup in its first eight seconds."
+    },
+    {
+      "id": "T04",
+      "block": "FORENSIC_REPLAY",
+      "proofClass": "REPLAY",
+      "seconds": 29.0,
+      "asset": "media/hac-350/exports/IL-MOT-021-forensic-replay-1920x1080.mp4",
+      "assetId": "IL-MOT-021",
+      "sourceIssue": "HAC-350",
+      "provenance": "Canonical deterministic export. sha256 46ac324caa5e3a626569888e36751ffe209ae408e2770c93a7bb976bd6f0a68d, 900 frames, 30.000s.",
+      "vo": "VO-02",
+      "narration": "Rewind. Locking the same target serializes correctly. Two different targets, two different locks - both correct, and the hazard spans them. The bound is a property of the environment; no per-key lock takes it as input. The hazard lives in the relationship between the files, and that relationship is in the repository history. Interlock reads it before the mutation, and withholds. Remove the evidence, and the invalid result returns.",
+      "onScreen": "S1 joint invalid 140 / S2 either alone 120 / S3 same-target serialized / S4 two locks, hazard spans both / S5 environmental ceiling / S6 repository relationship / S7 withheld, 120 / S8 evidence removed, 140 returns.",
+      "transitionOut": "HARD_CUT",
+      "state": "FINAL",
+      "rule": "CONSUME THE CANONICAL EXPORT. Do not screen-record, re-render, reconstruct from stills, or apply any focus cue. The only permitted edit is the out-point at 29.000s.",
+      "trimOut": 29.0,
+      "focus": []
+    },
+    {
+      "id": "T05",
+      "block": "COMPARISON_ABLATION",
+      "proofClass": "EVAL",
+      "seconds": 12.5,
+      "asset": "media/hac-336/frames/B07-IL-PROOF-021-comparison.png",
+      "assetId": "IL-PROOF-021/comparison",
+      "sourceIssue": "HAC-336 B07",
+      "provenance": "HAC-343 judge-export panel1",
+      "vo": "VO-03",
+      "narration": "A global lock stays safe by serializing everything. A credible per-target lock preserves concurrency, but still misses both hazards, because they span different targets.",
+      "onScreen": "Uncoordinated 2/2, 2/2. Global lock 0/2, 0/2. Per-target lock 2/2, 2/2. Interlock 0/2, 2/2. A3 credibility: serialized 2/2, parallelized 4/4, missed 2/2.",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "rule": "T05 and T06 are one contiguous visual unit. Do not separate them, do not put anything between them.",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 4.5,
+          "kind": "DIM",
+          "y1": 280,
+          "y2": 610,
+          "what": "the four strategy rows and both count columns"
+        },
+        {
+          "t": 8.5,
+          "kind": "DIM",
+          "y1": 630,
+          "y2": 785,
+          "what": "is the per-target lock a real lock? 2/2, 4/4, 2/2"
+        },
+        {
+          "t": 11.2,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T06",
+      "block": "COMPARISON_ABLATION",
+      "proofClass": "EVAL",
+      "seconds": 14.0,
+      "asset": "media/hac-336/frames/B08-IL-PROOF-021-ablation.png",
+      "assetId": "IL-PROOF-021/ablation",
+      "sourceIssue": "HAC-336 B08",
+      "provenance": "HAC-343 judge-export panel2",
+      "vo": "VO-03",
+      "narration": "Interlock uses composition evidence instead: it withheld both hazardous pairs while keeping both independent pairs parallel. Then we removed the coupling signal from the frozen evidence. Same actions, same core - the decision flipped, and both invariants failed. The evidence is load-bearing.",
+      "onScreen": "Panel 1 retained above; ablation panel immediately below. Evidence present 0/2 invalid, ALLOW_SERIALIZED / WITHHOLD_SERIALIZE. Evidence removed 2/2 invalid, ALLOW_PARALLEL.",
+      "transitionOut": "HARD_CUT_REQUIRED",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 3.0,
+          "kind": "DIM",
+          "y1": 280,
+          "y2": 635,
+          "what": "the table, ending on the Interlock row"
+        },
+        {
+          "t": 7.0,
+          "kind": "DIM",
+          "y1": 650,
+          "y2": 850,
+          "what": "evidence present 0/2 invalid vs evidence removed 2/2 invalid"
+        },
+        {
+          "t": 12.5,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T07",
+      "block": "PROOF_CLASS_RESET",
+      "proofClass": "RESET",
+      "seconds": 5.5,
+      "asset": "media/hac-336/frames/B09-IL-SCAF-020-reset.png",
+      "assetId": "IL-SCAF-020/reset",
+      "sourceIssue": "HAC-336 B09",
+      "provenance": "no evidence asserted",
+      "vo": "VO-04",
+      "narration": "That was controlled evaluation. What follows is a separate deployed run.",
+      "onScreen": "Field inverts paper to ink. Different run. Different evidence. Nothing crosses.",
+      "transitionOut": "HARD_CUT_REQUIRED",
+      "state": "FINAL",
+      "rule": "Hard cut in and out. No crossfade may bridge a proof class.",
+      "focus": []
+    },
+    {
+      "id": "T08",
+      "block": "CLOUD_TRAVERSAL",
+      "proofClass": "CLOUD",
+      "seconds": 16.0,
+      "asset": "media/hac-336/frames/B10-scene-gemini-adk-attribution.png",
+      "assetId": "scene-gemini-adk-attribution",
+      "sourceIssue": "HAC-324 filmed run",
+      "provenance": "live Cloud Run config read-back, run ilk-hac340-cloud-1787536029323",
+      "vo": "VO-05",
+      "narration": "The deployed Cloud Run agent reads back its own configuration: gemini-3.5-flash, through Google ADK 1.35.1 with Vertex AI access, from an image pinned to the runtime source commit.",
+      "onScreen": "gemini-3.5-flash - Google ADK 1.35.1 / Vertex AI - image pinned at runtimeSourceSha ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 4.5,
+          "kind": "PUNCH",
+          "box": [
+            380,
+            302,
+            960,
+            540
+          ],
+          "what": "INTERLOCK_GEMINI_MODEL gemini-3.5-flash, GOOGLE_GENAI_USE_VERTEXAI, and the pinned image interlock-adk:ae6d0d3"
+        },
+        {
+          "t": 13.5,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T09",
+      "block": "CLOUD_TRAVERSAL",
+      "proofClass": "CLOUD",
+      "seconds": 11.5,
+      "asset": "media/hac-336/frames/B11-scene-cloud-run-topology.png",
+      "assetId": "scene-cloud-run-topology",
+      "sourceIssue": "HAC-324 filmed run",
+      "provenance": "live Cloud Run services and revisions",
+      "vo": "VO-05",
+      "narration": "Three Cloud Run services carried the run in us-central1: the ADK agent, the Interlock MCP proxy, and the protected target.",
+      "onScreen": "interlock-hac340-agent-00001-hbk / interlock-hac340-proxy-00001-s76 / interlock-hac340-target-00001-sng, us-central1",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 3.5,
+          "kind": "DIM",
+          "y1": 475,
+          "y2": 645,
+          "what": "the three revisions, ACTIVE yes, and their deploy times"
+        },
+        {
+          "t": 9.5,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T10",
+      "block": "CLOUD_TRAVERSAL",
+      "proofClass": "CLOUD",
+      "seconds": 21.0,
+      "asset": "media/hac-336/frames/B12-scene-agent-traversal.png",
+      "assetId": "scene-agent-traversal",
+      "sourceIssue": "HAC-324 filmed run",
+      "provenance": "live agent traversal executed during capture; stdout sha256 8caec2d4782634bf, exit 0",
+      "vo": "VO-05",
+      "narration": "The traversal executed while this frame was captured. Interlock returned ALLOW with a receipt digest under one correlation id. Three fail-closed controls on the same run: a forged identity header returned 403, an invalid bearer token 401, a direct call with no receipt, 403.",
+      "onScreen": "$ node experiments/hac-340/bin/20-cloud-run.mjs - correlationId ilk-hac340-cloud-1787536029323 - decision ALLOW - receiptDigest sha256:7fb65efe... - controls 403 / 401 / 403",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 9.0,
+          "kind": "DIM",
+          "y1": 375,
+          "y2": 500,
+          "what": "correlationId, decision ALLOW, receiptDigest - DIM not PUNCH so the digest is never truncated"
+        },
+        {
+          "t": 13.5,
+          "kind": "PUNCH",
+          "box": [
+            200,
+            495,
+            800,
+            450
+          ],
+          "what": "forgedHeaderStatus 403, wrongAudienceStatus 401, directBypassStatus 403"
+        },
+        {
+          "t": 19.0,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T11",
+      "block": "RECEIPT_EFFECT_OBSERVATION",
+      "proofClass": "CLOUD",
+      "seconds": 12.5,
+      "asset": "media/hac-336/frames/B13-scene-receipt-mutation-observation-executed.png",
+      "assetId": "scene-receipt-mutation-observation/executed",
+      "sourceIssue": "HAC-324 filmed run",
+      "provenance": "evidence packet emitted by the traversal",
+      "vo": "VO-06",
+      "narration": "The protected mutation is EXECUTED against that receipt. The resulting invariant on the target is 105 against a bound of 130.",
+      "onScreen": "status EXECUTED - revisionBefore -> revisionAfter - total 105 <= 130",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 3.5,
+          "kind": "DIM",
+          "y1": 455,
+          "y2": 560,
+          "what": "status EXECUTED, revisionBefore, revisionAfter - full-bleed hashes, so DIM"
+        },
+        {
+          "t": 7.5,
+          "kind": "DIM",
+          "y1": 570,
+          "y2": 760,
+          "what": "invariant holds true, total 105, detail total 105 <= 130"
+        },
+        {
+          "t": 11.0,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T12",
+      "block": "RECEIPT_EFFECT_OBSERVATION",
+      "proofClass": "CLOUD",
+      "seconds": 14.5,
+      "asset": "media/hac-336/frames/B14-scene-receipt-mutation-observation-observed.png",
+      "assetId": "scene-receipt-mutation-observation/observed",
+      "sourceIssue": "HAC-324 filmed run",
+      "provenance": "independent authenticated read-back",
+      "vo": "VO-06",
+      "narration": "EXECUTED is not OBSERVED. A separately authenticated, keyless observer service account read the target back at the post-mutation revision and observed alpha at 45. Two records, not one: the model's own output declares nothing.",
+      "onScreen": "OBSERVED alpha=45 - observer serviceAccount:interlock-hac340-observer@... distinct from the provisioning operator",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 4.0,
+          "kind": "DIM",
+          "y1": 325,
+          "y2": 370,
+          "what": "revision - the post-mutation revision the observer read at"
+        },
+        {
+          "t": 7.5,
+          "kind": "PUNCH",
+          "box": [
+            0,
+            380,
+            800,
+            450
+          ],
+          "what": "alpha 45, beta 40, gamma 20"
+        },
+        {
+          "t": 13.0,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T13",
+      "block": "RECEIPT_EFFECT_OBSERVATION",
+      "proofClass": "CLOUD",
+      "seconds": 11.5,
+      "asset": "media/hac-336/frames/B15-scene-cloud-logging-correlation.png",
+      "assetId": "scene-cloud-logging-correlation",
+      "sourceIssue": "HAC-324 filmed run",
+      "provenance": "live Cloud Logging filtered to this run",
+      "vo": "VO-06",
+      "narration": "Cloud Logging, filtered to that same correlation id: the proxy request, the agent identity as the platform verified it, and the Cloud Run revision that served it.",
+      "onScreen": "correlationId ilk-hac340-cloud-1787536029323 - identitySource platform-verified - revision_name interlock-hac340-proxy-00001-s76",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 3.5,
+          "kind": "PUNCH",
+          "box": [
+            0,
+            377,
+            1250,
+            703
+          ],
+          "what": "correlationId, event proxy.request, identity, revision_name interlock-hac340-proxy-00001-s76"
+        },
+        {
+          "t": 10.0,
+          "kind": "WIDE"
+        }
+      ]
+    },
+    {
+      "id": "T14",
+      "block": "ARCHITECTURE",
+      "proofClass": "CLOUD",
+      "seconds": 12.5,
+      "asset": "media/hac-336/frames/B16-IL-DIAG-020-path.png",
+      "assetId": "IL-DIAG-020/path",
+      "sourceIssue": "HAC-336 B16",
+      "provenance": "HAC-324 filmed run path",
+      "vo": "VO-07",
+      "narration": "Where Interlock sits. The agent calls a tool through the Interlock MCP proxy. Interlock reads revision-bound composition evidence before the mutation and returns a decision with a receipt.",
+      "onScreen": "agent -> MCP proxy -> decision + receipt -> protected target; direct call without receipt refused.",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": []
+    },
+    {
+      "id": "T15",
+      "block": "ARCHITECTURE",
+      "proofClass": "CLOUD",
+      "seconds": 12.0,
+      "asset": "media/hac-336/frames/B17-IL-DIAG-020-boundary.png",
+      "assetId": "IL-DIAG-020/boundary",
+      "sourceIssue": "HAC-336 B17",
+      "provenance": "HAC-324 filmed run trust boundary",
+      "vo": "VO-07",
+      "narration": "Cloud Run IAM establishes transport provenance. It does not establish application-role semantics inside Interlock. Agent Runtime, Agent Gateway and CONTENT_AUTHZ were not on this path.",
+      "onScreen": "Transport provenance vs application provenance. NOT ON PATH: Agent Runtime, Agent Gateway, CONTENT_AUTHZ.",
+      "transitionOut": "HARD_CUT",
+      "state": "FINAL",
+      "focus": []
+    },
+    {
+      "id": "T17",
+      "block": "BOUNDED_CLOSE",
+      "proofClass": "BOUNDS",
+      "seconds": 15.0,
+      "asset": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png",
+      "assetId": "IL-PROOF-014",
+      "sourceIssue": "HAC-334",
+      "provenance": "claim boundary board",
+      "vo": "VO-08",
+      "narration": "Two runs, two proof classes; neither is evidence for the other. Sixteen frozen scenarios, exhaustively enumerated - exact counts, not estimates. No exactly-once execution, no restart safety, no production readiness. ALLOW is a decision, not a verification.",
+      "onScreen": "NOT CLAIMED: exactly-once, restart safety, target-side atomicity, production readiness, comprehensive security. ALLOW != VERIFIED. OBSERVED != SAFE. WITHHOLD_SERIALIZE != human approval.",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": [
+        {
+          "t": 0.0,
+          "kind": "WIDE"
+        },
+        {
+          "t": 3.5,
+          "kind": "DIM",
+          "y1": 250,
+          "y2": 345,
+          "what": "the three column headers - controlled local experiment, Google Cloud participation, not claimed"
+        },
+        {
+          "t": 9.0,
+          "kind": "DIM",
+          "y1": 900,
+          "y2": 945,
+          "what": "Two runs, two proof classes. Neither is evidence for the other."
+        },
+        {
+          "t": 12.8,
+          "kind": "WIDE"
+        }
+      ],
+      "note": "Absorbs the corpus bound from T16, which r02 cut. The dense NOT CLAIMED column is deliberately never punched into: it is receipt material, not a read."
+    },
+    {
+      "id": "T18",
+      "block": "BOUNDED_CLOSE",
+      "proofClass": "CLOSE",
+      "seconds": 15.0,
+      "asset": "media/hac-336/frames/B20-IL-SCAF-021-thesis.png",
+      "assetId": "IL-SCAF-021/thesis",
+      "sourceIssue": "HAC-336 B20",
+      "provenance": "no new result",
+      "vo": "VO-08",
+      "narration": "In this controlled corpus, per-target locking correctly coordinated what its keys represented, but missed hazards spanning distinct keys. With qualifying repository evidence present, Interlock changed that coordination; when the evidence was removed, the failures returned.",
+      "onScreen": "Valid alone does not mean safe together.",
+      "transitionOut": "CROSSFADE_0.4",
+      "state": "FINAL",
+      "focus": []
+    },
+    {
+      "id": "T19",
+      "block": "END_CARD",
+      "proofClass": "CLOSE",
+      "seconds": 6.5,
+      "asset": "take-0/deterministic/TAKE0-end-card-1920x1080.png",
+      "assetId": "TAKE0-END-CARD",
+      "sourceIssue": "Take 0 (HAC-349 close spec)",
+      "provenance": "brand lockup + thesis line only; assets/logo + HAC-335 tokens; asserts nothing",
+      "vo": "VO-08",
+      "narration": "Interlock makes that evidence part of the coordination decision before shared state changes.",
+      "onScreen": "INTERLOCK - Evidence-bound coordination for AI-assisted change.",
+      "transitionOut": "END",
+      "state": "PROVISIONAL",
+      "rule": "No new result in the end card. PROVISIONAL: generated by take-0/bin/build-end-card.mjs. If HAC-335 authors this card under an IL-SCAF id, repoint this beat and delete the generator.",
+      "focus": []
+    }
+  ],
+  "label": "Take 0.1",
+  "changeLog": [
+    "r02 EDIT 1 - cold open compressed 16.0s -> 8.0s. T01 (intents) and T02 (coupled) cut entirely; the film now opens on 140 > 130. The causal setup they carried is the first eight seconds of the replay, so it was said twice.",
+    "r02 EDIT 2 - focus cues added. PUNCH (16:9 crop) on capture frames, DIM (matte bands) on board frames. Coordinates measured off the frames, not estimated. Never applied to T04.",
+    "r02 EDIT 3 - T16 (IL-PROOF-022 bounds board) cut. The three-column claim boundary at T17 carries the close; the corpus bound moved into VO-08 so it is still said out loud.",
+    "r02 EDIT 4 - T04 trimmed to 29.000s on the timeline. The canonical file is untouched; only the out-point moves. SEE reviewDecisions.replayOutPoint.",
+    "r02 - VO-01 rewritten for the 8s open. VO-02 opens on 'Rewind.' VO-08 absorbs the corpus bound from the cut T16.",
+    "r02b - three focus cues corrected after reviewing the rendered frames: T08 punch re-aimed at the env block (the old box cut the gcloud command mid-flag); T10's first punch removed (it truncated the title, the caption and the receipt digest); T12's dim band re-measured (it was 60px high and lit the wrong line)."
+  ],
+  "reviewDecisions": {
+    "replayOutPoint": {
+      "change": "T04 plays 0.000-29.000 of the canonical 30.000s export.",
+      "whatWasCut": "Scene END, frames 870-899: a black card reading INTERLOCK / Evidence-bound coordination for AI-assisted change.",
+      "tension": "The review said both 'do not trim the replay' and 'cut the one-second Interlock bumper around 0:45'. The bumper IS inside the canonical export, so the two cannot both hold. Trimmed, because the same wordmark and the same tagline are the film's actual end card at T19 - the cut showed it twice, 2m50s apart.",
+      "whyItIsSafe": "The canonical file is byte-identical and check:replay still passes. Only the timeline out-point moves, which is a Canva cut, not an asset edit. Determinism is a property of the artifact and is unaffected by where playback stops.",
+      "alsoBetter": "S8 ends on the red 140 returning. Cutting straight from that into the four-arm table is a harder, better join than fading through a wordmark.",
+      "toRevert": "Delete the trimOut field on T04 and rebuild. Costs 1.0s."
+    }
+  },
+  "focusGrammar": {
+    "WIDE": "Full frame, no treatment.",
+    "PUNCH": "Hard cut to a 16:9 crop [x,y,w,h] of the 1920x1080 source, then hard cut back. No ease, no drift, no ambient motion. Canva may substitute a 0.3s ease if the join reads abruptly.",
+    "DIM": "No scale change. Two black bands at 55% opacity cover everything above y1 and below y2, so the narrated band stays at full brightness and the rest of the evidence stays legible behind the matte.",
+    "rule": "Every cue returns to WIDE before the beat ends, so provenance is never the last thing removed. No cue ever truncates a hash: where a line runs full-bleed, DIM is used instead of PUNCH.",
+    "notOnT04": "The forensic replay takes no cue of any kind.",
+    "verified": "Every cue in this file was rendered and read back at full size before it was kept. Three of the first sixteen were wrong and were changed."
+  }
+}

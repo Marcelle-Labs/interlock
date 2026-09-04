@@ -1,0 +1,1 @@
+Where Interlock sits. The agent calls a tool through the Interlock MCP proxy. Interlock reads revision-bound composition evidence before the mutation and returns a decision with a receipt. Cloud Run IAM establishes transport provenance. It does not establish application-role semantics inside Interlock. Agent Runtime, Agent Gateway and CONTENT_AUTHZ were not on this path.

@@ -1,0 +1,17 @@
+BEAT	STAGED_FILE	CANONICAL_SOURCE	SHA256_16	BYTES
+T03	T03-COLD_OPEN.png	media/hac-336/frames/B04-IL-PROOF-020-baseline.png	2fb939d1ce99a406	90267
+T04	T04-FORENSIC_REPLAY.mp4	media/hac-350/exports/IL-MOT-021-forensic-replay-1920x1080.mp4	46ac324caa5e3a62	1203077
+T05	T05-COMPARISON_ABLATION.png	media/hac-336/frames/B07-IL-PROOF-021-comparison.png	6543146ac6f33bce	128025
+T06	T06-COMPARISON_ABLATION.png	media/hac-336/frames/B08-IL-PROOF-021-ablation.png	c7af286394411cfb	145162
+T07	T07-PROOF_CLASS_RESET.png	media/hac-336/frames/B09-IL-SCAF-020-reset.png	a14bd9217fa0351b	96047
+T08	T08-CLOUD_TRAVERSAL.png	media/hac-336/frames/B10-scene-gemini-adk-attribution.png	8f3becec942bf624	298125
+T09	T09-CLOUD_TRAVERSAL.png	media/hac-336/frames/B11-scene-cloud-run-topology.png	dbbce721f073c8f2	452657
+T10	T10-CLOUD_TRAVERSAL.png	media/hac-336/frames/B12-scene-agent-traversal.png	7e63f8c2d33ff144	336584
+T11	T11-RECEIPT_EFFECT_OBSERVATION.png	media/hac-336/frames/B13-scene-receipt-mutation-observation-executed.png	daf6725048babae0	416131
+T12	T12-RECEIPT_EFFECT_OBSERVATION.png	media/hac-336/frames/B14-scene-receipt-mutation-observation-observed.png	cc6a3851c7dfa7e1	235158
+T13	T13-RECEIPT_EFFECT_OBSERVATION.png	media/hac-336/frames/B15-scene-cloud-logging-correlation.png	7bcb53f93c469793	351284
+T14	T14-ARCHITECTURE.png	media/hac-336/frames/B16-IL-DIAG-020-path.png	960c2d9bd8e13946	129814
+T15	T15-ARCHITECTURE.png	media/hac-336/frames/B17-IL-DIAG-020-boundary.png	13ca784d8447cd49	115631
+T17	T17-BOUNDED_CLOSE.png	media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png	11f1d61ee8445d1f	171199
+T18	T18-BOUNDED_CLOSE.png	media/hac-336/frames/B20-IL-SCAF-021-thesis.png	9983457402a8f77d	85830
+T19	T19-END_CARD.png	take-0/deterministic/TAKE0-end-card-1920x1080.png	86c5be663fe517f5	52904

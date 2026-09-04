@@ -1,0 +1,277 @@
+1
+00:00:00,150 --> 00:00:01,584
+Two changes.
+
+2
+00:00:01,624 --> 00:00:03,619
+Each valid on its own.
+
+3
+00:00:03,659 --> 00:00:06,817
+Together, 140 against a bound of 130.
+
+4
+00:00:08,150 --> 00:00:09,437
+Rewind.
+
+5
+00:00:09,477 --> 00:00:11,898
+Locking the same target
+serializes correctly.
+
+6
+00:00:11,938 --> 00:00:14,813
+Two different targets, two
+different locks - both correct,
+
+7
+00:00:14,853 --> 00:00:17,048
+and the hazard spans them.
+
+8
+00:00:17,088 --> 00:00:21,778
+The bound is a property of the environment;
+no per-key lock takes it as input.
+
+9
+00:00:21,818 --> 00:00:24,920
+The hazard lives in the
+relationship between the files,
+
+10
+00:00:24,960 --> 00:00:27,835
+and that relationship is
+in the repository history.
+
+11
+00:00:27,875 --> 00:00:30,750
+Interlock reads it before
+the mutation, and withholds.
+
+12
+00:00:30,790 --> 00:00:33,706
+Remove the evidence, and
+the invalid result returns.
+
+13
+00:00:37,150 --> 00:00:40,117
+A global lock stays safe
+by serializing everything.
+
+14
+00:00:40,157 --> 00:00:44,077
+A credible per-target lock preserves
+concurrency, but still misses both hazards,
+
+15
+00:00:44,117 --> 00:00:46,409
+because they span different targets.
+
+16
+00:00:49,650 --> 00:00:51,692
+Interlock uses composition evidence instead:
+
+17
+00:00:51,732 --> 00:00:54,953
+it withheld both hazardous pairs while
+keeping both independent pairs parallel.
+
+18
+00:00:54,993 --> 00:00:58,017
+Then we removed the coupling
+signal from the frozen evidence.
+
+19
+00:00:58,057 --> 00:01:01,278
+Same actions, same core - the decision
+flipped, and both invariants failed.
+
+20
+00:01:01,318 --> 00:01:03,400
+The evidence is load-bearing.
+
+21
+00:01:03,650 --> 00:01:05,391
+That was controlled evaluation.
+
+22
+00:01:05,431 --> 00:01:07,724
+What follows is a separate deployed run.
+
+23
+00:01:09,150 --> 00:01:13,682
+The deployed Cloud Run agent reads
+back its own configuration: gemini-3.
+
+24
+00:01:13,722 --> 00:01:17,096
+5-flash, through Google ADK 1.
+
+25
+00:01:17,136 --> 00:01:18,485
+35.
+
+26
+00:01:18,525 --> 00:01:23,965
+1 with Vertex AI access, from an image
+pinned to the runtime source commit.
+
+27
+00:01:25,150 --> 00:01:31,121
+Three Cloud Run services carried the
+run in us-central1: the ADK agent,
+
+28
+00:01:31,161 --> 00:01:35,150
+the Interlock MCP proxy,
+and the protected target.
+
+29
+00:01:36,650 --> 00:01:39,996
+The traversal executed while
+this frame was captured.
+
+30
+00:01:40,036 --> 00:01:44,525
+Interlock returned ALLOW with a receipt
+digest under one correlation id.
+
+31
+00:01:44,565 --> 00:01:50,197
+Three fail-closed controls on the same run:
+a forged identity header returned 403,
+
+32
+00:01:50,237 --> 00:01:55,909
+an invalid bearer token 401, a
+direct call with no receipt, 403.
+
+33
+00:01:57,650 --> 00:02:00,969
+The protected mutation is
+EXECUTED against that receipt.
+
+34
+00:02:01,009 --> 00:02:06,909
+The resulting invariant on the target
+is 105 against a bound of 130.
+
+35
+00:02:10,150 --> 00:02:12,080
+EXECUTED is not OBSERVED.
+
+36
+00:02:12,120 --> 00:02:13,833
+A separately authenticated,
+
+37
+00:02:13,873 --> 00:02:17,762
+keyless observer service account read the
+target back at the post-mutation revision
+
+38
+00:02:17,802 --> 00:02:20,167
+and observed alpha at 45.
+
+39
+00:02:20,207 --> 00:02:23,483
+Two records, not one: the model's
+own output declares nothing.
+
+40
+00:02:24,650 --> 00:02:28,740
+Cloud Logging, filtered to that same
+correlation id: the proxy request,
+
+41
+00:02:28,780 --> 00:02:31,860
+the agent identity as
+the platform verified it,
+
+42
+00:02:31,900 --> 00:02:35,020
+and the Cloud Run revision that served it.
+
+43
+00:02:36,150 --> 00:02:37,895
+Where Interlock sits.
+
+44
+00:02:37,935 --> 00:02:41,737
+The agent calls a tool through
+the Interlock MCP proxy.
+
+45
+00:02:41,777 --> 00:02:45,349
+Interlock reads revision-bound composition
+evidence before the mutation and returns
+
+46
+00:02:45,389 --> 00:02:47,631
+a decision with a receipt.
+
+47
+00:02:48,650 --> 00:02:51,793
+Cloud Run IAM establishes
+transport provenance.
+
+48
+00:02:51,833 --> 00:02:55,236
+It does not establish application-role
+semantics inside Interlock.
+
+49
+00:02:55,276 --> 00:02:59,761
+Agent Runtime, Agent Gateway and
+CONTENT_AUTHZ were not on this path.
+
+50
+00:03:00,650 --> 00:03:04,476
+Two runs, two proof classes;
+neither is evidence for the other.
+
+51
+00:03:04,516 --> 00:03:07,839
+Sixteen frozen scenarios, exhaustively
+enumerated - exact counts, not estimates.
+
+52
+00:03:07,879 --> 00:03:11,454
+No exactly-once execution, no restart
+safety, no production readiness.
+
+53
+00:03:11,494 --> 00:03:14,354
+ALLOW is a decision, not a verification.
+
+54
+00:03:15,650 --> 00:03:17,580
+In this controlled corpus,
+
+55
+00:03:17,620 --> 00:03:20,639
+per-target locking correctly
+coordinated what its keys represented,
+
+56
+00:03:20,679 --> 00:03:23,044
+but missed hazards spanning distinct keys.
+
+57
+00:03:23,084 --> 00:03:26,103
+With qualifying repository evidence present,
+Interlock changed that coordination;
+
+58
+00:03:26,143 --> 00:03:28,983
+when the evidence was removed,
+the failures returned.
+
+59
+00:03:30,650 --> 00:03:34,124
+Interlock makes that evidence part of the
+coordination decision before shared state
+
+60
+00:03:34,164 --> 00:03:35,465
+changes.
