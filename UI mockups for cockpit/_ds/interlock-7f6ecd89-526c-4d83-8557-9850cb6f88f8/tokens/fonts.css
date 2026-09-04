@@ -1,0 +1,7 @@
+/* FONTS — Interlock
+   Geist (UI + display) and Geist Mono (data, paths, labels, evidence).
+   Geist Mono is shared with the workspace.json standard: the deliberate
+   ecosystem tie. The sans is different, so the two products do not
+   read as the same brand. */
+
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");

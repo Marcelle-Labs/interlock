@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/tokens/effects.css">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/tokens/grammar.css">
+<link rel="stylesheet" href="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/styles.css">
+<script src="_ds/interlock-7f6ecd89-526c-4d83-8557-9850cb6f88f8/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:#eef0f0;font-family:Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:oklch(0.52 0.130 250)}
+a:hover{color:#0b0d0e}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:3px solid oklch(0.52 0.130 250);outline-offset:2px}
+button:focus-visible{outline:3px solid oklch(0.52 0.130 250);outline-offset:2px;box-shadow:0 0 0 1px #fbfbfa}
+[tabindex="0"]:focus-visible{outline:3px solid oklch(0.52 0.130 250);outline-offset:2px}
+</style>
+</helmet>
+
+<section style="display:grid;gap:14px;padding:28px 32px 8px;justify-items:start">
+<div style="display:flex;align-items:flex-start;gap:14px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.12em;background:#0b0d0e;color:#fbfbfa;padding:5px 9px">3a</span>
+<div style="display:grid;gap:6px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#515858">Turn 3 · judge-first attention layer · interactive · 1440 × 900</span>
+<h1 style="font-size:26px;font-weight:500;letter-spacing:-0.02em;margin:0">Walk the proof, over the unchanged cockpit</h1>
+<p style="font-size:14px;line-height:1.5;margin:0;max-width:96ch;color:#515858;text-wrap:pretty">Hybrid model C. The shell, the four-stage spine and every control stay where <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px">media/hac-341/cockpit.html</span> puts them; the guided layer only moves emphasis. Recorded arms come from <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px">experiments/hac-330/evidence/arms.json</span> through the HAC-341 view model. Keyboard: <b>←</b> / <b>→</b> step, <b>Esc</b> closes a panel.</p>
+</div>
+</div>
+
+<div style="width:1440px;min-height:900px;display:flex;align-items:stretch;background:#eef0f0;box-shadow:0 1px 3px rgba(11,13,14,0.16);font-size:14px;color:#0b0d0e">
+
+<main class="frame" style="flex:1;min-width:0;background:#fbfbfa;display:flex;flex-direction:column">
+
+<header class="run-header" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 20px;padding:10px 24px 8px">
+<div class="run-header__identity" style="display:flex;align-items:center;gap:14px;min-width:0">
+<x-import component-from-global-scope="WorkspaceJsonDesignSystem_b8d83c.Logo" variant="horizontal" size="20" hint-size="90px,20px"></x-import>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.55;border-right:1px solid #c2c7c7;padding-right:14px">The Run</span>
+<h1 class="ptitle" style="font-family:'Geist Mono',ui-monospace,monospace;font-size:15px;font-weight:600;letter-spacing:0.10em;text-transform:uppercase;margin:0;white-space:nowrap">Controlled local experiment</h1>
+</div>
+<div class="switch" style="display:grid;gap:3px;justify-self:end">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.12em;opacity:0.55">PROOF</span>
+<div style="display:flex;border:2px solid #0b0d0e;border-radius:3px;overflow:hidden">
+<button type="button" style="padding:5px 10px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:#0b0d0e;color:#fbfbfa;min-height:26px">Controlled local experiment</button>
+<button type="button" onClick="{{ cloudNotice }}" style="padding:5px 10px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;border-left:2px solid #0b0d0e;min-height:26px">Google Cloud participation</button>
+</div>
+</div>
+<div class="pin run-header__facts" style="grid-column:1/-1;display:flex;gap:15px;flex-wrap:wrap;padding-top:5px;border-top:1px solid #dde0e0;font-family:'Geist Mono',ui-monospace,monospace">
+<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:8.5px;letter-spacing:0.10em;text-transform:uppercase;opacity:0.55">Run</span><span style="font-size:10px;font-weight:600;opacity:0.9">hac330-local</span></div>
+<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:8.5px;letter-spacing:0.10em;text-transform:uppercase;opacity:0.55">Issue</span><span style="font-size:10px;font-weight:600;opacity:0.9">HAC-330</span></div>
+<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:8.5px;letter-spacing:0.10em;text-transform:uppercase;opacity:0.55">State</span><span style="font-size:10px;font-weight:600;opacity:0.9">FROZEN</span></div>
+<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:8.5px;letter-spacing:0.10em;text-transform:uppercase;opacity:0.55">Checks</span><span style="font-size:10px;font-weight:600;opacity:0.9">24/24</span></div>
+<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:8.5px;letter-spacing:0.10em;text-transform:uppercase;opacity:0.55">Arm on screen</span><span style="font-size:10px;font-weight:600;opacity:0.9">{{ armLabel }}</span></div>
+</div>
+</header>
+
+<div class="verdict run-thesis" style="padding:5px 24px;background:#f7f8f8;border-bottom:1px solid #dde0e0;display:flex;gap:12px;align-items:flex-start">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.12em;border:1px dashed #9ba2a2;padding:2px 6px;border-radius:2px;opacity:0.8;white-space:nowrap;margin-top:2px">CAUSAL CLAIM</span>
+<p style="font-size:13px;line-height:1.3;margin:0;max-width:72ch;font-weight:500">Two locally valid actions share an environment; revision-bound evidence changes the coordination decision and the bounded joint outcome.</p>
+</div>
+
+<sc-if value="{{ isChoice }}" hint-placeholder-val="{{ true }}">
+<div style="padding:12px 24px;border-bottom:1px solid #dde0e0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 28px;align-items:center;background:#fbfbfa">
+<div style="display:grid;gap:4px;min-width:0">
+<h2 style="font-size:17px;font-weight:500;letter-spacing:-0.015em;margin:0">Inspect the run</h2>
+<p style="font-size:13px;line-height:1.4;margin:0;max-width:76ch;color:#1e2323">Two actions can be valid alone and unsafe together. Follow the recorded proof, or inspect everything yourself.</p>
+</div>
+<div style="display:flex;gap:8px;align-items:center">
+<button type="button" onClick="{{ startWalk }}" style="border:2px solid #0b0d0e;background:#0b0d0e;color:#fbfbfa;border-radius:3px;padding:9px 16px;font-size:12.5px;font-weight:600;min-height:44px">Walk the proof</button>
+<button type="button" onClick="{{ startFree }}" style="border:2px solid #0b0d0e;border-radius:3px;padding:9px 16px;font-size:12.5px;font-weight:600;min-height:44px">Explore freely</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isGuided }}" hint-placeholder-val="{{ true }}">
+<div style="padding:8px 24px;border-bottom:2px solid #0b0d0e;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 24px;align-items:center;background:#f7f8f8">
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap" role="group" aria-label="Proof walk steps · left and right arrow keys move between steps" onKeyDown="{{ railKeys }}">
+<sc-for list="{{ rail }}" as="s" hint-placeholder-count="6">
+<button type="button" onClick="{{ s.go }}" aria-current="{{ s.current }}" title="{{ s.name }}" style="{{ s.style }}">{{ s.no }}</button>
+</sc-for>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;padding-left:6px">{{ stepCount }}</span>
+</div>
+<div style="display:flex;gap:6px;align-items:center;justify-self:end">
+<sc-if value="{{ osLocked }}" hint-placeholder-val="{{ false }}">
+<span role="status" title="{{ motionStaticTitle }}" aria-description="{{ motionStaticTitle }}" style="display:inline-flex;align-items:center;border:1.5px dashed #737b7b;border-radius:3px;padding:7px 10px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#515858;background:#dde0e0;min-height:36px">{{ motionLabel }}</span>
+</sc-if>
+<sc-if value="{{ motionToggleable }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ toggleMotion }}" aria-pressed="{{ motionPressed }}" title="{{ motionTitle }}" style="{{ motionBtnStyle }}">{{ motionLabel }}</button>
+</sc-if>
+<button type="button" onClick="{{ back }}" disabled="{{ noBack }}" style="{{ backStyle }}">Back</button>
+<button type="button" onClick="{{ next }}" disabled="{{ noNext }}" style="{{ nextStyle }}">Next</button>
+<button type="button" onClick="{{ exitWalk }}" style="border:2px solid #0b0d0e;border-radius:3px;padding:6px 12px;font-size:11.5px;font-weight:600;min-height:44px">Exit to cockpit</button>
+</div>
+<div style="grid-column:1/-1;display:flex;gap:12px;align-items:center;border-top:1px solid #dde0e0;padding-top:6px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.55;white-space:nowrap;align-self:flex-start;margin-top:3px">Step {{ stepNo }}</span>
+<div style="display:grid;gap:2px;min-width:0">
+<h2 style="font-size:15px;font-weight:500;letter-spacing:-0.012em;margin:0">{{ stepTitle }}</h2>
+<p style="font-size:12.5px;line-height:1.4;margin:0;max-width:88ch;color:#1e2323">{{ stepCopy }}</p>
+</div>
+<sc-if value="{{ isHandoff }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:7px;flex-wrap:wrap;margin-left:auto;justify-content:flex-end">
+<button type="button" onClick="{{ toggleVerify }}" style="border:2px solid #0b0d0e;border-radius:3px;padding:7px 12px;font-size:11.5px;font-weight:600;min-height:40px;white-space:nowrap">Verify this decision</button>
+<button type="button" onClick="{{ toggleCompare }}" style="border:2px solid #0b0d0e;border-radius:3px;padding:7px 12px;font-size:11.5px;font-weight:600;min-height:40px;white-space:nowrap">Compare strategies</button>
+<button type="button" onClick="{{ exitWalk }}" style="border:2px solid #0b0d0e;background:#0b0d0e;color:#fbfbfa;border-radius:3px;padding:7px 12px;font-size:11.5px;font-weight:600;min-height:40px;white-space:nowrap">Explore the cockpit</button>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isFree }}" hint-placeholder-val="{{ true }}">
+<div style="padding:7px 24px;border-bottom:1px solid #dde0e0;display:flex;gap:14px;align-items:center;background:#fbfbfa">
+<button type="button" onClick="{{ startWalk }}" style="border:2px solid #0b0d0e;border-radius:3px;padding:6px 12px;font-size:11.5px;font-weight:600;min-height:36px">Walk the proof</button>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.06em;opacity:0.6">Free inspection · every control is live · nothing is executed in the browser</span>
+</div>
+</sc-if>
+
+<div class="causal-layout" style="padding:10px 24px 10px;display:grid;gap:0;flex:1;align-content:start">
+
+<section class="causal-stage" aria-labelledby="jw-inputs" style="max-width:44rem;transition:opacity 220ms cubic-bezier(0.2,0.7,0.3,1);opacity:{{ oIntents }}">
+<div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:baseline;margin-bottom:6px;font-family:'Geist Mono',ui-monospace,monospace;text-transform:uppercase">
+<span style="font-size:10px;color:oklch(0.52 0.130 250);font-weight:600;letter-spacing:0.04em">01</span>
+<h2 id="jw-inputs" style="font-size:10px;font-weight:600;letter-spacing:0.12em;margin:0">Locally valid inputs</h2>
+<span style="font-size:8.5px;letter-spacing:0.1em;opacity:0.52">independent scopes</span>
+</div>
+<div style="display:flex;gap:12px">
+<div style="flex:1;border:1px solid #c2c7c7;border-radius:3px;background:#fff;padding:7px 11px;display:grid;gap:3px;min-height:60px;align-content:start">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;letter-spacing:0.12em;color:#737b7b">Intent A</span>
+<h3 style="font-size:13px;font-weight:500;line-height:1.15;margin:0">Reservation change</h3>
+<div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+<x-import component-from-global-scope="WorkspaceJsonDesignSystem_b8d83c.StateChip" state="LOCALLY VALID" hint-size="120px,18px"></x-import>
+<sc-if value="{{ showHeld }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1px solid #737b7b;color:#515858;padding:1px 5px">Held constant</span></sc-if>
+</div>
+</div>
+<div style="flex:1;border:1px solid #c2c7c7;border-radius:3px;background:#fff;padding:7px 11px;display:grid;gap:3px;min-height:60px;align-content:start;transition:opacity 200ms cubic-bezier(0.2,0.7,0.3,1);opacity:{{ oIntentB }}">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;letter-spacing:0.12em;color:#737b7b">Intent B</span>
+<h3 style="font-size:13px;font-weight:500;line-height:1.15;margin:0">Reservation change</h3>
+<div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+<x-import component-from-global-scope="WorkspaceJsonDesignSystem_b8d83c.StateChip" state="LOCALLY VALID" hint-size="120px,18px"></x-import>
+<sc-if value="{{ showHeld }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1px solid #737b7b;color:#515858;padding:1px 5px">Held constant</span></sc-if>
+</div>
+</div>
+</div>
+<div class="cxn" aria-hidden="true" style="width:calc(100% - 48px);margin-left:24px;height:16px;margin-bottom:-1px">
+<svg viewBox="0 0 100 26" preserveAspectRatio="none" focusable="false" style="display:block;width:100%;height:100%">
+<path d="M25 1 L25 13 L75 13 L75 1" style="fill:none;stroke:#0b0d0e;stroke-width:1.5px;stroke-dasharray:5 4;vector-effect:non-scaling-stroke;transition:opacity 240ms;opacity:{{ eIntent }}"></path>
+<path d="M50 13 L50 25" style="fill:none;stroke:#0b0d0e;stroke-width:2px;vector-effect:non-scaling-stroke;transition:opacity 240ms;opacity:{{ eCouple }}"></path>
+</svg>
+</div>
+</section>
+
+<section class="evidence-band env" aria-labelledby="jw-evidence" tabindex="0" onMouseEnter="{{ hiOn }}" onMouseLeave="{{ hiOff }}" onFocus="{{ hiOn }}" onBlur="{{ hiOff }}" style="{{ evidenceStyle }}">
+<div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:6px 16px 0;margin-bottom:3px;font-family:'Geist Mono',ui-monospace,monospace;text-transform:uppercase">
+<span style="font-size:10px;color:oklch(0.52 0.130 250);font-weight:600;letter-spacing:0.04em">02</span>
+<h2 id="jw-evidence" style="font-size:10px;font-weight:600;letter-spacing:0.12em;margin:0">Revision-bound evidence</h2>
+<span style="font-size:8.5px;letter-spacing:0.1em;opacity:0.52">frozen basis</span>
+</div>
+<div style="padding:0 16px 6px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.52 0.130 250);font-weight:600">Shared environment</span>
+<sc-if value="{{ coupled }}" hint-placeholder-val="{{ true }}">
+<x-import component-from-global-scope="WorkspaceJsonDesignSystem_b8d83c.StateChip" state="COUPLED" hint-size="92px,18px"></x-import>
+</sc-if>
+<sc-if value="{{ showChanged }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1.5px solid oklch(0.46 0.170 22);color:oklch(0.46 0.170 22);padding:1px 5px">Changed · evidence basis</span></sc-if>
+</div>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:15px;font-weight:600">joint bound &lt;= 130</span>
+</div>
+<div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;opacity:0.68;margin-top:3px;line-height:1.25;max-width:70ch">{{ evidenceLine1 }}<br>{{ evidenceLine2 }}</div>
+<div style="display:flex;gap:6px 18px;flex-wrap:wrap;margin-top:4px;padding-top:4px;border-top:1px solid #c2c7c7;font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;line-height:1.45;opacity:0.75">
+<span><b style="text-transform:uppercase;letter-spacing:0.09em;font-size:8px;opacity:0.7">finding</b> {{ finding }}</span>
+<span><b style="text-transform:uppercase;letter-spacing:0.09em;font-size:8px;opacity:0.7">files</b> {{ files }}</span>
+<span><b style="text-transform:uppercase;letter-spacing:0.09em;font-size:8px;opacity:0.7">bound</b> HELD CONSTANT ACROSS ALL THREE ARMS</span>
+</div>
+</div>
+<sc-if value="{{ evidenceChanged }}" hint-placeholder-val="{{ true }}">
+<div style="border-top:1px solid #0b0d0e;background:#f7f8f8;padding:8px 16px">
+<span style="display:inline-block;font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;border:1.5px solid #0b0d0e;border-radius:2px;padding:2px 7px">Evidence changed</span>
+<p style="font-size:12px;margin:4px 0 0;line-height:1.35;max-width:110ch">Same intents, same shared environment, same bound. Only the frozen evidence differs: basis <span style="font-family:'Geist Mono',ui-monospace,monospace">{{ basisShort }}</span> replaces <span style="font-family:'Geist Mono',ui-monospace,monospace">{{ referenceShort }}</span>.</p>
+<p style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;margin:4px 0 0;opacity:0.62">Full decision detail is in Verify this decision.</p>
+</div>
+</sc-if>
+</section>
+
+<div class="cxn short causal-drop" aria-hidden="true" style="width:2px;height:16px;margin:0 0 0 28px">
+<svg viewBox="0 0 100 20" preserveAspectRatio="none" focusable="false" style="display:block;width:2px;height:100%">
+<path d="M50 0 L50 19" style="fill:none;stroke:#0b0d0e;stroke-width:2px;vector-effect:non-scaling-stroke;transition:opacity 240ms;opacity:{{ eDecide }}"></path>
+</svg>
+</div>
+
+<div class="resolution-grid" style="display:grid;grid-template-columns:minmax(17rem,0.85fr) minmax(22rem,1.15fr);gap:18px;align-items:stretch">
+<section class="decision decision-bar" aria-labelledby="jw-decision" style="{{ decisionStyle }}">
+<div style="display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:baseline;margin-bottom:8px;font-family:'Geist Mono',ui-monospace,monospace;text-transform:uppercase">
+<span style="font-size:10px;color:oklch(0.52 0.130 250);font-weight:600;letter-spacing:0.04em">03</span>
+<h2 id="jw-decision" style="font-size:10px;font-weight:600;letter-spacing:0.12em;margin:0">Coordination decision</h2>
+</div>
+<div style="margin-top:auto">
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.09em;opacity:0.6;text-transform:uppercase">Interlock decision · deterministic</span>
+<sc-if value="{{ showChanged }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1.5px solid oklch(0.46 0.170 22);color:oklch(0.46 0.170 22);padding:1px 5px">Changed</span></sc-if>
+</div>
+<div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:20px;font-weight:600;letter-spacing:0.01em;margin-top:2px;line-height:1.05">{{ decision }}</div>
+<div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;opacity:0.68;margin-top:4px">{{ decisionReason }}</div>
+<div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.08em;opacity:0.55;margin-top:2px">FROZEN ARM · NOT RECOMPUTED</div>
+</div>
+</section>
+
+<section class="outcome-stage" aria-labelledby="jw-outcome" style="border-left:1px solid #dde0e0;padding-left:18px;transition:opacity 220ms cubic-bezier(0.2,0.7,0.3,1);opacity:{{ oOutcome }}">
+<div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:baseline;margin-bottom:5px;font-family:'Geist Mono',ui-monospace,monospace;text-transform:uppercase">
+<span style="font-size:10px;color:oklch(0.52 0.130 250);font-weight:600;letter-spacing:0.04em">04</span>
+<h2 id="jw-outcome" style="font-size:10px;font-weight:600;letter-spacing:0.12em;margin:0">Bounded joint outcome</h2>
+<span style="font-size:8.5px;letter-spacing:0.1em;opacity:0.52">baseline vs selected arm</span>
+</div>
+<div class="results" style="display:flex;flex-direction:column;gap:5px">
+<sc-for list="{{ rows }}" as="row" hint-placeholder-count="2">
+<div class="res" style="{{ row.style }}">
+<div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">
+<span aria-hidden="true" style="width:15px;flex:none;border-top:2px solid #0b0d0e;opacity:0.45"></span>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;opacity:0.82">{{ row.cause }}</span>
+</div>
+<div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.09em;text-transform:uppercase;opacity:0.6">{{ row.label }}</div>
+<div style="{{ row.valueStyle }}">{{ row.value }}</div>
+<div style="font-size:10px;opacity:0.75;margin-top:1px">{{ row.verdict }}</div>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+
+<section class="arm-switcher" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 20px;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #dde0e0;transition:opacity 220ms cubic-bezier(0.2,0.7,0.3,1);opacity:{{ oControl }}">
+<div class="arms" role="group" aria-label="Recorded arm" style="display:flex;gap:6px">
+<sc-for list="{{ arms }}" as="a" hint-placeholder-count="3">
+<button type="button" onClick="{{ a.pick }}" aria-pressed="{{ a.pressed }}" style="{{ a.style }}">{{ a.label }}</button>
+</sc-for>
+</div>
+<div class="actions" aria-label="Verification actions" style="display:flex;flex-wrap:wrap;gap:6px;justify-self:end">
+<button type="button" onClick="{{ toggleVerify }}" aria-expanded="{{ verifyExpanded }}" aria-controls="jw-verify-panel" style="{{ verifyStyle }}">Verify this decision</button>
+<button type="button" onClick="{{ toggleCompare }}" aria-expanded="{{ compareExpanded }}" aria-controls="jw-compare-panel" style="{{ compareStyle }}">Compare coordination strategies</button>
+</div>
+<p style="grid-column:1/-1;margin:0;font-size:11.5px;line-height:1.4;max-width:96ch;color:#1e2323">{{ armNote }}</p>
+</section>
+
+<sc-if value="{{ never }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:10px;border:1px solid #c2c7c7;border-radius:3px;background:#fff">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 14px;border-bottom:1px solid #dde0e0;flex-wrap:wrap">
+<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+<h2 style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin:0">Coordination strategies · HAC-343 frame</h2>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.06em;opacity:0.6">{{ compareCount }} · ← → to move</span>
+</div>
+<div style="display:flex;gap:6px">
+<button type="button" onClick="{{ revealNext }}" style="border:2px solid #0b0d0e;border-radius:3px;padding:5px 10px;font-size:11px;font-weight:600;min-height:32px">Reveal next strategy</button>
+<button type="button" onClick="{{ toggleCompare }}" style="border:2px solid #0b0d0e;border-radius:3px;padding:5px 10px;font-size:11px;font-weight:600;min-height:32px">Close</button>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:132px repeat(4,minmax(0,1fr));font-family:'Geist Mono',ui-monospace,monospace;font-size:10px">
+<div style="padding:7px 10px;border-bottom:1px solid #dde0e0;font-size:8.5px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55">Dimension</div>
+<div style="padding:7px 10px;border-bottom:1px solid #dde0e0;border-left:1px solid #dde0e0;transition:opacity 200ms;opacity:{{ c1 }}"><b style="font-size:11px">Uncoordinated</b><br><span style="font-size:8.5px;opacity:0.6">HAC-330 baseline arm</span></div>
+<div style="padding:7px 10px;border-bottom:1px solid #dde0e0;border-left:1px solid #dde0e0;transition:opacity 200ms;opacity:{{ c2 }}"><b style="font-size:11px">Global lock</b><br><span style="font-size:8.5px;opacity:0.6">no frozen artifact</span></div>
+<div style="padding:7px 10px;border-bottom:1px solid #dde0e0;border-left:1px solid #dde0e0;transition:opacity 200ms;opacity:{{ c3 }}"><b style="font-size:11px">Credible per-target lock</b><br><span style="font-size:8.5px;opacity:0.6">no frozen artifact</span></div>
+<div style="padding:7px 10px;border-bottom:1px solid #dde0e0;border-left:1px solid #dde0e0;transition:opacity 200ms;opacity:{{ c4 }}"><b style="font-size:11px">Interlock</b><br><span style="font-size:8.5px;opacity:0.6">HAC-330 treatment arm</span></div>
+
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7">Safety result</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c1 }}">invalid joint state</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c2 }}">[BIND: hac-343/strategies/global-lock/safety]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c3 }}">[BIND: hac-343/strategies/per-target-lock/safety]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c4 }}">bounded constraint satisfied</div>
+
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7">Concurrency cost</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c1 }}">none withheld · A and B both APPLIED</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c2 }}">[BIND: hac-343/strategies/global-lock/concurrency]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c3 }}">[BIND: hac-343/strategies/per-target-lock/concurrency]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c4 }}">B REJECTED on revalidation · A ADMITTED</div>
+
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7">Scope of coordination</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c1 }}">none · composition permitted without coordination</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c2 }}">[BIND: hac-343/strategies/global-lock/scope]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c3 }}">[BIND: hac-343/strategies/per-target-lock/scope]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c4 }}">the one observed coupling between A and B</div>
+
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7">Evidence sensitivity</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c1 }}">none · no evidence consulted</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c2 }}">[BIND: hac-343/strategies/global-lock/evidence-sensitivity]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c3 }}">[BIND: hac-343/strategies/per-target-lock/evidence-sensitivity]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c4 }}">decision flips to ALLOW_PARALLEL at basis db8a63ec…</div>
+
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7">Recorded outcome</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;font-size:13px;font-weight:600;color:oklch(0.46 0.170 22);transition:opacity 200ms;opacity:{{ c1 }}">140 &gt; 130</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c2 }}">[BIND: hac-343/strategies/global-lock/outcome]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c3 }}">[BIND: hac-343/strategies/per-target-lock/outcome]</div>
+<div style="padding:7px 10px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0;font-size:13px;font-weight:600;transition:opacity 200ms;opacity:{{ c4 }}">120 &lt;= 130</div>
+
+<div style="padding:7px 10px;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7">Limitation</div>
+<div style="padding:7px 10px;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c1 }}">recorded in HAC-330, not HAC-343</div>
+<div style="padding:7px 10px;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c2 }}">not established by this frozen run</div>
+<div style="padding:7px 10px;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c3 }}">not established by this frozen run</div>
+<div style="padding:7px 10px;border-left:1px solid #dde0e0;line-height:1.4;transition:opacity 200ms;opacity:{{ c4 }}">one pair at one revision · not a production guarantee</div>
+</div>
+<p style="margin:0;padding:8px 14px;border-top:1px solid #dde0e0;font-size:11px;line-height:1.45;color:#1e2323">HAC-343 has no frozen artifact in <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px">Marcelle-Labs/interlock@main</span> at this read. Global lock and credible per-target lock therefore render as unresolved bindings; no substitute value is shown.</p>
+</div>
+</sc-if>
+
+</div>
+</main>
+
+<sc-if value="{{ verifyOpen }}" hint-placeholder-val="{{ true }}">
+<aside class="drawer" id="jw-verify-panel" role="complementary" aria-labelledby="jw-drawer-title" style="box-sizing:border-box;width:480px;flex:none;background:#fff;border-left:3px solid #0b0d0e;padding:16px 20px;overflow-y:auto;max-height:900px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+<div style="display:grid;gap:2px">
+<h2 id="jw-drawer-title" style="font-size:17px;font-weight:500;letter-spacing:-0.015em;margin:0">Verify this decision</h2>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;opacity:0.6">L2 · evidence for the arm on screen · {{ armLabel }}</span>
+</div>
+<button type="button" id="jw-verify-close" onClick="{{ toggleVerify }}" aria-label="Close verification panel" style="border:2px solid #0b0d0e;border-radius:3px;font-size:16px;line-height:1;padding:5px 9px;min-height:32px;min-width:32px">✕</button>
+</div>
+<section style="margin-top:14px">
+<h3 style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.11em;text-transform:uppercase;opacity:0.62;margin:0 0 5px">Selected arm basis</h3>
+<dl style="display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;margin:0">
+<dt style="opacity:0.6">arm</dt><dd style="margin:0;word-break:break-all">{{ armId }}</dd>
+<dt style="opacity:0.6">decision</dt><dd style="margin:0;word-break:break-all">{{ decision }}</dd>
+<dt style="opacity:0.6">reason</dt><dd style="margin:0;word-break:break-all">{{ decisionReason }}</dd>
+<dt style="opacity:0.6">basisRevision</dt><dd style="margin:0;word-break:break-all">{{ basis }}</dd>
+<dt style="opacity:0.6">outcome</dt><dd style="margin:0;word-break:break-all">{{ outcomeExpr }}</dd>
+</dl>
+</section>
+<section style="margin-top:14px">
+<h3 style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.11em;text-transform:uppercase;opacity:0.62;margin:0 0 5px">Reproduce</h3>
+<pre style="background:rgba(128,128,128,0.14);padding:9px;border-radius:3px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;line-height:1.45;overflow-x:auto;margin:0;white-space:pre">node experiments/hac-330/bin/verify-packet.mjs</pre>
+<p style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;line-height:1.5;margin:6px 0 0;opacity:0.75">experiments/hac-330/evidence/arms.json<br>experiments/hac-330/evidence/results.json</p>
+</section>
+<section style="margin-top:14px">
+<h3 style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.11em;text-transform:uppercase;opacity:0.62;margin:0 0 5px">Pinned inputs</h3>
+<dl style="display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;margin:0">
+<dt style="opacity:0.6">workspacejson/cli</dt><dd style="margin:0;word-break:break-all">defac1e5dce6fb692a48e775fb44854b371cbca4 · EXECUTE_READ_ONLY · clean</dd>
+<dt style="opacity:0.6">workspacejson/standard</dt><dd style="margin:0;word-break:break-all">a3caece60bde12c41105a9987f50afa9e33dcb7b · READ_ONLY_PINNED · clean</dd>
+<dt style="opacity:0.6">checks</dt><dd style="margin:0">24/24</dd>
+</dl>
+</section>
+<section style="margin-top:14px;border-top:1px solid #dde0e0;padding-top:12px">
+<h3 style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.11em;text-transform:uppercase;opacity:0.62;margin:0 0 5px">Not claimed</h3>
+<ul style="margin:0;padding:0;display:grid;gap:4px">
+<li style="list-style:none;font-size:11.5px;line-height:1.45;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:oklch(0.58 0.150 28);font-weight:700">–</span>did not run on Google Cloud</li>
+<li style="list-style:none;font-size:11.5px;line-height:1.45;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:oklch(0.58 0.150 28);font-weight:700">–</span>no receipt, protected target or independent observer exists in this run</li>
+<li style="list-style:none;font-size:11.5px;line-height:1.45;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:oklch(0.58 0.150 28);font-weight:700">–</span>WITHHOLD_SERIALIZE is not human approval, joint authorization or certification</li>
+<li style="list-style:none;font-size:11.5px;line-height:1.45;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:oklch(0.58 0.150 28);font-weight:700">–</span>not a safety, security or production-readiness guarantee</li>
+</ul>
+</section>
+<p style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;opacity:0.6;margin:12px 0 0;line-height:1.5">Non-modal complementary region: the cockpit beside it stays interactive and focus is not trapped. Escape or Close returns focus to the control that opened this panel.</p>
+</aside>
+</sc-if>
+
+<sc-if value="{{ compareOpen }}" hint-placeholder-val="{{ true }}">
+<aside id="jw-compare-panel" role="complementary" aria-labelledby="jw-compare-title" style="box-sizing:border-box;width:480px;flex:none;background:#fff;border-left:3px solid #0b0d0e;padding:16px 20px;overflow-y:auto;max-height:900px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+<div style="display:grid;gap:3px">
+<h2 id="jw-compare-title" style="font-size:17px;font-weight:500;letter-spacing:-0.015em;margin:0">Coordination strategies</h2>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;opacity:0.6">HAC-343 frame · one strategy at a time · {{ compareCount }}</span>
+<span style="justify-self:start;font-family:'Geist Mono',ui-monospace,monospace;font-size:8.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;border:1px dashed #9ba2a2;color:#515858;padding:2px 6px;margin-top:2px">Unresolved binding scaffold · not evidence</span>
+</div>
+<button type="button" id="jw-compare-close" onClick="{{ toggleCompare }}" aria-label="Close strategy comparison" style="border:2px solid #0b0d0e;border-radius:3px;font-size:16px;line-height:1;padding:5px 9px;min-height:32px;min-width:32px">✕</button>
+</div>
+<div role="group" aria-label="Strategy · left and right arrow keys move between strategies" onKeyDown="{{ stratKeys }}" style="display:grid;gap:5px;margin-top:12px">
+<sc-for list="{{ strats }}" as="x" hint-placeholder-count="4">
+<button type="button" onClick="{{ x.pick }}" aria-pressed="{{ x.pressed }}" style="{{ x.style }}">{{ x.name }}</button>
+</sc-for>
+</div>
+<div style="margin-top:14px;border-top:1px solid #dde0e0;padding-top:10px;display:grid;gap:2px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.11em;text-transform:uppercase;opacity:0.6">Source</span>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;line-height:1.4;overflow-wrap:anywhere">{{ stratSource }}</span>
+</div>
+<dl style="margin:12px 0 0;display:grid;gap:8px">
+<sc-for list="{{ dims }}" as="d" hint-placeholder-count="6">
+<div style="display:grid;gap:2px;border-top:1px solid #eef0f0;padding-top:7px">
+<dt style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.09em;text-transform:uppercase;opacity:0.6">{{ d.k }}</dt>
+<dd style="margin:0;font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;line-height:1.45;overflow-wrap:anywhere">{{ d.v }}</dd>
+</div>
+</sc-for>
+</dl>
+<p style="margin:14px 0 0;border-top:1px solid #dde0e0;padding-top:10px;font-size:11px;line-height:1.45;color:#1e2323">HAC-343 has no frozen artifact in <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px">Marcelle-Labs/interlock@main</span> at this read. Global lock and credible per-target lock render as unresolved bindings; no substitute value is shown. Arrow keys move between strategies; Escape closes.</p>
+</aside>
+</sc-if>
+
+</div>
+
+<p aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">{{ announce }}</p>
+</section>
+
+<section style="display:grid;gap:14px;padding:20px 32px 40px;justify-items:start">
+<div style="display:flex;align-items:flex-start;gap:14px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.12em;background:#0b0d0e;color:#fbfbfa;padding:5px 9px">3b</span>
+<div style="display:grid;gap:6px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#515858">Turn 3 · responsive states · 320 CSS px</span>
+<h2 style="font-size:20px;font-weight:500;letter-spacing:-0.015em;margin:0">Entry, ablation and handoff at 320px</h2>
+<p style="font-size:13px;line-height:1.5;margin:0;max-width:92ch;color:#515858;text-wrap:pretty">One column, causal order preserved: evidence before decision before outcome. The step rail becomes a count plus Back / Next; guided copy sits above the region it emphasises. Reduced motion is a toggle in the prototype above, not a separate layout: movement is replaced by immediate state swaps and the changed-field markers stay on screen.</p>
+</div>
+</div>
+<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+
+<div style="display:grid;gap:8px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#515858">local.overview · choice</span>
+<div style="width:320px;background:#fbfbfa;border:1px solid #c2c7c7;display:grid;gap:0;box-shadow:0 1px 3px rgba(11,13,14,0.14)">
+<div style="padding:10px 16px 8px;display:grid;gap:7px">
+<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+<x-import component-from-global-scope="WorkspaceJsonDesignSystem_b8d83c.Logo" variant="horizontal" size="18" hint-size="80px,18px"></x-import>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.55">The Run</span>
+</div>
+<h3 style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin:0;padding-left:9px;border-left:1px solid #c2c7c7">Controlled local experiment</h3>
+<div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:6px;border-top:1px solid #dde0e0;font-family:'Geist Mono',ui-monospace,monospace;font-size:9px">
+<span style="opacity:0.55">RUN</span><span style="font-weight:600">hac330-local</span>
+<span style="opacity:0.55">STATE</span><span style="font-weight:600">FROZEN</span>
+</div>
+</div>
+<div style="padding:6px 16px;background:#f7f8f8;border-top:1px solid #dde0e0;border-bottom:1px solid #dde0e0;display:grid;gap:4px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8.5px;letter-spacing:0.12em;border:1px dashed #9ba2a2;padding:2px 5px;justify-self:start">CAUSAL CLAIM</span>
+<p style="font-size:12px;line-height:1.35;margin:0;font-weight:500">Two locally valid actions share an environment; revision-bound evidence changes the coordination decision and the bounded joint outcome.</p>
+</div>
+<div style="padding:12px 16px;display:grid;gap:9px">
+<h4 style="font-size:15px;font-weight:500;margin:0">Inspect the run</h4>
+<p style="font-size:12px;line-height:1.4;margin:0;color:#1e2323">Two actions can be valid alone and unsafe together. Follow the recorded proof, or inspect everything yourself.</p>
+<button type="button" style="border:2px solid #0b0d0e;background:#0b0d0e;color:#fbfbfa;border-radius:3px;padding:11px;font-size:13px;font-weight:600;min-height:44px">Walk the proof</button>
+<button type="button" style="border:2px solid #0b0d0e;border-radius:3px;padding:11px;font-size:13px;font-weight:600;min-height:44px">Explore freely</button>
+</div>
+<div style="padding:10px 16px 14px;border-top:1px solid #dde0e0;display:grid;gap:6px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55">01 · locally valid inputs</span>
+<div style="border:1px solid #c2c7c7;background:#fff;padding:7px 10px;display:grid;gap:3px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;letter-spacing:0.12em;color:#737b7b">Intent A</span>
+<span style="font-size:12.5px">Reservation change</span>
+</div>
+<div style="border:1px solid #c2c7c7;background:#fff;padding:7px 10px;display:grid;gap:3px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;letter-spacing:0.12em;color:#737b7b">Intent B</span>
+<span style="font-size:12.5px">Reservation change</span>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:grid;gap:8px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#515858">guide.ablation · perturbed</span>
+<div style="width:320px;background:#fbfbfa;border:1px solid #c2c7c7;box-shadow:0 1px 3px rgba(11,13,14,0.14)">
+<div style="padding:8px 16px;border-bottom:2px solid #0b0d0e;background:#f7f8f8;display:grid;gap:7px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6">Step 05 of 06</span>
+<div style="display:flex;gap:6px">
+<button type="button" style="border:2px solid #0b0d0e;border-radius:3px;padding:6px 10px;font-size:11px;font-weight:600;min-height:36px">Back</button>
+<button type="button" style="border:2px solid #0b0d0e;background:#0b0d0e;color:#fbfbfa;border-radius:3px;padding:6px 10px;font-size:11px;font-weight:600;min-height:36px">Next</button>
+</div>
+</div>
+<div style="display:grid;gap:2px">
+<h4 style="font-size:14px;font-weight:500;margin:0">Is the evidence causal?</h4>
+<p style="font-size:12px;line-height:1.35;margin:0;color:#1e2323">With a different frozen evidence basis, the decision flips to ALLOW_PARALLEL, and the same joint bound fails.</p>
+</div>
+</div>
+<div style="padding:10px 16px;display:grid;gap:9px">
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1px solid #737b7b;color:#515858;padding:2px 5px">Held · intents</span>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1px solid #737b7b;color:#515858;padding:2px 5px">Held · bound 130</span>
+</div>
+<div style="border:2px solid #0b0d0e;background:#f7f8f8;padding:8px 11px;display:grid;gap:5px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.52 0.130 250);font-weight:600">02 · evidence</span>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1.5px solid oklch(0.46 0.170 22);color:oklch(0.46 0.170 22);padding:1px 5px">Changed</span>
+</div>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;line-height:1.35;opacity:0.75">basis db8a63ec… replaces eb67a6f5…<br>no pair at support &gt;= 3</span>
+</div>
+<div style="border:1px solid #c2c7c7;border-left:3px solid #0b0d0e;background:#fff;padding:8px 11px;display:grid;gap:3px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.6">03 · decision</span>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1.5px solid oklch(0.46 0.170 22);color:oklch(0.46 0.170 22);padding:1px 5px">Changed</span>
+</div>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:16px;font-weight:600">ALLOW_PARALLEL</span>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;opacity:0.68">NO_QUALIFYING_COUPLING</span>
+</div>
+<div style="border:2px solid oklch(0.46 0.170 22);border-left-width:4px;background:#fff;padding:8px 11px;display:grid;gap:2px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.6">04 · perturbed arm</span>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1.5px solid oklch(0.46 0.170 22);color:oklch(0.46 0.170 22);padding:1px 5px">Changed</span>
+</div>
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:28px;font-weight:500;line-height:1.06;color:oklch(0.46 0.170 22)">✕ 140 &gt; 130</span>
+<span style="font-size:11px;opacity:0.75">invalid joint state</span>
+</div>
+<button type="button" style="border:2px solid #0b0d0e;border-radius:3px;padding:10px;font-size:12.5px;font-weight:600;min-height:44px">Restore original evidence</button>
+</div>
+</div>
+</div>
+
+<div style="display:grid;gap:8px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#515858">guide.handoff</span>
+<div style="width:320px;background:#fbfbfa;border:1px solid #c2c7c7;box-shadow:0 1px 3px rgba(11,13,14,0.14)">
+<div style="padding:8px 16px;border-bottom:2px solid #0b0d0e;background:#f7f8f8;display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6">Step 06 of 06</span>
+<button type="button" style="border:2px solid #0b0d0e;border-radius:3px;padding:6px 10px;font-size:11px;font-weight:600;min-height:36px">Back</button>
+</div>
+<div style="padding:12px 16px;display:grid;gap:9px">
+<h4 style="font-size:15px;font-weight:500;margin:0;line-height:1.2">You have the causal claim. Inspect the proof.</h4>
+<p style="font-size:12px;line-height:1.4;margin:0;color:#1e2323">Every control was live throughout the walk. The Google Cloud participation record is a separate proof class and is not opened for you.</p>
+<button type="button" style="border:2px solid #0b0d0e;border-radius:3px;padding:11px;font-size:12.5px;font-weight:600;min-height:44px">Verify this decision</button>
+<button type="button" style="border:2px solid #0b0d0e;border-radius:3px;padding:11px;font-size:12.5px;font-weight:600;min-height:44px">Compare coordination strategies</button>
+<button type="button" style="border:2px solid #0b0d0e;background:#0b0d0e;color:#fbfbfa;border-radius:3px;padding:11px;font-size:12.5px;font-weight:600;min-height:44px">Explore the complete cockpit</button>
+<div style="border-top:1px solid #dde0e0;padding-top:8px;display:grid;gap:5px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55">Also recorded</span>
+<span style="font-size:11.5px;line-height:1.4;color:#1e2323">Google Cloud participation · separate proof class · switch is in the header and never auto-opens.</span>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="display:grid;gap:14px;padding:20px 32px 56px;justify-items:start">
+<div style="display:flex;align-items:flex-start;gap:14px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.12em;background:#0b0d0e;color:#fbfbfa;padding:5px 9px">3c</span>
+<div style="display:grid;gap:6px">
+<span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#515858">Turn 3 · implementation handoff · prototype vs production</span>
+<h2 style="font-size:20px;font-weight:500;letter-spacing:-0.015em;margin:0">What this prototype asserts, and what production must implement</h2>
+<p style="font-size:13px;line-height:1.5;margin:0;max-width:92ch;color:#515858;text-wrap:pretty">Design intent, not a shipped contract. Where the prototype simplifies for demonstration it says so.</p>
+</div>
+</div>
+<div style="width:1216px;background:#fbfbfa;border:1px solid #c2c7c7;display:grid;grid-template-columns:140px minmax(0,1fr) minmax(0,1fr);font-size:12px;line-height:1.45">
+<div style="padding:9px 14px;border-bottom:1px solid #0b0d0e;font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6">Concern</div>
+<div style="padding:9px 14px;border-bottom:1px solid #0b0d0e;border-left:1px solid #dde0e0;font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6">In this prototype</div>
+<div style="padding:9px 14px;border-bottom:1px solid #0b0d0e;border-left:1px solid #dde0e0;font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6">Required in production React</div>
+
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;font-weight:500">State model</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Local component state: mode (choice / guided / free), step 1–6, arm, panel (single-occupancy), strat 0–3, phase 0–3, reduced.</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Same names, but the semantic state id is the source of truth and must round-trip the deep link ?run=&amp;proof=&amp;state=&amp;event= per cockpit/state-manifest.json. Guided steps need their own guide.* state ids; a mismatched proof and state resolves to run.missing, never a substitution.</div>
+
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;font-weight:500">Frozen fields</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Three arms transcribed from experiments/hac-330/evidence/arms.json: decision, reason, detail, basisRevision, outcome expression, holds, verdict, coupling support 8/10, files, bound 130, checks 24/24, pins.</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Read the same fields through media/hac-341/evidence/view-model.json and lib/arm-view.mjs. No value is derived in the component. An absent field renders as a visible [BIND: …] defect, never a blank or a default.</div>
+
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;font-weight:500">Focus behavior</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Opener stored on open; focus moves to the panel Close control after 30ms; Escape or Close restores focus to the opener. Panels are single-occupancy.</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Replace the timeout with a ref and a layout effect. Panels are non-modal role="complementary" regions: no focus trap, no inert on the run, no aria-modal. Step changes move focus to the step heading without scrolling evidence out of view.</div>
+
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;font-weight:500">Keyboard</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Left / Right are scoped to the step rail group and the strategy group only. Escape is the one global key. Back / Next are the universal path and never depend on arrow keys.</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Keep the scoping. Add roving tabindex inside both groups, Home / End to first and last, and confirm no arrow interception while focus is inside a scrollable proof region or any text field.</div>
+
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;font-weight:500">Timers</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Ablation stages at 20 / 200 / 380ms (evidence, decision, outcome), inside the 700ms ceiling; intent B resolves 90ms after intent A. Every timer is cleared on the next interaction, so the sequence is interruptible and reversible. Nothing auto-advances.</div>
+<div style="padding:9px 14px;border-bottom:1px solid #eef0f0;border-left:1px solid #dde0e0">Drive the same cadence from tokens/motion.css and components/motion/phases.js rather than literals. Cancel on unmount and on arm change. No animation may gate selection, copying or verification.</div>
+
+<div style="padding:9px 14px;font-weight:500">Reduced motion</div>
+<div style="padding:9px 14px;border-left:1px solid #dde0e0">The system preference wins and the control tells the truth about it. With prefers-reduced-motion: reduce active, the manual toggle is withdrawn and replaced by a status reading "Reduced motion · system preference", described as honouring the system setting; no "Enable motion" action is offered that the preference would override. Without the preference, the button names the action available (Reduce motion / Enable motion) and carries aria-pressed. When reduced, staged transitions become immediate state swaps and the changed / held-constant markers stay on screen.</div>
+<div style="padding:9px 14px;border-left:1px solid #dde0e0">Same substitution, plus: draw connectors immediately, open panels instantly, keep the step sequence, copy and count identical. Never fade essential content through low-opacity intermediates. Announce arm, decision, outcome and proof-class changes through one polite live region.</div>
+</div>
+<p style="font-size:12px;line-height:1.5;margin:0;max-width:110ch;color:#515858">Out of scope this pass and unchanged: Google Cloud participation (class B), L3 raw proof, and degraded / unavailable / unbound states. Their entry points stay where the cockpit puts them.</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;entryMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;choice&quot;,&quot;guided&quot;,&quot;free&quot;],&quot;default&quot;:&quot;choice&quot;,&quot;tsType&quot;:&quot;'choice'|'guided'|'free'&quot;,&quot;section&quot;:&quot;Entry&quot;},&quot;reducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;recede&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:0.4,&quot;max&quot;:1,&quot;step&quot;:0.02,&quot;default&quot;:0.62,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Emphasis&quot;}}">
+const ARMS = {
+  baseline: {
+    armId: 'baseline', label: 'Baseline arm', consulted: false, coupled: false,
+    decision: 'no decision — Interlock disabled', reason: 'INTERLOCK_DISABLED',
+    detail: 'Interlock disabled. Both intents execute.',
+    basis: null, expr: '140 > 130', holds: false, verdict: 'invalid joint state',
+  },
+  treatment: {
+    armId: 'treatment', label: 'Treatment · original evidence', consulted: true, coupled: true,
+    decision: 'WITHHOLD_SERIALIZE', reason: 'COUPLING_OBSERVED',
+    detail: '1 qualifying co-change coupling(s) between the pending intents at basis eb67a6f56b3bf7e71846e7324d21af44565c0b70; the composition is withheld and the intents are serialized with revalidation',
+    basis: 'eb67a6f56b3bf7e71846e7324d21af44565c0b70', expr: '120 <= 130', holds: true,
+    verdict: 'bounded constraint satisfied',
+  },
+  perturbed: {
+    armId: 'perturbed', label: 'Perturbed evidence', consulted: true, coupled: false,
+    decision: 'ALLOW_PARALLEL', reason: 'NO_QUALIFYING_COUPLING',
+    detail: 'history at db8a63ec9405191bdd40d0ed0fc69684fca5d17b was mined (QUALIFYING_RELATIONSHIP_OBSERVED) and shows no pair between the pending intents at support >= 3',
+    basis: 'db8a63ec9405191bdd40d0ed0fc69684fca5d17b', expr: '140 > 130', holds: false,
+    verdict: 'invalid joint state',
+  },
+};
+const ORDER = ['baseline', 'treatment', 'perturbed'];
+const STEPS = [
+  { no: '01', name: 'Local validity', title: 'Each action is valid alone', copy: 'Each reservation change passes its local rules.', focus: ['intents'] },
+  { no: '02', name: 'Shared bound', title: 'But they share something', copy: 'They touch one bounded environment. Local validity does not prove joint safety.', focus: ['intents', 'evidence'] },
+  { no: '03', name: 'Coupling evidence', title: 'Interlock sees the composition', copy: 'At this pinned revision, the frozen evidence establishes coupling, so Interlock withholds parallel execution.', focus: ['evidence', 'decision'] },
+  { no: '04', name: 'Bounded outcome', title: 'The decision changes the bounded outcome', copy: 'The selected coordination keeps the joint state within its recorded bound.', focus: ['decision', 'outcome'] },
+  { no: '05', name: 'Ablation', title: 'Is the evidence causal?', copy: 'Remove or perturb the evidence. The intents, the shared environment and the bound are held constant; the evidence basis, the decision and the outcome are not.', focus: ['evidence', 'decision', 'outcome', 'control'] },
+  { no: '06', name: 'Handoff', title: 'You have the causal claim. Inspect the proof.', copy: 'Verify the decision, compare coordination strategies, or take the complete cockpit.', focus: [] },
+];
+const STRATS = [
+  { name: 'Uncoordinated', source: 'HAC-330 baseline arm · arms.json/baseline', rows: [
+    { k: 'Safety result', v: 'invalid joint state' },
+    { k: 'Concurrency cost', v: 'none withheld · A and B both APPLIED' },
+    { k: 'Scope of coordination', v: 'none · composition permitted without coordination' },
+    { k: 'Evidence sensitivity', v: 'none · no evidence consulted' },
+    { k: 'Recorded outcome', v: '140 > 130' },
+    { k: 'Limitation', v: 'recorded in HAC-330, not HAC-343' },
+  ] },
+  { name: 'Global lock', source: 'no frozen artifact at this read', rows: [
+    { k: 'Safety result', v: '[BIND: hac-343/strategies/global-lock/safety]' },
+    { k: 'Concurrency cost', v: '[BIND: hac-343/strategies/global-lock/concurrency]' },
+    { k: 'Scope of coordination', v: '[BIND: hac-343/strategies/global-lock/scope]' },
+    { k: 'Evidence sensitivity', v: '[BIND: hac-343/strategies/global-lock/evidence-sensitivity]' },
+    { k: 'Recorded outcome', v: '[BIND: hac-343/strategies/global-lock/outcome]' },
+    { k: 'Limitation', v: 'not established by this frozen run' },
+  ] },
+  { name: 'Credible per-target lock', source: 'no frozen artifact at this read', rows: [
+    { k: 'Safety result', v: '[BIND: hac-343/strategies/per-target-lock/safety]' },
+    { k: 'Concurrency cost', v: '[BIND: hac-343/strategies/per-target-lock/concurrency]' },
+    { k: 'Scope of coordination', v: '[BIND: hac-343/strategies/per-target-lock/scope]' },
+    { k: 'Evidence sensitivity', v: '[BIND: hac-343/strategies/per-target-lock/evidence-sensitivity]' },
+    { k: 'Recorded outcome', v: '[BIND: hac-343/strategies/per-target-lock/outcome]' },
+    { k: 'Limitation', v: 'not established by this frozen run' },
+  ] },
+  { name: 'Interlock', source: 'HAC-330 treatment arm · arms.json/treatment', rows: [
+    { k: 'Safety result', v: 'bounded constraint satisfied' },
+    { k: 'Concurrency cost', v: 'B REJECTED on revalidation · A ADMITTED' },
+    { k: 'Scope of coordination', v: 'the one observed coupling between A and B' },
+    { k: 'Evidence sensitivity', v: 'decision flips to ALLOW_PARALLEL at basis db8a63ec…' },
+    { k: 'Recorded outcome', v: '120 <= 130' },
+    { k: 'Limitation', v: 'one pair at one revision · not a production guarantee' },
+  ] },
+];
+const BTN = 'border:2px solid #0b0d0e;border-radius:3px;padding:6px 12px;font-size:11.5px;font-weight:600;min-height:44px;';
+
+class Component extends DCLogic {
+  state = { mode: 'choice', step: 0, arm: 'treatment', drawer: false, compare: false, revealed: 1, phase: 3, reduced: false, hi: false, bReady: true, announce: '' };
+  timers = [];
+
+  componentDidMount() {
+    const m = this.props.entryMode;
+    if (m === 'guided') this.setState({ mode: 'guided', step: 1 });
+    else if (m === 'free') this.setState({ mode: 'free' });
+    if (this.props.reducedMotion) this.setState({ reduced: true });
+    this.onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (this.state.compare) this.closePanel('compare');
+      else if (this.state.drawer) this.closePanel('drawer');
+    };
+    window.addEventListener('keydown', this.onKey);
+    this.mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    if (this.mq) {
+      this.onMq = () => this.setState({ osReduced: this.mq.matches });
+      this.setState({ osReduced: this.mq.matches });
+      if (this.mq.addEventListener) this.mq.addEventListener('change', this.onMq);
+    }
+  }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKey);
+    if (this.mq && this.mq.removeEventListener) this.mq.removeEventListener('change', this.onMq);
+    this.clear();
+  }
+
+  openPanel(which) {
+    this.opener = document.activeElement;
+    const a = ARMS[this.state.arm];
+    this.setState({
+      drawer: which === 'drawer', compare: which === 'compare',
+      announce: which === 'drawer'
+        ? `Verification panel open for ${a.label}. The cockpit stays interactive beside it.`
+        : 'Strategy comparison open. Four coordination strategies, one at a time.',
+    });
+    setTimeout(() => {
+      const el = document.getElementById(which === 'drawer' ? 'jw-verify-close' : 'jw-compare-close');
+      if (el) el.focus();
+    }, 30);
+  }
+  closePanel(which) {
+    this.setState({ drawer: false, compare: false, announce: which === 'drawer' ? 'Verification panel closed.' : 'Strategy comparison closed.' });
+    const o = this.opener;
+    this.opener = null;
+    setTimeout(() => { if (o && document.contains(o)) o.focus(); }, 20);
+  }
+
+  clear() { this.timers.forEach(clearTimeout); this.timers = []; }
+  reduced() { return this.state.reduced || !!this.state.osReduced; }
+
+  goto(n) {
+    this.clear();
+    const step = Math.max(1, Math.min(6, n));
+    const bReady = step !== 1 || this.reduced();
+    this.setState({ mode: 'guided', step, bReady, announce: `Step ${STEPS[step - 1].no} of 06. ${STEPS[step - 1].title}` });
+    if (step === 1 && !this.reduced()) this.timers.push(setTimeout(() => this.setState({ bReady: true }), 90));
+  }
+  step(d) { this.goto(this.state.step + d); }
+
+  setArm(id) {
+    this.clear();
+    const changed = id !== this.state.arm;
+    const a = ARMS[id];
+    this.setState({ arm: id, phase: this.reduced() || !changed ? 3 : 0, announce: `${a.label}. Decision ${a.decision}. Outcome ${a.expr}, ${a.verdict}.` });
+    if (changed && !this.reduced()) {
+      this.timers.push(setTimeout(() => this.setState({ phase: 1 }), 20));
+      this.timers.push(setTimeout(() => this.setState({ phase: 2 }), 200));
+      this.timers.push(setTimeout(() => this.setState({ phase: 3 }), 380));
+    }
+  }
+
+  revealNext(d) { this.setState((s) => ({ strat: Math.max(0, Math.min(3, (s.strat ?? 0) + (d || 1))) })); }
+
+  renderVals() {
+    const p = this.props;
+    const recede = p.recede ?? 0.62;
+    const s = this.state;
+    const a = ARMS[s.arm];
+    const guided = s.mode === 'guided';
+    const st = guided ? STEPS[s.step - 1] : null;
+    const focus = st ? st.focus : [];
+    const em = (id) => (!guided || focus.length === 0 ? 1 : focus.includes(id) ? 1 : recede);
+    const stageIdx = { evidence: 1, decision: 2, outcome: 3 };
+    const stage = (id) => (stageIdx[id] && s.phase < stageIdx[id] ? 0.4 : 1);
+    const o = (id) => Math.min(em(id), stage(id));
+    const hiEdge = s.hi;
+
+    const rows = [
+      { key: 'reference', armId: 'baseline', label: 'Baseline arm · Interlock disabled', cause: 'no coordination', value: '✕ 140 > 130', holds: false, verdict: 'invalid joint state' },
+      { key: 'selected', armId: a.armId, label: a.label, cause: a.armId === 'baseline' ? 'no coordination' : a.decision, value: `${a.holds ? '✓' : '✕'} ${a.expr}`, holds: a.holds, verdict: a.verdict },
+    ].filter((r, i) => !(i === 1 && a.armId === 'baseline'));
+
+    const rowVals = rows.map((r) => {
+      const sel = r.key === 'selected';
+      const edge = r.holds ? '#0b0d0e' : 'oklch(0.46 0.170 22)';
+      const ring = sel && hiEdge ? 'box-shadow:0 0 0 2px oklch(0.52 0.130 250);' : sel ? 'box-shadow:0 1px 2px rgba(11,13,14,0.10);' : '';
+      return {
+        cause: r.cause, label: r.label, value: r.value, verdict: r.verdict,
+        style: `border:${sel ? '2px' : '1px'} solid #c2c7c7;border-left:${sel ? '4px' : '3px'} solid ${edge};border-radius:3px;padding:${sel ? '8px 12px' : '7px 10px'};background:${sel ? '#fff' : '#f7f8f8'};opacity:${sel ? 1 : 0.85};transition:box-shadow 180ms,border-color 220ms;${ring}`,
+        valueStyle: `font-family:'Geist Mono',ui-monospace,monospace;font-size:${sel ? '34px' : '22px'};font-weight:500;line-height:1.06;margin-top:2px;color:${r.holds ? '#0b0d0e' : 'oklch(0.46 0.170 22)'}`,
+      };
+    });
+
+    return {
+      armLabel: a.label, armId: a.armId, decision: a.decision, decisionReason: a.reason,
+      decisionDetail: a.detail, basis: a.basis ?? '[BIND: arms.json/baseline/decision]',
+      basisShort: a.basis ? `${a.basis.slice(0, 8)}…` : '—',
+      referenceShort: 'eb67a6f5…', outcomeExpr: a.expr,
+      coupled: a.coupled, evidenceChanged: a.armId === 'perturbed',
+      finding: a.coupled ? 'COUPLED' : a.consulted ? 'NO QUALIFYING COUPLING' : 'EVIDENCE NOT CONSULTED',
+      files: a.coupled ? 'services/alpha/reservation.json · services/beta/reservation.json' : 'none at support >= 3',
+      evidenceLine1: a.consulted ? 'WorkspaceJSON-derived co-change evidence · revision-bound' : 'Interlock disabled in this arm · no evidence consulted',
+      evidenceLine2: a.consulted ? `basis ${a.basis.slice(0, 8)}… · ${a.coupled ? 'coupling support 8/10' : 'no qualifying coupling · 3 pairs considered'}` : 'no basis revision recorded',
+
+      isChoice: s.mode === 'choice', isGuided: guided, isFree: s.mode === 'free',
+      stepNo: st ? `${st.no} of 06` : '', stepTitle: st ? st.title : '', stepCopy: st ? st.copy : '',
+      stepCount: st ? `step ${st.no} / 06` : '',
+      isAblationStep: guided && s.step === 5, isHandoff: guided && s.step === 6,
+      ablationLabel: s.arm === 'perturbed' ? 'Restore the original evidence' : 'Remove or perturb the evidence',
+      ablationHint: s.arm === 'perturbed'
+        ? 'The perturbed arm is the recorded control, not a recomputation. Held constant: both intents, the shared environment, the joint bound 130.'
+        : 'Swaps in the recorded perturbed arm. The intents, the shared environment and the bound stay as they are.',
+      showHeld: (guided && s.step === 5) && s.arm === 'perturbed',
+      showChanged: s.arm === 'perturbed' && (guided ? s.step === 5 : true),
+
+      oIntents: o('intents'), oIntentB: s.bReady ? o('intents') : 0.12,
+      oOutcome: o('outcome'), oControl: em('control'),
+      eIntent: guided && s.step === 2 ? 0.95 : 0.5,
+      eCouple: guided && (s.step === 2 || s.step === 3) ? 0.95 : 0.7,
+      eDecide: (guided && (s.step === 3 || s.step === 4)) || hiEdge ? 0.95 : 0.7,
+      evidenceStyle: `position:relative;max-width:58rem;margin-top:-1px;border:1px solid #c2c7c7;border-left:3px solid ${hiEdge || (guided && focus.includes('evidence')) ? 'oklch(0.52 0.130 250)' : '#0b0d0e'};border-radius:3px;background:#f7f8f8;transition:opacity 220ms cubic-bezier(0.2,0.7,0.3,1),border-color 180ms;outline:none;opacity:${o('evidence')}`,
+      decisionStyle: `display:flex;flex-direction:column;border:1px solid #c2c7c7;border-left:3px solid ${hiEdge ? 'oklch(0.52 0.130 250)' : '#0b0d0e'};border-radius:3px;padding:9px 12px;background:#fff;transition:opacity 220ms cubic-bezier(0.2,0.7,0.3,1),border-color 180ms;opacity:${o('decision')}`,
+
+      rows: rowVals,
+      armNote: guided && s.step === 5
+        ? (s.arm === 'perturbed'
+          ? 'This is the recorded perturbed arm, not a recomputation. Held constant: both intents, the shared environment, the joint bound 130. Changed: the evidence basis, the decision, the outcome. Select Treatment to return.'
+          : 'Select Perturbed evidence below to swap in the recorded perturbed arm. The intents, the shared environment and the bound stay as they are.')
+        : 'Each arm is a recorded result. Selecting an arm changes which recorded arm is displayed. Nothing is executed in the browser.',
+      arms: ORDER.map((id) => ({
+        label: ARMS[id].label, pressed: id === s.arm, pick: () => this.setArm(id),
+        style: `flex:1;border:2px solid #0b0d0e;border-radius:3px;padding:5px 8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:600;letter-spacing:0.03em;min-height:36px;${id === s.arm ? 'background:#0b0d0e;color:#fbfbfa;' : ''}${guided && s.step === 5 && id === 'perturbed' && s.arm !== 'perturbed' ? 'box-shadow:0 0 0 2px oklch(0.52 0.130 250);' : ''}`,
+      })),
+      rail: STEPS.map((x, i) => ({
+        no: x.no, name: x.name, current: guided && s.step === i + 1 ? 'step' : 'false',
+        go: () => this.goto(i + 1),
+        style: `border:1.5px solid #0b0d0e;border-radius:2px;padding:4px 8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;min-height:28px;min-width:32px;${guided && s.step === i + 1 ? 'background:#0b0d0e;color:#fbfbfa;' : guided && s.step > i + 1 ? 'background:#dde0e0;' : 'opacity:0.6;'}`,
+      })),
+
+      noBack: s.step <= 1, noNext: s.step >= 6,
+      backStyle: BTN + (s.step <= 1 ? 'opacity:0.4;cursor:not-allowed;' : ''),
+      nextStyle: BTN + (s.step >= 6 ? 'opacity:0.4;cursor:not-allowed;' : 'background:#0b0d0e;color:#fbfbfa;'),
+      osLocked: !!s.osReduced, motionToggleable: !s.osReduced,
+      motionLabel: s.osReduced ? 'Reduced motion · system preference' : s.reduced ? 'Enable motion' : 'Reduce motion',
+      motionPressed: this.reduced() ? 'true' : 'false',
+      motionTitle: s.reduced
+        ? 'Restores the staged transitions. The step sequence and copy are identical either way.'
+        : 'Replaces staged transitions with immediate state swaps.',
+      motionStaticTitle: 'Your system requests reduced motion. The walk honours it: staged transitions are replaced by immediate state swaps, and the manual control is withdrawn rather than offering an override it cannot deliver.',
+      motionBtnStyle: `border:1.5px solid #0b0d0e;border-radius:3px;padding:6px 10px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;min-height:36px;${s.reduced ? 'background:#dde0e0;' : ''}`,
+      verifyStyle: BTN + (s.drawer ? 'background:#0b0d0e;color:#fbfbfa;' : ''),
+      compareStyle: BTN + (s.compare ? 'background:#0b0d0e;color:#fbfbfa;' : ''),
+      verifyExpanded: s.drawer ? 'true' : 'false', compareExpanded: s.compare ? 'true' : 'false',
+      railKeys: (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault(); this.step(e.key === 'ArrowRight' ? 1 : -1);
+      },
+      stratKeys: (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault(); this.revealNext(e.key === 'ArrowRight' ? 1 : -1);
+      },
+      verifyOpen: s.drawer, compareOpen: s.compare,
+      never: false,
+      strats: STRATS.map((x, i) => ({
+        name: x.name, pressed: i === (s.strat ?? 0),
+        pick: () => this.setState({ strat: i, announce: `${x.name}. ${x.rows[0].v}.` }),
+        style: `text-align:left;border:2px solid #0b0d0e;border-radius:3px;padding:8px 11px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:600;letter-spacing:0.04em;min-height:40px;${i === (s.strat ?? 0) ? 'background:#0b0d0e;color:#fbfbfa;' : ''}`,
+      })),
+      stratSource: STRATS[s.strat ?? 0].source,
+      dims: STRATS[s.strat ?? 0].rows,
+      compareCount: `${(s.strat ?? 0) + 1} of 4`,
+      c1: s.revealed >= 1 ? 1 : 0.45, c2: s.revealed >= 2 ? 1 : 0.45,
+      c3: s.revealed >= 3 ? 1 : 0.45, c4: s.revealed >= 4 ? 1 : 0.45,
+      announce: s.announce,
+
+      startWalk: () => this.goto(1),
+      startFree: () => this.setState({ mode: 'free', announce: 'Free inspection. The complete cockpit is active.' }),
+      exitWalk: () => { this.clear(); this.setState({ mode: 'free', announce: 'Guidance closed. The complete cockpit is active.' }); },
+      next: () => this.step(1), back: () => this.step(-1),
+      goStep: (n) => this.goto(n),
+      toggleAblation: () => this.setArm(s.arm === 'perturbed' ? 'treatment' : 'perturbed'),
+      toggleVerify: () => (s.drawer ? this.closePanel('drawer') : this.openPanel('drawer')),
+      toggleCompare: () => (s.compare ? this.closePanel('compare') : this.openPanel('compare')),
+      revealNext: () => this.revealNext(),
+      toggleMotion: () => this.setState({ reduced: !s.reduced, phase: 3, bReady: true }),
+      hiOn: () => this.setState({ hi: true }), hiOff: () => this.setState({ hi: false }),
+      cloudNotice: () => this.setState({ announce: 'Google Cloud participation is a separate proof class and is deferred in this prototype.' }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
