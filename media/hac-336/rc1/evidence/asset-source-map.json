@@ -1,0 +1,246 @@
+{
+  "manifestId": "HAC-336-rc1-asset-source-map",
+  "revision": "rc1",
+  "issue": "HAC-336",
+  "note": "Derived. Every visual in RC1, with the content digest recomputed from the file on disk. A declared revision cannot prove a file is the one that was filmed; a digest can.",
+  "filmedRun": {
+    "correlationId": "ilk-hac340-cloud-1787536029323",
+    "receiptId": "rcpt-e742d4f3-85d4-46b8-a1e0-320fa429358d",
+    "commitSha": "ae6d0d3c405b6169d5f0495c22aaf05d8fc1de4a",
+    "model": "gemini-3.5-flash",
+    "adkPath": "Google ADK 1.35.1 / Vertex AI",
+    "projectId": "interlock-film-260823",
+    "region": "us-central1",
+    "decision": "ALLOW",
+    "mutationStatus": "EXECUTED",
+    "invariant": "total 105 <= 130",
+    "note": "Recorded here for provenance. None of these identifiers is narrated aloud; they appear only inside the filmed frames themselves."
+  },
+  "narration": {
+    "provider": "elevenlabs",
+    "model": "eleven_multilingual_v2",
+    "lines": 30,
+    "totalSpokenSeconds": 149.926,
+    "meanWordsPerMinute": 136
+  },
+  "assets": [
+    {
+      "assetId": "IL-MOT-021",
+      "path": "media/hac-336/rc1/inserts/IL-MOT-021-forensic-replay-1920x1080.mp4",
+      "sha256": "46ac324caa5e3a626569888e36751ffe209ae408e2770c93a7bb976bd6f0a68d",
+      "bytes": 1203077,
+      "kind": "video",
+      "originIssue": "HAC-350",
+      "state": null,
+      "proofClass": "EVAL",
+      "usedByBeats": [
+        "R01"
+      ],
+      "editorialTrim": {
+        "from": 30,
+        "to": 29,
+        "why": "HAC-350's final second is its own INTERLOCK end card. Inside that package it closes a standalone 30-second piece; dropped into this film it lands a brand card at 0:29 — a premature ending beat, and a duplicate of RC1's own closing card at R17. The trim removes only that card. Scene S8 (evidence ablation) settles at 29.0, so no evidence, figure or scene is shortened."
+      },
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-DIAG-010",
+      "path": "media/hac-334/exports/IL-DIAG-010-conceptual-causal-architecture-1920x1080.png",
+      "sha256": "4066ae08bb195e36ed12e702fd303ef5543bcde915ef23150b3f6ffe38e0194f",
+      "bytes": 83829,
+      "kind": "asset",
+      "originIssue": "HAC-334",
+      "state": null,
+      "proofClass": "A",
+      "usedByBeats": [
+        "R02"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-PROOF-021",
+      "path": "media/hac-336/frames/B07-IL-PROOF-021-comparison.png",
+      "sha256": "6543146ac6f33bce3ecb98423d0d4e576c068c907d58246121b10e39e88f76dc",
+      "bytes": 128025,
+      "kind": "frame",
+      "originIssue": "HAC-343 via HAC-336",
+      "state": "comparison",
+      "proofClass": "EVAL",
+      "usedByBeats": [
+        "R03"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-PROOF-021",
+      "path": "media/hac-336/frames/B08-IL-PROOF-021-ablation.png",
+      "sha256": "c7af286394411cfb7326b0479deeab9618a7582e83915c1cb2ce40dd67a08db1",
+      "bytes": 145162,
+      "kind": "frame",
+      "originIssue": "HAC-343 via HAC-336",
+      "state": "ablation",
+      "proofClass": "EVAL",
+      "usedByBeats": [
+        "R04"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-SCAF-020",
+      "path": "media/hac-336/frames/B09-IL-SCAF-020-reset.png",
+      "sha256": "a14bd9217fa0351b904c3313c497ce672e6a0050d49589a2dd46df663ffa08c7",
+      "bytes": 96047,
+      "kind": "frame",
+      "originIssue": "HAC-336",
+      "state": "reset",
+      "proofClass": "transition",
+      "usedByBeats": [
+        "R05"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-MOT-023",
+      "path": "media/hac-336/rc1/inserts/IL-MOT-023-live-cloud-traversal-1920x1080.mp4",
+      "sha256": "53fab3b35d21d9db00db72adca104d90f0a70f68f79000f5b4ac0c3d9d56cd2a",
+      "bytes": 733751,
+      "kind": "live-capture",
+      "originIssue": "HAC-324 re-capture",
+      "state": null,
+      "proofClass": "B",
+      "usedByBeats": [
+        "R08L"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": [
+        "the deployed agent reading back its own configuration: gemini-3.5-flash, Vertex AI, and the pinned ADK image at the runtime source commit",
+        "the three Cloud Run services that carry the run, in us-central1",
+        "one agent invocation, executed without a cut",
+        "the Interlock composition decision and its authorization receipt",
+        "the protected mutation reaching EXECUTED",
+        "an independently authenticated read-back reaching OBSERVED",
+        "Cloud Logging correlated to that same run id"
+      ]
+    },
+    {
+      "assetId": "IL-DIAG-020",
+      "path": "media/hac-336/rc1/frames/R12-IL-DIAG-020-path.png",
+      "sha256": "c70cbd5f309393e56323f0e20d6486c0fe2924684ddc9eb3a473d26ea6887b73",
+      "bytes": 129668,
+      "kind": "frame",
+      "originIssue": "HAC-336 board, re-rendered for the RC1 live run",
+      "state": "path",
+      "proofClass": "B",
+      "usedByBeats": [
+        "R12"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-DIAG-020",
+      "path": "media/hac-336/rc1/frames/R13-IL-DIAG-020-boundary.png",
+      "sha256": "50caf8973dc2018bfc62ee209228ee347251b5d26c8ccce8b330256c41f487e8",
+      "bytes": 115805,
+      "kind": "frame",
+      "originIssue": "HAC-336 board, re-rendered for the RC1 live run",
+      "state": "boundary",
+      "proofClass": "B",
+      "usedByBeats": [
+        "R13"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-PROOF-022",
+      "path": "media/hac-336/frames/B18-IL-PROOF-022-bounds.png",
+      "sha256": "5c5a0fc0268eddb8d64017c043408d2f86aa94040d6b346c125eadb0db889e29",
+      "bytes": 169679,
+      "kind": "frame",
+      "originIssue": "HAC-343 via HAC-336",
+      "state": "bounds",
+      "proofClass": "bounds",
+      "usedByBeats": [
+        "R14"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-PROOF-014",
+      "path": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png",
+      "sha256": "11f1d61ee8445d1f0800d7895bf7a54335613c3d462a4eab8e517843f1d0b1a9",
+      "bytes": 171199,
+      "kind": "asset",
+      "originIssue": "HAC-334",
+      "state": null,
+      "proofClass": "bounds",
+      "usedByBeats": [
+        "R15"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-SCAF-021",
+      "path": "media/hac-336/frames/B20-IL-SCAF-021-thesis.png",
+      "sha256": "9983457402a8f77dfc26fc4699c1ab9ee9b9a1c850c3bc34d7cf1161e5caf2bb",
+      "bytes": 85830,
+      "kind": "frame",
+      "originIssue": "HAC-336",
+      "state": "thesis",
+      "proofClass": "close",
+      "usedByBeats": [
+        "R16"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-SCAF-011",
+      "path": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+      "sha256": "0fd186af922178a972e049f9d70351ceae62e63494270b182dbc8a9ec5ae1946",
+      "bytes": 87427,
+      "kind": "asset",
+      "originIssue": "HAC-335",
+      "state": null,
+      "proofClass": "close",
+      "usedByBeats": [
+        "R17"
+      ],
+      "editorialTrim": null,
+      "pendingCapture": false,
+      "mustShowContinuously": null
+    },
+    {
+      "assetId": "IL-CHROME-RC1",
+      "path": "media/hac-336/rc1/inserts/label-controlled-evaluation-1920x1080.png",
+      "sha256": "49e6fdab00a07d743a760046eaa7763ce72a8d827878d9b8c8397cadb937b7ad",
+      "bytes": 20681,
+      "kind": "overlay",
+      "originIssue": "HAC-336 rc1",
+      "state": "proof-class label",
+      "proofClass": "EVAL",
+      "usedByBeats": [
+        "R01"
+      ],
+      "note": "Editorial chrome, not evidence. Section 8 proof-class identification over the replay."
+    }
+  ]
+}

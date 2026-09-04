@@ -1,0 +1,649 @@
+{
+  "manifestId": "HAC-336-rc1-scene-manifest",
+  "revision": "rc1",
+  "issue": "HAC-336",
+  "note": "Derived by media/hac-336/rc1/bin/build-manifests.mjs. Do not hand-edit.",
+  "runtime": {
+    "totalSeconds": 215.238,
+    "clock": "3:35",
+    "target": {
+      "minSeconds": 205,
+      "maxSeconds": 220,
+      "editorialCeiling": 225,
+      "submissionCeiling": 240
+    },
+    "withinTarget": true,
+    "spokenSeconds": 149.926,
+    "silenceSeconds": 65.312,
+    "speechDensityPercent": 69.7
+  },
+  "proofClassReset": {
+    "atBeat": "R05",
+    "atSeconds": 88.614,
+    "beforeReset": [
+      "EVAL",
+      "A"
+    ],
+    "afterReset": [
+      "B",
+      "bounds",
+      "close"
+    ]
+  },
+  "scenes": [
+    {
+      "beatId": "R01",
+      "timecode": "0:00–0:29",
+      "startSeconds": 0,
+      "endSeconds": 29,
+      "holdSeconds": 29,
+      "act": "PROBLEM",
+      "proofClass": "EVAL",
+      "proofClassMeaning": "Controlled local evaluation (HAC-343). Bounded sixteen-scenario corpus, exhaustively enumerated.",
+      "source": {
+        "kind": "video",
+        "path": "media/hac-336/rc1/inserts/IL-MOT-021-forensic-replay-1920x1080.mp4",
+        "assetId": "IL-MOT-021",
+        "originIssue": "HAC-350",
+        "fixedDurationSeconds": 29,
+        "editorialTrim": {
+          "from": 30,
+          "to": 29,
+          "why": "HAC-350's final second is its own INTERLOCK end card. Inside that package it closes a standalone 30-second piece; dropped into this film it lands a brand card at 0:29 — a premature ending beat, and a duplicate of RC1's own closing card at R17. The trim removes only that card. Scene S8 (evidence ablation) settles at 29.0, so no evidence, figure or scene is shortened."
+        }
+      },
+      "label": "CONTROLLED EVALUATION — RECORDED EVIDENCE",
+      "mutedRead": "Eight-scene deterministic replay: the anomaly, the forensic rewind, the credible per-target lock, the miss, the environmental coupling, the repository evidence, the changed coordination decision, and the ablation.",
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N01",
+          "startSeconds": 1,
+          "endSeconds": 5.483,
+          "durationSeconds": 4.483,
+          "spoken": "Two autonomous agents can each be right, and still be wrong together.",
+          "caption": "Two autonomous agents can each be right, and still be wrong together.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N02",
+          "startSeconds": 7.083,
+          "endSeconds": 10.059,
+          "durationSeconds": 2.976,
+          "spoken": "Together they break a constraint that spans both targets.",
+          "caption": "Together they break a constraint that spans both targets.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N03",
+          "startSeconds": 12.4,
+          "endSeconds": 16.273,
+          "durationSeconds": 3.873,
+          "spoken": "The lock sees one key, and it is right about that key.",
+          "caption": "The lock sees one key, and it is right about that key.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N04",
+          "startSeconds": 20.2,
+          "endSeconds": 25.135,
+          "durationSeconds": 4.935,
+          "spoken": "The hazard crossed two keys. No single key represents the pair.",
+          "caption": "The hazard crossed two keys. No single key represents the pair.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R02",
+      "timecode": "0:28–0:46",
+      "startSeconds": 28.6,
+      "endSeconds": 46.321,
+      "holdSeconds": 17.721,
+      "act": "MECHANISM",
+      "proofClass": "A",
+      "proofClassMeaning": "Controlled local experiment (HAC-330). Deterministic, local. No cloud runtime, no receipt, no protected target, no observer.",
+      "source": {
+        "kind": "asset",
+        "path": "media/hac-334/exports/IL-DIAG-010-conceptual-causal-architecture-1920x1080.png",
+        "assetId": "IL-DIAG-010",
+        "originIssue": "HAC-334"
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N05",
+          "startSeconds": 29.15,
+          "endSeconds": 37.523,
+          "durationSeconds": 8.373,
+          "spoken": "Interlock isn't another agent. It's the deterministic boundary those actions pass through before shared state changes.",
+          "caption": "Interlock isn't another agent. It's the deterministic boundary those actions pass through before shared state changes.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N06",
+          "startSeconds": 38.723,
+          "endSeconds": 44.621,
+          "durationSeconds": 5.898,
+          "spoken": "Revision-bound evidence about the environment enters that boundary before anything mutates.",
+          "caption": "Revision-bound evidence about the environment enters that boundary before anything mutates.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R03",
+      "timecode": "0:45–1:07",
+      "startSeconds": 45.921,
+      "endSeconds": 67.49,
+      "holdSeconds": 21.569,
+      "act": "COMPARISON",
+      "proofClass": "EVAL",
+      "proofClassMeaning": "Controlled local evaluation (HAC-343). Bounded sixteen-scenario corpus, exhaustively enumerated.",
+      "source": {
+        "kind": "frame",
+        "path": "media/hac-336/frames/B07-IL-PROOF-021-comparison.png",
+        "assetId": "IL-PROOF-021",
+        "state": "comparison",
+        "originIssue": "HAC-343 via HAC-336"
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N07",
+          "startSeconds": 46.471,
+          "endSeconds": 49.271,
+          "durationSeconds": 2.8,
+          "spoken": "Four coordination strategies, one frozen corpus.",
+          "caption": "Four coordination strategies, one frozen corpus.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N08",
+          "startSeconds": 51.871,
+          "endSeconds": 58.842,
+          "durationSeconds": 6.971,
+          "spoken": "Global serialization avoided the unsafe outcomes, by making the independent work wait too.",
+          "caption": "Global serialization avoided the invalid outcomes — by making the independent work wait too.",
+          "spokenDiffersFromCaption": true
+        },
+        {
+          "lineId": "N09",
+          "startSeconds": 60.142,
+          "endSeconds": 64.09,
+          "durationSeconds": 3.948,
+          "spoken": "The per-target lock kept that work parallel, and missed both hazards.",
+          "caption": "The per-target lock kept that work parallel, and missed both hazards.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R04",
+      "timecode": "1:07–1:29",
+      "startSeconds": 67.09,
+      "endSeconds": 89.014,
+      "holdSeconds": 21.924,
+      "act": "ABLATION",
+      "proofClass": "EVAL",
+      "proofClassMeaning": "Controlled local evaluation (HAC-343). Bounded sixteen-scenario corpus, exhaustively enumerated.",
+      "source": {
+        "kind": "frame",
+        "path": "media/hac-336/frames/B08-IL-PROOF-021-ablation.png",
+        "assetId": "IL-PROOF-021",
+        "state": "ablation",
+        "originIssue": "HAC-343 via HAC-336"
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": "HAC-343 media narration guardrail: the withheld result and its ablation control render on one board, so the 0/2 figure is never on screen without the control that produced it.",
+      "narration": [
+        {
+          "lineId": "N10",
+          "startSeconds": 67.64,
+          "endSeconds": 69.965,
+          "durationSeconds": 2.325,
+          "spoken": "Now hold everything constant except the evidence.",
+          "caption": "Now hold everything constant except the evidence.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N11",
+          "startSeconds": 72.365,
+          "endSeconds": 77.152,
+          "durationSeconds": 4.787,
+          "spoken": "With the coupling evidence present, the hazardous compositions were withheld.",
+          "caption": "With the coupling evidence present, the hazardous compositions were withheld.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N12",
+          "startSeconds": 78.452,
+          "endSeconds": 85.614,
+          "durationSeconds": 7.162,
+          "spoken": "Remove it, and the decision flips to allow parallel. The unsafe outcomes return.",
+          "caption": "Remove it, and the decision flips to ALLOW_PARALLEL. The invalid outcomes return.",
+          "spokenDiffersFromCaption": true
+        }
+      ]
+    },
+    {
+      "beatId": "R05",
+      "timecode": "1:28–1:36",
+      "startSeconds": 88.614,
+      "endSeconds": 96.447,
+      "holdSeconds": 7.833,
+      "act": "RESET",
+      "proofClass": "transition",
+      "proofClassMeaning": "Proof-class reset. Asserts only that nothing crosses.",
+      "source": {
+        "kind": "frame",
+        "path": "media/hac-336/frames/B09-IL-SCAF-020-reset.png",
+        "assetId": "IL-SCAF-020",
+        "state": "reset",
+        "originIssue": "HAC-336"
+      },
+      "label": null,
+      "mutedRead": "The field inverts from paper to ink. The board states that the controlled evaluation and the Google Cloud run are two runs, and that neither is evidence for the other.",
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N13",
+          "startSeconds": 89.214,
+          "endSeconds": 90.987,
+          "durationSeconds": 1.773,
+          "spoken": "That's the controlled evaluation.",
+          "caption": "That's the controlled evaluation.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N14",
+          "startSeconds": 91.887,
+          "endSeconds": 95.047,
+          "durationSeconds": 3.16,
+          "spoken": "Separately, here's the system running on Google Cloud.",
+          "caption": "Separately, here's the system running on Google Cloud.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R08L",
+      "timecode": "1:36–2:22",
+      "startSeconds": 96.047,
+      "endSeconds": 142.347,
+      "holdSeconds": 46.3,
+      "act": "PROOF_OF_ACTION",
+      "proofClass": "B",
+      "proofClassMeaning": "Google Cloud participation (HAC-324 authoritative filmed run).",
+      "source": {
+        "kind": "live-capture",
+        "path": "media/hac-336/rc1/inserts/IL-MOT-023-live-cloud-traversal-1920x1080.mp4",
+        "assetId": "IL-MOT-023",
+        "originIssue": "HAC-324 re-capture",
+        "fixedDurationSeconds": 46.3,
+        "why": "Devpost scores Proof of Action on an UNEDITED LIVE EXECUTION of the agent performing its task, and weights Demo & Production Readiness at 30% of Stage Two. The four frozen captures this beat replaces are real evidence of a real run, but they are stills: they ask a judge to trust that the screenshots came from something that happened, rather than showing it happen.",
+        "replaces": [
+          {
+            "beatId": "R08",
+            "sceneId": "agent-traversal",
+            "holdSeconds": null
+          },
+          {
+            "beatId": "R09",
+            "sceneId": "receipt-mutation-observation",
+            "holdSeconds": null
+          },
+          {
+            "beatId": "R10",
+            "sceneId": "receipt-mutation-observation",
+            "holdSeconds": null
+          },
+          {
+            "beatId": "R11",
+            "sceneId": "cloud-logging-correlation",
+            "holdSeconds": null
+          }
+        ],
+        "mustShowContinuously": [
+          "the deployed agent reading back its own configuration: gemini-3.5-flash, Vertex AI, and the pinned ADK image at the runtime source commit",
+          "the three Cloud Run services that carry the run, in us-central1",
+          "one agent invocation, executed without a cut",
+          "the Interlock composition decision and its authorization receipt",
+          "the protected mutation reaching EXECUTED",
+          "an independently authenticated read-back reaching OBSERVED",
+          "Cloud Logging correlated to that same run id"
+        ],
+        "captureRules": [
+          "One take. No cuts, splices, or B-roll inside the segment; editorial cuts only at its boundaries.",
+          "No cockpit, diagram or animation inside the segment - those explain it afterwards, they do not stand in for it.",
+          "If uniformly accelerated, the speed change is labelled visibly on the frame.",
+          "A persistent on-frame label reads LIVE UNEDITED - CLOUD RUN, and the run id appears once the run completes."
+        ],
+        "stageMarks": {
+          "01-agent-config": 0,
+          "02-cloud-run": 7,
+          "03-traversal": 11.5,
+          "04-executed-observed": 32,
+          "05-cloud-logging": 37,
+          "06-end": 45,
+          "note": "Absolute marks held by capture-take.sh; measured 0.00/7.05/11.54/32.05/37.03/45.03 on a warm dry run."
+        },
+        "absorbs": {
+          "beats": [
+            "R06",
+            "R07"
+          ],
+          "why": "R06 (agent configuration read-back) and R07 (Cloud Run topology) were stills from run ilk-hac340-cloud-1787536029323 in project interlock-film-260823, which is DELETE_REQUESTED. Both are now the opening two commands of the live take, executed against the run the film shows. One run, one identity, one project."
+        },
+        "capture": {
+          "recordedAt": "2026-08-31T15:52:10-07:00",
+          "sourceFile": "Screen Recording 2026-08-31 at 3.52.10 PM.mov",
+          "trimmedFrom": 0,
+          "trimmedTo": 45,
+          "why": "Tail only. The recording opens on the prompt and the command, so nothing is removed from the head; the interior is untouched - no cut, no splice, no speed change. Devpost allows editorial cuts before and after a continuous proof segment, not inside one.",
+          "correlationId": "ilk-hac340-cloud-1788205950027",
+          "projectId": "nimble-octagon-505403-n3",
+          "measuredMarks": {
+            "01-agent-config": 0.02,
+            "02-cloud-run": 7.03,
+            "03-traversal": 11.56,
+            "04-executed-observed": 32.04,
+            "05-cloud-logging": 37.04,
+            "06-end": 45.02
+          },
+          "marksNote": "Within 0.06s of the planned marks, so the narration authored against the plan needed no re-timing. Every line still lands after the screen event it names.",
+          "speedChange": "none. Devpost permits a uniformly accelerated genuine run with disclosure; at 45s this take does not need one, so none was applied."
+        },
+        "captureNote": "Live take recorded 2026-08-31 19:34 local, run duration 45.07s per the script's own elapsed labels. Conformed to 1920x1080/30fps by whole-frame duplication from a variable-rate screen recording: no interpolation, no crop, no blur, no colour change. Only ~9.8s of dead tail after the run completed was trimmed; the run itself is present start to finish, so LV3 remains literally true."
+      },
+      "label": "LIVE UNEDITED · CLOUD RUN",
+      "mutedRead": "A continuous screen recording of one real Cloud Run traversal: invocation, the Interlock decision and receipt, the EXECUTED mutation, the independent OBSERVED read-back, and the correlated Cloud Logging entry.",
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "LV1",
+          "startSeconds": 98.547,
+          "endSeconds": 109.004,
+          "durationSeconds": 10.457,
+          "spoken": "The deployed Cloud Run agent, reading back its own configuration: gemini 3.5 flash, through Google ADK, on Vertex AI.",
+          "caption": "The deployed Cloud Run agent, reading back its own configuration: gemini-3.5-flash, through Google ADK, on Vertex AI.",
+          "spokenDiffersFromCaption": true
+        },
+        {
+          "lineId": "LV2",
+          "startSeconds": 110.204,
+          "endSeconds": 117.009,
+          "durationSeconds": 6.805,
+          "spoken": "Three Cloud Run services carry it: the agent, the Interlock proxy, and the protected target.",
+          "caption": "Three Cloud Run services carry it: the agent, the Interlock proxy, and the protected target.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "LV3",
+          "startSeconds": 118.047,
+          "endSeconds": 120.561,
+          "durationSeconds": 2.514,
+          "spoken": "Now one run, start to finish, without a cut.",
+          "caption": "Now one run, start to finish, without a cut.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "LV4",
+          "startSeconds": 128.547,
+          "endSeconds": 130.828,
+          "durationSeconds": 2.281,
+          "spoken": "Interlock returns allow, with a receipt.",
+          "caption": "Interlock returns ALLOW, with a receipt.",
+          "spokenDiffersFromCaption": true
+        },
+        {
+          "lineId": "LV5",
+          "startSeconds": 131.547,
+          "endSeconds": 140.961,
+          "durationSeconds": 9.414,
+          "spoken": "The mutation executes, a separately authenticated observer reads it back, and Cloud Logging carries the same run id.",
+          "caption": "The mutation is EXECUTED, a separately authenticated observer OBSERVED it, and Cloud Logging carries the same run id.",
+          "spokenDiffersFromCaption": true
+        }
+      ]
+    },
+    {
+      "beatId": "R12",
+      "timecode": "2:21–2:33",
+      "startSeconds": 141.947,
+      "endSeconds": 153.836,
+      "holdSeconds": 11.889,
+      "act": "ARCHITECTURE",
+      "proofClass": "B",
+      "proofClassMeaning": "Google Cloud participation (HAC-324 authoritative filmed run).",
+      "source": {
+        "kind": "frame",
+        "path": "media/hac-336/rc1/frames/R12-IL-DIAG-020-path.png",
+        "assetId": "IL-DIAG-020",
+        "state": "path",
+        "originIssue": "HAC-336 board, re-rendered for the RC1 live run",
+        "rerenderedFrom": "experiments/hac-324/evidence/live-capture-run.json",
+        "why": "HAC-336's copy of this board names the FIRST filmed run, in a project that is now DELETE_REQUESTED. RC1 films a second run, so it renders its own copy from that run's evidence. Same builder, same font stack, same grammar - only the run it names differs."
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N23",
+          "startSeconds": 142.497,
+          "endSeconds": 144.04,
+          "durationSeconds": 1.543,
+          "spoken": "Identity answers who called.",
+          "caption": "Identity answers who called.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N24",
+          "startSeconds": 145.44,
+          "endSeconds": 151.836,
+          "durationSeconds": 6.396,
+          "spoken": "Interlock answers a different question: whether these two actions may proceed together.",
+          "caption": "Interlock answers a different question: whether these two actions may proceed together.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R13",
+      "timecode": "2:33–2:45",
+      "startSeconds": 153.436,
+      "endSeconds": 165.164,
+      "holdSeconds": 11.728,
+      "act": "ARCHITECTURE",
+      "proofClass": "B",
+      "proofClassMeaning": "Google Cloud participation (HAC-324 authoritative filmed run).",
+      "source": {
+        "kind": "frame",
+        "path": "media/hac-336/rc1/frames/R13-IL-DIAG-020-boundary.png",
+        "assetId": "IL-DIAG-020",
+        "state": "boundary",
+        "originIssue": "HAC-336 board, re-rendered for the RC1 live run",
+        "rerenderedFrom": "experiments/hac-324/evidence/live-capture-run.json",
+        "why": "HAC-336's copy of this board names the FIRST filmed run, in a project that is now DELETE_REQUESTED. RC1 films a second run, so it renders its own copy from that run's evidence. Same builder, same font stack, same grammar - only the run it names differs."
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N25",
+          "startSeconds": 153.986,
+          "endSeconds": 156.718,
+          "durationSeconds": 2.732,
+          "spoken": "Three fail-closed controls were recorded on that run.",
+          "caption": "Three fail-closed controls were recorded on that run.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N26",
+          "startSeconds": 157.618,
+          "endSeconds": 163.364,
+          "durationSeconds": 5.746,
+          "spoken": "Three controls are three controls, not comprehensive security coverage.",
+          "caption": "Three controls are three controls — not comprehensive security coverage.",
+          "spokenDiffersFromCaption": true
+        }
+      ]
+    },
+    {
+      "beatId": "R14",
+      "timecode": "2:44–2:54",
+      "startSeconds": 164.764,
+      "endSeconds": 174.313,
+      "holdSeconds": 9.549,
+      "act": "BOUNDS",
+      "proofClass": "bounds",
+      "proofClassMeaning": "Claim boundary. States what is not claimed.",
+      "source": {
+        "kind": "frame",
+        "path": "media/hac-336/frames/B18-IL-PROOF-022-bounds.png",
+        "assetId": "IL-PROOF-022",
+        "state": "bounds",
+        "originIssue": "HAC-343 via HAC-336"
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N27",
+          "startSeconds": 165.314,
+          "endSeconds": 168.184,
+          "durationSeconds": 2.87,
+          "spoken": "Sixteen frozen scenarios, enumerated exhaustively.",
+          "caption": "Sixteen frozen scenarios, enumerated exhaustively.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N28",
+          "startSeconds": 169.084,
+          "endSeconds": 172.513,
+          "durationSeconds": 3.429,
+          "spoken": "Exact counts. No interval, and no significance, is claimed.",
+          "caption": "Exact counts. No interval, and no significance, is claimed.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R15",
+      "timecode": "2:53–3:07",
+      "startSeconds": 173.913,
+      "endSeconds": 187.569,
+      "holdSeconds": 13.656,
+      "act": "BOUNDS",
+      "proofClass": "bounds",
+      "proofClassMeaning": "Claim boundary. States what is not claimed.",
+      "source": {
+        "kind": "asset",
+        "path": "media/hac-334/exports/IL-PROOF-014-claim-boundary-1920x1080.png",
+        "assetId": "IL-PROOF-014",
+        "originIssue": "HAC-334"
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N29",
+          "startSeconds": 174.463,
+          "endSeconds": 178.649,
+          "durationSeconds": 4.186,
+          "spoken": "Two runs, two proof classes. Neither is evidence for the other.",
+          "caption": "Two runs, two proof classes. Neither is evidence for the other.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N30",
+          "startSeconds": 179.549,
+          "endSeconds": 185.569,
+          "durationSeconds": 6.02,
+          "spoken": "No exactly-once execution, no restart safety, no production readiness.",
+          "caption": "No exactly-once execution, no restart safety, no production readiness.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R16",
+      "timecode": "3:07–3:28",
+      "startSeconds": 187.169,
+      "endSeconds": 208.685,
+      "holdSeconds": 21.516,
+      "act": "CLOSE",
+      "proofClass": "close",
+      "proofClassMeaning": "Close. Restates the thesis and where to verify it.",
+      "source": {
+        "kind": "frame",
+        "path": "media/hac-336/frames/B20-IL-SCAF-021-thesis.png",
+        "assetId": "IL-SCAF-021",
+        "state": "thesis",
+        "originIssue": "HAC-336"
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N31",
+          "startSeconds": 187.719,
+          "endSeconds": 194.132,
+          "durationSeconds": 6.413,
+          "spoken": "If your effects and invariants all fit inside one transactional authority, enforce them there.",
+          "caption": "If your effects and invariants all fit inside one transactional authority, enforce them there.",
+          "spokenDiffersFromCaption": false
+        },
+        {
+          "lineId": "N32",
+          "startSeconds": 195.432,
+          "endSeconds": 206.885,
+          "durationSeconds": 11.453,
+          "spoken": "Interlock explores the harder boundary: independently proposed actions, different targets, coupled through shared environmental state.",
+          "caption": "Interlock explores the harder boundary: independently proposed actions, different targets, coupled through shared environmental state.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    },
+    {
+      "beatId": "R17",
+      "timecode": "3:28–3:35",
+      "startSeconds": 208.285,
+      "endSeconds": 215.238,
+      "holdSeconds": 6.953,
+      "act": "CLOSE",
+      "proofClass": "close",
+      "proofClassMeaning": "Close. Restates the thesis and where to verify it.",
+      "source": {
+        "kind": "asset",
+        "path": "media/hac-335/exports/IL-SCAF-011-video-end-card-1920x1080.png",
+        "assetId": "IL-SCAF-011",
+        "originIssue": "HAC-335"
+      },
+      "label": null,
+      "mutedRead": null,
+      "guardrail": null,
+      "narration": [
+        {
+          "lineId": "N33",
+          "startSeconds": 208.835,
+          "endSeconds": 213.038,
+          "durationSeconds": 4.203,
+          "spoken": "Interlock. Evidence-bound coordination for AI-assisted change.",
+          "caption": "Interlock. Evidence-bound coordination for AI-assisted change.",
+          "spokenDiffersFromCaption": false
+        }
+      ]
+    }
+  ]
+}

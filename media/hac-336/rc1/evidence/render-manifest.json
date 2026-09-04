@@ -1,0 +1,37 @@
+{
+  "manifestId": "HAC-336-rc1-render-manifest",
+  "revision": "rc1",
+  "issue": "HAC-336",
+  "note": "Derived by media/hac-336/rc1/bin/build-video.mjs. Do not hand-edit. Duration, geometry and codec are read back out of the finished file rather than copied from the encode request.",
+  "generator": "media/hac-336/rc1/bin/build-video.mjs",
+  "encoder": "ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers",
+  "encoderPath": "/opt/homebrew/bin/ffmpeg",
+  "video": {
+    "path": "media/hac-336/rc1/exports/IL-MOT-022-interlock-rc1-1920x1080.mp4",
+    "sha256": "7a5277c7f571362170c31a852397e7d67956f25796fc1c9985462dcbce0f4d74",
+    "bytes": 9644879,
+    "width": 1920,
+    "height": 1080,
+    "codec": "h264",
+    "fps": 30,
+    "measuredDurationSeconds": 215.238,
+    "derivedDurationSeconds": 215.238,
+    "audioTracks": 1,
+    "audioCodec": "aac",
+    "audioSampleRate": 48000
+  },
+  "audio": {
+    "track": "ElevenLabs narration, one file per line, placed at derived timestamps",
+    "loudnessTarget": "EBU R128 I=-16 LUFS, TP=-1.5 dBTP, LRA=11",
+    "spokenSeconds": 149.926,
+    "silenceSeconds": 65.312,
+    "speechDensityPercent": 69.7
+  },
+  "overlays": [
+    {
+      "onBeat": "R01",
+      "path": "media/hac-336/rc1/inserts/label-controlled-evaluation-1920x1080.png",
+      "why": "Section 8 proof-class identification over the HAC-350 replay. Editorial chrome in the plate margin; covers no measured value."
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+WEBVTT
+
+NOTE
+Interlock — RC1 narration and caption track.
+Cues are derived from the measured narration, not authored alongside it.
+Technical tokens are printed exactly as the system emits them; the spoken
+form is the natural-language reading of the same token.
+
+1
+00:00:01.000 --> 00:00:06.583
+Two autonomous agents can each be right, and
+still be wrong together.
+
+2
+00:00:07.083 --> 00:00:11.900
+Together they break a constraint that spans
+both targets.
+
+3
+00:00:12.400 --> 00:00:18.773
+The lock sees one key, and it is right about
+that key.
+
+4
+00:00:20.200 --> 00:00:27.635
+The hazard crossed two keys. No single key
+represents the pair.
+
+5
+00:00:29.150 --> 00:00:33.587
+Interlock isn't another agent. It's the
+deterministic boundary
+
+6
+00:00:33.587 --> 00:00:38.223
+those actions pass through before shared state
+changes.
+
+7
+00:00:38.723 --> 00:00:45.921
+Revision-bound evidence about the environment
+enters that boundary before anything mutates.
+
+8
+00:00:46.471 --> 00:00:51.371
+Four coordination strategies, one frozen
+corpus.
+
+9
+00:00:51.871 --> 00:00:55.625
+Global serialization avoided the invalid
+outcomes
+
+10
+00:00:55.625 --> 00:00:59.642
+— by making the independent work wait too.
+
+11
+00:01:00.142 --> 00:01:06.590
+The per-target lock kept that work parallel,
+and missed both hazards.
+
+12
+00:01:07.640 --> 00:01:11.865
+Now hold everything constant except the
+evidence.
+
+13
+00:01:12.365 --> 00:01:17.952
+With the coupling evidence present, the
+hazardous compositions were withheld.
+
+14
+00:01:18.452 --> 00:01:28.114
+Remove it, and the decision flips to
+ALLOW_PARALLEL. The invalid outcomes return.
+
+15
+00:01:29.214 --> 00:01:31.387
+That's the controlled evaluation.
+
+16
+00:01:31.887 --> 00:01:36.047
+Separately, here's the system running on
+Google Cloud.
+
+17
+00:01:38.547 --> 00:01:44.407
+The deployed Cloud Run agent, reading back its
+own configuration:
+
+18
+00:01:44.407 --> 00:01:49.704
+gemini-3.5-flash, through Google ADK, on
+Vertex AI.
+
+19
+00:01:50.204 --> 00:01:57.547
+Three Cloud Run services carry it: the agent,
+the Interlock proxy, and the protected target.
+
+20
+00:01:58.047 --> 00:02:03.061
+Now one run, start to finish, without a cut.
+
+21
+00:02:08.547 --> 00:02:11.047
+Interlock returns ALLOW, with a receipt.
+
+22
+00:02:11.547 --> 00:02:17.552
+The mutation is EXECUTED, a separately
+authenticated observer OBSERVED it,
+
+23
+00:02:17.552 --> 00:02:21.947
+and Cloud Logging carries the same run id.
+
+24
+00:02:22.497 --> 00:02:24.940
+Identity answers who called.
+
+25
+00:02:25.440 --> 00:02:28.341
+Interlock answers a different question:
+
+26
+00:02:28.341 --> 00:02:33.436
+whether these two actions may proceed
+together.
+
+27
+00:02:33.986 --> 00:02:37.118
+Three fail-closed controls were recorded on
+that run.
+
+28
+00:02:37.618 --> 00:02:44.764
+Three controls are three controls — not
+comprehensive security coverage.
+
+29
+00:02:45.314 --> 00:02:48.584
+Sixteen frozen scenarios, enumerated
+exhaustively.
+
+30
+00:02:49.084 --> 00:02:53.913
+Exact counts. No interval, and no
+significance, is claimed.
+
+31
+00:02:54.463 --> 00:02:59.049
+Two runs, two proof classes. Neither is
+evidence for the other.
+
+32
+00:02:59.549 --> 00:03:07.169
+No exactly-once execution, no restart safety,
+no production readiness.
+
+33
+00:03:07.719 --> 00:03:10.822
+If your effects and invariants all fit inside
+
+34
+00:03:10.822 --> 00:03:14.932
+one transactional authority, enforce them
+there.
+
+35
+00:03:15.432 --> 00:03:21.546
+Interlock explores the harder boundary:
+independently proposed actions,
+
+36
+00:03:21.546 --> 00:03:28.285
+different targets, coupled through shared
+environmental state.
+
+37
+00:03:28.835 --> 00:03:35.238
+Interlock. Evidence-bound coordination for
+AI-assisted change.
